@@ -1,85 +1,52 @@
 module.exports.config = {
     name: "slot",
     version: "1.0.1",
-    permission: 0,
-    credits: "asif",
-    prefix: false,
-    description: "slot game",
-    category: "without prefix",
-    usages: "slot (amount)",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑓𝒂𝒊𝒓 𝑝𝒍𝒂𝒚",
+    commandCategory: "𝑔𝒂�𝓂𝑒-𝓈𝓅",
+    usages: "[𝓃𝓊𝓂𝒷𝑒𝓇 𝒸𝑜𝒾𝓃 𝓇𝑒𝓆𝓊𝒾𝓇𝑒𝒹]",
     cooldowns: 5,
 };
 
 module.exports.languages = {
-    "vi": {
-        "missingInput": "[ SLOT ] повідомлення исти відділено або є негативним номером.",
-        "moneyBetNotEnough": "[ SLOT ] необхідно підправити сумуneurona, що велика чи дорівнює залишок!",
-        "limitBet": "[ SLOT ] було замало зміни для nut, мінімальна є 50$!",
-        "returnWin": "🎰 %1 | %2 | %3 🎰\nви виграли з %4$",
-        "returnLose": "🎰 %1 | %2 | %3 🎰\nви програли y9 і втратили %4$"
-    },
     "en": {
-        "missingInput": "the bet money must not be blank or a negative number.",
-        "moneyBetNotEnough": "the money you betted is bigger than your balance.",
-        "limitBet": "your bet is too low, the minimum is 50 pesos.",
-        "returnWin": "%1 | %2 | %3 \nyou won %4$",
-        "returnLose": "%1 | %2 | %3\nyou loss %4$"
+        "missingInput": "[ 𝑺𝑳𝑶𝑻 ] 𝑩𝒆𝒕 𝒆𝒓 𝒕𝒂𝒌𝒂 𝒌𝒉𝒂𝒍𝒊 𝒃𝒂 𝒏𝒆𝒈𝒂𝒕𝒊𝒗𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒉𝒐𝒕𝒆 𝒑𝒂𝒓𝒃𝒆 𝒏𝒂",
+        "moneyBetNotEnough": "[ 𝑺𝑳𝑶𝑻 ] 𝑨𝒑𝒏𝒊 𝒋𝒆 𝒕𝒂𝒌𝒂 𝒃𝒆𝒕 𝒌𝒐𝒓𝒆𝒄𝒉𝒆𝒏, 𝒔𝒆𝒕𝒂 𝒂𝒑𝒏𝒂𝒓 𝒃𝒂𝒍𝒂𝒏𝒄𝒆 𝒆𝒓 𝒄𝒉𝒆𝒚𝒆 𝒃𝒆𝒔𝒉𝒊!",
+        "limitBet": "[ 𝑺𝑳𝑶𝑻 ] 𝑨𝒑𝒏𝒂𝒓 𝒃𝒆𝒕 𝒌𝒉𝒂𝒓𝒂𝒑, 𝒎𝒊𝒏𝒊𝒎𝒖𝒎 50$",
+        "returnWin": "🎰 %1 | %2 | %3 🎰\n𝑨𝒑𝒏𝒊 𝒋𝒊𝒕𝒔𝒆 %4$ 𝒏𝒊𝒚𝒆",
+        "returnLose": "🎰 %1 | %2 | %3 🎰\n𝑨𝒑𝒏𝒊 𝒉𝒂𝒓𝒔𝒆 𝒆𝒃𝒐𝒏𝒈 𝒌𝒉𝒐𝒄𝒉𝒆 %4$"
     }
-};
-
-module.exports.onStart = function() {
-    // This empty function is required to prevent the undefined error
-};
+}
 
 module.exports.run = async function({ api, event, args, Currencies, getText }) {
     const { threadID, messageID, senderID } = event;
     const { getData, increaseMoney, decreaseMoney } = Currencies;
-    const slotItems = ["🖕", "❤️", "👉", "👌", "🥀", "🍓", "🍒", "🍌", "🥝", "🥑", "🌽"];
+    const slotItems = ["🍇", "🍉", "🍊", "🍏", "7⃣", "🍓", "🍒", "🍌", "🥝", "🥑", "🌽"];
     const moneyUser = (await getData(senderID)).money;
+
     var moneyBet = parseInt(args[0]);
-
-    if (isNaN(moneyBet) || moneyBet <= 0) {
-        return api.sendMessage(getText("missingInput"), threadID, messageID);
-    }
-
-    if (moneyBet > moneyUser) {
-        return api.sendMessage(getText("moneyBetNotEnough"), threadID, messageID);
-    }
-
-    if (moneyBet < 50) {
-        return api.sendMessage(getText("limitBet"), threadID, messageID);
-    }
-
+    if (isNaN(moneyBet) || moneyBet <= 0) return api.sendMessage(getText("missingInput"), threadID, messageID);
+    if (moneyBet > moneyUser) return api.sendMessage(getText("moneyBetNotEnough"), threadID, messageID);
+    if (moneyBet < 50) return api.sendMessage(getText("limitBet"), threadID, messageID);
+    
     var number = [], win = false;
-
-    // Fill the number array with random slot items
-    for (let i = 0; i < 3; i++) {
-        if (i === 0) {
-            number[i] = Math.floor(Math.random() * slotItems.length);
-        } else {
-            number[i] = number[i-1];
-        }
-    }
-
-    // Check for winning combinations
+    for (let i = 0; i < 3; i++) number[i] = Math.floor(Math.random() * slotItems.length);
+    
     if (number[0] === number[1] && number[1] === number[2]) {
         moneyBet *= 9;
         win = true;
-    } else if (number[0] === number[1] || number[0] === number[2] || number[1] === number[2]) {
+    }
+    else if (number[0] === number[1] || number[0] === number[2] || number[1] === number[2]) {
         moneyBet *= 2;
         win = true;
     }
-
-    // Send appropriate message and update user's balance
-    let message;
+    
     if (win) {
-        message = getText("returnWin", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet);
         await increaseMoney(senderID, moneyBet);
+        return api.sendMessage(getText("returnWin", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet), threadID, messageID);
     } else {
-        message = getText("returnLose", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet);
         await decreaseMoney(senderID, moneyBet);
+        return api.sendMessage(getText("returnLose", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet), threadID, messageID);
     }
-
-    // Send the result message
-    return api.sendMessage(message, threadID, messageID);
-};
+}

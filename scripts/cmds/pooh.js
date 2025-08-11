@@ -1,120 +1,37 @@
-const axios = require('axios');
-const fs = require('fs-extra');
-const path = require('path');
-
 module.exports.config = {
     name: "pooh",
-    version: "1.2.0",
-    hasPermission: 0,
-    credits: "Asif",
-    description: "Generate Winnie the Pooh memes with custom text",
-    category: "image",
-    usages: "[text 1] | [text 2]",
-    cooldowns: 5,
+    version: "1.0.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑷𝒖𝒕𝒉𝒖𝒍 𝒌𝒉𝒂𝒍𝒆𝒓 𝒎𝒐𝒏𝒅𝒐𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒍𝒆𝒌𝒉𝒂",
+    commandCategory: "monoronjon",
+    usages: "[text | text]",
+    cooldowns: 0,
     dependencies: {
         "fs-extra": "",
-        "axios": ""
+        "request": ""
     }
 };
 
-// Added the required onStart function
-module.exports.onStart = function() {
-    console.log("[!] Pooh meme command initialized");
-};
-
-module.exports.run = async ({ api, event, args }) => {
+module.exports.run = async ({ api, event, args }) => {  
+    const fs = global.nodemodule["fs-extra"];
+    const request = global.nodemodule["request"];
     const { threadID, messageID, senderID } = event;
-    const cacheDir = path.join(__dirname, 'cache', 'pooh_memes');
     
-    try {
-        // Create cache directory
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
-        }
-
-        // Clean up previous files from this user
-        const oldFiles = fs.readdirSync(cacheDir).filter(file => 
-            file.startsWith(`pooh_${senderID}_`)
-        );
-        oldFiles.forEach(file => fs.unlinkSync(path.join(cacheDir, file)));
-
-        // Process input text
-        const inputText = args.join(" ");
-        if (!inputText.includes("|") || args.length === 0) {
-            return api.sendMessage(
-                `🧸 Winnie the Pooh Meme Generator\n\n` +
-                `Usage: pooh [text 1] | [text 2]\n` +
-                `Example: pooh I love honey | Me too Pooh\n\n` +
-                `Note: Maximum 50 characters per text field`,
-                threadID,
-                messageID
-            );
-        }
-
-        const [text1, text2] = inputText.split("|").map(t => t.trim());
-        if (!text1 || !text2) {
-            return api.sendMessage(
-                "🧸 | Please provide both text fields separated by |",
-                threadID,
-                messageID
-            );
-        }
-
-        // Validate text length
-        if (text1.length > 50 || text2.length > 50) {
-            return api.sendMessage(
-                "⚠️ | Text is too long! Maximum 50 characters per field.",
-                threadID,
-                messageID
-            );
-        }
-
-        // Generate image path
-        const imagePath = path.join(cacheDir, `pooh_${senderID}_${Date.now()}.png`);
-
-        // Send processing message
-        const processingMsg = await api.sendMessage(
-            `🧸 Creating your Pooh meme...\n"${text1}" | "${text2}"`,
-            threadID
-        );
-
-        // Fetch image from API
-        const apiUrl = `https://api.popcat.xyz/pooh?text1=${encodeURIComponent(text1)}&text2=${encodeURIComponent(text2)}`;
-        const response = await axios({
-            url: apiUrl,
-            method: 'GET',
-            responseType: 'arraybuffer',
-            timeout: 30000,
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-            }
-        });
-
-        // Save image to cache
-        fs.writeFileSync(imagePath, response.data);
-
-        // Send result
-        await api.sendMessage({
-            body: `🧸 Your Pooh meme is ready!\n"${text1}" | "${text2}"`,
-            attachment: fs.createReadStream(imagePath)
-        }, threadID, () => {
-            // Clean up after sending
-            try {
-                if (fs.existsSync(imagePath)) {
-                    fs.unlinkSync(imagePath);
-                }
-                api.unsendMessage(processingMsg.messageID);
-            } catch (cleanupError) {
-                console.error('Cleanup error:', cleanupError);
-            }
-        }, messageID);
-
-    } catch (error) {
-        console.error('Pooh Command Error:', error);
-        api.sendMessage(
-            "❌ Failed to generate Pooh image. Please try again later with different text.",
-            threadID,
-            messageID
-        );
+    let text = args.join(" ");
+    if (!text.includes(" | ")) {
+        return api.sendMessage(`𝑩𝒂𝒃𝒖𝒋𝒂𝒏, 𝒕𝒐𝒎𝒂𝒌𝒆 𝒅𝒖𝒊𝒕𝒊 𝒕𝒆𝒙𝒕 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆 "𝒕𝒆𝒙𝒕𝟏 | 𝒕𝒆𝒙𝒕𝟐" 𝒆𝒊𝒗𝒂𝒃𝒆 𝒍𝒊𝒌𝒉𝒐\n𝑬𝒋𝒆𝒎𝒐𝒏: pooh 𝑨𝒔𝒊𝒇 | 𝑴𝒂𝒉𝒎𝒖𝒅`, event.threadID, event.messageID);
     }
+
+    const text1 = text.substr(0, text.indexOf(' | ')); 
+    const text2 = text.split(" | ").pop();
+    
+    var callback = () => api.sendMessage({
+        body: `𝑬𝒊 𝒏𝒊𝒆𝒓 𝒑𝒖𝒕𝒉𝒖𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒏𝒊𝒚𝒆 👇`,
+        attachment: fs.createReadStream(__dirname + "/cache/pooh.png")
+    }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/pooh.png"), event.messageID);
+    
+    return request(encodeURI(`https://api.popcat.xyz/pooh?text1=${text1}&text2=${text2}`))
+        .pipe(fs.createWriteStream(__dirname + '/cache/pooh.png'))
+        .on('close', () => callback());
 };

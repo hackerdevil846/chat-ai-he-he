@@ -1,12 +1,11 @@
 module.exports.config = {
 	name: "say",
-	version: "1.0.0",
-	permission: 0,
-	credits: "asif",
-	description: "text to voice speech messages",
-  prefix: true,
-	category: "with prefix",
-	usages: `text to speech messages`,
+	version: "2.0.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑩𝒐𝒕 𝒕𝒆𝒙𝒕 𝒕𝒂 𝒃𝒐𝒍𝒃𝒆 𝑮𝒐𝒐𝒈𝒍𝒆 𝑻𝑻𝑺 𝒅𝒊𝒚𝒆 (𝑯𝒊𝒏𝒅𝒊, 𝑯𝒊𝒏𝒈𝒍𝒊𝒔𝒉, 𝑬𝒏𝒈𝒍𝒊𝒔𝒉)",
+	commandCategory: "media",
+	usages: "[hi/en/auto] [𝑻𝒆𝒙𝒕]",
 	cooldowns: 5,
 	dependencies: {
 		"path": "",
@@ -14,30 +13,37 @@ module.exports.config = {
 	}
 };
 
-// Added onStart method
-module.exports.onStart = async function() {
-  // Empty implementation to satisfy the command loader
-};
+module.exports.run = async function({ api, event, args }) {
+	const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+	const { resolve } = global.nodemodule["path"];
+	try {
+		if (!args[0]) return api.sendMessage("❌ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒕𝒆𝒙𝒕 𝒅𝒆𝒏\n𝑼𝒅𝒂𝒉𝒂𝒓𝒏𝒂: +say auto ami tomake bhalobashi", event.threadID, event.messageID);
 
-module.exports.run = async function({
-    api, event, args }) {
-    try {
-        const {
-            createReadStream
-            , unlinkSync
-        } = global.nodemodule["fs-extra"];
-        const {
-            resolve
-        } = global.nodemodule["path"];
-        var content = (event.type == "message_reply") ? event.messageReply.body : args.join(" ");
-        var languageToSay = (["ru", "en", "ko", "ja", "tl"].some(item => content.indexOf(item) == 0)) ? content.slice(0, content.indexOf(" ")) : global.config.language;
-        var msg = (languageToSay != global.config.language) ? content.slice(3, content.length) : content;
-        const path = resolve(__dirname, 'cache', `${event.threadID}_${event.senderID}.mp3`);
-        await global.utils.downloadFile(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(msg)}&tl=${languageToSay}&client=tw-ob`, path);
-        return api.sendMessage({
-            attachment: createReadStream(path)
-        }, event.threadID, () => unlinkSync(path), event.messageID);
-    } catch (e) {
-        return console.log(e)
-    };
+		const content = (event.type === "message_reply") ? event.messageReply.body : args.join(" ");
+		let lang = "auto", msg = content;
+
+		// Check prefix lang
+		const firstWord = args[0].toLowerCase();
+		const supportedLangs = ["hi", "en", "ja", "ru", "tl"];
+		if (supportedLangs.includes(firstWord)) {
+			lang = firstWord;
+			msg = args.slice(1).join(" ");
+		}
+
+		// Auto detect for Hinglish/Hindi
+		if (lang === "auto") {
+			const hindiPattern = /[क-हाि-ॣ़ा़ेैोौंःँ]/; // Hindi Unicode range
+			lang = hindiPattern.test(msg) ? "hi" : "hi"; // Force Hindi for Hinglish too
+		}
+
+		const filePath = resolve(__dirname, "cache", `${event.threadID}_${event.senderID}.mp3`);
+		const ttsURL = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(msg)}&tl=${lang}&client=tw-ob`;
+
+		await global.utils.downloadFile(ttsURL, filePath);
+		return api.sendMessage({ attachment: createReadStream(filePath) }, event.threadID, () => unlinkSync(filePath), event.messageID);
+		
+	} catch (err) {
+		console.error("[ SAY ERROR ]", err);
+		return api.sendMessage("🚫 𝑩𝒐𝒍𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒚𝒆𝒄𝒉𝒆. 𝑨𝒃𝒂𝒓 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
+	}
 };

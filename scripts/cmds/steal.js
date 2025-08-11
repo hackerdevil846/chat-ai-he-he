@@ -1,136 +1,66 @@
-module.exports = {
-  config: {
+module.exports.config = {
     name: "steal",
-    version: "1.3.0",
+    version: "1.0.0",
     hasPermssion: 0,
-    credits: "Asif",
-    description: "💸 Steal money from other users with risk/reward mechanics",
-    category: "economy",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝙏𝙖𝙠𝙖 𝙘𝙝𝙪𝙧𝙞 𝙠𝙤𝙧𝙖",
+    commandCategory: "𝙏𝙖𝙠𝙖-𝙋𝙖𝙞𝙨𝙖",
     usages: "",
-    cooldowns: 60,
-    dependencies: {}
-  },
+    cooldowns: 5
+};
 
-  onStart: async function ({ api, event, Users, Currencies }) {
-    try {
-      // Get all user IDs
-      const allUsers = global.data.allUserID || [];
-      
-      // Check for minimum users
-      if (allUsers.length < 3) {
-        return api.sendMessage(
-          "❌ Need at least 3 users in the database to steal!",
-          event.threadID,
-          event.messageID
-        );
-      }
-
-      // Filter out bot, current user, and users with no money
-      const validTargets = [];
-      
-      for (const userID of allUsers) {
-        if (userID === api.getCurrentUserID() || userID === event.senderID) continue;
-        
-        const userMoney = (await Currencies.getData(userID)).money || 0;
-        if (userMoney > 0) {
-          validTargets.push({
-            id: userID,
-            balance: userMoney
-          });
-        }
-      }
-      
-      if (validTargets.length === 0) {
-        return api.sendMessage(
-          "❌ All potential targets are broke! Try again later.",
-          event.threadID,
-          event.messageID
-        );
-      }
-
-      // Select a random victim
-      const victim = validTargets[Math.floor(Math.random() * validTargets.length)];
-      const victimData = await Users.getData(victim.id);
-      const victimName = victimData.name || "Unknown User";
-
-      // Get thief's balance
-      const thiefData = await Currencies.getData(event.senderID);
-      const thiefBalance = thiefData.money || 0;
-
-      // 50% chance of success
-      const isSuccessful = Math.random() < 0.5;
-      const isCritical = Math.random() < 0.1; // 10% critical chance
-      const isEpicFail = Math.random() < 0.05; // 5% epic fail chance
-
-      // Successful steal
-      if (isSuccessful) {
-        // Calculate stolen amount
-        let stealAmount;
-        if (isCritical) {
-          stealAmount = victim.balance; // Steal everything
-        } else {
-          stealAmount = Math.min(
-            Math.floor(Math.random() * 1000) + 100, // Minimum 100
-            victim.balance
-          );
-        }
-
-        // Update currencies
-        await Promise.all([
-          Currencies.decreaseMoney(victim.id, stealAmount),
-          Currencies.increaseMoney(event.senderID, stealAmount)
-        ]);
-
-        const criticalText = isCritical ? "✨ CRITICAL SUCCESS! " : "";
-        return api.sendMessage(
-          `${criticalText}💰 You successfully stole $${stealAmount} from ${victimName}!`,
-          event.threadID,
-          event.messageID
-        );
-      } 
-      // Failed steal
-      else {
-        let penalty;
-        let message;
-        
-        // Epic fail case
-        if (isEpicFail && thiefBalance > 0) {
-          penalty = thiefBalance; // Lose everything
-          message = `💥 EPIC FAIL! You were caught by ${victimName} and lost ALL your money ($${penalty})!`;
-        } 
-        // Normal fail
-        else if (thiefBalance > 0) {
-          penalty = Math.floor(thiefBalance * 0.3); // 30% penalty
-          message = `🚨 You were caught stealing by ${victimName} and fined $${penalty}!`;
-        } 
-        // Thief is broke
-        else {
-          return api.sendMessage(
-            `🚔 You were caught stealing from ${victimName}, but you have no money to lose!`,
-            event.threadID,
-            event.messageID
-          );
-        }
-
-        // Update currencies
-        await Promise.all([
-          Currencies.decreaseMoney(event.senderID, penalty),
-          Currencies.increaseMoney(victim.id, penalty)
-        ]);
-
-        return api.sendMessage(
-          message,
-          event.threadID,
-          event.messageID
-        );
-      }
-    } catch (error) {
-      console.error("Steal command error:", error);
-      return api.sendMessage(
-        "❌ An error occurred during your steal attempt. Please try again later.",
-        event.threadID,
-        event.messageID
-      );
+module.exports.run = async function({ api, event, Users, Currencies }) {
+    var alluser = global.data.allUserID
+    let victim = alluser[Math.floor(Math.random() * alluser.length)];
+    let nameVictim = (await Users.getData(victim)).name
+    
+    if (victim == api.getCurrentUserID() && event.senderID == victim) {
+        return api.sendMessage('𝘿𝙪𝙠𝙝𝙞𝙩𝙤, 𝙖𝙥𝙣𝙞 𝙚𝙞 𝙗𝙮𝙖𝙠𝙩𝙞𝙧 𝙠𝙖𝙘𝙝𝙚 𝙩𝙝𝙚𝙠𝙚 𝙘𝙝𝙪𝙧𝙞 𝙠𝙤𝙧𝙩𝙚 𝙥𝙖𝙧𝙗𝙚𝙣 𝙣𝙖. 𝘼𝙗𝙖𝙧 𝙘𝙝𝙚𝙨𝙩𝙖 𝙠𝙤𝙧𝙪𝙣.', event.threadID, event.messageID);
     }
-  }
+    
+    var route = Math.floor(Math.random() * 2);
+    
+    if (route > 1 || route == 0) {
+        const moneydb = (await Currencies.getData(victim)).money;
+        var money = Math.floor(Math.random() * 1000) + 1;
+        
+        if (moneydb <= 0 || moneydb == undefined) {
+            return api.sendMessage(`𝘼𝙥𝙣𝙞 𝙘𝙝𝙪𝙧𝙞 𝙠𝙤𝙧𝙡𝙚𝙣 ${nameVictim} 𝙚𝙧 𝙠𝙖𝙘𝙝𝙚, 𝙠𝙞𝙣𝙩𝙪 𝙩𝙖𝙧 𝙠𝙖𝙘𝙝𝙚 𝙩𝙖𝙠𝙖 𝙣𝙚𝙞. 𝙏𝙖𝙞 𝙖𝙥𝙣𝙞 𝙠𝙞𝙘𝙝𝙪 𝙥𝙖𝙞𝙡𝙚𝙣 𝙣𝙖!`, event.threadID, event.messageID);
+        }
+        else if (moneydb >= money) {
+            return api.sendMessage(`𝘼𝙥𝙣𝙞 𝙘𝙝𝙪𝙧𝙞 𝙠𝙤𝙧𝙡𝙚𝙣 ${money}$ ${nameVictim} 𝙚𝙧 𝙠𝙖𝙘𝙝𝙚 �𝙚𝙠𝙚 𝙚𝙞 𝙜𝙧𝙪𝙥 𝙚!`, event.threadID, async () => {
+                await Currencies.increaseMoney(victim, parseInt("-"+money))
+                await Currencies.increaseMoney(event.senderID, parseInt(money))
+            }, event.messageID);
+        }
+        else if (moneydb < money) {
+            return api.sendMessage(`𝘼𝙥𝙣𝙞 𝙘𝙝𝙪𝙧𝙞 𝙠𝙤𝙧𝙡𝙚𝙣 ${nameVictim} 𝙚𝙧 𝙨𝙤𝙗 𝙩𝙖𝙠𝙖 ${moneydb}$ 𝙚𝙞 𝙜𝙧𝙪𝙥 𝙚!`, event.threadID, async () => {
+                await Currencies.increaseMoney(victim, parseInt("-"+moneydb))
+                await Currencies.increaseMoney(event.senderID, parseInt(moneydb))
+            }, event.messageID);
+        }
+    }
+    else if (route == 1) {
+        var name = (await Users.getData(event.senderID)).name
+        var moneyuser = (await Currencies.getData(event.senderID)).money
+        
+        if (moneyuser <= 0) {
+            return api.sendMessage("𝘼𝙥𝙣𝙖𝙧 𝙠𝙖𝙘𝙝𝙚 𝙩𝙖𝙠𝙖 𝙣𝙚𝙞, 𝙩𝙖𝙠𝙖 𝙠𝙖𝙢𝙖𝙞𝙩𝙚 𝙠𝙖𝙟 𝙠𝙤𝙧𝙪𝙣!", event.threadID, event.messageID);
+        }
+        else if (moneyuser > 0) {
+            const reward = Math.floor(moneyuser / 2);
+            return api.sendMessage(`𝘼𝙥𝙣𝙞 𝙙𝙝𝙤𝙧𝙧𝙖 𝙠𝙝𝙖𝙚𝙣 𝙚𝙗𝙤𝙣𝙜 𝙝𝙖𝙧𝙖𝙡𝙚𝙣 ${moneyuser}$!`, event.threadID, () => {
+                api.sendMessage({
+                    body: `𝘼𝙗𝙝𝙞𝙣𝙖𝙣𝙙𝙖𝙣 ${nameVictim}! 𝘼𝙥𝙣𝙞 𝙙𝙝𝙤𝙧𝙡𝙚𝙣 ${name} 𝙠𝙚 𝙚𝙗𝙤𝙣𝙜 𝙥𝙚𝙡𝙚𝙣 ${reward}$ 𝙥𝙪𝙧𝙖𝙨𝙠𝙖𝙧 𝙝𝙞𝙨𝙝𝙚𝙗𝙚!`,
+                    mentions: [
+                        { tag: nameVictim, id: victim },
+                        { tag: name, id: event.senderID }
+                    ]
+                }, event.threadID, async () => {
+                    await Currencies.increaseMoney(event.senderID, parseInt("-"+ moneyuser))
+                    await Currencies.increaseMoney(victim, parseInt(reward)) 
+                });
+            }, event.messageID);
+        }
+    }
 };

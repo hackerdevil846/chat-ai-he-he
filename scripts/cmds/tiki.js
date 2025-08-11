@@ -1,147 +1,74 @@
-const { createCanvas, loadImage } = require("canvas");
-const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
-
-module.exports = {
-  config: {
-    name: "tiki",
-    version: "1.1.0",
-    hasPermssion: 0,
-    credits: "Asif Developer",
-    description: "Create custom Tiki bar signs with your text",
-    category: "tools",
-    usages: "tiki [text]",
-    cooldowns: 10,
-    dependencies: {
-      "canvas": "",
-      "axios": "",
-      "fs-extra": ""
-    }
-  },
-
-  // Added required onStart function
-  onStart: async function() {
-    // Initialization if needed
-  },
-
-  wrapText: function(ctx, text, maxWidth) {
-    if (ctx.measureText(text).width < maxWidth) return [text];
-    
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-    
-    for (const word of words) {
-      let wordToAdd = word;
-      
-      while (ctx.measureText(wordToAdd).width >= maxWidth) {
-        const part = wordToAdd.slice(0, wordToAdd.length - 1);
-        const remaining = wordToAdd.slice(wordToAdd.length - 1);
-        
-        if (currentLine) {
-          lines.push(currentLine.trim());
-          currentLine = '';
-        }
-        
-        lines.push(part);
-        wordToAdd = remaining;
-      }
-      
-      const testLine = currentLine ? `${currentLine} ${wordToAdd}` : wordToAdd;
-      if (ctx.measureText(testLine).width < maxWidth) {
-        currentLine = testLine;
-      } else {
-        if (currentLine) lines.push(currentLine.trim());
-        currentLine = wordToAdd;
-      }
-    }
-    
-    if (currentLine) lines.push(currentLine.trim());
-    return lines;
-  },
-
-  run: async function({ api, event, args }) {
-    try {
-      const { threadID, messageID } = event;
-      const text = args.join(" ");
-      
-      if (!text) {
-        return api.sendMessage(
-          "🪧 TIKI SIGN CREATOR\n\n" +
-          "Please enter text for your Tiki sign\n" +
-          "Example: tiki Welcome to Paradise!\n" +
-          "Example: tiki Happy Hour 5-7 PM\n" +
-          "Example: tiki Mai Tais $5",
-          threadID, 
-          messageID
-        );
-      }
-
-      // Send processing message
-      api.sendMessage("🛠️ Creating your Tiki sign...", threadID, messageID);
-      
-      const outputPath = path.join(__dirname, 'cache', `tiki_sign_${Date.now()}.png`);
-      
-      // Download template image
-      const boardUrl = "https://i.imgur.com/nqUIi2S.png";
-      const { data: imageData } = await axios.get(boardUrl, { responseType: 'arraybuffer' });
-      
-      // Create canvas
-      const baseImage = await loadImage(Buffer.from(imageData, 'binary'));
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      
-      // Configure text styling
-      ctx.fillStyle = "#FFCC33"; // Golden yellow color
-      ctx.textAlign = "left";
-      
-      // Set initial font properties
-      let fontSize = 50;
-      let fontWeight = 200;
-      ctx.font = `${fontWeight} ${fontSize}px Gabriele, Arial, sans-serif`;
-      
-      // Reduce font size if text is too long
-      while (ctx.measureText(text).width > 2600 && fontSize > 20) {
-        fontSize--;
-        fontWeight = 400; // Switch to regular weight for smaller text
-        ctx.font = `${fontWeight} ${fontSize}px Gabriele, Arial, sans-serif`;
-      }
-      
-      // Wrap text to fit within sign width
-      const wrappedText = this.wrapText(ctx, text, 900);
-      
-      // Calculate vertical centering
-      const lineHeight = fontSize * 1.4;
-      const totalHeight = wrappedText.length * lineHeight;
-      const startY = 430 - (totalHeight / 2) + (fontSize * 0.7);
-      
-      // Draw text on sign
-      wrappedText.forEach((line, index) => {
-        ctx.fillText(line, 625, startY + (index * lineHeight));
-      });
-      
-      // Save processed image
-      const buffer = canvas.toBuffer('image/png');
-      fs.writeFileSync(outputPath, buffer);
-      
-      // Send result
-      api.sendMessage({
-        body: `🪧 YOUR TIKI SIGN:\n"${text}"`,
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        // Clean up temporary file
-        try {
-          fs.unlinkSync(outputPath);
-        } catch (cleanError) {
-          console.error("Cleanup error:", cleanError);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Tiki sign creation error:", error);
-      api.sendMessage("❌ Error creating Tiki sign. Please try:\n- Shorter text\n- Different wording\n- Again later", threadID, messageID);
-    }
-  }
+module.exports.config = {
+	name: "tiki",
+	version: "1.0.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝘽𝙤𝙧𝙙𝙚 𝙠𝙖𝙟 𝙡𝙞𝙠𝙝𝙤 \_(ツ)_/¯",
+	commandCategory: "𝙎𝙮𝙨𝙩𝙚𝙢",
+	usages: "tiki [𝙩𝙚𝙭𝙩]",
+	cooldowns: 10,
+	dependencies: {
+		"canvas":"",
+		 "axios":"",
+		 "fs-extra":""
+	}
 };
+
+module.exports.wrapText = (ctx, text, maxWidth) => {
+	return new Promise(resolve => {
+		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+		if (ctx.measureText('W').width > maxWidth) return resolve(null);
+		const words = text.split(' ');
+		const lines = [];
+		let line = '';
+		while (words.length > 0) {
+			let split = false;
+			while (ctx.measureText(words[0]).width >= maxWidth) {
+				const temp = words[0];
+				words[0] = temp.slice(0, -1);
+				if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+				else {
+					split = true;
+					words.splice(1, 0, temp.slice(-1));
+				}
+			}
+			if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+			else {
+				lines.push(line.trim());
+				line = '';
+			}
+			if (words.length === 0) lines.push(line.trim());
+		}
+		return resolve(lines);
+	});
+} 
+
+module.exports.run = async function({ api, event, args }) {
+	let { senderID, threadID, messageID } = event;
+	const { loadImage, createCanvas } = require("canvas");
+	const fs = global.nodemodule["fs-extra"];
+	const axios = global.nodemodule["axios"];
+	let pathImg = __dirname + '/cache/tiki.png';
+	var text = args.join(" ");
+	if (!text) return api.sendMessage("𝙆𝙞𝙘𝙝𝙪 𝙡𝙞𝙠𝙝𝙚𝙣 𝙣𝙖", threadID, messageID);
+	let getPorn = (await axios.get(`https://imgur.com/nqUIi2S.png`, { responseType: 'arraybuffer' })).data;
+	fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
+	let baseImage = await loadImage(pathImg);
+	let canvas = createCanvas(baseImage.width, baseImage.height);
+	let ctx = canvas.getContext("2d");
+	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+	ctx.font = "200 50px Gabriele";
+	ctx.fillStyle = "#FFCC33";
+	ctx.textAlign = "start";
+	let fontSize = 45;
+	while (ctx.measureText(text).width > 2600) {
+		fontSize--;
+		ctx.font = `400 ${fontSize}px Gabriele, sans-serif`;
+	}
+	const lines = await this.wrapText(ctx, text, 900);
+	ctx.fillText(lines.join('\n'), 625,430);
+	ctx.beginPath();
+	const imageBuffer = canvas.toBuffer();
+	fs.writeFileSync(pathImg, imageBuffer);
+return api.sendMessage({ attachment: fs.createReadStream(pathImg) }, threadID, () => fs.unlinkSync(pathImg), messageID);        
+}

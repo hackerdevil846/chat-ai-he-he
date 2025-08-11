@@ -1,145 +1,74 @@
-const { createCanvas, loadImage } = require("canvas");
-const axios = require("axios");
-const fs = require("fs");
-const path = require("path");
-
-module.exports = {
-  config: {
-    name: "yes",
-    version: "3.2.0",
-    hasPermssion: 0,
-    credits: "Asif Developer",
-    description: "Create custom comment board images",
-    category: "image",
-    usages: "[text]",
-    cooldowns: 5,
-    dependencies: {
-      "canvas": "",
-      "axios": ""
-    }
-  },
-
-  // Added onStart function
-  onStart: function() {
-    console.log("[!] YES Board command initialized");
-  },
-
-  wrapText: function(ctx, text, maxWidth) {
-    if (ctx.measureText(text).width < maxWidth) return [text];
-    
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-    
-    for (let i = 0; i < words.length; i++) {
-      const testLine = currentLine + words[i] + ' ';
-      const metrics = ctx.measureText(testLine);
-      
-      if (metrics.width > maxWidth && i > 0) {
-        lines.push(currentLine.trim());
-        currentLine = words[i] + ' ';
-      } else {
-        currentLine = testLine;
-      }
-    }
-    lines.push(currentLine.trim());
-    return lines;
-  },
-
-  run: async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    
-    try {
-      // Handle no text input
-      if (!args.length) {
-        return api.sendMessage(
-          "📝 YES BOARD COMMAND\n\n" +
-          "Create custom comment board images\n\n" +
-          "Usage: yes [text]\n" +
-          "Example: yes Hello world!\n" +
-          "Example: yes Welcome to our group!",
-          threadID, 
-          messageID
-        );
-      }
-      
-      const text = args.join(" ");
-      
-      // Send processing message
-      const processingMsg = await api.sendMessage("🛠️ Creating your comment board...", threadID, messageID);
-      
-      // Create cache directory
-      const cacheDir = path.join(__dirname, "cache");
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-      
-      const outputPath = path.join(cacheDir, `yes_board_${Date.now()}.png`);
-      
-      // Download template image
-      const templateUrl = "https://i.imgur.com/1fVK4nZ.png";
-      const templateResponse = await axios.get(templateUrl, {
-        responseType: 'arraybuffer',
-        timeout: 30000
-      });
-      
-      // Load image and create canvas
-      const baseImage = await loadImage(Buffer.from(templateResponse.data));
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      
-      // Draw background
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      
-      // Configure text
-      ctx.fillStyle = "#000000";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      
-      // Adjust font size to fit
-      let fontSize = 45;
-      ctx.font = `bold ${fontSize}px Arial`;
-      
-      // Reduce font size for long text
-      while (ctx.measureText(text).width > 2250 && fontSize > 15) {
-        fontSize--;
-        ctx.font = `bold ${fontSize}px Arial`;
-      }
-      
-      // Wrap text
-      const lines = this.wrapText(ctx, text, 350);
-      
-      // Calculate vertical position (centered)
-      const lineHeight = fontSize + 5;
-      const totalHeight = lines.length * lineHeight;
-      const startY = (canvas.height - totalHeight) / 2;
-      
-      // Draw text lines
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], 280, startY + (i * lineHeight));
-      }
-      
-      // Save final image
-      const imageBuffer = canvas.toBuffer();
-      fs.writeFileSync(outputPath, imageBuffer);
-      
-      // Send result
-      await api.unsendMessage(processingMsg.messageID);
-      api.sendMessage({
-        body: "✅ Your comment board is ready!",
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        // Clean up
-        try {
-          fs.unlinkSync(outputPath);
-        } catch (cleanError) {
-          console.error("Cleanup error:", cleanError);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Yes command error:", error);
-      api.sendMessage("❌ Failed to create comment board. Please try again later.", threadID, messageID);
-    }
-  }
+module.exports.config = {
+	name: "yes",
+	version: "3.1.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
+	commandCategory: "Memes",
+	usages: "[text]",
+	cooldowns: 5,
+	dependencies: {
+		"canvas":"",
+		 "axios":"",
+		 "fs-extra":""
+	}
 };
+
+module.exports.wrapText = (ctx, text, maxWidth) => {
+	return new Promise(resolve => {
+		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+		if (ctx.measureText('W').width > maxWidth) return resolve(null);
+		const words = text.split(' ');
+		const lines = [];
+		let line = '';
+		while (words.length > 0) {
+			let split = false;
+			while (ctx.measureText(words[0]).width >= maxWidth) {
+				const temp = words[0];
+				words[0] = temp.slice(0, -1);
+				if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+				else {
+					split = true;
+					words.splice(1, 0, temp.slice(-1));
+				}
+			}
+			if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+			else {
+				lines.push(line.trim());
+				line = '';
+			}
+			if (words.length === 0) lines.push(line.trim());
+		}
+		return resolve(lines);
+	});
+} 
+
+module.exports.run = async function({ api, event, args }) {
+	let { senderID, threadID, messageID } = event;
+	const { loadImage, createCanvas } = require("canvas");
+	const fs = global.nodemodule["fs-extra"];
+	const axios = global.nodemodule["axios"];
+	let pathImg = __dirname + '/cache/yes.png';
+	var text = args.join(" ");
+	if (!text) return api.sendMessage("❔ | 𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒍𝒊𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒌𝒊𝒄𝒉𝒖 𝒕𝒆𝒙𝒕 𝒅𝒊𝒏.", threadID, messageID);
+	let getPorn = (await axios.get(`https://i.ibb.co/GQbRhkY/Picsart-22-08-14-17-32-11-488.jpg`, { responseType: 'arraybuffer' })).data;
+	fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
+	let baseImage = await loadImage(pathImg);
+	let canvas = createCanvas(baseImage.width, baseImage.height);
+	let ctx = canvas.getContext("2d");
+	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+	ctx.font = "bold 400 35px Arial";
+	ctx.fillStyle = "black";
+	ctx.textAlign = "start";
+	let fontSize = 45;
+	while (ctx.measureText(text).width > 2250) {
+		fontSize--;
+		ctx.font = `400 ${fontSize}px Arial, sans-serif`;
+	}
+	const lines = await this.wrapText(ctx, text, 350);
+	ctx.fillText(lines.join('\n'), 280,50);//comment
+	ctx.beginPath();
+	const imageBuffer = canvas.toBuffer();
+	fs.writeFileSync(pathImg, imageBuffer);
+return api.sendMessage({ attachment: fs.createReadStream(pathImg) }, threadID, () => fs.unlinkSync(pathImg), messageID);        
+}

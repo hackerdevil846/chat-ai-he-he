@@ -1,98 +1,46 @@
-async function checkShortCut(nickname, uid, usersData) {
-	try {
-		/\{userName\}/gi.test(nickname) ? nickname = nickname.replace(/\{userName\}/gi, await usersData.getName(uid)) : null;
-		/\{userID\}/gi.test(nickname) ? nickname = nickname.replace(/\{userID\}/gi, uid) : null;
-		return nickname;
-	}
-	catch (e) {
-		return nickname;
-	}
-}
+module.exports.config = {
+	name: "setname",
+	version: "1.1.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑪𝒉𝒂𝒏𝒈𝒆 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑 𝒄𝒉𝒂𝒕𝒔",
+	commandCategory: "𝑩𝒐𝒙 𝑪𝒉𝒂𝒕",
+	usages: "[𝒏𝒆𝒘 𝒏𝒂𝒎𝒆] 𝒐𝒓 [𝒏𝒆𝒘 𝒏𝒂𝒎𝒆] @𝒎𝒆𝒏𝒕𝒊𝒐𝒏",
+	cooldowns: 3
+};
 
-module.exports = {
-	config: {
-		name: "setname",
-		version: "1.5",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "Đổi biệt danh của tất cả thành viên trong nhóm chat hoặc những thành viên được tag theo một định dạng",
-			en: "Change nickname of all members in chat or members tagged by a format"
-		},
-		category: "box chat",
-		guide: {
-			vi: {
-				body: "   {pn} <nick name>: thay đổi biệt danh của bản thân"
-					+ "\n   {pn} @tags <nick name>: thay đổi biệt danh của những thành viên được tag"
-					+ "\n   {pn} all <nick name>: thay đổi biệt danh của tất cả thành viên trong nhóm chat"
-					+ "\n\n   Với các shortcut có sẵn:"
-					+ "\n   + {userName}: tên của thành viên"
-					+ "\n   + {userID}: ID của thành viên"
-					+ "\n\n   Ví dụ: (xem ảnh)",
-				attachment: {
-					[`${__dirname}/assets/guide/setname_1.png`]: "https://i.ibb.co/gFh23zb/guide1.png",
-					[`${__dirname}/assets/guide/setname_2.png`]: "https://i.ibb.co/BNWHKgj/guide2.png"
-				}
-			},
-			en: {
-				body: "   {pn} <nick name>: change nickname of yourself"
-					+ "\n   {pn} @tags <nick name>: change nickname of members tagged"
-					+ "\n   {pn} all <nick name>: change nickname of all members in chat"
-					+ "\n\nWith available shortcuts:"
-					+ "\n   + {userName}: name of member"
-					+ "\n   + {userID}: ID of member"
-					+ "\n\n   Example: (see image)",
-				attachment: {
-					[`${__dirname}/assets/guide/setname_1.png`]: "https://i.ibb.co/gFh23zb/guide1.png",
-					[`${__dirname}/assets/guide/setname_2.png`]: "https://i.ibb.co/BNWHKgj/guide2.png"
-				}
-			}
-		}
-	},
+module.exports.run = async function({ api, event, args, Threads }) {
+    try {
+        // Check if name argument is provided
+        if (args.length === 0) {
+            return api.sendMessage("ℹ️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒏𝒆𝒘 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆!", event.threadID);
+        }
 
-	langs: {
-		vi: {
-			error: "Đã có lỗi xảy ra, thử tắt tính năng liên kết mời trong nhóm và thử lại sau"
-		},
-		en: {
-			error: "An error has occurred, try turning off the invite link feature in the group and try again later"
-		}
-	},
-
-	onStart: async function ({ args, message, event, api, usersData, getLang }) {
-		const mentions = Object.keys(event.mentions);
-		let uids = [];
-		let nickname = args.join(" ");
-
-		if (args[0] === "all" || mentions.includes(event.threadID)) {
-			uids = (await api.getThreadInfo(event.threadID)).participantIDs;
-			nickname = args[0] === "all" ? args.slice(1).join(" ") : nickname.replace(event.mentions[event.threadID], "").trim();
-		}
-		else if (mentions.length) {
-			uids = mentions;
-			const allName = new RegExp(
-				Object.values(event.mentions)
-					.map(name => name.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&")) // fix error when name has special characters
-					.join("|")
-				, "g"
-			);
-			nickname = nickname.replace(allName, "").trim();
-		}
-		else {
-			uids = [event.senderID];
-			nickname = nickname.trim();
-		}
-
-		try {
-			const uid = uids.shift();
-			await api.changeNickname(await checkShortCut(nickname, uid, usersData), event.threadID, uid);
-		}
-		catch (e) {
-			return message.reply(getLang("error"));
-		}
-
-		for (const uid of uids)
-			await api.changeNickname(await checkShortCut(nickname, uid, usersData), event.threadID, uid);
-	}
+        const name = args.join(" ");
+        const mention = Object.keys(event.mentions)[0];
+        
+        // Change own nickname
+        if (!mention) {
+            await api.changeNickname(name, event.threadID, event.senderID);
+            return api.sendMessage(`✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒄𝒉𝒂𝒏𝒈𝒆𝒅 𝒚𝒐𝒖𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒕𝒐: ${name}`, event.threadID);
+        }
+        
+        // Change mentioned user's nickname
+        const newName = name.replace(event.mentions[mention], "").trim();
+        if (!newName) {
+            return api.sendMessage("ℹ️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒂𝒇𝒕𝒆𝒓 𝒕𝒉𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏", event.threadID);
+        }
+        
+        await api.changeNickname(newName, event.threadID, mention);
+        
+        // Get user name for confirmation message
+        const userInfo = await api.getUserInfo(mention);
+        const userName = userInfo[mention]?.name || "𝒕𝒉𝒆 𝒖𝒔𝒆𝒓";
+        
+        return api.sendMessage(`✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒄𝒉𝒂𝒏𝒈𝒆𝒅 ${userName}'𝒔 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒕𝒐: ${newName}`, event.threadID);
+        
+    } catch (error) {
+        console.error("❌ 𝑬𝒓𝒓𝒐𝒓:", error);
+        api.sendMessage("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒄𝒉𝒂𝒏𝒈𝒊𝒏𝒈 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.", event.threadID);
+    }
 };
