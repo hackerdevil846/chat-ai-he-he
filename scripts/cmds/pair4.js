@@ -1,173 +1,88 @@
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
-const jimp = require("jimp");
-
-// Define paths
-const cacheDir = path.join(__dirname, "cache", "canvas");
-const bgPath = path.join(cacheDir, "pairing.png");
-
-module.exports = {
-  config: {
-    name: "pair4",
-    version: "1.0.2",
-    hasPermssion: 0,
-    credits: "asif",
-    description: "Create romantic pairings between users",
-    category: "love",
-    usages: "pair4",
-    cooldowns: 5,
-    dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "jimp": ""
-    }
-  },
-
-  onStart: async function() {
-    try {
-      // Ensure cache directory exists
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      // Download background image if not exists
-      if (!fs.existsSync(bgPath)) {
-        const response = await axios.get("https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png", {
-          responseType: "arraybuffer",
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-          }
-        });
-        fs.writeFileSync(bgPath, Buffer.from(response.data));
-        console.log("Pairing background image downloaded successfully!");
-      }
-    } catch (error) {
-      console.error("Error initializing pairing command:", error);
-    }
-  },
-
-  run: async function({ api, event }) {
-    try {
-      const { threadID, messageID, senderID } = event;
-      const tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
-      const tle = tl[Math.floor(Math.random() * tl.length)];
-      
-      // Get sender info
-      const senderInfo = await api.getUserInfo(senderID);
-      const namee = senderInfo[senderID].name;
-      
-      // Get thread info
-      const threadInfo = await api.getThreadInfo(threadID);
-      const participants = threadInfo.participantIDs;
-      
-      // Filter out sender and bots
-      const eligibleParticipants = participants.filter(id => 
-        id !== senderID && 
-        !id.includes("100000") && 
-        !id.includes("bot") &&
-        id !== api.getCurrentUserID()  // Exclude bot itself
-      );
-      
-      if (eligibleParticipants.length === 0) {
-        return api.sendMessage("😢 No eligible participants found for pairing!", threadID, messageID);
-      }
-      
-      const randomID = eligibleParticipants[Math.floor(Math.random() * eligibleParticipants.length)];
-      const userInfo = await api.getUserInfo(randomID);
-      const name = userInfo[randomID].name;
-      
-      // Create image
-      const imgPath = await this.makeImage(senderID, randomID);
-      
-      // Prepare message
-      const arraytag = [
-        { id: senderID, tag: namee },
-        { id: randomID, tag: name }
-      ];
-      
-      const messageText = `💖 Congratulations ${namee} was paired with ${name}\n✨ Pair odds are: ${tle}`;
-      
-      api.sendMessage({
-        body: messageText,
-        mentions: arraytag,
-        attachment: fs.createReadStream(imgPath)
-      }, threadID, () => {
-        try {
-          if (fs.existsSync(imgPath)) {
-            fs.unlinkSync(imgPath);
-          }
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Pair command error:", error);
-      api.sendMessage("❌ An error occurred while processing the pairing command. Please try again later!", event.threadID, event.messageID);
-    }
-  },
-
-  makeImage: async function(one, two) {
-    try {
-      const outputPath = path.join(cacheDir, `pairing_${one}_${two}.png`);
-      const avatarOnePath = path.join(cacheDir, `avt_${one}.png`);
-      const avatarTwoPath = path.join(cacheDir, `avt_${two}.png`);
-      
-      // Download avatars in parallel
-      const [avatarOne, avatarTwo] = await Promise.all([
-        axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512`, { 
-          responseType: 'arraybuffer',
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-          }
-        }),
-        axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512`, { 
-          responseType: 'arraybuffer',
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-          }
-        })
-      ]);
-      
-      fs.writeFileSync(avatarOnePath, Buffer.from(avatarOne.data));
-      fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwo.data));
-      
-      // Process images
-      const [pairingImg, circleOne, circleTwo] = await Promise.all([
-        jimp.read(bgPath),
-        this.circleImage(avatarOnePath),
-        this.circleImage(avatarTwoPath)
-      ]);
-      
-      // Position avatars on background
-      pairingImg.composite(circleOne.resize(150, 150), 980, 200);   // Right position
-      pairingImg.composite(circleTwo.resize(150, 150), 140, 200);   // Left position
-      
-      // Save processed image
-      const processedImg = await pairingImg.getBufferAsync("image/png");
-      fs.writeFileSync(outputPath, processedImg);
-      
-      // Cleanup temp avatar files
-      [avatarOnePath, avatarTwoPath].forEach(filePath => {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      });
-      
-      return outputPath;
-      
-    } catch (error) {
-      console.error("Error creating pair image:", error);
-      throw error;
-    }
-  },
-
-  circleImage: async function(imagePath) {
-    try {
-      const image = await jimp.read(imagePath);
-      return image.circle();
-    } catch (error) {
-      console.error("Error creating circle avatar:", error);
-      throw error;
-    }
+module.exports.config = {
+	name: "pair4",
+	version: "1.0.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒎𝒆𝒎𝒃𝒆𝒓𝒅𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒑𝒂𝒊𝒓 𝒌𝒐𝒓𝒂",
+	commandCategory: "𝒖𝒔𝒆𝒓𝒅𝒆𝒓 𝒆𝒓 𝒋𝒐𝒏𝒏𝒚𝒐",
+	cooldowns: 5,
+	dependencies: {
+        "axios": "",
+        "fs-extra": ""
   }
-};
+}
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'pairing.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let pairing_img = await jimp.read(__root + "/pairing.png");
+    let pathImg = __root + `/pairing_${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    pairing_img.composite(circleOne.resize(150, 150), 980, 200).composite(circleTwo.resize(150, 150), 140, 200);
+    
+    let raw = await pairing_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function({ api, event, args, models, Users, Threads, Currencies, permssion }) {
+  const { threadID, messageID, senderID } = event;
+    const { readFileSync, writeFileSync } = require("fs-extra")
+    const fs = require("fs-extra");
+    var tl = ['21%','11%','55%','89%','22%','45%','1%','4%','78%','15%','91%','77%','41%','32%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
+        var tle = tl[Math.floor(Math.random() * tl.length)];
+        let dataa = await api.getUserInfo(event.senderID);
+        let namee = await dataa[event.senderID].name
+        let loz = await api.getThreadInfo(event.threadID);
+        var emoji = loz.participantIDs;
+        var id = emoji[Math.floor(Math.random() * emoji.length)];
+        let data = await api.getUserInfo(id);
+        let name = await data[id].name
+        var arraytag = [];
+                arraytag.push({id: event.senderID, tag: namee});
+                arraytag.push({id: id, tag: name});
+        
+        var sex = await data[id].gender;
+        var gender = sex == 2 ? "𝑴𝒂𝒍𝒆🧑" : sex == 1 ? "𝑭𝒆𝒎𝒂𝒍𝒆👩‍🦰" : "𝑻𝒓𝒂𝒏𝒔𝒈𝒆𝒏𝒅𝒆𝒓";
+var one = senderID, two = id;
+    return makeImage({ one, two }).then(path => api.sendMessage({ 
+        body: `🍓 𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 ${namee}, 𝒕𝒖𝒎𝒊 𝒑𝒂𝒊𝒓 𝒉𝒐𝒍𝒆 ${name} 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆!\n🍓 𝑻𝒐𝒎𝒂𝒅𝒆𝒓 𝒎𝒊𝒍𝒂𝒏𝒆𝒓 𝒉𝒂𝒓: ${tle}`,
+        mentions: arraytag, 
+        attachment: fs.createReadStream(path) 
+    }, threadID, () => fs.unlinkSync(path), messageID));
+}

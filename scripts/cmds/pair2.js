@@ -1,99 +1,86 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const { loadImage, createCanvas } = require("canvas");
-
-module.exports = {
-  config: {
-    name: "pair2",
-    countDown: 10,
-    role: 0,
-    shortDescription: {
-      en: "Get to know your partner",
-      bn: "Jaanun apnar partner ke"
-    },
-    longDescription: {
-      en: "Know your destiny and who you'll complete your life with",
-      bn: "Jaanun kake niye apnar jibonta shesh korben"
-    },
-    category: "LOVE",
-    guide: {
-      en: "{pn}",
-      bn: "{pn}"
+module.exports.config = {
+	name: "pair2",
+	version: "1.0.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑬𝒌𝒕𝒊 𝒋𝒐𝒓𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂",
+	commandCategory: "𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
+	cooldowns: 5,
+	dependencies: {
+        "axios": "",
+        "fs-extra": ""
     }
-  },
+}
 
-  onStart: async function ({ api, event, usersData }) {
-    const pathImg = __dirname + "/cache/pair_bg.png";
-    const pathAvt1 = __dirname + "/cache/pair_avt1.png";
-    const pathAvt2 = __dirname + "/cache/pair_avt2.png";
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'pairing.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png", path);
+}
 
-    const senderID = event.senderID;
-    const senderName = await usersData.getName(senderID);
-    const threadInfo = await api.getThreadInfo(event.threadID);
-    const allUsers = threadInfo.userInfo;
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
 
-    const botID = api.getCurrentUserID();
+    let pairing_img = await jimp.read(__root + "/pairing.png");
+    let pathImg = __root + `/pairing_${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    pairing_img.composite(circleOne.resize(150, 150), 980, 200).composite(circleTwo.resize(150, 150), 140, 200);
+    
+    let raw = await pairing_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
 
-    const senderGender = allUsers.find(u => u.id == senderID)?.gender;
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
 
-    let candidates = allUsers.filter(u => u.id !== senderID && u.id !== botID);
-    if (senderGender === "FEMALE") {
-      candidates = candidates.filter(u => u.gender === "MALE");
-    } else if (senderGender === "MALE") {
-      candidates = candidates.filter(u => u.gender === "FEMALE");
-    }
-
-    if (candidates.length === 0) {
-      return api.sendMessage("[❌] E group-e kono suitable partner pawa jai nai!", event.threadID, event.messageID);
-    }
-
-    const partner = candidates[Math.floor(Math.random() * candidates.length)];
-    const partnerID = partner.id;
-    const partnerName = await usersData.getName(partnerID);
-
-    const fixedRandom = ["0", "-1", "99.99", "101", "0.01", `${Math.floor(Math.random() * 100) + 1}`];
-    const matchPercent = fixedRandom[Math.floor(Math.random() * fixedRandom.length)];
-
-    const bgUrl = "https://i.ibb.co/RBRLmRt/Pics-Art-05-14-10-47-00.jpg";
-
-    const downloadImage = async (url, output) => {
-      const img = (await axios.get(url, { responseType: "arraybuffer" })).data;
-      await fs.writeFile(output, img);
-    };
-
-    await Promise.all([
-      downloadImage(`https://graph.facebook.com/${senderID}/picture?width=720&height=720&access_token=EAAJZChZC...`, pathAvt1),
-      downloadImage(`https://graph.facebook.com/${partnerID}/picture?width=720&height=720&access_token=EAAJZChZC...`, pathAvt2),
-      downloadImage(bgUrl, pathImg)
-    ]);
-
-    const baseImage = await loadImage(pathImg);
-    const avatar1 = await loadImage(pathAvt1);
-    const avatar2 = await loadImage(pathAvt2);
-
-    const canvas = createCanvas(baseImage.width, baseImage.height);
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(baseImage, 0, 0);
-    ctx.drawImage(avatar1, 111, 175, 330, 330);
-    ctx.drawImage(avatar2, 1018, 173, 330, 330);
-
-    const imageBuffer = canvas.toBuffer();
-    const finalImagePath = __dirname + "/cache/final_pair.png";
-    fs.writeFileSync(finalImagePath, imageBuffer);
-
-    fs.remove(pathAvt1);
-    fs.remove(pathAvt2);
-    fs.remove(pathImg);
-
-    return api.sendMessage({
-      body: `『💗』Congrats ${senderName}!
-『❤️』Tomar jiboner sathi hote pare ${partnerName}!
-『🔗』Tomader bonding percent: ${matchPercent}%`,
-      mentions: [
-        { tag: partnerName, id: partnerID },
-        { tag: senderName, id: senderID }
-      ],
-      attachment: fs.createReadStream(finalImagePath)
-    }, event.threadID, () => fs.unlinkSync(finalImagePath), event.messageID);
-  }
-};
+module.exports.run = async function({ api, event, args, Users, Threads, Currencies }) {
+  const axios = require("axios");
+    const fs = require("fs-extra");
+    const { threadID, messageID, senderID } = event;
+    var tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
+        var tle = tl[Math.floor(Math.random() * tl.length)];
+        let dataa = await api.getUserInfo(event.senderID);
+        let namee = await dataa[event.senderID].name
+        let loz = await api.getThreadInfo(event.threadID);
+        var emoji = loz.participantIDs;
+        var id = emoji[Math.floor(Math.random() * emoji.length)];
+        let data = await api.getUserInfo(id);
+        let name = await data[id].name
+        var arraytag = [];
+                arraytag.push({id: event.senderID, tag: namee});
+                arraytag.push({id: id, tag: name});
+        
+        var one = senderID, two = id;
+    return makeImage({ one, two }).then(path => api.sendMessage({ 
+        body: `𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 ${namee}, 𝒕𝒖𝒎𝒊 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒍𝒆 ${name} 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆! ❤️\n𝑺𝒂𝒎𝒂𝒏𝒏𝒋𝒐𝒔𝒚𝒂𝒓 𝒉𝒂𝒓: 〘${tle}〙`, 
+        mentions: arraytag, 
+        attachment: fs.createReadStream(path) 
+    }, threadID, () => fs.unlinkSync(path), messageID));
+}

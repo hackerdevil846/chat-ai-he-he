@@ -1,124 +1,53 @@
-module.exports = {
-  config: {
-    name: "kick",
-    version: "2.0.0",
-    hasPermssion: 1,  // Corrected spelling (two 's')
-    credits: "Asif",
-    description: "Remove tagged users from the group",
-    category: "group",  // Correct category name
-    usages: "[@mention1 @mention2 ...]",
-    cooldowns: 5,
-    dependencies: {}
-  },
-
-  languages: {
-    en: {
-      error: "❌ An error occurred while processing the kick command",
-      needPermssion: "🔒 Bot needs admin privileges to perform this action",
-      missingTag: "📍 Please tag user(s) to kick",
-      success: "✅ Successfully kicked %1 user(s)",
-      noPermission: "⚠️ You don't have permission to use this command",
-      botNotAdmin: "🤖 I need to be admin to kick users",
-      cantKickAdmin: "⛔ Skipped %1 admin(s): %2",
-      processing: "⏳ Processing kick request...",
-      selfKick: "🤔 You can't kick yourself!",
-      botKick: "🚫 I can't kick myself!",
-      notInGroup: "👤 User not found in this group: %1",
-      failed: "❌ Failed to kick: %1"
-    }
-  },
-
-  onStart: async function({ api, event, getText }) {
-    const { threadID, messageID, mentions, senderID } = event;
-    
-    try {
-      // Get thread information
-      const threadInfo = await api.getThreadInfo(threadID);
-      const adminIDs = threadInfo.adminIDs.map(admin => admin.id);
-      const participantIDs = threadInfo.participantIDs;
-      
-      // Check bot admin status
-      const botID = api.getCurrentUserID();
-      if (!adminIDs.includes(botID)) {
-        return api.sendMessage(getText("botNotAdmin"), threadID, messageID);
-      }
-
-      // Check user admin status
-      if (!adminIDs.includes(senderID)) {
-        return api.sendMessage(getText("noPermission"), threadID, messageID);
-      }
-
-      // Validate mentions
-      const mentionKeys = Object.keys(mentions);
-      if (mentionKeys.length === 0) {
-        return api.sendMessage(getText("missingTag"), threadID, messageID);
-      }
-
-      api.sendMessage(getText("processing"), threadID, messageID);
-
-      // Process kicking
-      let successCount = 0;
-      const skippedAdmins = [];
-      const failedUsers = [];
-      const notInGroup = [];
-
-      for (const userID of mentionKeys) {
-        // Skip special cases
-        if (userID === senderID) {
-          api.sendMessage(getText("selfKick"), threadID);
-          continue;
-        }
-        
-        if (userID === botID) {
-          api.sendMessage(getText("botKick"), threadID);
-          continue;
-        }
-        
-        // Check if user is in group
-        if (!participantIDs.includes(userID)) {
-          notInGroup.push(mentions[userID]);
-          continue;
-        }
-        
-        // Skip admins
-        if (adminIDs.includes(userID)) {
-          skippedAdmins.push(mentions[userID]);
-          continue;
-        }
-
-        try {
-          // Kick user
-          await api.removeUserFromGroup(userID, threadID);
-          successCount++;
-          // Add delay between kicks to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        } catch (error) {
-          failedUsers.push(mentions[userID]);
-        }
-      }
-
-      // Prepare result message
-      let resultMessage = getText("success").replace("%1", successCount);
-      
-      if (skippedAdmins.length > 0) {
-        resultMessage += "\n" + getText("cantKickAdmin")
-          .replace("%1", skippedAdmins.length)
-          .replace("%2", skippedAdmins.join(", "));
-      }
-      
-      if (failedUsers.length > 0) {
-        resultMessage += "\n" + getText("failed").replace("%1", failedUsers.join(", "));
-      }
-      
-      if (notInGroup.length > 0) {
-        resultMessage += "\n" + getText("notInGroup").replace("%1", notInGroup.join(", "));
-      }
-
-      api.sendMessage(resultMessage, threadID, messageID);
-
-    } catch (error) {
-      console.error("Kick command error:", error);
-      api.sendMessage(getText("error"), threadID, messageID);
-    }
-  }
+module.exports.config = {
+	name: "kick",
+	version: "1.0.1", 
+	hasPermssion: 1,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝑮𝒓𝒐𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒕𝒂𝒈 𝒅𝒊𝒚𝒆 𝒋𝒂𝒓𝒆 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒖𝒏",
+	commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎", 
+	usages: "[𝒕𝒂𝒈]", 
+	cooldowns: 0,
 };
+
+module.exports.languages = {
+	"vi": {
+		"error": "Đã có lỗi xảy ra, vui lòng thử lại sau",
+		"needPermssion": "Cần quyền quản trị viên nhóm\nVui lòng thêm và thử lại!",
+		"missingTag": "Bạn phải tag người cần kick"
+	},
+	"en": {
+		"error": "𝑬𝒓𝒓𝒐𝒓! 𝑬𝒌𝒕𝒂 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒚𝒆𝒄𝒉𝒆. 𝑷𝒖𝒏𝒂𝒓𝒃𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏!",
+		"needPermssion": "𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒂𝒅𝒎𝒊𝒏 𝒅𝒂𝒌𝒉𝒕𝒆 𝒉𝒐𝒃𝒆\n𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒆 𝒑𝒖𝒏𝒂𝒓𝒃𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏!",
+		"missingTag": "𝑲𝒊𝒄𝒌 𝒌𝒐𝒓𝒕𝒆 𝒕𝒖𝒎𝒊 𝒌𝒂𝒓𝒐 𝒔𝒐𝒎𝒆𝒐𝒏𝒆 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒐"
+	}
+}
+
+module.exports.run = async function({ api, event, getText, Threads }) {
+	var mention = Object.keys(event.mentions);
+	try {
+		let dataThread = (await Threads.getData(event.threadID)).threadInfo;
+		
+		// Check if bot is admin
+		if (!dataThread.adminIDs.some(item => item.id == api.getCurrentUserID())) 
+			return api.sendMessage(getText("needPermssion"), event.threadID, event.messageID);
+		
+		// Check if user tagged someone
+		if(!mention[0]) 
+			return api.sendMessage(getText("missingTag"), event.threadID, event.messageID);
+		
+		// Check if user is admin
+		if (dataThread.adminIDs.some(item => item.id == event.senderID)) {
+			for (const o in mention) {
+				setTimeout(() => {
+					api.removeUserFromGroup(mention[o], event.threadID);
+					api.sendMessage(`🚫 @${mention[o]} 𝒌𝒆 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐!`, event.threadID);
+				}, 3000);
+			}
+		} else {
+			return api.sendMessage("❌ 𝑨𝒑𝒏𝒊 𝒑𝒂𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒏𝒆𝒊 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒕𝒆!", event.threadID, event.messageID);
+		}
+	} catch (err) {
+		console.error(err);
+		return api.sendMessage(getText("error"), event.threadID, event.messageID);
+	}
+}

@@ -1,23 +1,17 @@
 module.exports.config = {
   name: "pair",
   version: "1.0.0",
-  permission: 0,  // Fixed typo: hermssion -> permission
-  prefix: true,
-  credits: "Asif",
-  description: "It's a compound :>",
-  category: "fun",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝑬𝒕𝒂 𝒆𝒌𝒕𝒊 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂 :>",
+  commandCategory: "monoronjon",
   usages: "",
   dependencies: {
-    "axios": "",
-    "fs-extra": ""
+        "axios": "",
+        "fs-extra": ""
   },
-  cooldowns: 15
-};
-
-// Added onStart method
-module.exports.onStart = async function() {
-  // Empty implementation to satisfy the command loader
-};
+  cooldowns: 0
+}
 
 module.exports.run = async function ({ args, Users, Threads, api, event, Currencies }) {
   const { loadImage, createCanvas } = require("canvas");
@@ -26,6 +20,7 @@ module.exports.run = async function ({ args, Users, Threads, api, event, Currenc
   let pathImg = __dirname + "/cache/background.png";
   let pathAvt1 = __dirname + "/cache/Avtmot.png";
   let pathAvt2 = __dirname + "/cache/Avthai.png";
+  
   var id1 = event.senderID;
   var name1 = await Users.getNameUser(id1);
   var ThreadInfo = await api.getThreadInfo(event.threadID);
@@ -60,13 +55,16 @@ module.exports.run = async function ({ args, Users, Threads, api, event, Currenc
   var cc = ["0", "-1", "99,99", "-99", "-100", "101", "0,01"];
   var rd2 = cc[Math.floor(Math.random() * cc.length)];
   var djtme = [`${rd1}`, `${rd1}`, `${rd1}`, `${rd1}`, `${rd1}`, `${rd2}`, `${rd1}`, `${rd1}`, `${rd1}`, `${rd1}`];
+  
   var tile = djtme[Math.floor(Math.random() * djtme.length)];
+
   var background = [
   "https://i.postimg.cc/wjJ29HRB/background1.png",
   "https://i.postimg.cc/zf4Pnshv/background2.png",
   "https://i.postimg.cc/5tXRQ46D/background3.png"
   ];
   var rd = background[Math.floor(Math.random() * background.length)];
+  
   let getAvtmot = (
     await axios.get(
       `https://graph.facebook.com/${id1}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
@@ -74,6 +72,7 @@ module.exports.run = async function ({ args, Users, Threads, api, event, Currenc
     )
   ).data;
   fs.writeFileSync(pathAvt1, Buffer.from(getAvtmot, "utf-8"));
+
   let getAvthai = (
     await axios.get(
       `https://graph.facebook.com/${id2}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
@@ -81,12 +80,14 @@ module.exports.run = async function ({ args, Users, Threads, api, event, Currenc
     )
   ).data;
   fs.writeFileSync(pathAvt2, Buffer.from(getAvthai, "utf-8"));
+
   let getbackground = (
     await axios.get(`${rd}`, {
       responseType: "arraybuffer",
     })
   ).data;
   fs.writeFileSync(pathImg, Buffer.from(getbackground, "utf-8"));
+
   let baseImage = await loadImage(pathImg);
   let baseAvt1 = await loadImage(pathAvt1);
   let baseAvt2 = await loadImage(pathAvt2);
@@ -99,12 +100,16 @@ module.exports.run = async function ({ args, Users, Threads, api, event, Currenc
   fs.writeFileSync(pathImg, imageBuffer);
   fs.removeSync(pathAvt1);
   fs.removeSync(pathAvt2);
-  return api.sendMessage({ body: `Congratulations, ${name1} successfully paired with ${name2}\nThe odds are ${tile}%`,
-            mentions: [{
+  return api.sendMessage({ 
+      body: `𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 ${name1} 𝒕𝒖𝒎𝒊 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 ${name2} 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒍𝒆\n𝑻𝒐𝒎𝒂𝒅𝒆𝒓 𝒔𝒂𝒎𝒂𝒏𝒏𝒋𝒐𝒔𝒚𝒂 ${tile}%`,
+      mentions: [{
           tag: `${name2}`,
           id: id2
-        }], attachment: fs.createReadStream(pathImg) },
-      event.threadID,
-      () => fs.unlinkSync(pathImg),
-      event.messageID);
+      }], 
+      attachment: fs.createReadStream(pathImg) 
+    },
+    event.threadID,
+    () => fs.unlinkSync(pathImg),
+    event.messageID
+  );
 }

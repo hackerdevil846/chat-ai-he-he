@@ -1,102 +1,61 @@
-const axios = require("axios");
-
 module.exports.config = {
-  name: "nhentai",
-  version: "1.0.3",
-  hasPermssion: 0,
-  credits: "Asif",
-  description: "Search for information about hentai manga on nhentai",
-  category: "nsfw",
-  usages: "[ID]",
-  cooldowns: 5,
-  dependencies: {
-    "axios": ""
-  }
+    name: "nhentai",
+    version: "1.0.2",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑵𝑯𝒆𝒏𝒕𝒂𝒊 𝒆 𝒈𝒂𝒍𝒑𝒐 𝒆𝒓 𝒊𝒏𝒇𝒐 𝒌𝒉𝒖𝒏𝒋𝒖𝒏",
+    commandCategory: "𝒏𝒔𝒇𝒘",
+    usages: "[𝑰𝑫]",
+    cooldowns: 5,
+    dependencies: {
+        "request": "" 
+    },
 };
 
-module.exports.onStart = async function ({ api, event, args }) {
-  try {
+module.exports.languages = {
+    "en": {
+        "genarateCode": "𝑨𝒑𝒏𝒂𝒓 𝒋𝒐𝒏𝒚𝒐 𝒊𝒅𝒆𝒂𝒍 𝒌𝒐𝒅: %1",
+        "notFound": "𝑨𝒑𝒏𝒂𝒓 𝒉𝒆𝒏𝒕𝒂𝒊 𝒎𝒂𝒏𝒈𝒂 𝒌𝒉𝒖𝒋𝒆 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂!",
+        "returnResult": "» 𝑵𝒂𝒎: %1\n» 𝑳𝒆𝒌𝒉𝒐𝒌: %2\n» 𝑪𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓: %3\n» 𝑻𝒂𝒈: %4\n» 𝑳𝒊𝒏𝒌: https://nhentai.net/g/%5"
+    }
+}
+
+module.exports.run = ({ api, event, args, getText }) => {
+    const request = global.nodemodule["request"];
     const { threadID, messageID } = event;
-    
-    // Generate random code if no ID is provided
-    if (!args[0] || isNaN(parseInt(args[0]))) {
-      const randomCode = Math.floor(Math.random() * 99999);
-      return api.sendMessage(
-        `🔞 The ideal code for you: ${randomCode}`,
-        threadID,
-        messageID
-      );
+
+    if (!args[0] || typeof parseInt(args[0]) !== "number") {
+        const randomCode = Math.floor(Math.random() * 99999);
+        return api.sendMessage(getText("genarateCode", randomCode), threadID, messageID);
     }
-
-    const code = parseInt(args[0]);
     
-    // Send processing message
-    const processingMsg = await api.sendMessage(
-      "🔍 Searching nhentai...",
-      threadID
-    );
-
-    try {
-      // Fetch manga data from nhentai API
-      const response = await axios.get(`https://nhentai.net/api/gallery/${code}`, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    return request(`https://nhentai.net/api/gallery/${parseInt(args[0])}`, (error, response, body) => {
+        try {
+            var codeData = JSON.parse(body);
+            if (codeData.error) throw new Error();
+        } catch {
+            return api.sendMessage(getText("notFound"), threadID, messageID);
         }
-      });
-      
-      const codeData = response.data;
-      
-      const title = codeData.title.pretty;
-      let tags = [];
-      let artists = [];
-      let characters = [];
 
-      // Process tags
-      codeData.tags.forEach(item => {
-        switch(item.type) {
-          case "tag":
-            tags.push(item.name);
-            break;
-          case "artist":
-            artists.push(item.name);
-            break;
-          case "character":
-            characters.push(item.name);
-            break;
-        }
-      });
-
-      const tagList = tags.join(', ') || "None";
-      const artistList = artists.join(', ') || "Unknown";
-      const characterList = characters.join(', ') || "Original";
-      
-      // Format and send result
-      const resultMessage = 
-        `🎨 Title: ${title}\n` +
-        `👩‍🎨 Artist: ${artistList}\n` +
-        `👤 Characters: ${characterList}\n` +
-        `🏷️ Tags: ${tagList}\n` +
-        `🔗 Link: https://nhentai.net/g/${code}/`;
-      
-      // Unsend processing message and send result
-      api.unsendMessage(processingMsg.messageID);
-      return api.sendMessage(resultMessage, threadID, messageID);
-      
-    } catch (apiError) {
-      // Handle API errors
-      api.unsendMessage(processingMsg.messageID);
-      return api.sendMessage(
-        "❌ Can't find your hentai manga! Please check the ID and try again.",
-        threadID,
-        messageID
-      );
-    }
-  } catch (error) {
-    console.error('nhentai command error:', error);
-    api.sendMessage(
-      "❌ An error occurred while processing your request. Please try again later.",
-      threadID,
-      messageID
-    );
-  }
-};
+        const title = codeData.title.pretty;
+        var tagList = [],
+            artistList = [],
+            characterList = [];
+        
+        codeData.tags.forEach(item => {
+            if (item.type === "tag") tagList.push(item.name);
+            else if (item.type === "artist") artistList.push(item.name);
+            else if (item.type === "character") characterList.push(item.name);
+        });
+        
+        const tags = tagList.join(', ');
+        const artists = artistList.join(', ') || '𝑶𝒓𝒊𝒈𝒊𝒏𝒂𝒍';
+        const characters = characterList.join(', ') || '𝑶𝒓𝒊𝒈𝒊𝒏𝒂𝒍';
+        
+        return api.sendMessage(
+            getText("returnResult", title, artists, characters, tags, args[0]),
+            threadID,
+            messageID
+        );
+    });
+}

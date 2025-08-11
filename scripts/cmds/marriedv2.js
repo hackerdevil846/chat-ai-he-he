@@ -1,170 +1,83 @@
-const fs = require('fs-extra');
-const path = require('path');
-const axios = require('axios');
-const jimp = require('jimp');
+module.exports.config = {
+    name: "marriedv2",
+    version: "3.1.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑴𝒂𝒓𝒓𝒊𝒆𝒅 𝒊𝒎𝒂𝒈𝒆 𝒄𝒓𝒆𝒂𝒕𝒆 𝒌𝒐𝒓𝒖𝒏",
+    commandCategory: "𝑰𝒎𝒂𝒈𝒆",
+    usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
+    }
+};
 
-// Background URL defined as constant
-const BACKGROUND_URL = "https://i.ibb.co/mc9KNm1/1619885987-21-pibig-info-p-anime-romantika-svadba-anime-krasivo-24.jpg";
-
-// Helper function for downloading files
-async function downloadFile(url, filePath) {
-  try {
-    const response = await axios.get(url, { 
-      responseType: 'arraybuffer',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-    });
-    fs.writeFileSync(filePath, Buffer.from(response.data));
-    return true;
-  } catch (error) {
-    console.error('Download error:', error);
-    return false;
-  }
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'marriedv02.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.ibb.co/mc9KNm1/1619885987-21-pibig-info-p-anime-romantika-svadba-anime-krasivo-24.jpg", path);
 }
 
-module.exports = {
-  config: {
-    name: "marriedv2",
-    version: "3.2.1",
-    hasPermssion: 0,
-    credits: "Asif",
-    description: "Create a marriage certificate with profile pictures",
-    category: "img",
-    usages: "[@mention]",
-    cooldowns: 10,
-    dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "path": "",
-      "jimp": ""
-    },
-    envConfig: {
-      backgroundUrl: BACKGROUND_URL
-    }
-  },
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
 
-  onLoad: async function() {
-    const cachePath = path.join(__dirname, 'cache', 'canvas');
-    const bgPath = path.join(cachePath, 'marriedv02.png');
+    let married_img = await jimp.read(__root + "/marriedv02.png");
+    let pathImg = __root + `/married_${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
     
-    // Create cache directory
-    if (!fs.existsSync(cachePath)) {
-      fs.mkdirSync(cachePath, { recursive: true });
-    }
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
     
-    // Download background if not exists
-    if (!fs.existsSync(bgPath)) {
-      await downloadFile(BACKGROUND_URL, bgPath);
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    married_img.composite(circleOne.resize(100, 100), 55, 48).composite(circleTwo.resize(100, 100), 190, 40);
+    
+    let raw = await married_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {    
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    
+    if (!mention[0]) {
+        return api.sendMessage("𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒋𝒐𝒏 𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏! 💍", threadID, messageID);
     }
-  },
-
-  circleImage: async function(imagePath) {
-    try {
-      const image = await jimp.read(imagePath);
-      image.circle();
-      return await image.getBufferAsync(jimp.MIME_PNG);
-    } catch (error) {
-      console.error('Circle image error:', error);
-      throw error;
+    else {
+        const one = senderID, two = mention[0];
+        return makeImage({ one, two }).then(path => {
+            api.sendMessage({ 
+                body: `💕 𝑪𝒐𝒏𝒈𝒓𝒂𝒕𝒖𝒍𝒂𝒕𝒊𝒐𝒏𝒔! 𝑺𝒉𝒂𝒅𝒊 𝒆𝒓 𝒊𝒎𝒂𝒈𝒆 𝒓𝒆𝒂𝒅𝒚 💒\n━━━━━━━━━━━━━━\n𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
+                attachment: fs.createReadStream(path) 
+            }, threadID, () => fs.unlinkSync(path), messageID);
+        });
     }
-  },
-
-  makeMarriageImage: async function({ one, two }) {
-    try {
-      const cacheDir = path.join(__dirname, 'cache', 'canvas');
-      const bgPath = path.join(cacheDir, 'marriedv02.png');
-      const outputPath = path.join(cacheDir, `married_${one}_${two}_${Date.now()}.png`);
-      const avatarOnePath = path.join(cacheDir, `avt_${one}.png`);
-      const avatarTwoPath = path.join(cacheDir, `avt_${two}.png`);
-
-      // Download profile pictures
-      const [avatarOne, avatarTwo] = await Promise.all([
-        axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512`, { 
-          responseType: 'arraybuffer',
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        }),
-        axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512`, { 
-          responseType: 'arraybuffer',
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-        })
-      ]);
-
-      fs.writeFileSync(avatarOnePath, avatarOne.data);
-      fs.writeFileSync(avatarTwoPath, avatarTwo.data);
-
-      // Process images
-      const [circleOne, circleTwo, background] = await Promise.all([
-        this.circleImage(avatarOnePath),
-        this.circleImage(avatarTwoPath),
-        jimp.read(bgPath)
-      ]);
-
-      const circleOneImg = await jimp.read(circleOne);
-      const circleTwoImg = await jimp.read(circleTwo);
-
-      // Composite images
-      background.composite(circleOneImg.resize(100, 100), 55, 48);
-      background.composite(circleTwoImg.resize(100, 100), 190, 40);
-
-      // Save final image
-      await background.writeAsync(outputPath);
-
-      // Cleanup temp files
-      [avatarOnePath, avatarTwoPath].forEach(path => {
-        if (fs.existsSync(path)) fs.unlinkSync(path);
-      });
-
-      return outputPath;
-    } catch (error) {
-      console.error('Marriage image creation error:', error);
-      throw error;
-    }
-  },
-
-  onStart: async function({ api, event, args }) {
-    try {
-      const { threadID, messageID, senderID, mentions } = event;
-      
-      // Check if user mentioned someone
-      if (!mentions || Object.keys(mentions).length === 0) {
-        return api.sendMessage("💍 Please mention someone to marry!", threadID, messageID);
-      }
-
-      const targetID = Object.keys(mentions)[0];
-      const targetName = mentions[targetID].replace(/@/g, '');
-      
-      // Get user names
-      const userInfo = await api.getUserInfo([senderID, targetID]);
-      const userName = userInfo[senderID]?.name || "You";
-      const spouseName = userInfo[targetID]?.name || "Your Spouse";
-      
-      api.sendMessage(`💞 Preparing marriage certificate for ${userName} and ${spouseName}...`, threadID, messageID);
-      
-      // Generate marriage certificate
-      const imagePath = await this.makeMarriageImage({ 
-        one: senderID, 
-        two: targetID 
-      });
-
-      // Send the result
-      await api.sendMessage({
-        body: `💒 Congratulations! ${userName} and ${spouseName} are now officially married! 💖\nMay your love last forever! ❤️`,
-        mentions: [{
-          tag: spouseName,
-          id: targetID
-        }],
-        attachment: fs.createReadStream(imagePath)
-      }, threadID, () => {
-        // Clean up after sending
-        try {
-          if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
-        }
-      }, messageID);
-
-    } catch (error) {
-      console.error('Marriage command error:', error);
-      api.sendMessage("❌ An error occurred while creating the marriage certificate. Please try again later.", threadID, messageID);
-    }
-  }
-};
+}

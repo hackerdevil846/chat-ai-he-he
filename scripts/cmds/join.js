@@ -1,106 +1,63 @@
 const chalk = require('chalk');
-
-// Command configuration
 module.exports.config = {
     name: "join",
     version: "1.0.1",
-    permission: 2,
-    credits: "Asif",
-    prefix: true,
-    description: "Join the bot's groups",
-    category: "admin",
+    hasPermssion: 2,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑩𝒐𝒕 𝒋𝒆 𝒃𝒐𝒙 𝒆 𝒂𝒔𝒆 𝒋𝒐𝒊𝒏 𝒌𝒐𝒓𝒖𝒏",
+    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
     usages: "",
     cooldowns: 5
 };
 
-// Required initialization hook for the framework
-module.exports.onStart = async function() {
-    return true;
-};
+module.exports.onLoad = () => {
+  console.log(chalk.bold.hex("#00c300").bold("============ 𝑱𝑶𝑰𝑵 𝑪𝑶𝑴𝑴𝑨𝑵𝑫 𝑺𝑼𝑪𝑪𝑬𝑺𝑺𝑭𝑼𝑳𝑳𝒀 𝑳𝑶𝑨𝑫𝑬𝑫 ============"));
+}
 
-// Message reply handler for group selection
 module.exports.handleReply = async function({ api, event, handleReply, Threads }) {
-    const { threadID, messageID, senderID, body } = event;
-    const { ID } = handleReply;
-
-    try {
-        // Validate input
-        if (!body || isNaN(parseInt(body))) {
-            return api.sendMessage('Your selection must be a number.', threadID, messageID);
-        }
-
-        if ((parseInt(body) - 1) >= ID.length) {
-            return api.sendMessage("Your pick is not on the list", threadID, messageID);
-        }
-
-        // Get thread information
-        const threadInfo = await Threads.getInfo(ID[body - 1]);
-        const { participantIDs, approvalMode, adminIDs } = threadInfo;
-        const currentUserID = api.getCurrentUserID();
-
-        // Check if user is already in the group
-        if (participantIDs.includes(senderID)) {
-            return api.sendMessage(`You are already in this group.`, threadID, messageID);
-        }
-
-        // Add user to group
-        await api.addUserToGroup(senderID, ID[body - 1]);
-
-        // Handle approval mode
-        if (approvalMode && !adminIDs.some(item => item.id === currentUserID)) {
-            return api.sendMessage(
-                "Added you to the group's approval list. Customize yourself.",
-                threadID,
-                messageID
-            );
-        }
-
-        // Success message
-        return api.sendMessage(
-            `You have joined to ${threadInfo.threadName}. Check in the message request or spam message. If the group didn't appear, the group may require admin approval.`,
-            threadID,
-            messageID
-        );
-
-    } catch (error) {
-        console.error('Error in join command:', error);
-        return api.sendMessage(`I can't add you to that group\nError: ${error}`, threadID, messageID);
+  var { threadID, messageID, senderID, body } = event;
+  var { ID } = handleReply;
+  
+  if (!body || !parseInt(body)) return api.sendMessage('𝑺𝒆𝒍𝒆𝒄𝒕𝒊𝒐𝒏 𝒆𝒌𝒕𝒂 𝒏𝒖𝒎𝒃𝒆𝒓 𝒉𝒐𝒕𝒆 𝒉𝒐𝒃𝒆!', threadID, messageID);
+  
+  if ((parseInt(body) - 1) > ID.length) return api.sendMessage("𝑨𝒑𝒏𝒂𝒓 𝒑𝒊𝒄𝒌 𝒍𝒊𝒔𝒕 𝒆 𝒏𝒂𝒊", threadID, messageID);
+  
+  try {
+    var threadInfo = await Threads.getInfo(ID[body - 1]);
+    var { participantIDs, approvalMode, adminIDs } = threadInfo;
+    
+    if (participantIDs.includes(senderID)) return api.sendMessage(`𝑨𝒑𝒏𝒊 𝒂𝒈𝒆𝒓 𝒆𝒊 𝒈𝒓𝒐𝒖𝒑 𝒆 𝒂𝒄𝒉𝒆𝒏!`, threadID, messageID);
+    
+    api.addUserToGroup(senderID, ID[body - 1]);
+    
+    if (approvalMode == true && !adminIDs.some(item => item.id) == api.getCurrentUserID()) {
+      return api.sendMessage("𝑨𝒑𝒏𝒂𝒌𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒂𝒑𝒑𝒓𝒐𝒗𝒂𝒍 𝒍𝒊𝒔𝒕 𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐...", threadID, messageID);
+    } else {
+      return api.sendMessage(`𝑴𝒆𝒚𝒆 𝒂𝒑𝒏𝒂𝒌𝒆 \"${threadInfo.threadName}\" 𝒈𝒓𝒐𝒖𝒑 𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒆𝒄𝒉𝒊 💖\n𝑺𝒑𝒂𝒎 𝒃𝒐𝒙 𝒏𝒂 𝒑𝒂𝒍𝒆 𝒄𝒉𝒆𝒄𝒌 𝒌𝒐𝒓𝒖𝒏`, threadID, messageID);
     }
-};
+  } catch (error) {
+    return api.sendMessage(`𝑨𝒑𝒏𝒂𝒌𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢\n\n${error}`, threadID, messageID);
+  }
+}
 
-// Main command execution
 module.exports.run = async function({ api, event, Threads }) {
-    const { threadID, messageID, senderID } = event;
-
-    try {
-        const allThreads = await Threads.getAll();
-        let msg = `All groups where this bot is present:\n\n`;
-        const IDs = [];
-
-        for (let i = 0; i < allThreads.length; i++) {
-            const thread = allThreads[i];
-            msg += `${i + 1}. ${thread.threadInfo.threadName}\n`;
-            IDs.push(thread.threadID);
-        }
-
-        msg += `\nReply to this message with the number of the group you want to join`;
-
-        return api.sendMessage(msg, threadID, async (error, info) => {
-            if (error) {
-                console.error('Error sending message:', error);
-                return;
-            }
-
-            global.client.handleReply.push({
-                name: this.config.name,
-                author: senderID,
-                messageID: info.messageID,
-                ID: IDs
-            });
-        }, messageID);
-
-    } catch (error) {
-        console.error('Error fetching groups:', error);
-        return api.sendMessage('Failed to retrieve group list. Please try again later.', threadID, messageID);
-    }
-};
+  var { threadID, messageID, senderID } = event;
+  var msg = `📋  𝑩𝑶𝑿 𝑳𝑰𝑺𝑻  📋\n\n`, number = 0, ID = [];
+  
+  var allThreads = await Threads.getAll();
+  for (var i of allThreads) {
+    number++;
+    msg += `${number}. ${i.threadInfo.threadName}\n`;
+    ID.push(i.threadID)
+  }
+  
+  msg += `\n👉 𝑨𝒑𝒏𝒊 𝒋𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆 𝒋𝒐𝒊𝒏 𝒉𝒐𝒕𝒆 𝒄𝒂𝒏 𝒔𝒆𝒍𝒆𝒄𝒕𝒊𝒐𝒏 𝒆𝒓 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏`
+  return api.sendMessage(msg, threadID, (error, info) => {
+    global.client.handleReply.push({
+      name: this.config.name,
+      author: senderID,
+      messageID: info.messageID,
+      ID: ID      
+    })
+  }, messageID)
+}

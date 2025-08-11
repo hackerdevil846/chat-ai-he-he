@@ -1,0 +1,67 @@
+module.exports.config = {
+    name: "pay",
+    version: "1.0.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑨𝒏𝒚𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 𝒕𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒏𝒐𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
+    commandCategory: "economy",
+    usages: "[𝒕𝒂𝒈] [𝑻𝒂𝒌𝒂𝒓 𝒔𝒐𝒏𝒌𝒉𝒚𝒂]",
+    cooldowns: 5
+};
+
+module.exports.languages = {
+    "vi": {
+        "missingTag": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒆𝒌𝒋𝒐𝒏 𝒍𝒐𝒌𝒆𝒓 𝒏𝒂𝒎 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏",
+        "overTagLength": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒔𝒖𝒅𝒉𝒖 𝒆𝒌𝒋𝒐𝒏 𝒍𝒐𝒌𝒆𝒓 𝒕𝒂𝒈 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏",
+        "userNotExist": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒋𝒆 𝒍𝒐𝒌𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 𝒕𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒄𝒂𝒏𝒅𝒆𝒏, 𝒔𝒆 𝒍𝒐𝒌𝒕𝒊 𝒔𝒊𝒔𝒕𝒆𝒎𝒆 𝒏𝒆𝒊",
+        "invalidInput": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒆𝒕𝒐 𝒕𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏 𝒏𝒂",
+        "payerNotExist": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒆𝒌𝒉𝒐𝒏𝒐 𝒔𝒊𝒔𝒕𝒆𝒎𝒆 𝒏𝒆𝒊, 𝒅𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝟓 𝒔𝒆𝒌𝒆𝒏𝒅 𝒐𝒑𝒆𝒌𝒌𝒉𝒂 𝒌𝒐𝒓𝒖𝒏",
+        "notEnoughMoney": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒂𝒓 𝒌𝒂𝒄𝒉𝒆 𝒆𝒕𝒐 𝒕𝒂𝒌𝒂 𝒏𝒆𝒊",
+        "paySuccess": "[ 𝑷𝑨𝒀 ] %1$ (𝟏𝟓% 𝒕𝒂𝒙 𝒔𝒐𝒉𝒐) 𝒕𝒂𝒌𝒂 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒐: %2",
+        "error": "[ 𝑷𝑨𝒀 ] 𝑻𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒏𝒐𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒌𝒕𝒂 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒚𝒆𝒄𝒉𝒆"
+    },
+    "en": {
+        "missingTag": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒆𝒌𝒋𝒐𝒏 𝒍𝒐𝒌𝒆𝒓 𝒏𝒂𝒎 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏",
+        "overTagLength": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒔𝒖𝒅𝒉𝒖 𝒆𝒌𝒋𝒐𝒏 𝒍𝒐𝒌𝒆𝒓 𝒕𝒂𝒈 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏",
+        "userNotExist": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒋𝒆 𝒍𝒐𝒌𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 𝒕𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒄𝒂𝒏𝒅𝒆𝒏, 𝒔𝒆 𝒍𝒐𝒌𝒕𝒊 𝒔𝒊𝒔𝒕𝒆𝒎𝒆 𝒏𝒆𝒊",
+        "invalidInput": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒆𝒕𝒐 𝒕𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏 𝒏𝒂",
+        "payerNotExist": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒊 𝒆𝒌𝒉𝒐𝒏𝒐 𝒔𝒊𝒔𝒕𝒆𝒎𝒆 𝒏𝒆𝒊, 𝒅𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝟓 𝒔𝒆𝒌𝒆𝒏𝒅 𝒐𝒑𝒆𝒌𝒌𝒉𝒂 𝒌𝒐𝒓𝒖𝒏",
+        "notEnoughMoney": "[ 𝑷𝑨𝒀 ] 𝑨𝒑𝒏𝒂𝒓 𝒌𝒂𝒄𝒉𝒆 𝒆𝒕𝒐 𝒕𝒂𝒌𝒂 𝒏𝒆𝒊",
+        "paySuccess": "[ 𝑷𝑨𝒀 ] %1$ (𝟏𝟓% 𝒕𝒂𝒙 𝒔𝒐𝒉𝒐) 𝒕𝒂𝒌𝒂 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒐: %2",
+        "error": "[ 𝑷𝑨𝒀 ] 𝑻𝒂𝒌𝒂 𝒑𝒂𝒕𝒉𝒂𝒏𝒐𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒌𝒕𝒂 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒚𝒆𝒄𝒉𝒆"
+    }
+}
+
+module.exports.run = async function ({ api, event, Currencies, Users, args, getText }) {
+    const { increaseMoney, decreaseMoney, getData } = Currencies;
+    const { threadID, messageID, senderID } = event;
+    var targetID = String(args[1]);
+    var moneyPay = (args.slice(2, args.length)).join(" ") || null;
+
+    if (isNaN(targetID)) {
+        const mention = Object.keys(event.mentions);
+        if (mention.length == 0) return api.sendMessage(getText("missingTag"), threadID, messageID);
+        if (mention.length > 1) return api.sendMessage(getText("overTagLength"), threadID, messageID);
+        args = args.join(" ");
+        targetID = String(mention[0]);
+        moneyPay = (args.slice(args.indexOf(event.mentions[mention[0]]) + (event.mentions[mention[0]] || "").length + 1, args.length)) || null;
+    }
+
+    if (!global.data.allCurrenciesID.includes(targetID)) return api.sendMessage(getText("userNotExist"), threadID, messageID);
+
+    if (isNaN(moneyPay) || moneyPay < 1) return api.sendMessage(getText("invalidInput"), threadID, messageID);
+    const taxed = (parseInt(moneyPay) * 15) / 100;
+    
+    try {
+        const moneyPayer = (await getData(senderID)).money;
+        if (!moneyPayer) return api.sendMessage(getText("payerNotExist"), threadID, messageID);
+        if (moneyPayer < moneyPay) return api.sendMessage(getText("notEnoughMoney"), threadID, messageID);
+        const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
+        await decreaseMoney(senderID, parseInt(moneyPay));
+        await increaseMoney(targetID, parseInt(moneyPay) - taxed);
+        return api.sendMessage(getText("paySuccess", (parseInt(moneyPay) - taxed), `${targetID} - ${nameTarget}`), threadID, messageID);
+    } catch (e) { 
+        console.log(e);
+        return api.sendMessage(getText("error"), threadID, messageID) 
+    }
+}

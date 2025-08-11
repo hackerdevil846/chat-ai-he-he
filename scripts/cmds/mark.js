@@ -1,80 +1,80 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const { createCanvas, loadImage } = require("canvas");
-
-module.exports = {
-  config: {
-    name: "mark",
-    author: "Asif Mahmud",
-    countDown: 5,
-    role: 0,
-    category: "fun",
-    shortDescription: {
-      en: "Zucc board comment gen",
-      bn: "Zucc board-e text likhe image banay"
-    },
-    guide: {
-      en: "{pn} your text",
-      bn: "{pn} apnar text likhun"
-    }
-  },
-
-  wrapText: async (ctx, text, maxWidth) => {
-    if (ctx.measureText(text).width < maxWidth) return [text];
-    const words = text.split(" ");
-    const lines = [];
-    let line = "";
-    for (const word of words) {
-      const testLine = line + word + " ";
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth) {
-        lines.push(line.trim());
-        line = word + " ";
-      } else {
-        line = testLine;
-      }
-    }
-    lines.push(line.trim());
-    return lines;
-  },
-
-  onStart: async function ({ api, event, args }) {
-    const { threadID, messageID } = event;
-    const text = args.join(" ");
-    const pathImg = __dirname + "/cache/mark_zucc.png";
-
-    if (!text) return api.sendMessage("📝 Please write something to comment.", threadID, messageID);
-
-    try {
-      const response = await axios.get("https://i.postimg.cc/gJCXgKv4/zucc.jpg", {
-        responseType: "arraybuffer"
-      });
-      fs.writeFileSync(pathImg, Buffer.from(response.data, "utf-8"));
-
-      const baseImage = await loadImage(pathImg);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-
-      ctx.drawImage(baseImage, 0, 0);
-      ctx.fillStyle = "#000";
-      ctx.textAlign = "start";
-      let fontSize = 20;
-      ctx.font = `${fontSize}px Arial`;
-      const lines = await this.wrapText(ctx, text, 470);
-
-      let y = 75;
-      for (const line of lines) {
-        ctx.fillText(line, 15, y);
-        y += fontSize + 5;
-      }
-
-      const finalBuffer = canvas.toBuffer();
-      fs.writeFileSync(pathImg, finalBuffer);
-
-      return api.sendMessage({ attachment: fs.createReadStream(pathImg) }, threadID, () => fs.unlinkSync(pathImg), messageID);
-    } catch (err) {
-      console.error("Error generating image:", err);
-      return api.sendMessage("❌ Image generate korte somossa hoise.", threadID, messageID);
-    }
-  }
+module.exports.config = {
+	name: "mark",
+	version: "1.0.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
+	commandCategory: "𝑮𝒂𝒎𝒆",
+	usages: "[𝒕𝒆𝒙𝒕]",
+	cooldowns: 5,
+	dependencies: {
+		"canvas":"",
+		"axios":"",
+		"fs-extra":""
+	}
 };
+
+module.exports.wrapText = (ctx, text, maxWidth) => {
+	return new Promise(resolve => {
+		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+		if (ctx.measureText('W').width > maxWidth) return resolve(null);
+		const words = text.split(' ');
+		const lines = [];
+		let line = '';
+		while (words.length > 0) {
+			let split = false;
+			while (ctx.measureText(words[0]).width >= maxWidth) {
+				const temp = words[0];
+				words[0] = temp.slice(0, -1);
+				if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+				else {
+					split = true;
+					words.splice(1, 0, temp.slice(-1));
+				}
+			}
+			if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+			else {
+				lines.push(line.trim());
+				line = '';
+			}
+			if (words.length === 0) lines.push(line.trim());
+		}
+		return resolve(lines);
+	});
+} 
+
+module.exports.run = async function({ api, event, args }) {
+	let { threadID, messageID } = event;
+	const { loadImage, createCanvas } = require("canvas");
+	const fs = global.nodemodule["fs-extra"];
+	const axios = global.nodemodule["axios"];
+	let pathImg = __dirname + '/cache/markngu.png';
+	var text = args.join(" ");
+	
+	if (!text) return api.sendMessage("𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏 ✏️", threadID, messageID);
+	
+	let getPorn = (await axios.get(`https://i.imgur.com/3j4GPdy.jpg`, { responseType: 'arraybuffer' })).data;
+	fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
+	let baseImage = await loadImage(pathImg);
+	let canvas = createCanvas(baseImage.width, baseImage.height);
+	let ctx = canvas.getContext("2d");
+	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+	ctx.font = "400 45px Arial";
+	ctx.fillStyle = "#000000";
+	ctx.textAlign = "start";
+	let fontSize = 45;
+	while (ctx.measureText(text).width > 2250) {
+		fontSize--;
+		ctx.font = `400 ${fontSize}px Arial, sans-serif`;
+	}
+	const lines = await this.wrapText(ctx, text, 440);
+	ctx.fillText(lines.join('\n'), 95,420);//comment
+	ctx.beginPath();
+	const imageBuffer = canvas.toBuffer();
+	fs.writeFileSync(pathImg, imageBuffer);
+	
+	return api.sendMessage({ 
+		body: "𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒍𝒂𝒎! 📝",
+		attachment: fs.createReadStream(pathImg) 
+	}, threadID, () => fs.unlinkSync(pathImg), messageID);        
+}

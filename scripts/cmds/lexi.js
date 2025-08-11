@@ -1,135 +1,86 @@
-const path = require("path");
-const { createCanvas, loadImage } = require("canvas");
-const axios = require("axios");
-const fs = require("fs-extra");
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "lexi",
-    version: "2.1.1",
-    hasPermssion: 0, // Corrected spelling (two 's')
-    credits: "Asif",
-    description: "Create custom text on a professional signature board",
-    category: "edit-img", // Fixed category
-    usages: "lexi [text]",
-    cooldowns: 15,
+    version: "1.0.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑳𝒆𝒙𝒊 𝑭𝒓𝒊𝒆𝒅𝒎𝒂𝒏 𝒆𝒓 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
+    commandCategory: "𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
+    usages: "𝒍𝒆𝒙𝒊 [𝒕𝒆𝒙𝒕]",
+    cooldowns: 10,
     dependencies: {
-      "canvas": "",
-      "axios": "",
-      "fs-extra": ""
-    },
-    envConfig: {
-      backgroundUrl: "https://i.imgur.com/hTU9zhX.png" // Signature board template
+        "canvas": "",
+        "axios": "",
+        "fs-extra": ""
     }
-  },
+};
 
-  wrapText: function (ctx, text, maxWidth) {
-    try {
-      if (ctx.measureText(text).width <= maxWidth) return [text];
-      
-      const words = text.split(/\s+/);
-      const lines = [];
-      let currentLine = words[0];
-
-      for (let i = 1; i < words.length; i++) {
-        const testLine = currentLine + ' ' + words[i];
-        if (ctx.measureText(testLine).width <= maxWidth) {
-          currentLine = testLine;
-        } else {
-          lines.push(currentLine);
-          currentLine = words[i];
+module.exports.wrapText = (ctx, text, maxWidth) => {
+    return new Promise(resolve => {
+        if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+        if (ctx.measureText('W').width > maxWidth) return resolve(null);
+        const words = text.split(' ');
+        const lines = [];
+        let line = '';
+        while (words.length > 0) {
+            let split = false;
+            while (ctx.measureText(words[0]).width >= maxWidth) {
+                const temp = words[0];
+                words[0] = temp.slice(0, -1);
+                if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+                else {
+                    split = true;
+                    words.splice(1, 0, temp.slice(-1));
+                }
+            }
+            if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+            else {
+                lines.push(line.trim());
+                line = '';
+            }
+            if (words.length === 0) lines.push(line.trim());
         }
-      }
-      lines.push(currentLine);
-      return lines;
-    } catch (error) {
-      console.error("Text wrapping error:", error);
-      return [text];
-    }
-  },
+        return resolve(lines);
+    });
+}
 
-  onStart: async function({ api, event, args, config }) {
+module.exports.run = async function({ api, event, args }) {
+    let { threadID, messageID } = event;
+    const { loadImage, createCanvas } = require("canvas");
+    const fs = global.nodemodule["fs-extra"];
+    const axios = global.nodemodule["axios"];
+    let pathImg = __dirname + '/cache/lexi_board.png';
+    
+    var text = args.join(" ");
+    if (!text) return api.sendMessage("𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+    
     try {
-      const { threadID, messageID, senderID } = event;
-      const { backgroundUrl } = config.envConfig;
-
-      // Validate input
-      const text = args.join(" ");
-      if (!text) {
-        return api.sendMessage("✏️ Please enter the text you want to display on the signature board.\nExample: !lexi Official Signature", threadID, messageID);
-      }
-
-      // Create cache directory
-      const cacheDir = path.join(__dirname, 'cache', 'lexi');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      const outputPath = path.join(cacheDir, `signature_${senderID}_${Date.now()}.png`);
-      
-      api.sendMessage("🖌️ Creating your signature board...", threadID, messageID);
-      
-      // Download background image
-      const response = await axios.get(backgroundUrl, { responseType: 'arraybuffer' });
-      fs.writeFileSync(outputPath, response.data);
-
-      // Load image and create canvas
-      const baseImage = await loadImage(outputPath);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      
-      // Draw background
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-      // Text styling
-      ctx.fillStyle = "#000000"; // Black text
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-
-      // Font settings
-      const maxWidth = 490; // Max width for text
-      let fontSize = 42; // Starting font size
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-
-      // Dynamic font sizing
-      while (ctx.measureText(text).width > maxWidth && fontSize > 20) {
-        fontSize -= 1;
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-      }
-
-      // Wrap text
-      const lines = this.wrapText(ctx, text, maxWidth);
-      const lineHeight = fontSize * 1.3; // Line height calculation
-      const startY = 60; // Starting Y position
-
-      // Text shadow effect
-      ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-      ctx.shadowBlur = 3;
-      ctx.shadowOffsetX = 1;
-      ctx.shadowOffsetY = 1;
-
-      // Draw text lines
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], 25, startY + (i * lineHeight));
-      }
-
-      // Reset shadow
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
-
-      // Save image
-      const buffer = canvas.toBuffer("image/png");
-      fs.writeFileSync(outputPath, buffer);
-
-      // Send result
-      await api.sendMessage({
-        body: "✅ Your professional signature board is ready!",
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => fs.unlinkSync(outputPath), messageID);
-
+        let getImage = (await axios.get(`https://i.imgur.com/hTU9zhX.png`, { responseType: 'arraybuffer' })).data;
+        fs.writeFileSync(pathImg, Buffer.from(getImage, 'utf-8'));
+        let baseImage = await loadImage(pathImg);
+        let canvas = createCanvas(baseImage.width, baseImage.height);
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        ctx.font = "400 18px Arial";
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "start";
+        let fontSize = 50;
+        while (ctx.measureText(text).width > 1200) {
+            fontSize--;
+            ctx.font = `400 ${fontSize}px Arial`;
+        }
+        const lines = await this.wrapText(ctx, text, 490);
+        ctx.fillText(lines.join('\n'), 18, 85);  // Comment position
+        
+        const imageBuffer = canvas.toBuffer();
+        fs.writeFileSync(pathImg, imageBuffer);
+        
+        api.sendMessage({ 
+            body: "𝑳𝒆𝒙𝒊 𝑭𝒓𝒊𝒆𝒅𝒎𝒂𝒏 𝒆𝒓 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕! ✏️",
+            attachment: fs.createReadStream(pathImg) 
+        }, threadID, () => fs.unlinkSync(pathImg), messageID);
+        
     } catch (error) {
-      console.error("Lexi command error:", error);
-      api.sendMessage("❌ An error occurred while creating your signature board. Please try again with shorter text.", threadID, messageID);
+        console.error(error);
+        api.sendMessage("𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒃𝒂𝒏𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢", threadID, messageID);
     }
-  }
 };

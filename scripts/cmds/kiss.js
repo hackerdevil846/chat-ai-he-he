@@ -1,90 +1,83 @@
-const DIG = require("discord-image-generation");
-const fs = require("fs-extra");
-const path = require("path");
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "kiss",
-    aliases: ["kiss"],
-    version: "1.0",
-    author: "Asif",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Generate a kiss image for fun",
-    longDescription: "Create a kissing scene between two users' profile pictures.",
-    category: "fun",
-    guide: "{pn} [@user1] (@user2)",
+    version: "2.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑰𝒔𝒉𝒒𝒆𝒓 𝒌𝒐𝒓𝒖𝒏 𝒋𝒂𝒌𝒉𝒐𝒏 𝒕𝒖𝒎𝒊 𝒄𝒂𝒐",
+    commandCategory: "𝑳𝒐𝒗𝒆",
+    usages: "𝒌𝒊𝒔𝒔 [𝒕𝒂𝒈]",
+    cooldowns: 5,
     dependencies: {
-      "discord-image-generation": "^2.3.0",
-      "fs-extra": "^10.0.0"
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-  },
-
-  onStart: async function ({ api, message, event, Users }) {
-    try {
-      const { senderID, mentions } = event;
-      const mentionedUsers = Object.keys(mentions);
-
-      // Validate mentions
-      if (mentionedUsers.length === 0) {
-        return message.reply("💔 Please mention at least one user to kiss!");
-      }
-
-      // Prepare participants
-      let user1, user2, avatar1, avatar2;
-
-      // If only one user mentioned
-      if (mentionedUsers.length === 1) {
-        // Use bot avatar as default
-        const botInfo = await api.getCurrentUserInfo();
-        avatar1 = botInfo.avatar || botInfo.getAvatarURL();
-        user2 = mentionedUsers[0];
-        avatar2 = await Users.getAvatarUrl(user2);
-        return createKissImage(api, message, avatar1, avatar2, user2);
-      }
-
-      // If two users mentioned
-      if (mentionedUsers.length > 1) {
-        user1 = mentionedUsers[0];
-        user2 = mentionedUsers[1];
-        avatar1 = await Users.getAvatarUrl(user1);
-        avatar2 = await Users.getAvatarUrl(user2);
-        return createKissImage(api, message, avatar1, avatar2, `${user1} and ${user2}`);
-      }
-
-    } catch (error) {
-      console.error("Kiss command error:", error);
-      message.reply("❌ Failed to generate the kiss image. Please try again later.");
-    }
-  }
 };
 
-async function createKissImage(api, message, avatar1, avatar2, participants) {
-  try {
-    // Generate image
-    const img = await new DIG.Kiss().getImage(avatar1, avatar2);
-    const tempDir = path.join(__dirname, "tmp");
-    const tempPath = path.join(tempDir, `kiss_${Date.now()}.png`);
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/`;
+    const path = resolve(__dirname, 'cache', 'hon0.jpeg');
+    if (!existsSync(dirMaterial + "")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.imgur.com/j96ooUs.jpeg", path);
+}
 
-    // Create tmp directory if it doesn't exist
-    await fs.ensureDir(tempDir);
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache");
 
-    // Save image to temp file
-    await fs.writeFile(tempPath, img, "utf8");
+    let hon_img = await jimp.read(__root + "/hon0.jpeg");
+    let pathImg = __root + `/hon0_${one}_${two}.jpeg`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    hon_img.resize(700, 440).composite(circleOne.resize(150, 150), 390, 23).composite(circleTwo.resize(150, 150), 115, 130);
+    
+    let raw = await hon_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
 
-    // Send result
-    await message.reply({
-      body: `💋 | ${participants} are feeling romantic today!`,
-      attachment: fs.createReadStream(tempPath)
-    });
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
 
-    // Clean up temp file after sending
-    setTimeout(() => {
-      fs.unlink(tempPath).catch(() => {});
-    }, 30000); // Delete after 30 seconds
-
-  } catch (error) {
-    console.error("Error generating kiss image:", error);
-    message.reply("❌ Failed to generate the kissing image. Please try again later.");
-  }
+module.exports.run = async function ({ event, api, args, Currencies }) { 
+    const fs = global.nodemodule["fs-extra"];
+    const hc = Math.floor(Math.random() * 101);
+    const rd = Math.floor(Math.random() * 100000) + 100000;
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    var one = senderID, two = mention[0];
+    await Currencies.increaseMoney(event.senderID, parseInt(hc * rd));
+  
+    if (!two) {
+        return api.sendMessage("𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝟏 𝒋𝒐𝒏 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏 💕", threadID, messageID);
+    } else {
+        return makeImage({ one, two }).then(path => api.sendMessage({ 
+            body: `💖 𝑰𝒔𝒉𝒒𝒆𝒓 𝒆𝒓 𝒑𝒐𝒓𝒊𝒎𝒂𝒏: ${hc}%\n💸 𝑨𝒑𝒏𝒂𝒅𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒃𝒍𝒆𝒔𝒔𝒊𝒏𝒈: ${((hc) * rd)} $ 💰\n🍀 𝑨𝒑𝒏𝒂𝒅𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒔𝒖𝒃𝒆𝒄𝒄𝒉𝒂 𝒓𝒂𝒌𝒉𝒖𝒏!`,
+            attachment: fs.createReadStream(path)
+        }, threadID, () => fs.unlinkSync(path), messageID));
+    }
 }

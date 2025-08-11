@@ -1,188 +1,86 @@
-const { createCanvas, loadImage, registerFont } = require("canvas");
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
+module.exports.config = {
+  name: "password",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝑬𝒌𝒕𝒊 𝒑𝒂𝒔𝒔𝒘𝒐𝒓𝒅 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
+  commandCategory: "𝑲𝑯𝑬𝑳𝑨",
+  usages: "[text 1] | [text 2]",
+  cooldowns: 10
+};
 
-module.exports = {
-  config: {
-    name: "password",
-    version: "1.2.0",
-    hasPermission: 0,
-    credits: "Asif",
-    description: "Generate stylish password images with custom text",
-    category: "game",
-    usages: "[text1] | [text2]",
-    cooldowns: 10,
-    dependencies: {
-      "canvas": "",
-      "axios": "",
-      "fs-extra": ""
-    }
-  },
-
-  // Add required onStart function
-  onStart: async function() {
-    // Cache paths
-    const cacheDir = path.join(__dirname, 'cache');
-    const fontPath = path.join(cacheDir, 'SVN-Arial.ttf');
-    const baseImagePath = path.join(cacheDir, 'password_base.png');
-
-    // Ensure cache directory exists
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
-    }
-
-    try {
-      // Download font if missing
-      if (!fs.existsSync(fontPath)) {
-        const fontUrl = "https://drive.google.com/uc?id=11YxymRp0y3Jle5cFBmLzwU89XNqHIZux&export=download";
-        const fontResponse = await axios.get(fontUrl, { responseType: 'arraybuffer' });
-        fs.writeFileSync(fontPath, Buffer.from(fontResponse.data));
-        console.log("Password font downloaded successfully!");
-      }
-      
-      // Download base image if missing
-      if (!fs.existsSync(baseImagePath)) {
-        const imageUrl = "https://i.imgur.com/QkddlpG.png";
-        const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        fs.writeFileSync(baseImagePath, Buffer.from(imageResponse.data));
-        console.log("Password base image downloaded successfully!");
-      }
-      
-      // Register font
-      registerFont(fontPath, { family: "SVN-Arial" });
-      console.log("Password resources initialized!");
-      
-    } catch (error) {
-      console.error("Password command initialization error:", error);
-    }
-  },
-
-  run: async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    
-    // Help message if no arguments
-    if (args.length === 0) {
-      return api.sendMessage(
-        "🔑 Password Image Generator\n\n" +
-        "Usage: password [text1] | [text2]\n" +
-        "Example: password I love you | 3000\n\n" +
-        "Note: Use the | symbol to separate the two text parts",
-        threadID,
-        messageID
-      );
-    }
-
-    // Process arguments
-    const text = args.join(" ")
-      .trim()
-      .replace(/\s+/g, " ")
-      .replace(/(\s+\|)/g, "|")
-      .replace(/\|\s+/g, "|")
-      .split("|")
-      .map(t => t.trim());
-    
-    // Validate input
-    if (text.length < 2 || !text[0] || !text[1]) {
-      return api.sendMessage(
-        "⚠️ Invalid format! Please use:\npassword text1 | text2\n\n" +
-        "Example: password secure | 123456",
-        threadID,
-        messageID
-      );
-    }
-
-    try {
-      // Create canvas
-      const cacheDir = path.join(__dirname, 'cache');
-      const baseImagePath = path.join(cacheDir, 'password_base.png');
-      const baseImage = await loadImage(baseImagePath);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(baseImage, 0, 0);
-      
-      // Setup text styling
-      ctx.font = "bold 30px SVN-Arial";
-      ctx.fillStyle = "#000000";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // Text wrapping function with word breaking
-      const wrapText = (text, maxWidth) => {
-        const words = text.split(/\s+/);
-        const lines = [];
-        let currentLine = "";
-        
-        for (const word of words) {
-          // Handle long words by breaking them
-          if (ctx.measureText(word).width > maxWidth) {
-            let tempWord = "";
-            for (const char of word) {
-              if (ctx.measureText(currentLine + tempWord + char).width <= maxWidth) {
-                tempWord += char;
-              } else {
-                if (currentLine) lines.push(currentLine);
-                currentLine = tempWord;
-                tempWord = char;
-              }
-            }
-            currentLine = tempWord;
-          } else {
-            const testLine = currentLine ? `${currentLine} ${word}` : word;
-            
-            if (ctx.measureText(testLine).width <= maxWidth) {
-              currentLine = testLine;
-            } else {
-              if (currentLine) lines.push(currentLine);
-              currentLine = word;
-            }
-          }
+module.exports.wrapText = (ctx, text, maxWidth) => {
+  return new Promise((resolve) => {
+    if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+    if (ctx.measureText("W").width > maxWidth) return resolve(null);
+    const words = text.split(" ");
+    const lines = [];
+    let line = "";
+    while (words.length > 0) {
+      let split = false;
+      while (ctx.measureText(words[0]).width >= maxWidth) {
+        const temp = words[0];
+        words[0] = temp.slice(0, -1);
+        if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+        else {
+          split = true;
+          words.splice(1, 0, temp.slice(-1));
         }
-        
-        if (currentLine) lines.push(currentLine);
-        return lines;
-      };
-
-      // Render top text
-      const topText = wrapText(text[0], 464);
-      ctx.fillText(topText.join("\n"), canvas.width / 2, 129);
-      
-      // Render bottom text
-      const bottomText = wrapText(text[1], 464);
-      ctx.fillText(bottomText.join("\n"), canvas.width / 2, 380);
-
-      // Generate unique output path
-      const outputPath = path.join(cacheDir, `password_${senderID}_${Date.now()}.png`);
-      const out = fs.createWriteStream(outputPath);
-      const stream = canvas.createPNGStream();
-      
-      // Save image
-      await new Promise((resolve, reject) => {
-        stream.pipe(out);
-        out.on('finish', resolve);
-        out.on('error', reject);
-      });
-
-      // Send result
-      await api.sendMessage({
-        body: "🔑 Your Password Image:",
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        // Cleanup after sending
-        try {
-          if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Password command error:", error);
-      api.sendMessage(
-        "❌ Failed to generate password image. Please try again later.",
-        threadID,
-        messageID
-      );
+      }
+      if (ctx.measureText(`${line}${words[0]}`).width < maxWidth)
+        line += `${words.shift()} `;
+      else {
+        lines.push(line.trim());
+        line = "";
+      }
+      if (words.length === 0) lines.push(line.trim());
     }
-  }
+    return resolve(lines);
+  });
+};
+
+module.exports.run = async function ({ api, event, args, Users }) {
+  let { senderID, threadID, messageID } = event;
+  const { loadImage, createCanvas } = require("canvas");
+  const Canvas = global.nodemodule["canvas"];
+  const request = require('request');
+  const fs = global.nodemodule["fs-extra"];
+  const axios = global.nodemodule["axios"];
+  let pathImg = __dirname + `/cache/pass.png`;
+  const text = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|");
+  let getImage = (
+    await axios.get(encodeURI(`https://i.imgur.com/QkddlpG.png`), {
+      responseType: "arraybuffer",
+    })
+  ).data;
+  fs.writeFileSync(pathImg, Buffer.from(getImage, "utf-8"));
+  
+  if(!fs.existsSync(__dirname+'/cache/SVN-Arial 2.ttf')) { 
+      let getfont = (await axios.get(`https://drive.google.com/u/0/uc?id=11YxymRp0y3Jle5cFBmLzwU89XNqHIZux&export=download`, { responseType: "arraybuffer" })).data;
+       fs.writeFileSync(__dirname+"/cache/SVN-Arial 2.ttf", Buffer.from(getfont, "utf-8"));
+  };
+  
+  let baseImage = await loadImage(pathImg);
+  let canvas = createCanvas(baseImage.width, baseImage.height);
+  let ctx = canvas.getContext("2d");
+  ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+  Canvas.registerFont(__dirname+`/cache/SVN-Arial 2.ttf`, {
+        family: "SVN-Arial 2"
+    });
+  ctx.font = "30px SVN-Arial 2";
+  ctx.fillStyle = "#000000";
+  ctx.textAlign = "center";
+  const line = await this.wrapText(ctx, text[0], 464);
+  const lines = await this.wrapText(ctx, text[1], 464);
+  ctx.fillText(line.join("\n"), 320, 129)
+  ctx.fillText(lines.join("\n"), 330, 380)
+  ctx.beginPath();
+  const imageBuffer = canvas.toBuffer();
+  fs.writeFileSync(pathImg, imageBuffer);
+  return api.sendMessage(
+    { attachment: fs.createReadStream(pathImg) },
+    threadID,
+    () => fs.unlinkSync(pathImg),
+    messageID
+  );
 };

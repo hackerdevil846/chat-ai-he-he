@@ -1,133 +1,88 @@
-const fs = require('fs-extra');
-const path = require('path');
-const axios = require('axios');
-const { createCanvas, loadImage } = require('canvas');
+module.exports.config = {
+  name: "mbbank",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝑴𝒃𝒃𝒂𝒏𝒌 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
+  commandCategory: "𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
+  usages: "[𝒕𝒆𝒙𝒕]",
+  cooldowns: 1,
+  dependencies: {
+    "canvas": "",
+    "axios": "",
+    "fs-extra": ""
+  }
+};
 
-module.exports = {
-  config: {
-    name: "mbbank",
-    version: "2.0.1",
-    hasPermssion: 0,
-    credits: "Asif",
-    description: "Create professional bank transaction receipts",
-    category: "edit-img",
-    usages: "[text]",
-    cooldowns: 5,
-    dependencies: {
-      "canvas": "",
-      "axios": "",
-      "fs-extra": ""
-    },
-    envConfig: {
-      backgroundUrl: "https://i.imgur.com/VhBb8SR.png"
-    }
-  },
-
-  wrapText: function(ctx, text, maxWidth) {
-    try {
-      if (ctx.measureText(text).width <= maxWidth) return [text];
-      
-      const words = text.split(' ');
-      const lines = [];
-      let currentLine = words[0];
-
-      for (let i = 1; i < words.length; i++) {
-        const testLine = currentLine + ' ' + words[i];
-        if (ctx.measureText(testLine).width <= maxWidth) {
-          currentLine = testLine;
-        } else {
-          lines.push(currentLine);
-          currentLine = words[i];
+module.exports.wrapText = (ctx, text, maxWidth) => {
+  return new Promise(resolve => {
+    if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+    if (ctx.measureText('W').width > maxWidth) return resolve(null);
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    while (words.length > 0) {
+      let split = false;
+      while (ctx.measureText(words[0]).width >= maxWidth) {
+        const temp = words[0];
+        words[0] = temp.slice(0, -1);
+        if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+        else {
+          split = true;
+          words.splice(1, 0, temp.slice(-1));
         }
       }
-      lines.push(currentLine);
-      return lines;
-    } catch (error) {
-      console.error("Text wrapping error:", error);
-      return [text];
+      if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+      else {
+        lines.push(line.trim());
+        line = '';
+      }
+      if (words.length === 0) lines.push(line.trim());
     }
-  },
+    return resolve(lines);
+  });
+} 
 
-  onStart: async function({ api, event, args, config }) {
-    try {
-      const { threadID, messageID } = event;
-      const text = args.join(" ");
-      
-      // Check if user provided text
-      if (!text) {
-        return api.sendMessage("🏦 Please enter transaction details\nExample: !mbbank Transfer $500 to John Doe", threadID, messageID);
-      }
-
-      api.sendMessage("💳 Processing your MB Bank receipt...", threadID, messageID);
-
-      // Create cache directory
-      const cacheDir = path.join(__dirname, 'cache', 'mbbank');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      const outputPath = path.join(cacheDir, `mbbank_${Date.now()}.png`);
-      const { backgroundUrl } = config.envConfig;
-
-      // Download background image
-      const response = await axios.get(backgroundUrl, { 
-        responseType: 'arraybuffer',
-        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36' }
-      });
-      fs.writeFileSync(outputPath, response.data);
-
-      // Load image and create canvas
-      const baseImage = await loadImage(outputPath);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-      // Text styling
-      ctx.fillStyle = "#ffffff";  // White text
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-
-      // Font settings
-      const maxWidth = 470;
-      let fontSize = 100;
-      ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-
-      // Dynamic font sizing
-      while (ctx.measureText(text).width > 1200 && fontSize > 40) {
-        fontSize -= 5;
-        ctx.font = `bold ${fontSize}px Arial, sans-serif`;
-      }
-
-      // Wrap text
-      const lines = this.wrapText(ctx, text, maxWidth);
-      const lineHeight = fontSize * 1.2;
-      const startX = 840;  // Horizontal position
-      const startY = 540;  // Vertical position
-
-      // Draw text lines
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], startX, startY + (i * lineHeight));
-      }
-
-      // Save image
-      const buffer = canvas.toBuffer("image/png");
-      fs.writeFileSync(outputPath, buffer);
-
-      // Send result
-      await api.sendMessage({
-        body: "✅ Your MB Bank transaction receipt is ready!",
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        try {
-          fs.unlinkSync(outputPath);
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
-        }
-      }, messageID);
-
-    } catch (error) {
-      console.error("MB Bank command error:", error);
-      api.sendMessage("❌ Failed to create bank receipt. Please try again later.", threadID, messageID);
+module.exports.run = async function({ api, event, args }) {
+  let { senderID, threadID, messageID } = event;
+  const { loadImage, createCanvas } = require("canvas");
+  const fs = global.nodemodule["fs-extra"];
+  const axios = global.nodemodule["axios"];
+  let pathImg = __dirname + '/cache/mbbank.png';
+  var text = args.join(" ");
+  
+  if (!text) return api.sendMessage("𝑴𝒃𝒃𝒂𝒏𝒌 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+  
+  try {
+    let getPorn = (await axios.get(`https://i.imgur.com/VhBb8SR.png`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
+    let baseImage = await loadImage(pathImg);
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    ctx.font = "400 100px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "start";
+    
+    let fontSize = 100;
+    while (ctx.measureText(text).width > 1200) {
+      fontSize--;
+      ctx.font = `400 ${fontSize}px Arial`;
     }
+    
+    const lines = await this.wrapText(ctx, text, 470);
+    ctx.fillText(lines.join('\n'), 840, 540); // Comment position
+    
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
+    
+    return api.sendMessage({ 
+      body: "𝑴𝒃𝒃𝒂𝒏𝒌 𝒆𝒓 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒓𝒆𝒂𝒅𝒚! 💰",
+      attachment: fs.createReadStream(pathImg) 
+    }, threadID, () => fs.unlinkSync(pathImg), messageID);
+    
+  } catch (error) {
+    console.error(error);
+    return api.sendMessage("𝑪𝒐𝒎𝒎𝒆𝒏𝒕 𝒃𝒂𝒏𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢", threadID, messageID);
   }
 };

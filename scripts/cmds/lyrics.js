@@ -1,93 +1,50 @@
 const axios = require('axios');
 const fs = require('fs-extra');
-const path = require('path');
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "lyrics",
-    version: "2.2.1",
-    hasPermssion: 0, // Corrected spelling (two 's')
-    credits: "Asif",
-    description: "Fetch song lyrics with album artwork and detailed information",
-    category: "music", // Fixed category
-    usages: "lyrics [song name]",
-    cooldowns: 20,
-    dependencies: {
-      "axios": "",
-      "fs-extra": ""
-    },
-    envConfig: {
-      apiUrl: "https://lyrics-finder.august-api.repl.co/search?q="
-    }
-  },
+    version: "2.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑮𝒂𝒏𝒆𝒓 𝒆𝒓 𝒍𝒚𝒓𝒊𝒄𝒔 𝒋𝒂𝒏𝒂𝒏",
+    commandCategory: "𝑴𝒆𝒅𝒊𝒂",
+    usages: "𝒍𝒚𝒓𝒊𝒄𝒔 [𝒈𝒂𝒏𝒆𝒓 𝒏𝒂𝒎]",
+    cooldowns: 5
+};
 
-  onStart: async function({ api, event, args, config }) {
+module.exports.run = async function({ api, event, args }) {
     try {
-      const { threadID, messageID } = event;
-      const songName = args.join(" ");
-      
-      // Check if user provided a song name
-      if (!songName) {
-        return api.sendMessage("🎵 Please enter a song name\nExample: !lyrics Shape of You", threadID, messageID);
-      }
-
-      // Send searching message
-      api.sendMessage(`🔍 Searching lyrics for "${songName}"...`, threadID, messageID);
-
-      // Fetch lyrics data from API
-      const apiUrl = config.envConfig.apiUrl + encodeURIComponent(songName);
-      const { data } = await axios.get(apiUrl, { timeout: 10000 });
-      
-      // Check if valid data was returned
-      if (!data || !data.title || !data.lyrics) {
-        return api.sendMessage("❌ No lyrics found for this song. Please try another title.", threadID, messageID);
-      }
-
-      // Create cache directory if not exists
-      const cacheDir = path.join(__dirname, 'cache', 'lyrics');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      // Download album artwork
-      const imagePath = path.join(cacheDir, `lyrics_${Date.now()}.jpg`);
-      try {
-        const imageResponse = await axios.get(data.image, { 
-          responseType: 'arraybuffer',
-          timeout: 10000
-        });
-        fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
-      } catch (imageError) {
-        console.error("Album art download error:", imageError);
-        return api.sendMessage("❌ Failed to download album artwork. Showing lyrics without image.", threadID, messageID);
-      }
-
-      // Format message
-      const messageBody = 
-        `🎤 Title: ${data.title}\n` +
-        `👤 Artist: ${data.artist || 'Unknown'}\n` +
-        `💽 Album: ${data.album || 'Unknown'}\n` +
-        `📅 Release Date: ${data.release_date || 'Unknown'}\n\n` +
-        `📝 Lyrics:\n${data.lyrics.slice(0, 1800)}` + // Truncate long lyrics
-        (data.lyrics.length > 1800 ? '...' : '') + // Add ellipsis if truncated
-        `\n\nℹ️ Powered by: Asif Mahmud`;
-
-      // Send results
-      await api.sendMessage({
-        body: messageBody,
-        attachment: fs.createReadStream(imagePath)
-      }, threadID, () => {
-        // Clean up image file after sending
-        try {
-          fs.unlinkSync(imagePath);
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
+        const songName = args.join(' ');
+        if (!songName) {
+            return api.sendMessage("𝑮𝒂𝒏𝒆𝒓 𝒆𝒓 𝒏𝒂𝒎 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏 🎵", event.threadID);
         }
-      }, messageID);
 
+        api.sendMessage(`🔍 "${songName}" 𝒆𝒓 𝒍𝒚𝒓𝒊𝒄𝒔 𝒌𝒉𝒖𝒏𝒄𝒉𝒊...`, event.threadID);
+
+        // Fetch lyrics data
+        const lyricsResponse = await axios.get(`https://ai.new911.repl.co/api/tools/lyrics?song=${encodeURIComponent(songName)}`);
+        const lyricsData = lyricsResponse.data;
+        
+        // Download lyrics image
+        const imageResponse = await axios.get(lyricsData.image, { responseType: 'arraybuffer' });
+        const imagePath = __dirname + '/cache/lyrics.png';
+        fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+        
+        // Format lyrics text
+        const formattedText = 
+            `❏ 𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n\n` +
+            `❏ 𝑮𝒂𝒏 𝒆𝒓 𝒏𝒂𝒎: ${lyricsData.title}\n` +
+            `❏ 𝑮𝒐𝒍𝒐𝒌: ${lyricsData.artist}\n\n` +
+            `❏ 𝑳𝒚𝒓𝒊𝒄𝒔:\n${lyricsData.lyrics}`;
+        
+        // Send results
+        api.sendMessage({
+            body: formattedText,
+            attachment: fs.createReadStream(imagePath)
+        }, event.threadID, () => fs.unlinkSync(imagePath));
+        
     } catch (error) {
-      console.error("Lyrics command error:", error);
-      api.sendMessage("❌ An error occurred while fetching lyrics. Please try again later.", threadID, messageID);
+        console.error("𝑳𝒚𝒓𝒊𝒄𝒔 𝒆𝒓𝒓𝒐𝒓:", error);
+        api.sendMessage("⚠️ 𝑳𝒚𝒓𝒊𝒄𝒔 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂, 𝒑𝒖𝒏𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏 😢", event.threadID);
     }
-  }
 };
