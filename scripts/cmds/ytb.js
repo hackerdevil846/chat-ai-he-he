@@ -10,7 +10,7 @@ module.exports = {
   config: {
     name: "ytb",
     version: "1.1.4",
-    credits: "dipto",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 5,
     hasPermssion: 0,
     description: "Download video, audio, and info from YouTube",
@@ -28,11 +28,11 @@ module.exports = {
       "{pn} -i chipi chipi chapa chapa"
   },
 
-  onStart: async function() {
-    // Required empty function to fix the error
+  onStart: async function () {
+    // Empty function to prevent error
   },
 
-  run: async ({ api, args, event }) => {
+  onChat: async function ({ api, args, event }) {
     const { threadID, messageID, senderID } = event;
 
     if (!args[0]) return api.sendMessage('❌ Please provide an action like -v, -a or -i.', threadID, messageID);
@@ -103,7 +103,7 @@ module.exports = {
     }
   },
 
-  handleReply: async ({ event, api, handleReply }) => {
+  handleReply: async function ({ event, api, handleReply }) {
     const { threadID, messageID, senderID, body } = event;
 
     if (senderID !== handleReply.author) return;
