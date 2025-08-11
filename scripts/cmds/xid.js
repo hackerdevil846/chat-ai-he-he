@@ -1,24 +1,26 @@
 const axios = require("axios");
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
   config: {
     name: "xid",
     version: "1.0.7",
-    permission: 0,
-    credits: "Asif Developer",
+    role: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Get detailed UID information with profile picture",
     category: "info",
-    usages: "[reply/mention/@tag]",
-    cooldowns: 5
+    guide: {
+      en: "[reply/mention/@tag]"
+    },
+    cooldown: 5
   },
 
-  onStart: async function() {
+  onStart: async function () {
     console.log("XID command initialized");
   },
 
-  run: async function({ api, event, Users }) {
+  onRun: async function ({ api, event, Users }) {
     try {
       const { threadID, messageID, senderID } = event;
       const startTime = Date.now();
@@ -27,13 +29,13 @@ module.exports = {
       let uid, targetName;
       if (event.type === "message_reply") {
         uid = event.messageReply.senderID;
-        targetName = await Users.getNameUser(uid) || "Unknown User";
+        targetName = await Users.getNameUser(uid).catch(() => "Unknown User");
       } else if (event.mentions && Object.keys(event.mentions).length > 0) {
         uid = Object.keys(event.mentions)[0];
         targetName = event.mentions[uid];
       } else {
         uid = senderID;
-        targetName = await Users.getNameUser(uid) || "You";
+        targetName = await Users.getNameUser(uid).catch(() => "You");
       }
 
       // Get user information
@@ -48,20 +50,20 @@ module.exports = {
       if (!avatarUrl) throw new Error("Avatar not found");
 
       // Calculate account metrics
-      const joinDate = userData.joinDate ? 
+      const joinDate = userData.joinDate ?
         new Date(parseInt(userData.joinDate)).toLocaleDateString() : "Unknown";
-      
+
       const lastSeen = userData.lastSeen ? parseInt(userData.lastSeen) : null;
       let daysActive = "Unknown";
       if (lastSeen) {
         const days = Math.floor((Date.now() - lastSeen) / 86400000);
-        daysActive = days > 365 ? 
-          Math.floor(days/365) + " years" : 
+        daysActive = days > 365 ?
+          Math.floor(days / 365) + " years" :
           days + " days";
       }
 
       const speed = ((Date.now() - startTime) / 1000).toFixed(2);
-      
+
       // Format the information
       const infoMessage = `╭─── 𝗨𝗦𝗘𝗥 𝗜𝗡𝗙𝗢 ────⭓
 │ 𝗡𝗔𝗠𝗘: ${name}
@@ -73,18 +75,18 @@ module.exports = {
 ╰───────────────────⭓`;
 
       // Create cache directory
-      const cacheDir = path.join(__dirname, 'cache');
+      const cacheDir = path.join(__dirname, "cache");
       if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir, { recursive: true });
       }
 
       // Download avatar
       const avatarPath = path.join(cacheDir, `avatar_${uid}_${Date.now()}.jpg`);
-      const response = await axios.get(avatarUrl, { 
-        responseType: 'arraybuffer',
+      const response = await axios.get(avatarUrl, {
+        responseType: "arraybuffer",
         timeout: 10000
       });
-      fs.writeFileSync(avatarPath, Buffer.from(response.data, 'binary'));
+      fs.writeFileSync(avatarPath, Buffer.from(response.data, "binary"));
 
       // Send response with avatar
       api.sendMessage({
@@ -96,7 +98,7 @@ module.exports = {
         } catch (cleanError) {
           console.error("Avatar cleanup error:", cleanError);
         }
-        
+
         if (err) {
           console.error("Message send error:", err);
           api.sendMessage("❌ Failed to send user info. Please try again.", threadID, messageID);
@@ -106,13 +108,13 @@ module.exports = {
     } catch (error) {
       console.error("XID command error:", error);
       let errorMessage = "❌ Error retrieving user information";
-      
+
       if (error.message.includes("not found")) {
         errorMessage = "🔍 User not found or data unavailable";
       } else if (error.message.includes("timeout")) {
         errorMessage = "⏱️ Avatar download timed out. Please try again later.";
       }
-      
+
       api.sendMessage(errorMessage, event.threadID, event.messageID);
     }
   }
