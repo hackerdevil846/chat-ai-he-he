@@ -1,187 +1,202 @@
-const fs = require("fs-extra");
+module.exports.config = {
+	name: "approve",
+	version: "1.0.2",
+	hasPermssion: 2,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝒈𝒓𝒐𝒖𝒑 𝒌𝒆 𝒂𝒑𝒑𝒓𝒐𝒗𝒆 𝒌𝒐𝒓𝒂 𝒃𝒐𝒕 𝒅𝒊𝒚𝒆",
+	commandCategory: "Admin",
+    cooldowns: 5
+};
 
-module.exports = {
-  config: {
-    name: "approve",
-    version: "2.0.0",
-    permission: 0,
-    credits: "asif",
-    description: "approve thread using thread id",
-    prefix: false,
-    category: "admin",
-    usages: "approve [group/remove] [threadid]",
-    cooldowns: 5,
-  },
+const dataPath = __dirname + "/Priyanshu/approvedThreads.json";
+const dataPending = __dirname + "/Priyanshu/pendingdThreads.json";
+const fs = require("fs");
 
-  languages: {
-    "vi": {
-        "listAdmin": 'Danh sách toàn bộ người điều hành bot: \n\n%1',
-        "notHavePermssion": 'Bạn không đủ quyền hạn để có thể sử dụng chức năng "%1"',
-        "addedNewAdmin": 'Đã thêm %1 người dùng trở thành người điều hành bot:\n\n%2',
-        "removedAdmin": 'Đã gỡ bỏ %1 người điều hành bot:\n\n%2'
-    },
-    "en": {
-        "listAdmin": 'approved list : \n\n%1',
-        "notHavePermssion": 'you have no permission to use "%1"',
-        "addedNewAdmin": 'approved %1 box :\n\n%2',
-        "removedAdmin": 'remove %1 box in approve lists :\n\n%2'
+module.exports.onLoad = () => {
+	if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
+    if (!fs.existsSync(dataPending)) fs.writeFileSync(dataPending, JSON.stringify([]));
+}
+
+module.exports.handleReply = async function ({ event, api, handleReply, args }) {
+    if (handleReply.author != event.senderID) return;
+    const { body, threadID, messageID } = event;
+    const { type } = handleReply;
+    let data = JSON.parse(fs.readFileSync(dataPath));
+    let dataP = JSON.parse(fs.readFileSync(dataPending));
+    let idBox = (args[0]) ? args[0] : threadID;
+    
+    switch (type) {
+        case "pending": {
+            switch (body) {
+                case `A`: {
+                    data.push(idBox);
+                    fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+                    api.sendMessage(`✅ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅: ${idBox}`, threadID, () => {
+                        dataP.splice(dataP.indexOf(idBox), 1;
+                        fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
+                    }, messageID);
+                }
+            }
+        }
     }
-  },
+}
 
-  onStart: async function({ api, event, args, Threads, Users, permssion, getText }) {
-    const content = args.slice(1, args.length);
-    const { threadID, messageID, mentions } = event;
-    const { configPath } = global.client;
-    const { APPROVED } = global.config;
-    const { userName } = global.data;
-    const { writeFileSync } = fs;
-    const mention = Object.keys(mentions);
-
-    // Clear config cache and reload
-    delete require.cache[require.resolve(configPath)];
-    let config = require(configPath);
-
-    // Helper function to get box/user info
-    const getBoxInfo = async (id) => {
-      try {
-        const groupname = await global.data.threadInfo.get(id).threadName || "name does not exist";
-        return `group name : ${groupname}\ngroup id : ${id}`;
-      } catch (error) {
-        const username = await Users.getNameUser(id);
-        return `user name : ${username}\nuser id : ${id}`;
-      }
+module.exports.run = async ({ event, api, args, Threads, Users }) => {
+	const { threadID, messageID } = event;
+	let data = JSON.parse(fs.readFileSync(dataPath));
+    let dataP = JSON.parse(fs.readFileSync(dataPending));
+    let idBox = (args[0]) ? args[0] : threadID;
+  
+    // Helper function for Mathematical Bold Italic
+    const toBI = (text) => {
+        const map = {
+            'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆',
+            'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋',
+            'k': '𝒌', 'l': '𝒍', 'm': '𝒎', 'n': '𝒏', 'o': '𝒐',
+            'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕',
+            'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚',
+            'z': '𝒛', 'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫',
+            'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰',
+            'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴', 'N': '𝑵',
+            'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺',
+            'T': '𝑻', 'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿',
+            'Y': '𝒀', 'Z': '𝒁', 
+            '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒',
+            '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
+        };
+        return text.split('').map(char => map[char] || char).join('');
     };
 
-    // Main command logic
-    try {
-      switch (args[0]) {
-        case "list":
-        case "all":
-        case "-a": {
-          const listAdmin = APPROVED || config.APPROVED || [];
-          const msg = [];
+    const tst = (await Threads.getData(String(event.threadID))).data || {};
+    const pb = (tst.hasOwnProperty("PREFIX")) ? tst.PREFIX : global.config.PREFIX;
+    const nmdl = toBI(this.config.name);
+    const cre = toBI(this.config.credits);
+  
+    const helpMessage = `🎭 ${toBI("APPROVE COMMANDS")} 🎭
 
-          for (const idAdmin of listAdmin) {
-            if (parseInt(idAdmin)) {
-              const boxname = await getBoxInfo(idAdmin);
-              msg.push(`\n${boxname}`);
-            }
-          }
+${toBI(pb + nmdl)} ${toBI('l')}/${toBI('list')} ➺ 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝒈𝒓𝒐𝒖𝒑 𝒅𝒆𝒌𝒉𝒃𝒆𝒏
+${toBI(pb + nmdl)} ${toBI('p')}/${toBI('pending')} ➺ 𝒑𝒆𝒏𝒅𝒊𝒏𝒈 𝒈𝒓𝒐𝒖𝒑 𝒅𝒆𝒌𝒉𝒃𝒆𝒏
+${toBI(pb + nmdl)} ${toBI('d')}/${toBI('del')} [𝒊𝒅] ➺ 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝒍𝒊𝒔𝒕 𝒕𝒉𝒆𝒌𝒆 𝒎𝒖𝒄𝒉𝒃𝒆𝒏
+${toBI(pb + nmdl)} [𝒊𝒅] ➺ 𝒈𝒓𝒐𝒖𝒑 𝒌𝒆 𝒂𝒑𝒑𝒓𝒐𝒗𝒆 𝒌𝒐𝒓𝒃𝒆𝒏
 
-          return api.sendMessage(`approved users and groups :\n${msg.join('\n')}`, threadID, messageID);
+${toBI("Created by:")} ${cre}`;
+        
+    if (args[0] == "list" || args[0] == "l") {
+        let msg = `${toBI("APPROVED GROUPS")} [${data.length}]:`;
+        let count = 0;
+        for (e of data) {
+            let threadInfo = await api.getThreadInfo(e);
+            let threadName = threadInfo.threadName || await Users.getNameUser(e);
+            msg += `\n〘${count+=1}〙» ${threadName}\n${e}`;
         }
-
-        case "box": {
-          if (permssion != 3) return api.sendMessage(getText("notHavePermssion", "add"), threadID, messageID);
-
-          // Handle mentions
-          if (mention.length != 0 && isNaN(content[0])) {
-            const listAdd = [];
-
-            for (const id of mention) {
-              if (!APPROVED.includes(id)) {
-                APPROVED.push(id);
-                config.APPROVED.push(id);
-                listAdd.push(`${id} - ${event.mentions[id]}`);
-              }
-            }
-
-            writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-            return api.sendMessage(
-              getText("addedNewAdmin", mention.length, listAdd.join("\n").replace(/\@/g, "")),
-              threadID,
-              messageID
-            );
-          }
-          // Handle thread/user IDs
-          else if (content.length != 0 && !isNaN(content[0])) {
-            const id = content[0];
-            if (!APPROVED.includes(id)) {
-              APPROVED.push(id);
-              config.APPROVED.push(id);
-
-              const boxname = await getBoxInfo(id);
-              writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-
-              // Notify the approved group/user
-              api.sendMessage('this box has been approved', id, () => {
-                api.sendMessage(
-                  getText("addedNewAdmin", 1, `${boxname}`),
-                  threadID,
-                  messageID
-                );
-              });
-              return;
-            }
-          }
-          else {
-            return global.utils.throwError(this.config.name, threadID, messageID);
-          }
-          break;
-        }
-
-        case "remove":
-        case "rm":
-        case "delete": {
-          if (permssion != 3) return api.sendMessage(getText("notHavePermssion", "delete"), threadID, messageID);
-
-          // Handle mentions
-          if (mentions.length != 0 && isNaN(content[0])) {
-            const mention = Object.keys(mentions);
-            const listAdd = [];
-
-            for (const id of mention) {
-              const index = config.APPROVED.findIndex(item => item == id);
-              if (index !== -1) {
-                APPROVED.splice(index, 1);
-                config.APPROVED.splice(index, 1);
-                listAdd.push(`${id} - ${event.mentions[id]}`);
-              }
-            }
-
-            writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-            return api.sendMessage(
-              getText("removedAdmin", mention.length, listAdd.join("\n").replace(/\@/g, "")),
-              threadID,
-              messageID
-            );
-          }
-          // Handle thread/user IDs
-          else if (content.length != 0 && !isNaN(content[0])) {
-            const id = content[0];
-            const index = config.APPROVED.findIndex(item => item.toString() == id);
-
-            if (index !== -1) {
-              APPROVED.splice(index, 1);
-              config.APPROVED.splice(index, 1);
-
-              const boxname = await getBoxInfo(id);
-              writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-
-              // Notify the removed group/user
-              api.sendMessage('this box has been removed from approved list', id, () => {
-                api.sendMessage(
-                  getText("removedAdmin", 1, `${boxname}`),
-                  threadID,
-                  messageID
-                );
-              });
-              return;
-            }
-          }
-          else {
-            return global.utils.throwError(this.config.name, threadID, messageID);
-          }
-          break;
-        }
-
-        default: {
-          return global.utils.throwError(this.config.name, threadID, messageID);
-        }
-      }
-    } catch (error) {
-      console.error("Error in approve command:", error);
-      return api.sendMessage("An error occurred while processing your request.", threadID, messageID);
+        api.sendMessage(msg, threadID, (error, info) => {
+            global.client.handleReply.push({
+                name: this.config.name,
+                messageID: info.messageID,
+                author: event.senderID,
+                type: "a",
+            });
+        }, messageID);
     }
-  }
+    else if (args[0] == "pending" || args[0] == "p") {
+        let msg = `${toBI("PENDING GROUPS")} [${dataP.length}]:`;
+        let count = 0;
+        for (e of dataP) {
+            let threadInfo = await api.getThreadInfo(e);
+            let threadName = threadInfo.threadName || await Users.getNameUser(e);
+            msg += `\n〘${count+=1}〙» ${threadName}\n${e}`;
+        }
+        api.sendMessage(msg, threadID, (error, info) => {
+            global.client.handleReply.push({
+                name: this.config.name,
+                messageID: info.messageID,
+                author: event.senderID,
+                type: "pending",
+            });
+        }, messageID);
+    }
+    else if (args[0] == "help" || args[0] == "h") {
+        return api.sendMessage(helpMessage, threadID, messageID);
+    }
+    else if (args[0] == "del" || args[0] == "d") {
+        idBox = args[1] || threadID;
+        if (isNaN(parseInt(idBox))) return api.sendMessage("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑰𝑫", threadID, messageID);
+        if (!data.includes(idBox)) return api.sendMessage("❌ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝒏𝒂𝒉𝒊", threadID, messageID);
+        api.sendMessage(`❌ 𝑨𝒑𝒑𝒓𝒐𝒗𝒂𝒍 𝒄𝒂𝒏𝒄𝒆𝒍𝒆𝒅`, idBox);
+        api.sendMessage(`✅ 𝑮𝒓𝒐𝒖𝒑 𝒓𝒆𝒎𝒐𝒗𝒆𝒅 𝒇𝒓𝒐𝒎 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝒍𝒊𝒔𝒕`, threadID, () => {
+            data.splice(data.indexOf(idBox), 1);
+            fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+        }, messageID);
+    }
+    else if (isNaN(parseInt(idBox))) api.sendMessage("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑰𝑫", threadID, messageID);
+    else if (data.includes(idBox)) api.sendMessage(`✅ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅`, threadID, messageID);
+    else {
+        let admID = "61571630409265";
+        const userName = (await api.getUserInfo(admID))[admID].name;
+        
+        // Beautiful approval message design
+        const approvalMessage = `✨ 𝑨𝒑𝒏𝒂𝒓 𝑮𝒓𝒐𝒖𝒑 𝑨𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝑯𝒐𝒚𝒆𝒄𝒉𝒆! ✨
+
+🖤 𝑩𝒐𝒕 𝑼𝒔𝒆 𝑲𝒐𝒓𝒆𝒏 𝑬𝒏𝒋𝒐𝒚 𝑲𝒐𝒓𝒆𝒏! 🖤
+
+💝🥀 𝑶𝒘𝒏𝒆𝒓: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒎𝒖𝒅 💫
+🖤 𝑨𝒑𝒏𝒊 𝑻𝒂𝒌𝒆 𝑩𝒐𝒍𝒕𝒆 𝑷𝒂𝒓𝒆𝒏: 𝑨𝒔𝒊𝒇 🖤
+😳 𝑻𝒂𝒓 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑰𝑫: https://www.facebook.com/${admID} 🤓
+👋 𝑱𝒐𝒅𝒊 𝑲𝒐𝒏𝒐 𝑺𝒐𝒎𝒐𝒔𝒔𝒂 𝑯𝒐𝒊 𝑻𝒆𝒍𝒆𝒈𝒓𝒂𝒎-𝒆 𝑪𝒐𝒏𝒕𝒂𝒄𝒕 𝑲𝒐𝒓𝒖𝒏: @𝑨𝒔𝒊𝒇_𝑴𝒂𝒎𝒖𝒅 👉`;
+        
+        api.sendMessage(approvalMessage, idBox, async (error, info) => {
+            if (error) return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 - 𝑴𝒂𝒌𝒆 𝒔𝒖𝒓𝒆 𝑰'𝒎 𝒊𝒏 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑", threadID, messageID);
+            
+            api.changeNickname(` 〖 ${global.config.PREFIX} 〗 ➺ ${global.config.BOTNAME || ""}`, idBox, global.data.botID);
+            
+            try {
+                const axios = require('axios');
+                const request = require('request');
+                const res = await axios.get('https://anime.apibypriyansh.repl.co/img/anime');
+                let ext = res.data.url.substring(res.data.url.lastIndexOf(".") + 1);
+                const path = __dirname + `/cache/approve.${ext}`;
+                
+                await new Promise((resolve) => {
+                    request(res.data.url).pipe(fs.createWriteStream(path)).on("close", resolve);
+                });
+                
+                // Beautiful bot activation message
+                const activationMessage = `✅ 𝑩𝑶𝑻 𝑨𝑪𝑻𝑰𝑽𝑨𝑻𝑬𝑫
+
+━━━━━━━━━━━━━━━━━━
+┏━━━━ 🖤 ━━━━┓
+  ✦❥⋆⃝𝑨𝒔𝒊𝒇 𝑴𝒂𝒎𝒖𝒅✦ 
+┗━━━━ 🖤 ━━━━┛
+━━━━━━━━━━━━━━━━━━
+➪ 𝑩𝒐𝒕: ${global.config.BOTNAME || "N/A"}
+➪ 𝑷𝒓𝒆𝒇𝒊𝒙: ${global.config.PREFIX}
+➪ 𝑼𝒔𝒆𝒓𝒔: ${global.data.allUserID.length}
+➪ 𝑮𝒓𝒐𝒖𝒑𝒔: ${global.data.allThreadID.length}
+━━━━━━━━━━━━━━━━━━
+[]---------------------------------------[]
+𝑼𝒔𝒆 '${global.config.PREFIX}𝒉𝒆𝒍𝒑' 𝒕𝒐 𝒗𝒊𝒆𝒘 𝒂𝒍𝒍 𝒄𝒐𝒎𝒎𝒂𝒏𝒅𝒔!
+[]---------------------------------------[]
+⌨ 𝑴𝒂𝒅𝒆 𝒃𝒚: ${userName}`;
+                
+                api.sendMessage({
+                    body: activationMessage,
+                    mentions: [{
+                        tag: userName,
+                        id: admID,
+                        fromIndex: 0
+                    }],
+                    attachment: fs.createReadStream(path)
+                }, idBox, () => fs.unlinkSync(path));
+            } catch (e) {
+                console.error(e);
+            }
+            
+            data.push(idBox);
+            fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+            api.sendMessage(`✅ 𝑮𝒓𝒐𝒖𝒑 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅: ${idBox}`, threadID, () => {
+                dataP.splice(dataP.indexOf(idBox), 1);
+                fs.writeFileSync(dataPending, JSON.stringify(dataP, null, 2));
+            }, messageID);
+        });
+    }
 };

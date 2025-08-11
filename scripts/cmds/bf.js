@@ -1,129 +1,106 @@
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
-const jimp = require("jimp");
+function toMathBoldItalic(text) {
+    const map = {
+        A: '𝑨', B: '𝑩', C: '𝑪', D: '𝑫', E: '𝑬', F: '𝑭', G: '𝑮', H: '𝑯', I: '𝑰', J: '𝑱', K: '𝑲', L: '𝑳', M: '𝑴',
+        N: '𝑵', O: '𝑶', P: '𝑷', Q: '𝑸', R: '𝑹', S: '𝑺', T: '𝑻', U: '𝑼', V: '𝑽', W: '𝑾', X: '𝑿', Y: '𝒀', Z: '𝒁',
+        a: '𝒂', b: '𝒃', c: '𝒄', d: '𝒅', e: '𝒆', f: '𝒇', g: '𝒈', h: '𝒉', i: '𝒊', j: '𝒋', k: '𝒌', l: '𝒍', m: '𝒎',
+        n: '𝒏', o: '𝒐', p: '𝒑', q: '𝒒', r: '𝒓', s: '𝒔', t: '𝒕', u: '𝒖', v: '𝒗', w: '𝒘', x: '𝒙', y: '𝒚', z: '𝒛'
+    };
+    return text.split('').map(char => map[char] || char).join('');
+}
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "bf",
-    version: "1.1",
-    hasPermission: 0,
-    credits: "Asif",
-    description: "Create couple avatar images",
-    category: "image",
-    usages: "[@mention]",
+    version: "7.3.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: toMathBoldItalic("Get couple from mention"),
+    commandCategory: toMathBoldItalic("image"),
+    usages: toMathBoldItalic("[mention]"),
     cooldowns: 5,
     dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "path": "",
-      "jimp": ""
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-  },
-
-  // Add the required initialization function
-  onStart: async function() {
-    // Initialization logic can go here
-    // (Not required for this module but needed by the system)
-  },
-
-  run: async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    
-    try {
-      // Check if user mentioned someone
-      const mention = Object.keys(event.mentions)[0];
-      if (!mention) {
-        return api.sendMessage("💑 Please mention someone to create a couple avatar!", threadID, messageID);
-      }
-
-      const targetID = mention;
-      const targetName = event.mentions[mention].replace("@", "");
-      
-      // Send processing message
-      const processingMsg = await api.sendMessage("⏳ Creating your couple avatar...", threadID, messageID);
-      
-      // Create cache directory
-      const cacheDir = path.join(__dirname, "cache", "couple");
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-      
-      // Generate output path
-      const outputPath = path.join(cacheDir, `couple_${senderID}_${targetID}_${Date.now()}.png`);
-      
-      // Create the couple image
-      await this.createCoupleImage(senderID, targetID, cacheDir, outputPath);
-      
-      // Send result
-      await api.sendMessage({
-        body: `❤️ Couple Avatar Created with ${targetName}!`,
-        mentions: [{ tag: targetName, id: targetID }],
-        attachment: fs.createReadStream(outputPath)
-      }, threadID);
-      
-      // Cleanup
-      fs.unlinkSync(outputPath);
-      api.unsendMessage(processingMsg.messageID);
-      
-    } catch (error) {
-      console.error("Couple Avatar Error:", error);
-      api.sendMessage("❌ Failed to create couple avatar. Please try again later.", threadID, messageID);
-    }
-  },
-
-  createCoupleImage: async function(uid1, uid2, cacheDir, outputPath) {
-    try {
-      // Template setup
-      const templateURL = "https://i.imgur.com/iaOiAXe.png";
-      const templatePath = path.join(cacheDir, "couple_template.png");
-      
-      // Download template if missing
-      if (!fs.existsSync(templatePath)) {
-        const { data } = await axios.get(templateURL, { responseType: 'arraybuffer' });
-        fs.writeFileSync(templatePath, Buffer.from(data));
-      }
-
-      // Process avatars
-      const avatar1 = await this.processAvatar(uid1, cacheDir);
-      const avatar2 = await this.processAvatar(uid2, cacheDir);
-      
-      // Load template and composite avatars
-      const template = await jimp.read(templatePath);
-      template.composite(avatar1.resize(180, 180), 250, 100)
-             .composite(avatar2.resize(180, 180), 700, 100);
-      
-      // Save output
-      await template.writeAsync(outputPath);
-      return outputPath;
-      
-    } catch (error) {
-      console.error("Image Creation Error:", error);
-      throw error;
-    }
-  },
-
-  processAvatar: async function(uid, cacheDir) {
-    const avatarPath = path.join(cacheDir, `avt_${uid}_${Date.now()}.png`);
-    
-    try {
-      // Download avatar
-      const url = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-      const { data } = await axios.get(url, { responseType: 'arraybuffer' });
-      fs.writeFileSync(avatarPath, Buffer.from(data));
-      
-      // Process and circle crop
-      const avatar = await jimp.read(avatarPath);
-      avatar.circle();
-      
-      // Cleanup temporary avatar
-      fs.unlinkSync(avatarPath);
-      
-      return avatar;
-      
-    } catch (error) {
-      console.error("Avatar Processing Error:", error);
-      throw error;
-    }
-  }
 };
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'arr2.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.imgur.com/iaOiAXe.jpeg", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let batgiam_img = await jimp.read(__root + "/arr2.png");
+    let pathImg = __root + `/batman${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    batgiam_img.composite(circleOne.resize(200, 200), 70, 110).composite(circleTwo.resize(200, 200), 465, 110);
+    
+    let raw = await batgiam_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {    
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    
+    if (!mention[0]) {
+        return api.sendMessage(
+            toMathBoldItalic("𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝟏 𝐩𝐞𝐫𝐬𝐨𝐧"), 
+            threadID, 
+            messageID
+        );
+    }
+    
+    const one = senderID, two = mention[0];
+    return makeImage({ one, two }).then(path => {
+        const bodyMsg = toMathBoldItalic(
+            "╔═══❖••° °••❖═══╗\n\n" +
+            "   𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥 𝐂𝐨𝐮𝐩𝐥𝐞\n\n" +
+            "╚═══❖••° °••❖═══╝\n\n" +
+            "   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n" +
+            "       👑 𝐈 𝐆𝐨𝐭 𝐘𝐨𝐮 ❤\n\n" +
+            "𝐘𝐨𝐮𝐫 𝐁𝐨𝐲𝐟𝐫𝐢𝐞𝐧𝐝 🩷\n\n" +
+            "   ✶⊶⊷⊷❍⊶⊷⊷✶"
+        );
+        
+        api.sendMessage({ 
+            body: bodyMsg, 
+            attachment: fs.createReadStream(path) 
+        }, threadID, () => fs.unlinkSync(path), messageID);
+    });
+}
