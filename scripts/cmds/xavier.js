@@ -1,19 +1,19 @@
 module.exports.config = {
         name: "xavier",
         version: "1.0.1",
-        hasPermssion: 0,
+        Permssion: 0,
         credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
         description: "𝙓𝙖𝙫𝙞𝙚𝙧-𝙚𝙧 𝙢𝙚𝙢𝙚 𝙩𝙚𝙢𝙥𝙡𝙖𝙩𝙚 𝙚 𝙖𝙥𝙣𝙖𝙧 𝙩𝙚𝙭𝙩 𝙗𝙤𝙨𝙖𝙣.",
-        commandCategory: "edit-img",
+        Category: "edit-img",
         usages: "[𝒂𝒑𝒏𝒂𝒓 𝒕𝒆𝒙𝒕]",
         cooldowns: 5,
         dependencies: {
-                "canvas":"",
-                 "axios":"",
-                 "fs-extra":""
+                "canvas": "",
+                "axios": "",
+                "fs-extra": ""
         }
 };
- 
+
 module.exports.wrapText = (ctx, text, maxWidth) => {
         return new Promise(resolve => {
                 if (ctx.measureText(text).width < maxWidth) return resolve([text]);
@@ -42,7 +42,7 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
                 return resolve(lines);
         });
 }
- 
+
 module.exports.run = async function({ api, event, args }) {
         let { senderID, threadID, messageID } = event;
         const { loadImage, createCanvas } = require("canvas");
@@ -66,8 +66,9 @@ module.exports.run = async function({ api, event, args }) {
                 ctx.font = `400 ${fontSize}px Arial, sans-serif`;
         }
         const lines = await this.wrapText(ctx, text, 440);
-        ctx.fillText(lines.join('\n'), 50,225);
+        ctx.fillText(lines.join('\n'), 50, 225);
         ctx.beginPath();
         const imageBuffer = canvas.toBuffer();
         fs.writeFileSync(pathImg, imageBuffer);
-return api.sendMessage({ attachment: fs.createReadStream(pathImg) }, threadID, () => fs.unlinkSync(pathImg), messageID); }
+        return api.sendMessage({ attachment: fs.createReadStream(pathImg) }, threadID, () => fs.unlinkSync(pathImg), messageID);
+}
