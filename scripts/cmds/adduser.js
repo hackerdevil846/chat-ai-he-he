@@ -1,140 +1,92 @@
-const { findUid } = global.utils;
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+module.exports.config = {
+	name: "adduser",
+	version: "2.4.3",
+	hasPermssion: 0,
+	credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
+	description: "𝑨𝒅𝒅 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑 𝒃𝒚 𝒍𝒊𝒏𝒌 𝒐𝒓 𝒊𝒅", // Mathematical Bold Italic
+	commandCategory: "group",
+	usages: "[args]",
+	cooldowns: 5
+};
 
-module.exports = {
-	config: {
-		name: "adduser",
-		version: "1.5",
-		author: "NTKhang",
-		countDown: 5,
-		role: 1,
-		description: {
-			vi: "Thêm thành viên vào box chat của bạn",
-			en: "Add user to box chat of you"
-		},
-		category: "box chat",
-		guide: {
-			en: "   {pn} [link profile | uid]"
+async function getUID(url, api) {
+    const isFacebookUrl = url.includes("http://facebook.com") || url.includes("https://facebook.com");
+    
+    if (isFacebookUrl) {
+        try {
+            // Fix URL format if needed
+            if (!url.includes("http://") && !url.includes("https://")) {
+                url = "https://" + url;
+            }
+
+            // Handle Facebook redirects
+            let data = await api.httpGet(url);
+            const redirectRegex = /for \(;;\);{"redirect":"(.*?)"}/.exec(data);
+            
+            if (data.includes('"redirect":"')) {
+                const cleanUrl = redirectRegex[1].replace(/\\/g, '').split('?')[0];
+                data = await api.httpGet(cleanUrl);
+            }
+
+            // Extract user ID
+            const uidRegex = /"userID":"(\d+)"/.exec(data);
+            const uid = uidRegex ? uidRegex[1] : null;
+
+            // Extract user name
+            const nameRegex = /"title":"(.*?)"/s.exec(data);
+            const name = nameRegex ? nameRegex[1] : null;
+
+            return [uid, name, false];
+        } catch (error) {
+            return [null, null, true];
+        }
+    } else {
+        return ["𝑵𝒐𝒕 𝒂 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑼𝑹𝑳", null, true]; // Mathematical Bold Italic
+    }
+}
+
+module.exports.run = async function ({ api, event, args }) {
+	const { threadID, messageID } = event;
+	const botID = api.getCurrentUserID();
+	const out = msg => api.sendMessage(msg, threadID, messageID);
+	
+	const threadInfo = await api.getThreadInfo(threadID);
+	const participantIDs = threadInfo.participantIDs.map(e => parseInt(e));
+	const approvalMode = threadInfo.approvalMode;
+	const adminIDs = threadInfo.adminIDs.map(e => parseInt(e.id));
+	
+	if (!args[0]) return out("𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒖𝒔𝒆𝒓 𝑰𝑫 𝒐𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌"); // Mathematical Bold Italic
+	
+	if (!isNaN(args[0])) {
+		await adduser(args[0], "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒖𝒔𝒆𝒓"); // Mathematical Bold Italic
+	} else {
+		try {
+			const [id, name, fail] = await getUID(args[0], api);
+			if (fail && id) return out(id);
+			if (fail && !id) return out("𝑼𝒔𝒆𝒓 𝑰𝑫 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅"); // Mathematical Bold Italic
+			await adduser(id, name || "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒖𝒔𝒆𝒓"); // Mathematical Bold Italic
+		} catch (e) {
+			return out(`𝑬𝒓𝒓𝒐𝒓: ${e.message}`); // Mathematical Bold Italic
 		}
-	},
+	}
 
-	langs: {
-		vi: {
-			alreadyInGroup: "Đã có trong nhóm",
-			successAdd: "- Đã thêm thành công %1 thành viên vào nhóm",
-			failedAdd: "- Không thể thêm %1 thành viên vào nhóm",
-			approve: "- Đã thêm %1 thành viên vào danh sách phê duyệt",
-			invalidLink: "Vui lòng nhập link facebook hợp lệ",
-			cannotGetUid: "Không thể lấy được uid của người dùng này",
-			linkNotExist: "Profile url này không tồn tại",
-			cannotAddUser: "Bot bị chặn tính năng hoặc người dùng này chặn người lạ thêm vào nhóm"
-		},
-		en: {
-			alreadyInGroup: "Already in group",
-			successAdd: "- Successfully added %1 members to the group",
-			failedAdd: "- Failed to add %1 members to the group",
-			approve: "- Added %1 members to the approval list",
-			invalidLink: "Please enter a valid facebook link",
-			cannotGetUid: "Cannot get uid of this user",
-			linkNotExist: "This profile url does not exist",
-			cannotAddUser: "Bot is blocked or this user blocked strangers from adding to the group"
+	async function adduser(id, name) {
+		id = parseInt(id);
+		
+		if (participantIDs.includes(id)) {
+			return out(`𝑻𝒉𝒊𝒔 𝒎𝒆𝒎𝒃𝒆𝒓 𝒊𝒔 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒊𝒏 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑`); // Mathematical Bold Italic
 		}
-	},
-
-	onStart: async function ({ message, api, event, args, threadsData, getLang }) {
-		const { members, adminIDs, approvalMode } = await threadsData.get(event.threadID);
-		const botID = api.getCurrentUserID();
-
-		const success = [
-			{
-				type: "success",
-				uids: []
-			},
-			{
-				type: "waitApproval",
-				uids: []
-			}
-		];
-		const failed = [];
-
-		function checkErrorAndPush(messageError, item) {
-			item = item.replace(/(?:https?:\/\/)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)/i, '');
-			const findType = failed.find(error => error.type == messageError);
-			if (findType)
-				findType.uids.push(item);
-			else
-				failed.push({
-					type: messageError,
-					uids: [item]
-				});
+		
+		try {
+			await api.addUserToGroup(id, threadID);
+		} catch {
+			return out(`𝑪𝒂𝒏'𝒕 𝒂𝒅𝒅 ${name} 𝒕𝒐 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑`); // Mathematical Bold Italic
 		}
-
-		const regExMatchFB = /(?:https?:\/\/)?(?:www\.)?(?:facebook|fb|m\.facebook)\.(?:com|me)\/(?:(?:\w)*#!\/)?(?:pages\/)?(?:[\w\-]*\/)*([\w\-\.]+)(?:\/)?/i;
-		for (const item of args) {
-			let uid;
-			let continueLoop = false;
-
-			if (isNaN(item) && regExMatchFB.test(item)) {
-				for (let i = 0; i < 10; i++) {
-					try {
-						uid = await findUid(item);
-						break;
-					}
-					catch (err) {
-						if (err.name == "SlowDown" || err.name == "CannotGetData") {
-							await sleep(1000);
-							continue;
-						}
-						else if (i == 9 || (err.name != "SlowDown" && err.name != "CannotGetData")) {
-							checkErrorAndPush(
-								err.name == "InvalidLink" ? getLang('invalidLink') :
-									err.name == "CannotGetData" ? getLang('cannotGetUid') :
-										err.name == "LinkNotExist" ? getLang('linkNotExist') :
-											err.message,
-								item
-							);
-							continueLoop = true;
-							break;
-						}
-					}
-				}
-			}
-			else if (!isNaN(item))
-				uid = item;
-			else
-				continue;
-
-			if (continueLoop == true)
-				continue;
-
-			if (members.some(m => m.userID == uid && m.inGroup)) {
-				checkErrorAndPush(getLang("alreadyInGroup"), item);
-			}
-			else {
-				try {
-					await api.addUserToGroup(uid, event.threadID);
-					if (approvalMode === true && !adminIDs.includes(botID))
-						success[1].uids.push(uid);
-					else
-						success[0].uids.push(uid);
-				}
-				catch (err) {
-					checkErrorAndPush(getLang("cannotAddUser"), item);
-				}
-			}
+		
+		if (approvalMode && !adminIDs.includes(botID)) {
+			return out(`𝑨𝒅𝒅𝒆𝒅 ${name} 𝒕𝒐 𝒕𝒉𝒆 𝒂𝒑𝒑𝒓𝒐𝒗𝒆𝒅 𝒍𝒊𝒔𝒕`); // Mathematical Bold Italic
+		} else {
+			return out(`𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒂𝒅𝒅𝒆𝒅 ${name} 𝒊𝒏 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑`); // Mathematical Bold Italic
 		}
-
-		const lengthUserSuccess = success[0].uids.length;
-		const lengthUserWaitApproval = success[1].uids.length;
-		const lengthUserError = failed.length;
-
-		let msg = "";
-		if (lengthUserSuccess)
-			msg += `${getLang("successAdd", lengthUserSuccess)}\n`;
-		if (lengthUserWaitApproval)
-			msg += `${getLang("approve", lengthUserWaitApproval)}\n`;
-		if (lengthUserError)
-			msg += `${getLang("failedAdd", failed.reduce((a, b) => a + b.uids.length, 0))} ${failed.reduce((a, b) => a += `\n    + ${b.uids.join('\n       ')}: ${b.type}`, "")}`;
-		await message.reply(msg);
 	}
 };

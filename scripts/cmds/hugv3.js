@@ -1,165 +1,74 @@
-const axios = require('axios');
-const fs = require('fs-extra');
-const path = require('path');
-const jimp = require('jimp');
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "hugv3",
     version: "7.3.1",
-    role: 0,
-    author: "Asif",
-    description: "Create beautiful hug images with avatars 🥰",
-    category: "image",
-    usage: "[@mention]",
-    example: "hugv3 @friend",
-    cooldown: 5
-  },
-
-  onLoad: async function() {
-    const canvasDir = path.join(__dirname, 'cache', 'canvas');
-    const templatePath = path.join(canvasDir, 'hugv3.png');
-    
-    try {
-      if (!fs.existsSync(canvasDir)) {
-        await fs.mkdirp(canvasDir);
-      }
-      
-      if (!fs.existsSync(templatePath)) {
-        console.log("Downloading hug template...");
-        await this.downloadFile("https://i.imgur.com/7lPqHjw.jpg", templatePath);
-        console.log("Hug template downloaded successfully");
-      }
-    } catch (error) {
-      console.error("Hug command initialization error:", error);
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑀𝑒𝓃𝓉𝒾𝑜𝓃𝑒𝒹 𝒻𝓇𝒾𝑒𝓃𝒹 𝓀𝑒 𝒽𝓊𝑔 𝒹𝒾𝓈𝒽𝒶𝓃 𝒹𝒶𝓃𝑜 🥰",
+    commandCategory: "img",
+    usages: "[@mention]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-  },
-
-  onStart: async function({ event, api }) {
-    try {
-      const { threadID, messageID, senderID } = event;
-      const mentions = Object.keys(event.mentions || {});
-      
-      // Validate mention
-      if (mentions.length === 0) {
-        return api.sendMessage("💕 Please mention someone to hug!", threadID, messageID);
-      }
-      
-      const targetID = mentions[0];
-      
-      // Prevent self-hug
-      if (senderID === targetID) {
-        return api.sendMessage("🤔 You can't hug yourself!", threadID, messageID);
-      }
-      
-      // Send processing message
-      await api.sendMessage("🖼️ Creating your special hug image...", threadID, messageID);
-      
-      const startTime = Date.now();
-      const imagePath = await this.createHugImage(senderID, targetID);
-      const creationTime = ((Date.now() - startTime) / 1000).toFixed(1);
-      
-      // Send result
-      return api.sendMessage({
-        body: `🤗 Sent with love! (Created in ${creationTime}s)`,
-        attachment: fs.createReadStream(imagePath)
-      }, threadID, () => {
-        // Cleanup temporary files
-        try {
-          fs.unlinkSync(imagePath);
-          fs.unlinkSync(path.join(__dirname, 'cache', 'canvas', `avt_${senderID}.png`));
-          fs.unlinkSync(path.join(__dirname, 'cache', 'canvas', `avt_${targetID}.png`));
-          console.log("Cleaned up temporary files");
-        } catch (cleanupErr) {
-          console.error("Cleanup error:", cleanupErr);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Hug command error:", error);
-      return api.sendMessage("❌ Failed to create hug image. Please try again later.", threadID, messageID);
-    }
-  },
-
-  createHugImage: async function(user1, user2) {
-    const canvasDir = path.join(__dirname, 'cache', 'canvas');
-    const templatePath = path.join(canvasDir, 'hugv3.png');
-    const outputPath = path.join(canvasDir, `hug_${user1}_${user2}.png`);
-    const avatar1Path = path.join(canvasDir, `avt_${user1}.png`);
-    const avatar2Path = path.join(canvasDir, `avt_${user2}.png`);
-    
-    try {
-      // Download avatars in parallel
-      const [avatar1, avatar2] = await Promise.all([
-        this.fetchAvatar(user1),
-        this.fetchAvatar(user2)
-      ]);
-      
-      // Save avatars to disk
-      await fs.writeFile(avatar1Path, avatar1);
-      await fs.writeFile(avatar2Path, avatar2);
-      
-      // Load template
-      const template = await jimp.read(templatePath);
-      
-      // Process avatars
-      const processedAvatar1 = await this.processAvatar(avatar1Path);
-      const processedAvatar2 = await this.processAvatar(avatar2Path);
-      
-      // Position avatars on template
-      template.composite(processedAvatar1.resize(220, 220), 200, 50)   // Left position
-             .composite(processedAvatar2.resize(220, 220), 490, 200);  // Right position
-      
-      // Save final image
-      await template.writeAsync(outputPath);
-      
-      return outputPath;
-    } catch (error) {
-      console.error("Image creation failed:", error);
-      throw new Error("Failed to create hug image");
-    }
-  },
-
-  fetchAvatar: async function(userID) {
-    try {
-      const response = await axios.get(
-        `https://graph.facebook.com/${userID}/picture?width=512&height=512`,
-        { 
-          responseType: 'arraybuffer',
-          timeout: 10000  // 10 seconds timeout
-        }
-      );
-      return Buffer.from(response.data);
-    } catch (error) {
-      console.error(`Avatar download failed for ${userID}:`, error);
-      throw new Error("Couldn't fetch profile picture");
-    }
-  },
-
-  processAvatar: async function(avatarPath) {
-    try {
-      const image = await jimp.read(avatarPath);
-      image.circle();  // Convert to circular avatar
-      return image;
-    } catch (error) {
-      console.error("Failed to process avatar:", error);
-      throw new Error("Avatar processing error");
-    }
-  },
-
-  downloadFile: async function(url, savePath) {
-    try {
-      const response = await axios.get(url, { responseType: 'stream' });
-      const writer = fs.createWriteStream(savePath);
-      response.data.pipe(writer);
-      
-      return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-    } catch (error) {
-      console.error("Template download error:", error);
-      throw new Error("Failed to download template image");
-    }
-  }
 };
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'hugv3.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.imgur.com/7lPqHjw.jpg", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let batgiam_img = await jimp.read(__root + "/hugv3.png");
+    let pathImg = __root + `/batman${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    batgiam_img.composite(circleOne.resize(220, 220), 200, 50).composite(circleTwo.resize(220, 220), 490, 200);
+    
+    let raw = await batgiam_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {    
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    if (!mention[0]) return api.sendMessage("𝒟𝒶𝓎𝒶 𝓀𝑜𝓇𝑒 1 𝒿𝒶𝓃𝑒𝓇 @𝓂𝑒𝓃𝓉𝒾𝑜𝓃 𝒹𝒶𝓃 🥺", threadID, messageID);
+    else {
+        const one = senderID, two = mention[0];
+        return makeImage({ one, two }).then(path => api.sendMessage({ body: "🥰 | 𝓎𝑜𝓊 𝓇𝑒𝒸𝑒𝒾𝓋𝑒𝒹 𝒶 𝓌𝒶𝓇𝓂 𝒽𝓊𝑔!", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));
+    }
+}

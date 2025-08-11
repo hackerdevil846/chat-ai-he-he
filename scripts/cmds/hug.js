@@ -1,92 +1,83 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "hug",
-    version: "1.0",
-    author: "Asif",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-      en: "Send a hug gif to one or two mentioned users.",
-    },
-    longDescription: {
-      en: "This command sends a hug gif to one or two mentioned users.",
-    },
-    category: "fun",
-    guide: {
-      en: "Use /hug with one or two mentions to send a hug gif.",
-    },
-  },
-
-  onStart: async function ({
-    api,
-    args,
-    message,
-    event,
-    global,
-  }) {
-    const { threadID, senderID, mentions } = event;
-    const { getPrefix } = global.utils;
-    const prefix = getPrefix(threadID);
-
-    // Permission check
-    const approvedPath = path.join(__dirname, "assist_json", "approved_main.json");
-    const bypassPath = path.join(__dirname, "assist_json", "bypass_id.json");
-    const approvedList = JSON.parse(fs.readFileSync(approvedPath));
-    const bypassList = JSON.parse(fs.readFileSync(bypassPath));
-
-    if (!bypassList.includes(senderID) && !approvedList.includes(threadID)) {
-      const msg = await message.reply(`cmd 'hug' is locked 🔒...\nReason: Bot's main cmd.\nYou need permission to use this.\n\nUse: ${prefix}requestMain to request access.`);
-      setTimeout(() => message.unsend(msg.messageID), 40000);
-      return;
+    version: "3.1.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑱𝒉𝒂𝒏𝒌𝒂𝒘 𝒅𝒆𝒌𝒉𝒂𝒐 🥰",
+    commandCategory: "𝑰𝒎𝒂𝒈𝒆",
+    usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-
-    // Mention handling
-    let uid1 = null, uid2 = null;
-    if (Object.keys(mentions).length === 2) {
-      uid1 = Object.keys(mentions)[0];
-      uid2 = Object.keys(mentions)[1];
-    } else if (Object.keys(mentions).length === 1) {
-      uid1 = senderID;
-      uid2 = Object.keys(mentions)[0];
-    } else {
-      return message.reply("Please mention one or two users to send a hug gif.");
-    }
-
-    // Special case for Asif 💁
-    if ((uid1 === '61571630409265' || uid2 === '61571630409265') && (uid1 !== uid2)) {
-      uid1 = '61571630409265';
-      uid2 = '61571630409265';
-      message.reply("Sorry 🥱💁\n\nI only hug Asif 😌💗");
-    }
-
-    // Get usernames
-    const userInfo = await api.getUserInfo([uid1, uid2]);
-    const name1 = userInfo[uid1]?.name?.split(' ').pop() || "User1";
-    const name2 = userInfo[uid2]?.name?.split(' ').pop() || "User2";
-
-    try {
-      const gifRes = await axios.get("https://nekos.best/api/v2/hug?amount=1");
-      const gifUrl = gifRes.data.results[0].url;
-
-      const gifData = await axios.get(gifUrl, { responseType: "arraybuffer" });
-      const fileName = `hug_${uid1}_${uid2}.gif`;
-      const filePath = path.join(__dirname, "cache", fileName);
-      fs.ensureDirSync(path.join(__dirname, "cache"));
-      fs.writeFileSync(filePath, gifData.data);
-
-      await message.reply({
-        body: `${name1} 🤗 ${name2}`,
-        attachment: fs.createReadStream(filePath),
-      });
-
-      fs.unlink(filePath, () => {});
-    } catch (err) {
-      console.error("❌ Hug command error:", err.message || err);
-      message.reply("There was an error processing the hug gif.");
-    }
-  },
 };
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'hugv1.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.ibb.co/3YN3T1r/q1y28eqblsr21.jpg", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let hug_img = await jimp.read(__root + "/hugv1.png");
+    let pathImg = __root + `/hug_${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    hug_img.composite(circleOne.resize(150, 150), 320, 100).composite(circleTwo.resize(130, 130), 280, 280);
+    
+    let raw = await hug_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {    
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    
+    if (!mention[0]) {
+        return api.sendMessage("𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒋𝒐𝒏 𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+    }
+    else {
+        const one = senderID, two = mention[0];
+        return makeImage({ one, two }).then(path => {
+            api.sendMessage({ 
+                body: `𝑨𝒑𝒏𝒂𝒓 𝒋𝒉𝒂𝒏𝒌𝒂𝒘 𝒏𝒊𝒚𝒆! 💖\n${event.mentions[two].replace('@', '')} → ${event.senderID.replace('@', '')}`,
+                attachment: fs.createReadStream(path) 
+            }, threadID, () => fs.unlinkSync(path), messageID);
+        });
+    }
+}

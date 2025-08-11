@@ -1,193 +1,87 @@
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
-const jimp = require("jimp");
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "couple",
-    version: "2.4.0",
-    author: "Asif",
-    category: "image-edit",
-    shortDescription: "Create romantic couple pairings",
-    longDescription: "Generate beautiful couple images with profile pictures placed on a romantic template",
-    guide: {
-      en: "{p}couple [@mention]"
-    },
-    cooldowns: 20,
+    version: "2.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑺𝒉𝒐𝒘 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚",
+    commandCategory: "𝑳𝒐𝒗𝒆",
+    usages: "[𝒕𝒂𝒈]",
+    cooldowns: 5,
     dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "jimp": ""
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-  },
-
-  onStart: async function({ event, api }) {
-    const { threadID, messageID, senderID } = event;
-    
-    try {
-      // Validate mention
-      const mention = Object.keys(event.mentions)[0];
-      if (!mention) {
-        return api.sendMessage(
-          "💑 Please mention someone to create a couple pair\nExample: couple @yourcrush", 
-          threadID, 
-          messageID
-        );
-      }
-
-      // Prevent self-pairing
-      if (mention === senderID) {
-        return api.sendMessage(
-          "🤔 You can't create a couple pair with yourself! Please mention someone else.", 
-          threadID, 
-          messageID
-        );
-      }
-
-      // Get user names
-      const [senderInfo, targetInfo] = await Promise.all([
-        api.getUserInfo(senderID),
-        api.getUserInfo(mention)
-      ]);
-      
-      const senderName = senderInfo[senderID].name;
-      const targetName = targetInfo[mention].name;
-      
-      // Create cache directory
-      const cachePath = path.join(__dirname, "couple-cache");
-      if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath, { recursive: true });
-      }
-      
-      // Show processing message
-      const processingMsg = await api.sendMessage(
-        `💞 Creating couple pair for ${senderName} and ${targetName}...\n⏱️ Please wait while I create your romantic image`,
-        threadID
-      );
-      
-      try {
-        // Create couple image
-        const imagePath = await this.makeCoupleImage(senderID, mention, cachePath);
-        
-        // Send result
-        await api.sendMessage({
-          body: `💖 PERFECT MATCH\n━━━━━━━━━━━━━━\n${senderName} ❤️ ${targetName}\n\n"Love is composed of a single soul inhabiting two bodies" - Aristotle`,
-          mentions: [
-            { tag: senderName, id: senderID },
-            { tag: targetName, id: mention }
-          ],
-          attachment: fs.createReadStream(imagePath)
-        }, threadID, messageID);
-        
-        // Clean up generated image
-        fs.unlinkSync(imagePath);
-        
-      } catch (imageError) {
-        console.error("Image creation failed:", imageError);
-        api.sendMessage(
-          "❌ Failed to generate the couple image. Please try again later.",
-          threadID,
-          messageID
-        );
-      }
-      
-      // Delete processing message
-      api.unsendMessage(processingMsg.messageID);
-
-    } catch (error) {
-      console.error("❌ Couple Command Error:", error);
-      api.sendMessage(
-        "😿 An unexpected error occurred. Please try again later.",
-        threadID,
-        messageID
-      );
-    }
-  },
-
-  makeCoupleImage: async function(user1, user2, cacheDir) {
-    const outputPath = path.join(cacheDir, `couple_${user1}_${user2}_${Date.now()}.png`);
-    
-    try {
-      // Download template image
-      const templateURL = "https://i.imgur.com/hmKmmam.jpg";
-      const templatePath = path.join(cacheDir, "couple_template.jpg");
-      
-      if (!fs.existsSync(templatePath)) {
-        const { data } = await axios.get(templateURL, {
-          responseType: "arraybuffer",
-          headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-          }
-        });
-        fs.writeFileSync(templatePath, Buffer.from(data, "binary"));
-      }
-      
-      // Process both avatars in parallel
-      const [avatar1, avatar2] = await Promise.all([
-        this.processAvatar(user1, cacheDir),
-        this.processAvatar(user2, cacheDir)
-      ]);
-      
-      // Load template image
-      const template = await jimp.read(templatePath);
-      
-      // Composite avatars onto template with precise positioning
-      template.resize(1024, 712)
-             .composite(avatar1.resize(200, 200), 527, 141)  // Right position
-             .composite(avatar2.resize(200, 200), 389, 407); // Left position
-      
-      // Add watermark
-      const font = await jimp.loadFont(jimp.FONT_SANS_16_WHITE);
-      template.print(font, 20, template.bitmap.height - 30, "Created with Couple Command");
-      
-      // Save final image
-      await template.writeAsync(outputPath);
-      return outputPath;
-      
-    } catch (error) {
-      console.error("🖼️ Image Creation Error:", error);
-      throw error;
-    }
-  },
-  
-  processAvatar: async function(userID, cacheDir) {
-    const avatarPath = path.join(cacheDir, `avt_${userID}_${Date.now()}.png`);
-    
-    try {
-      // Get profile picture
-      const url = `https://graph.facebook.com/${userID}/picture?width=512&height=512`;
-      const { data } = await axios.get(url, {
-        responseType: "arraybuffer",
-        timeout: 30000
-      });
-      fs.writeFileSync(avatarPath, Buffer.from(data, "binary"));
-      
-      // Load and process avatar
-      const avatar = await jimp.read(avatarPath);
-      await avatar.circle();
-      
-      return avatar;
-      
-    } catch (error) {
-      console.error("👤 Avatar Processing Error:", error);
-      
-      // Use fallback avatar if available
-      try {
-        const fallbackPath = path.join(__dirname, "assets", "default_avatar.png");
-        if (fs.existsSync(fallbackPath)) {
-          return jimp.read(fallbackPath);
-        }
-      } catch (fallbackError) {
-        console.error("Fallback avatar failed:", fallbackError);
-      }
-      
-      throw error;
-    } finally {
-      // Clean up temporary file if it exists
-      if (fs.existsSync(avatarPath)) {
-        fs.unlinkSync(avatarPath);
-      }
-    }
-  }
 };
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'seophi.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.imgur.com/hmKmmam.jpg", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let batgiam_img = await jimp.read(__root + "/seophi.png");
+    let pathImg = __root + `/batman${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    batgiam_img.resize(1024, 712).composite(circleOne.resize(200, 200), 527, 141).composite(circleTwo.resize(200, 200), 389, 407);
+    
+    let raw = await batgiam_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    var mention = Object.keys(event.mentions)[0];
+    
+    if (!mention) 
+        return api.sendMessage("𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒂𝒈 𝒂 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒔𝒆𝒆 𝒚𝒐𝒖𝒓 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚 💖", threadID, messageID);
+    
+    let tag = event.mentions[mention].replace("@", "");
+    let one = senderID, two = mention;
+    
+    return makeImage({ one, two }).then(path => 
+        api.sendMessage({ 
+            body: `💑 𝑳𝒐𝒗𝒆 𝑪𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚 𝒃𝒆𝒕𝒘𝒆𝒆𝒏 𝒚𝒐𝒖 𝒂𝒏𝒅 ${tag}`,
+            mentions: [{
+                tag: tag,
+                id: mention
+            }],
+            attachment: fs.createReadStream(path) 
+        }, threadID, () => fs.unlinkSync(path), messageID)
+    );
+}

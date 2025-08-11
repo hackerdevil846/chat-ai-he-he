@@ -1,314 +1,200 @@
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
-const { createCanvas, loadImage, registerFont } = require("canvas");
-const jimp = require("jimp");
-
-// Resource URLs
-const BACKGROUND_URL = "https://i.ibb.co/QvG4LTw/image.png";
-const ADMIN_FRAME_URL = "https://i.ibb.co/H41cdDM/1624768781720.png";
-const FONT_URL = "https://drive.google.com/uc?id=1q0FPVuJ-Lq7-tvOYH0ILgbjrX1boW7KW&export=download";
-
-// Track processing threads
-const processingThreads = new Map();
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "family",
-    version: "1.4.0",
-    hasPermission: 1,
-    credits: "Asif",
-    description: "Create beautiful group photo collages",
-    category: "image",
-    usages: "family <size> [color] [title]",
-    cooldowns: 30,
+    version: "1.0.0",
+    hasPermssion: 1,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒔𝒐𝒃 𝒎𝒆𝒎𝒃𝒆𝒓 𝒅𝒆𝒓 𝒇𝒐𝒕𝒐 𝒃𝒂𝒏𝒂𝒐",
+    commandCategory: "𝑭𝒐𝒕𝒐 𝒆𝒅𝒊𝒕",
+    usages: "𝒇𝒂𝒎𝒊𝒍𝒚 <𝒔𝒊𝒛𝒆> [#𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆] 𝒂𝒕𝒉𝒂𝒃𝒂 𝒇𝒂𝒎𝒊𝒍𝒚 <𝒔𝒊𝒛𝒆>\n𝑺𝒚𝒏𝒕𝒂𝒙 𝒎𝒐𝒕𝒐 𝒍𝒆𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏:\n$𝒇𝒂𝒎𝒊𝒍𝒚 <𝒔𝒊𝒛𝒆> <𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆> <𝒕𝒊𝒕𝒍𝒆>\n𝑱𝒆𝒌𝒉𝒂𝒏𝒆:\n•𝒔𝒊𝒛𝒆: 𝑷𝒓𝒐𝒕𝒊𝒐𝒏 𝒎𝒆𝒎𝒃𝒆𝒓 𝒆𝒓 𝒂𝒗𝒂𝒕𝒂𝒓 𝒆𝒓 𝒔𝒊𝒛𝒆\n•𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆: 𝑯𝒆𝒙 𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆\n•𝒕𝒊𝒕𝒍𝒆: 𝑰𝒎𝒂𝒈𝒆 𝒆𝒓 𝒕𝒊𝒕𝒍𝒆, 𝒅𝒆𝒇𝒂𝒖𝒍𝒕 𝒉𝒐𝒍𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒏𝒂𝒎\n𝑼𝒅𝒂𝒉𝒂𝒓𝒐𝒏: $𝒇𝒂𝒎𝒊𝒍𝒚 200 #𝒘𝒉𝒊𝒕𝒆 𝑬𝒌𝒕𝒊 𝒈𝒉𝒐𝒓 𝒆𝒓 𝒃𝒉𝒂𝒊\n𝑱𝒐𝒅𝒊 𝒔𝒊𝒛𝒆 = 0 𝒍𝒆𝒌𝒉𝒂 𝒉𝒐𝒚 𝒕𝒂𝒉𝒐𝒍𝒆 𝒔𝒊𝒛𝒆 𝒂𝒖𝒕𝒐 𝒂𝒅𝒋𝒖𝒔𝒕 𝒉𝒐𝒃𝒆",
+    cooldowns: 5,
     dependencies: {
-      "fs-extra": "",
-      "axios": "",
-      "canvas": "",
-      "jimp": ""
+      "fs-extra": "", 
+      "axios":"", 
+      "canvas": "", 
+      "jimp": "", 
+      "node-superfetch": "",
+      "chalk": ""
     }
-  },
+};
 
-  onStart: async function ({ api, event, args }) {
+module.exports.run = async ({ event, api, args }) => {
+  var TOKEN = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
+  try {
+    if(global.client.family == true) return api.sendMessage("𝑨𝒏𝒚𝒐 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒓𝒆𝒒𝒖𝒆𝒔𝒕 𝒑𝒓𝒐𝒄𝒆𝒔𝒔 𝒉𝒐𝒄𝒄𝒉𝒆, 𝒅𝒆𝒓𝒊 𝒌𝒉𝒖𝒏 𝒑𝒐𝒓𝒆𝒏", event.threadID, event.messageID);
+    global.client.family = true;
+    var timestart = Date.now();
+    const fs = global.nodemodule["fs-extra"];
+    const axios = global.nodemodule["axios"];
     const { threadID, messageID } = event;
-    const startTime = Date.now();
+    const request = global.nodemodule["request"];
+    const superfetch = global.nodemodule["node-superfetch"];
     
-    // Check if this thread is already processing
-    if (processingThreads.has(threadID)) {
-      return api.sendMessage(
-        "🔄 This group is already creating a family photo. Please wait...", 
-        threadID, 
-        messageID
-      );
+    if(!fs.existsSync(__dirname+'/cache/VNCORSI.ttf')) {
+      let getfont = (await axios.get(`https://drive.google.com/uc?id=1q0FPVuJ-Lq7-tvOYH0ILgbjrX1boW7KW&export=download`, { responseType: "arraybuffer" })).data;
+      fs.writeFileSync(__dirname+"/cache/VNCORSI.ttf", Buffer.from(getfont, "utf-8"));
+    };
+    
+    if(!args[0] || isNaN(args[0]) == true || args[0] == "help") {
+      if(!fs.existsSync(__dirname+"/cache/color1.png")) {
+        let getimg = (await axios.get(`https://i.ibb.co/m9R36Pp/image.png`, { responseType: "arraybuffer" })).data;
+        fs.writeFileSync(__dirname+"/cache/color1.png", Buffer.from(getimg, "utf-8"));
+      }
+      global.client.family = false;
+      return api.sendMessage({
+        body: "𝑺𝒚𝒏𝒕𝒂𝒙 𝒎𝒐𝒕𝒐 𝒍𝒆𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏:\n$𝒇𝒂𝒎𝒊𝒍𝒚 <𝒔𝒊𝒛𝒆> <𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆> <𝒕𝒊𝒕𝒍𝒆>\n𝑱𝒆𝒌𝒉𝒂𝒏𝒆:\n•𝒔𝒊𝒛𝒆: 𝑷𝒓𝒐𝒕𝒊𝒐𝒏 𝒎𝒆𝒎𝒃𝒆𝒓 𝒆𝒓 𝒂𝒗𝒂𝒕𝒂𝒓 𝒆𝒓 𝒔𝒊𝒛𝒆\n•𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆: 𝑯𝒆𝒙 𝒄𝒐𝒍𝒐𝒓 𝒄𝒐𝒅𝒆\n•𝒕𝒊𝒕𝒍𝒆: 𝑰𝒎𝒂𝒈𝒆 𝒆𝒓 𝒕𝒊𝒕𝒍𝒆, 𝒅𝒆𝒇𝒂𝒖𝒍𝒕 𝒉𝒐𝒍𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒏𝒂𝒎",
+        attachment: fs.createReadStream(__dirname+"/cache/color1.png")
+      }, threadID, messageID);
+    };
+    
+    const jimp = global.nodemodule["jimp"];
+    const chalk = global.nodemodule["chalk"];
+    const Canvas = global.nodemodule["canvas"];
+  
+    var threadInfo = await api.getThreadInfo(threadID);
+    var arrob = threadInfo.adminIDs;
+    var arrad = [];
+    for(let qtv of arrob) {
+      arrad.push(qtv.id)
+    };
+    const background = await Canvas.loadImage("https://i.ibb.co/QvG4LTw/image.png");
+    
+    var idtv = threadInfo.participantIDs;
+    var xbground = background.width,
+        ybground = background.height;
+
+    var dem = 1;
+    var tds = 200,
+        s = parseInt(args[0]);
+    var mode = "";
+    if(s == 0) {
+      var dtich = xbground*(ybground-tds);
+      var dtichtv = Math.floor(dtich/idtv.length);
+      var s = Math.floor(Math.sqrt(dtichtv));
+      mode += " (𝑨𝒖𝒕𝒐 𝒔𝒊𝒛𝒆)"
+    };
+    
+    var l = parseInt(s/15),
+        x = parseInt(l),
+        y = parseInt(tds),
+        xcrop = parseInt(idtv.length*s),
+        ycrop = parseInt(tds+s);
+        
+    var color = args[1];
+    if(!color || !color.includes("#")) {
+      color = "#FFFFFF";
+      autocolor = true;
+    };
+    
+    if(s > ybground || s > xbground) {
+      global.client.family = false;
+      return api.sendMessage(`𝑨𝒗𝒂𝒕𝒂𝒓 𝒔𝒊𝒛𝒆 𝒃𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝒆𝒓 𝒔𝒊𝒛𝒆 𝒆𝒓 𝒄𝒉𝒆𝒚𝒆 𝒄𝒉𝒐𝒕𝒐 𝒉𝒐𝒕𝒆 𝒉𝒐𝒃𝒆\n𝑩𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝒔𝒊𝒛𝒆: X: ${xbground}, Y: ${ybground}`, threadID, messageID);
     }
     
-    // Mark thread as processing
-    processingThreads.set(threadID, true);
-
-    try {
-      // Create cache directory
-      const cacheDir = path.join(__dirname, "cache", "family");
-      await fs.ensureDir(cacheDir);
-
-      // Font path
-      const fontPath = path.join(cacheDir, "VNCORSI.ttf");
-      
-      // Download font if missing
-      if (!fs.existsSync(fontPath)) {
-        try {
-          const fontData = await axios.get(FONT_URL, { 
-            responseType: "arraybuffer",
-            timeout: 30000
-          });
-          await fs.writeFile(fontPath, Buffer.from(fontData.data));
-        } catch (error) {
-          console.error("Font download error:", error);
-          return api.sendMessage(
-            "❌ Failed to download required font. Please try again later.", 
-            threadID, 
-            messageID
-          );
-        }
-      }
-
-      // Show help if requested
-      if (args[0] === "help" || !args[0]) {
-        const helpMessage = `
-📸 Family Photo Generator Help
-━━━━━━━━━━━━━━
-Create beautiful group photo collages with all members
-
-Usage: family <size> [color] [title]
-
-• size: Avatar size in pixels (0 for auto-size)
-• color: Hex color for title (e.g., #FF0000)
-• title: Custom title (default: group name)
-
-Examples:
-• family 200
-• family 150 #ff0000 My Group
-• family 0 (auto-size)
-
-⚠️ Notes:
-- Maximum size: 500px
-- Auto-size adjusts based on member count
-- Processing may take 30-60 seconds for large groups
-        `;
-        return api.sendMessage(helpMessage, threadID, messageID);
-      }
-
-      // Parse arguments
-      const size = parseInt(args[0]);
-      if (isNaN(size)) {
-        return api.sendMessage(
-          "❌ Please enter a valid size number (e.g., 200)", 
-          threadID, 
-          messageID
-        );
-      }
-
-      // Validate size
-      if (size > 500) {
-        return api.sendMessage(
-          "❌ Maximum size is 500 pixels", 
-          threadID, 
-          messageID
-        );
-      }
-      
-      if (size < 0) {
-        return api.sendMessage(
-          "❌ Size must be a positive number", 
-          threadID, 
-          messageID
-        );
-      }
-
-      // Parse color and title
-      const color = args[1] && args[1].startsWith("#") ? args[1] : "#FFFFFF";
-      const title = args.slice(color.startsWith("#") ? 2 : 1).join(" ") || "";
-
-      // Get group information
-      const threadInfo = await api.getThreadInfo(threadID);
-      const groupName = threadInfo.threadName;
-      const memberIds = threadInfo.participantIDs;
-      const adminIds = threadInfo.adminIDs.map(admin => admin.id);
-      
-      // Final title
-      const finalTitle = title || groupName;
-
-      // Send processing message
-      const processingMsg = await api.sendMessage(
-        `🔄 Creating family photo for ${groupName}\n━━━━━━━━━━━━━━\n📏 Size: ${size}px\n🎨 Color: ${color}\n👥 Members: ${memberIds.length}\n⏳ Please wait 30-60 seconds...`,
-        threadID
-      );
-
-      // Create the family photo
-      const result = await this.createFamilyPhoto({
-        size,
-        color,
-        title: finalTitle,
-        memberIds,
-        adminIds,
-        cacheDir
-      });
-
-      // Calculate processing time
-      const processingTime = Math.floor((Date.now() - startTime) / 1000);
-
-      // Send result
-      await api.unsendMessage(processingMsg.messageID);
-      api.sendMessage({
-        body: `✅ Family Photo Created!\n━━━━━━━━━━━━━━\n👥 Members: ${result.memberCount}\n🎨 Color: ${color}\n⏱️ Time: ${processingTime}s\n🖼️ Dimensions: ${result.width}x${result.height}`,
-        attachment: fs.createReadStream(result.outputPath)
-      }, threadID, () => {
-        // Clean up file
-        fs.unlink(result.outputPath, (err) => {
-          if (err) console.error("Cleanup error:", err);
-        });
-      }, messageID);
-    } catch (error) {
-      console.error("Family photo creation error:", error);
-      api.sendMessage(
-        "❌ Failed to create family photo. Please try again later.", 
-        threadID, 
-        messageID
-      );
-    } finally {
-      // Remove processing flag
-      processingThreads.delete(threadID);
-    }
-  },
-
-  createFamilyPhoto: async function ({ size, color, title, memberIds, adminIds, cacheDir }) {
-    // Constants
-    const TOP_SPACE = 200;
-    const PADDING = 10;
+    api.sendMessage(
+      `🔢 𝑬𝒔𝒕𝒊𝒎𝒂𝒕𝒆𝒅 𝒏𝒖𝒎𝒃𝒆𝒓 𝒐𝒇 𝒑𝒉𝒐𝒕𝒐𝒔: ${idtv.length}\n` +
+      `🆒 𝑩𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝑺𝒊𝒛𝒆: ${xbground} x ${ybground}\n` +
+      `🆕 𝑨𝒗𝒂𝒕𝒂𝒓 𝑺𝒊𝒛𝒆: ${s}${mode}\n` +
+      `#️⃣ 𝑪𝒐𝒍𝒐𝒓: ${color}\n` +
+      `⏳ 𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒓𝒆𝒒𝒖𝒆𝒔𝒕, 𝒊𝒕 𝒎𝒂𝒚 𝒕𝒂𝒌𝒆 𝒖𝒑 𝒕𝒐 1 𝒎𝒊𝒏𝒖𝒕𝒆...`,
+      threadID, messageID
+    );
     
-    // Load background image
-    const background = await loadImage(BACKGROUND_URL);
-    const bgWidth = background.width;
-    const bgHeight = background.height;
+    var loadkhung = await Canvas.loadImage("https://i.ibb.co/H41cdDM/1624768781720.png");
+    var title = args.slice(2).join(" ") || threadInfo.name;
+    var path_alltv = __dirname+`/cache/family_${threadID}_${Date.now()}.png`;
     
-    // Calculate auto size if requested
-    let avatarSize = size;
+    function delay(ms) {
+       return new Promise(resolve => setTimeout(resolve, ms));
+    };
     
-    if (size === 0) {
-      // Auto-size calculation based on member count
-      if (memberIds.length <= 20) {
-        avatarSize = 150;
-      } else if (memberIds.length <= 50) {
-        avatarSize = 120;
-      } else if (memberIds.length <= 100) {
-        avatarSize = 90;
-      } else {
-        avatarSize = 70;
-      }
-    }
-    
-    // Calculate padding between avatars
-    const padding = Math.max(5, Math.floor(avatarSize / 20));
-    
-    // Create canvas
-    const canvas = createCanvas(bgWidth, bgHeight);
-    const ctx = canvas.getContext('2d');
-    
-    // Draw background
+    const canvas = Canvas.createCanvas(xbground, ybground);
+    let ctx = canvas.getContext('2d');
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+    var ngdung = 0;
     
-    // Load admin frame
-    const adminFrame = await loadImage(ADMIN_FRAME_URL);
-    
-    // Calculate layout
-    const avatarsPerRow = Math.floor((bgWidth - padding) / (avatarSize + padding));
-    const maxRows = Math.floor((bgHeight - TOP_SPACE - padding) / (avatarSize + padding));
-    
-    // Position tracking
-    let row = 0;
-    let col = 0;
-    let drawnMembers = 0;
-    
-    // Draw avatars
-    for (const memberId of memberIds) {
-      if (row >= maxRows) break;
+    for(let id of idtv) {
+        try {
+          var avatar = await superfetch.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${TOKEN}`);
+          if(avatar.url.includes(".gif")) {throw Error};
+        }
+        catch(e) {
+            ngdung += 1;
+            continue; 
+        };
+
+        if(x+s > xbground) {
+          xcrop = x;
+          x += (-x)+l;
+          y += s+l;
+          ycrop += s+l;
+        };
+        
+        if(ycrop > ybground) {
+          ycrop += (-s);
+          break;
+        }; 
       
-      try {
-        // Get avatar
-        const avatarResponse = await axios.get(
-          `https://graph.facebook.com/${memberId}/picture?width=512&height=512`,
-          { responseType: "arraybuffer" }
-        );
+        avatar = avatar.body;
+        const avatarload = await Canvas.loadImage(avatar);
+        ctx.drawImage(avatarload, x, y, s, s);
+
+        if(arrad.includes(id)) {
+          ctx.drawImage(loadkhung, x, y, s, s);
+        };
         
-        // Load avatar
-        const avatar = await loadImage(Buffer.from(avatarResponse.data));
-        
-        // Calculate position
-        const x = padding + col * (avatarSize + padding);
-        const y = TOP_SPACE + row * (avatarSize + padding);
-        
-        // Draw avatar
-        ctx.drawImage(avatar, x, y, avatarSize, avatarSize);
-        
-        // Add admin frame if member is admin
-        if (adminIds.includes(memberId)) {
-          ctx.drawImage(adminFrame, x, y, avatarSize, avatarSize);
-        }
-        
-        // Update position
-        col++;
-        if (col >= avatarsPerRow) {
-          col = 0;
-          row++;
-        }
-        
-        drawnMembers++;
-      } catch (error) {
-        console.error(`Skipping member ${memberId}:`, error.message);
-      }
-    }
+        dem++;
+        x += parseInt(s+l);
+    };
     
-    // Register font
-    registerFont(path.join(cacheDir, "VNCORSI.ttf"), {
-      family: "FamilyFont"
+    Canvas.registerFont(__dirname+"/cache/VNCORSI.ttf", {
+        family: "Dancing Script"
     });
     
-    // Draw title
-    ctx.font = "bold 100px 'FamilyFont'";
+    ctx.font = "110px Dancing Script";
     ctx.fillStyle = color;
     ctx.textAlign = "center";
-    ctx.textBaseline = "top";
+    ctx.fillText(title, xcrop/2, 133);
     
-    // Scale title to fit if needed
-    let fontSize = 100;
-    const maxWidth = bgWidth - 100;
-    
-    while (ctx.measureText(title).width > maxWidth && fontSize > 30) {
-      fontSize -= 5;
-      ctx.font = `bold ${fontSize}px 'FamilyFont'`;
+    try {
+      const imagecut = await jimp.read(canvas.toBuffer());
+      imagecut.crop(0, 0, xcrop, ycrop+l-30).writeAsync(path_alltv);
+      await delay(200);
+      
+      api.sendMessage({
+        body: `🟦 𝑵𝒖𝒎𝒃𝒆𝒓 𝒐𝒇 𝒑𝒉𝒐𝒕𝒐𝒔: ${dem} (𝑭𝒊𝒍𝒕𝒆𝒓𝒆𝒅 ${ngdung} 𝒖𝒔𝒆𝒓𝒔)\n` +
+              `🆒 𝑩𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝑺𝒊𝒛𝒆: ${xbground} x ${ybground}\n` +
+              `🆕 𝑨𝒗𝒂𝒕𝒂𝒓 𝑺𝒊𝒛𝒆: ${s}${mode}\n` +
+              `⏱️ 𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝑻𝒊𝒎𝒆: ${Math.floor((Date.now()-timestart)/1000)} 𝒔𝒆𝒄𝒐𝒏𝒅`,
+        attachment: fs.createReadStream(path_alltv, { 'highWaterMark': 128 * 1024 })
+      }, threadID, (e, info) => {
+        if(e) {
+          api.sendMessage("𝑬𝒓𝒓𝒐𝒓 𝒉𝒐𝒄𝒄𝒉𝒆, 𝒅𝒆𝒓𝒊 𝒌𝒉𝒖𝒏 𝒂𝒂𝒃𝒂𝒓 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+        };
+        fs.unlinkSync(path_alltv);
+        global.client.family = false;
+      }, messageID);
     }
-    
-    ctx.fillText(title, bgWidth / 2, 50);
-    
-    // Save to buffer
-    const imageBuffer = canvas.toBuffer("image/png");
-    
-    // Crop image to content
-    const outputPath = path.join(cacheDir, `family_${Date.now()}.png`);
-    const jimpImage = await jimp.read(imageBuffer);
-    
-    // Calculate content height
-    const contentHeight = TOP_SPACE + (row + 1) * (avatarSize + padding);
-    jimpImage.crop(0, 0, bgWidth, Math.min(contentHeight, bgHeight));
-    
-    // Save image
-    await jimpImage.writeAsync(outputPath);
-    
-    return {
-      outputPath,
-      memberCount: drawnMembers,
-      width: bgWidth,
-      height: Math.min(contentHeight, bgHeight)
-    };
+    catch(e) {
+      fs.writeFileSync(path_alltv, canvas.toBuffer());
+      api.sendMessage({
+        body: `𝑨𝒏 𝑨𝒖𝒕𝒐 𝒄𝒖𝒕 𝒆𝒓𝒓𝒐𝒓 𝒉𝒂𝒔 𝒐𝒄𝒄𝒖𝒓𝒆𝒅\n` +
+              `🟦 𝑵𝒖𝒎𝒃𝒆𝒓 𝒐𝒇 𝒑𝒉𝒐𝒕𝒐𝒔: ${dem}\n` +
+              `(𝑭𝒊𝒍𝒕𝒆𝒓𝒆𝒅 ${ngdung} 𝒖𝒔𝒆𝒓𝒔)\n` +
+              `🆒 𝑩𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝑺𝒊𝒛𝒆: ${xbground} x ${ybground}\n` +
+              `🆕 𝑨𝒗𝒂𝒕𝒂𝒓 𝑺𝒊𝒛𝒆: ${s}${mode}\n` +
+              `⏱️ 𝑷𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝑻𝒊𝒎𝒆: ${Math.floor((Date.now()-timestart)/1000)} 𝒔𝒆𝒄𝒐𝒏𝒅`,
+        attachment: fs.createReadStream(path_alltv, { 'highWaterMark': 128 * 1024 })
+      }, threadID, (e, info) => {
+        if(e) {
+          api.sendMessage("𝑬𝒓𝒓𝒐𝒓 𝒉𝒐𝒄𝒄𝒉𝒆, 𝒅𝒆𝒓𝒊 𝒌𝒉𝒖𝒏 𝒂𝒂𝒃𝒂𝒓 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+        };
+        fs.unlinkSync(path_alltv);
+        global.client.family = false;
+      }, messageID);
+    }
+  }
+  catch(e) {
+    global.client.family = false;
   }
 };

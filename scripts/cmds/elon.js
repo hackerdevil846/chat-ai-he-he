@@ -1,174 +1,77 @@
-const { createCanvas, loadImage } = require("canvas");
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
-
-module.exports = {
-  config: {
-    name: "elon",
-    version: "1.3.0",
-    hasPermission: 0,
-    credits: "Asif",
-    description: "Create Elon Musk-style whiteboard memes with custom text",
-    category: "image",
-    usages: "[text]",
-    cooldowns: 10,
-    dependencies: {
-      "canvas": "",
-      "axios": "",
-      "fs-extra": ""
-    }
-  },
-
-  onStart: async function({ api, event, args }) {
-    const { threadID, messageID } = event;
-    
-    // Get text input
-    const text = args.join(" ");
-    if (!text) {
-      return api.sendMessage(
-        "🚀 Elon Musk Whiteboard Generator 🚀\n\n" +
-        "✏️ Usage: elon [text]\n" +
-        "Example: elon We're going to Mars!\n\n" +
-        "💡 Keep text under 100 characters for best results",
-        threadID,
-        messageID
-      );
-    }
-
-    try {
-      // Send processing notification
-      const processingMsg = await api.sendMessage("🔄 Creating your Elon Musk whiteboard...", threadID, messageID);
-      
-      // Create cache directory
-      const cacheDir = path.join(__dirname, 'cache', 'elon');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      // Define paths
-      const templatePath = path.join(cacheDir, 'whiteboard.png');
-      const outputPath = path.join(cacheDir, `elon_${Date.now()}.png`);
-
-      // Download template if not cached
-      if (!fs.existsSync(templatePath)) {
-        try {
-          const templateData = await axios.get('https://i.imgur.com/GGmRov3.png', { 
-            responseType: 'arraybuffer',
-            timeout: 30000
-          });
-          fs.writeFileSync(templatePath, Buffer.from(templateData.data));
-        } catch (error) {
-          console.error("Template download error:", error);
-          await api.unsendMessage(processingMsg.messageID);
-          return api.sendMessage("❌ Failed to download template. Please try again later.", threadID, messageID);
-        }
-      }
-
-      // Load image
-      const baseImage = await loadImage(templatePath);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      
-      // Draw background
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      
-      // Configure text
-      ctx.font = "bold 60px 'Arial', sans-serif";
-      ctx.fillStyle = "#000000";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "top";
-      
-      // Wrap text
-      const maxWidth = canvas.width - 100; // 50px padding on each side
-      const lines = this.wrapText(ctx, text, maxWidth);
-      
-      // Calculate vertical positioning
-      const lineHeight = 70;
-      const startY = 100;
-      const maxLines = 3;
-      
-      // Draw text lines with shadow effect
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      
-      // Draw only up to maxLines
-      for (let i = 0; i < Math.min(lines.length, maxLines); i++) {
-        ctx.fillText(lines[i], 50, startY + (i * lineHeight));
-      }
-      
-      // Reset shadow
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      
-      // Save image
-      const buffer = canvas.toBuffer('image/png');
-      fs.writeFileSync(outputPath, buffer);
-      
-      // Send result
-      await api.unsendMessage(processingMsg.messageID);
-      api.sendMessage({
-        body: `🚀 Your Elon Musk Whiteboard Is Ready!\n━━━━━━━━━━━━━━\n✏️ Text: "${text}"`,
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        // Cleanup
-        try {
-          fs.unlinkSync(outputPath);
-        } catch (e) {
-          console.log("Cleanup error:", e);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Elon command error:", error);
-      api.sendMessage(
-        "❌ Failed to create your whiteboard. Please try again with shorter text (max 100 characters).",
-        threadID,
-        messageID
-      );
-    }
-  },
-  
-  wrapText: function(ctx, text, maxWidth) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    for (let i = 0; i < words.length; i++) {
-      const testLine = currentLine ? `${currentLine} ${words[i]}` : words[i];
-      const metrics = ctx.measureText(testLine);
-      
-      if (metrics.width <= maxWidth) {
-        currentLine = testLine;
-      } else {
-        // Word is too long to fit - split it
-        if (ctx.measureText(words[i]).width > maxWidth) {
-          const word = words[i];
-          let splitIndex = 0;
-          
-          for (let j = 1; j <= word.length; j++) {
-            const subWord = word.substring(0, j);
-            if (ctx.measureText(subWord).width > maxWidth) {
-              lines.push(word.substring(0, splitIndex));
-              currentLine = word.substring(splitIndex);
-              break;
-            }
-            splitIndex = j;
-          }
-        } else {
-          lines.push(currentLine);
-          currentLine = words[i];
-        }
-      }
-    }
-    
-    if (currentLine) {
-      lines.push(currentLine);
-    }
-    
-    // Trim to maximum 4 lines
-    return lines.slice(0, 4);
-  }
+module.exports.config = {
+	name: "elon",
+	version: "1.0.1",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑬𝒍𝒐𝒏 𝑴𝒖𝒔𝒌 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
+	commandCategory: "𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
+	usages: "𝒆𝒍𝒐𝒏 [𝒕𝒆𝒙𝒕]",
+	cooldowns: 10,
+	dependencies: {
+		"canvas":"",
+		 "axios":"",
+		 "fs-extra":""
+	}
 };
+
+module.exports.saikiiWrap = (ctx, text, maxWidth) => {
+	return new Promise(resolve => {
+		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+		if (ctx.measureText('W').width > maxWidth) return resolve(null);
+		const words = text.split(' ');
+		const lines = [];
+		let line = '';
+		while (words.length > 0) {
+			let split = false;
+			while (ctx.measureText(words[0]).width >= maxWidth) {
+				const temp = words[0];
+				words[0] = temp.slice(0, -1);
+				if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+				else {
+					split = true;
+					words.splice(1, 0, temp.slice(-1));
+				}
+			}
+			if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+			else {
+				lines.push(line.trim());
+				line = '';
+			}
+			if (words.length === 0) lines.push(line.trim());
+		}
+		return resolve(lines);
+	});
+} 
+
+module.exports.run = async function({ api, event, args }) {
+	let { senderID, threadID, messageID } = event;
+	const { loadImage, createCanvas } = require("canvas");
+	const fs = global.nodemodule["fs-extra"];
+	const axios = global.nodemodule["axios"];
+	let pathImg = __dirname + '/cache/elon.png';
+	var text = args.join(" ");
+	if (!text) return api.sendMessage("𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
+	let getPorn = (await axios.get(`https://i.imgur.com/GGmRov3.png`, { responseType: 'arraybuffer' })).data;
+	fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
+	let baseImage = await loadImage(pathImg);
+	let canvas = createCanvas(baseImage.width, baseImage.height);
+	let ctx = canvas.getContext("2d");
+	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+	ctx.font = "320 30px Arial";
+	ctx.fillStyle = "#000000";
+	ctx.textAlign = "start";
+	let fontSize = 220;
+	while (ctx.measureText(text).width > 2600) {
+		fontSize--;
+		ctx.font = `320 ${fontSize}px Arial, sans-serif`;
+	}
+	const lines = await this.saikiiWrap(ctx, text, 1160);
+	ctx.fillText(lines.join('\n'), 40,115);//comment
+	ctx.beginPath();
+	const imageBuffer = canvas.toBuffer();
+	fs.writeFileSync(pathImg, imageBuffer);
+return api.sendMessage({ 
+	body: "𝑬𝒍𝒐𝒏 𝑴𝒖𝒔𝒌 𝒆𝒓 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕! 🚀",
+	attachment: fs.createReadStream(pathImg) 
+}, threadID, () => fs.unlinkSync(pathImg), messageID);        
+}

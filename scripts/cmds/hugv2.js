@@ -1,160 +1,74 @@
-const axios = require('axios');
-const fs = require('fs-extra');
-const path = require('path');
-const jimp = require('jimp');
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "hugv2",
     version: "3.1.1",
-    role: 0,
-    author: "Asif",
-    description: "Create hug images with avatars 🥰",
-    category: "image",
-    usage: "[@mention]",
-    example: "hugv2 @friend",
-    cooldown: 5
-  },
-
-  onLoad: async function() {
-    const canvasDir = path.join(__dirname, 'cache', 'canvas');
-    const imagePath = path.join(canvasDir, 'hugv2.png');
-    
-    try {
-      if (!fs.existsSync(canvasDir)) {
-        await fs.mkdirp(canvasDir);
-      }
-      
-      if (!fs.existsSync(imagePath)) {
-        const imageURL = "https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg";
-        // FIX: Use module.exports to access downloadFile directly
-        await module.exports.downloadFile(imageURL, imagePath);
-        console.log("Hug template downloaded successfully");
-      }
-    } catch (error) {
-      console.error("Hug command initialization error:", error);
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "𝑀𝑒𝓃𝓉𝒾𝑜𝓃𝑒𝒹 𝒻𝓇𝒾𝑒𝓃𝒹 𝓀𝑒 𝒽𝓊𝑔 𝒹𝒾𝓈𝒽𝒶𝓃 𝒹𝒶𝓃𝑜 🥰",
+    commandCategory: "img",
+    usages: "[@mention]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
     }
-  },
-
-  onStart: async function({ event, api, args }) {
-    try {
-      const { threadID, messageID, senderID } = event;
-      const mentions = Object.keys(event.mentions || {});
-      
-      // Validate mention
-      if (!mentions.length) {
-        return api.sendMessage("💖 Please mention someone to hug!", threadID, messageID);
-      }
-      
-      const targetID = mentions[0];
-      
-      // Prevent self-hug
-      if (senderID === targetID) {
-        return api.sendMessage("🤔 You can't hug yourself!", threadID, messageID);
-      }
-      
-      // Send processing message
-      await api.sendMessage("🖼️ Creating your hug image...", threadID, messageID);
-      
-      // Generate hug image
-      const outputPath = await this.makeImage(senderID, targetID);
-      
-      // Send result
-      return api.sendMessage({
-        body: "🤗 Here's your hug!",
-        attachment: fs.createReadStream(outputPath)
-      }, threadID, () => {
-        // Cleanup temporary files
-        try {
-          fs.unlinkSync(outputPath);
-          fs.unlinkSync(path.join(__dirname, 'cache', 'canvas', `avt_${senderID}.png`));
-          fs.unlinkSync(path.join(__dirname, 'cache', 'canvas', `avt_${targetID}.png`));
-        } catch (cleanupErr) {
-          console.error("Cleanup error:", cleanupErr);
-        }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("Error in hug command:", error);
-      return api.sendMessage("❌ Failed to create hug image. Please try again later.", threadID, messageID);
-    }
-  },
-
-  makeImage: async function(one, two) {
-    const canvasDir = path.join(__dirname, 'cache', 'canvas');
-    const templatePath = path.join(canvasDir, 'hugv2.png');
-    const outputPath = path.join(canvasDir, `hug_${one}_${two}.png`);
-    const avatarOnePath = path.join(canvasDir, `avt_${one}.png`);
-    const avatarTwoPath = path.join(canvasDir, `avt_${two}.png`);
-
-    try {
-      // Download avatars in parallel
-      const [avatar1, avatar2] = await Promise.all([
-        this.getAvatar(one),
-        this.getAvatar(two)
-      ]);
-      
-      // Save avatars to disk
-      await fs.writeFile(avatarOnePath, avatar1);
-      await fs.writeFile(avatarTwoPath, avatar2);
-
-      // Load template and process avatars
-      const template = await jimp.read(templatePath);
-      const circleOne = await this.createCircle(avatarOnePath);
-      const circleTwo = await this.createCircle(avatarTwoPath);
-
-      // Composite avatars onto template
-      template.composite(circleOne.resize(100, 100), 370, 40)   // Position for first avatar
-             .composite(circleTwo.resize(100, 100), 330, 150);  // Position for second avatar
-
-      // Save final image
-      await template.writeAsync(outputPath);
-      
-      return outputPath;
-    } catch (error) {
-      console.error("Image creation error:", error);
-      throw new Error("Failed to create hug image");
-    }
-  },
-
-  getAvatar: async function(userId) {
-    try {
-      const url = `https://graph.facebook.com/${userId}/picture?width=512&height=512`;
-      const response = await axios.get(url, { 
-        responseType: 'arraybuffer',
-        timeout: 10000
-      });
-      return Buffer.from(response.data);
-    } catch (error) {
-      console.error("Avatar download error for user:", userId, error);
-      throw new Error("Failed to get user avatar");
-    }
-  },
-
-  createCircle: async function(imagePath) {
-    try {
-      const image = await jimp.read(imagePath);
-      image.circle();
-      return image;
-    } catch (error) {
-      console.error("Avatar processing error:", error);
-      throw new Error("Failed to create circular avatar");
-    }
-  },
-
-  downloadFile: async function(url, savePath) {
-    try {
-      const response = await axios.get(url, { responseType: 'stream' });
-      const writer = fs.createWriteStream(savePath);
-      response.data.pipe(writer);
-      
-      return new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-    } catch (error) {
-      console.error("Template download error:", error);
-      throw new Error("Failed to download template image");
-    }
-  }
 };
+
+module.exports.onLoad = async() => {
+    const { resolve } = global.nodemodule["path"];
+    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { downloadFile } = global.utils;
+    const dirMaterial = __dirname + `/cache/canvas/`;
+    const path = resolve(__dirname, 'cache/canvas', 'hugv2.png');
+    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
+    if (!existsSync(path)) await downloadFile("https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg", path);
+}
+
+async function makeImage({ one, two }) {
+    const fs = global.nodemodule["fs-extra"];
+    const path = global.nodemodule["path"];
+    const axios = global.nodemodule["axios"]; 
+    const jimp = global.nodemodule["jimp"];
+    const __root = path.resolve(__dirname, "cache", "canvas");
+
+    let batgiam_img = await jimp.read(__root + "/hugv2.png");
+    let pathImg = __root + `/batman${one}_${two}.png`;
+    let avatarOne = __root + `/avt_${one}.png`;
+    let avatarTwo = __root + `/avt_${two}.png`;
+    
+    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+    
+    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+    
+    let circleOne = await jimp.read(await circle(avatarOne));
+    let circleTwo = await jimp.read(await circle(avatarTwo));
+    batgiam_img.composite(circleOne.resize(100, 100), 370, 40).composite(circleTwo.resize(100, 100), 330, 150);
+    
+    let raw = await batgiam_img.getBufferAsync("image/png");
+    
+    fs.writeFileSync(pathImg, raw);
+    fs.unlinkSync(avatarOne);
+    fs.unlinkSync(avatarTwo);
+    
+    return pathImg;
+}
+async function circle(image) {
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
+}
+
+module.exports.run = async function ({ event, api, args }) {    
+    const fs = global.nodemodule["fs-extra"];
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    if (!mention[0]) return api.sendMessage("𝒟𝒶𝓎𝒶 𝓀𝑜𝓇𝑒 1 𝒿𝒶𝓃𝑒𝓇 @𝓂𝑒𝓃𝓉𝒾𝑜𝓃 𝒹𝒶𝓃 🥺", threadID, messageID);
+    else {
+        const one = senderID, two = mention[0];
+        return makeImage({ one, two }).then(path => api.sendMessage({ body: "", attachment: fs.createReadStream(path) }, threadID, () => fs.unlinkSync(path), messageID));
+    }
+}

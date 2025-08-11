@@ -1,29 +1,20 @@
-module.exports = {
-  config: {
+module.exports.config = {
     name: "adc",
-    aliases: ["adc"],
-    version: "1.2",
-    author: "Asif",
-    countDown: 5,
-    role: 2,
-    shortDescription: {
-      vi: "",
-      en: "adc command"
-    },
-    longDescription: {
-      vi: "",
-      en: "only bot owner"
-    },
-    category: "𝗨𝗦𝗘𝗟𝗘𝗦𝗦", 
-    guide: {
-      en: "{pn}"
+    version: "1.0.0",
+    hasPermssion: 2,
+    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
+    description: "𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍𝒅𝒆𝒗 𝒂𝒖𝒓 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒔𝒆 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒂𝒓𝒆𝒏", // Banglish description
+    commandCategory: "Admin",
+    usages: "[reply or text]",
+    cooldowns: 0,
+    dependencies: {
+        "pastebin-api": "",
+        "cheerio": "",
+        "request": ""
     }
-  },
+};
 
-onStart: async function({ api, event, args }) {
-  const permission = ["61571630409265"];
- if (!permission.includes(event.senderID))
- return api.sendMessage("❌ | You aren't allowed to use this command.", event.threadID, event.messageID);
+module.exports.run = async function ({ api, event, args }) {
     const axios = require('axios');
     const fs = require('fs');
     const request = require('request');
@@ -34,15 +25,15 @@ onStart: async function({ api, event, args }) {
     if (type == "message_reply") {
         var text = messageReply.body;
     }
-    if(!text && !name) return api.sendMessage('Please reply to the link you want to apply the code to or write the file name to upload the code to pastebin!', threadID, messageID);
+    if(!text && !name) return api.sendMessage('𝑷𝒍𝒆𝒂𝒔𝒆 𝒍𝒊𝒏𝒌 𝒆𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒂𝒓𝒐 𝒋𝒆𝒕𝒂 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒕𝒆 𝒄𝒂𝒐 𝒂𝒕𝒐𝒃𝒂 𝒏𝒂𝒎 𝒍𝒆𝒌𝒉𝒐 𝒇𝒂𝒊𝒍𝒆𝒓 𝒏𝒂𝒎 𝒋𝒆𝒕𝒂 𝒑𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒆 𝒖𝒑𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒃𝒐!', threadID, messageID);
     if(!text && name) {
         var data = fs.readFile(
           `${__dirname}/${args[0]}.js`,
           "utf-8",
           async (err, data) => {
-            if (err) return api.sendMessage(`Command ${args[0]} does not exist!.`, threadID, messageID);
+            if (err) return api.sendMessage(`𝑪𝒐𝒎𝒎𝒂𝒏𝒅 ${args[0]} 𝒆𝒙𝒊𝒔𝒕 𝒌𝒐𝒓𝒆 𝒏𝒂!`, threadID, messageID);
             const { PasteClient } = require('pastebin-api')
-            const client = new PasteClient("N5NL5MiwHU6EbQxsGtqy7iaodOcHithV");
+            const client = new PasteClient("R02n6-lNPJqKQCd5VtL4bKPjuK6ARhHb");
             async function pastepin(name) {
               const url = await client.createPaste({
                 code: data,
@@ -70,8 +61,8 @@ onStart: async function({ api, event, args }) {
                 data,
                 "utf-8",
                 function (err) {
-                    if (err) return api.sendMessage(`An error occurred while applying the code ${args[0]}.js`, threadID, messageID);
-                    api.sendMessage(`Applied the code to ${args[0]}.js, use command load to use!`, threadID, messageID);
+                    if (err) return api.sendMessage(`𝑪𝒐𝒅𝒆 ${args[0]}.js 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!`, threadID, messageID);
+                    api.sendMessage(`𝑪𝒐𝒅𝒆 ${args[0]}.js 𝒆 𝒂𝒑𝒍𝒂𝒊 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒖𝒔𝒆 𝒌𝒐𝒓𝒕𝒆 𝒍𝒐𝒂𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅!`, threadID, messageID);
                 }
             );
         })
@@ -83,15 +74,15 @@ onStart: async function({ api, event, args }) {
             url: messageReply.body
         };
         request(options, function (error, response, body) {
-            if (error) return api.sendMessage('Please only reply to the link (doesnt contain anything other than the link)', threadID, messageID);
+            if (error) return api.sendMessage('𝑺𝒐𝒅𝒉𝒐 𝒍𝒊𝒏𝒌 𝒆𝒊 𝒓𝒆𝒑𝒍𝒚 𝒌𝒂𝒓𝒐 (𝒍𝒊𝒏𝒌 𝒃𝒂𝒅𝒆 𝒂𝒓 𝒌𝒊𝒄𝒉𝒖 𝒏𝒂)', threadID, messageID);
             const load = cheerio.load(body);
             load('.language-js').each((index, el) => {
                 if (index !== 0) return;
                 var code = el.children[0].data
                 fs.writeFile(`${__dirname}/${args[0]}.js`, code, "utf-8",
                     function (err) {
-                        if (err) return api.sendMessage(`An error occurred while applying the new code to "${args[0]}.js".`, threadID, messageID);
-                        return api.sendMessage(`Added this code "${args[0]}.js", use command load to use!`, threadID, messageID);
+                        if (err) return api.sendMessage(`"${args[0]}.js" 𝒆 𝒏𝒐𝒕𝒖𝒏 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!`, threadID, messageID);
+                        return api.sendMessage(`"${args[0]}.js" 𝒄𝒐𝒅𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒖𝒔𝒆 𝒌𝒐𝒓𝒕𝒆 𝒍𝒐𝒂𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅!`, threadID, messageID);
                     }
                 );
             });
@@ -103,11 +94,10 @@ onStart: async function({ api, event, args }) {
       const path = resolve(__dirname, `${args[0]}.js`);
       try {
         await utils.downloadFile(`https://drive.google.com/u/0/uc?id=${id}&export=download`, path);
-        return api.sendMessage(`Added this code "${args[0]}.js" If there is an error, change the drive file to txt!`, threadID, messageID);
+        return api.sendMessage(`"${args[0]}.js" 𝒄𝒐𝒅𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒍𝒆 𝒅𝒓𝒊𝒗𝒆 𝒇𝒂𝒊𝒍𝒆 𝒕𝒙𝒕 𝒕𝒆 𝒄𝒉𝒂𝒏𝒈𝒆 𝒌𝒐𝒓𝒐!`, threadID, messageID);
       }
       catch(e) {
-        return api.sendMessage(`An error occurred while applying the new code to "${args[0]}.js".`, threadID, messageID);
+        return api.sendMessage(`"${args[0]}.js" 𝒆 𝒏𝒐𝒕𝒖𝒏 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!`, threadID, messageID);
       }
     }
-  }
-                          }
+}

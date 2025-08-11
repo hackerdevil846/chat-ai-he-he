@@ -1,116 +1,47 @@
-module.exports = {
-  config: {
-    name: "fish",
-    version: "1.2.0",
-    role: 0,
-    author: "Asif",
-    description: "Fishing economy game - catch fish and earn money",
-    category: "economy",
+module.exports.config = {
+	name: "fish",
+	version: "1.0.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑴𝒂𝒄𝒉 𝒅𝒉𝒂𝒓𝒂 𝒂𝒓 𝒃𝒊𝒌𝒓𝒊 𝒌𝒐𝒓𝒂",
+	commandCategory: "𝑬𝒄𝒐𝒏𝒐𝒎𝒚",
     cooldowns: 5,
     envConfig: {
-      cooldownTime: 600000
+        cooldownTime: 1000000
     }
-  },
-
-  langs: {
-    en: {
-      cooldown: "⏱️ You've already fished today! Please wait: %1 min %2 sec",
-      noFish: "🎣 You went fishing at %1 but caught nothing... Better luck next time!",
-      commonCatch: "🎣 You caught a %1 at %2 and sold it for $%3!",
-      rareCatch: "🌟 Wow! You caught a rare %1 at %2 worth $%3!",
-      epicCatch: "💎 Incredible! An epic %1 at %2 worth $%3!",
-      legendaryCatch: "🔥 LEGENDARY CATCH! %1 at %2 worth $%3!",
-      fishingSpots: [
-        "River", "Lake", "Ocean", "Deep Sea", "Fishing Pond", 
-        "Mountain Stream", "Coral Reef", "Ice Fishing Spot"
-      ],
-      commonFish: [
-        "Tilapia", "Catfish", "Bass", "Trout", "Carp", 
-        "Perch", "Sardine", "Mackerel", "Cod", "Salmon"
-      ],
-      rareFish: [
-        "Golden Trout", "Rainbow Bass", "Electric Eel", 
-        "Glowing Tetra", "Crystal Fish"
-      ],
-      epicFish: [
-        "Ancient Marlin", "Dragonfish", "Phantom Angler", 
-        "Abyssal Leviathan", "Coral King"
-      ],
-      legendaryFish: [
-        "Poseidon's Trident Fish", "Kraken Jr.", 
-        "Mermaid's Companion", "Neptune's Prize"
-      ]
-    }
-  },
-
-  onStart: async function({ event, api, economy, getLang }) {
-    const { threadID, messageID, senderID } = event;
-    const cooldownTime = this.config.envConfig.cooldownTime;
-    
-    try {
-      const userData = await economy.get(senderID);
-      const data = userData.data || {};
-      const currentBalance = userData.money || 0;
-      
-      if (data.fishTime && Date.now() - data.fishTime < cooldownTime) {
-        const remainingTime = cooldownTime - (Date.now() - data.fishTime);
-        const minutes = Math.floor(remainingTime / 60000);
-        const seconds = Math.floor((remainingTime % 60000) / 1000);
-        
-        return api.sendMessage(
-          getLang("cooldown", minutes, seconds), 
-          threadID, 
-          messageID
-        );
-      }
-
-      const spots = getLang("fishingSpots");
-      const location = spots[Math.floor(Math.random() * spots.length)];
-      
-      const rarityRoll = Math.random();
-      let fishType = "";
-      let fishValue = 0;
-      let resultMessage = `🎣 You went fishing at ${location} and...\n━━━━━━━━━━━━━━\n`;
-
-      if (rarityRoll < 0.5) {
-        resultMessage += getLang("noFish", location);
-      } else if (rarityRoll < 0.85) {
-        fishType = getLang("commonFish")[Math.floor(Math.random() * getLang("commonFish").length)];
-        fishValue = Math.floor(Math.random() * 900) + 100;
-        resultMessage += getLang("commonCatch", fishType, location, fishValue.toLocaleString());
-      } else if (rarityRoll < 0.95) {
-        fishType = getLang("rareFish")[Math.floor(Math.random() * getLang("rareFish").length)];
-        fishValue = Math.floor(Math.random() * 4000) + 1000;
-        resultMessage += getLang("rareCatch", fishType, location, fishValue.toLocaleString());
-      } else if (rarityRoll < 0.99) {
-        fishType = getLang("epicFish")[Math.floor(Math.random() * getLang("epicFish").length)];
-        fishValue = Math.floor(Math.random() * 10000) + 5000;
-        resultMessage += getLang("epicCatch", fishType, location, fishValue.toLocaleString());
-      } else {
-        fishType = getLang("legendaryFish")[Math.floor(Math.random() * getLang("legendaryFish").length)];
-        fishValue = Math.floor(Math.random() * 35000) + 15000;
-        resultMessage += getLang("legendaryCatch", fishType, location, fishValue.toLocaleString());
-      }
-
-      if (rarityRoll >= 0.5) {
-        await economy.addMoney(senderID, fishValue);
-        userData.data = userData.data || {};
-        userData.data.fishTime = Date.now();
-        await economy.set(senderID, userData);
-        resultMessage += `\n💰 Your new balance: $${(currentBalance + fishValue).toLocaleString()}`;
-      }
-
-      resultMessage += `\n\n⏳ Next fishing available in 10 minutes`;
-      
-      return api.sendMessage(resultMessage, threadID, messageID);
-      
-    } catch (error) {
-      console.error("Fishing command error:", error);
-      return api.sendMessage(
-        "❌ An error occurred while fishing. Please try again later.", 
-        threadID, 
-        messageID
-      );
-    }
-  }
 };
+
+module.exports.languages = {
+    "en": {
+        "cooldown": "𝑨𝒑𝒏𝒊 𝒂𝒋𝒌𝒆 𝒌𝒂𝒋 𝒌𝒐𝒓𝒆𝒄𝒉𝒆𝒏, 𝒑𝒖𝒏𝒂𝒓𝒂𝒚 𝒂𝒏𝒕𝒂𝒓 𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒅𝒆𝒓𝒊 𝒌𝒉𝒖𝒏 𝒂𝒔𝒖𝒏: %1 minute(s) %2 second(s).",
+        "rewarded": "𝑨𝒑𝒏𝒊 𝒂𝒋𝒌𝒆 𝒂𝒓𝒐 𝒆𝒌𝒕𝒂 𝒃𝒂𝒓𝒐 𝒎𝒂𝒄𝒉 𝒑𝒂𝒘𝒂𝒍𝒂 𝒉𝒐𝒍𝒐! 𝑩𝒊𝒌𝒓𝒊 𝒑𝒓𝒊𝒅𝒉𝒂𝒏: %2$ 💰",
+        "Fishing": "𝑴𝒂𝒄𝒉 𝒅𝒉𝒂𝒓𝒂",
+    }
+}
+
+module.exports.run = async ({ event, api, Currencies, getText }) => {
+    const { threadID, messageID, senderID } = event;
+    
+    const cooldown = global.configModule[this.config.name].cooldownTime;
+    let data = (await Currencies.getData(senderID)).data || {};
+    
+    if (typeof data !== "undefined" && cooldown - (Date.now() - data.workTime) > 0) {
+        var time = cooldown - (Date.now() - data.workTime),
+            minutes = Math.floor(time / 60000),
+            seconds = Math.floor((time % 60000) / 1000);
+        
+		return api.sendMessage(getText("cooldown", minutes, (seconds < 10 ? "0" + seconds : seconds)), event.threadID, event.messageID);
+    }
+    else {
+        const job = [
+            getText("Fishing"),
+        ];
+        const amount = Math.floor(Math.random() * 1000000);
+        return api.sendMessage(getText("rewarded", job[Math.floor(Math.random() * job.length)], amount), threadID, async () => {
+            await Currencies.increaseMoney(senderID, parseInt(amount));
+            data.workTime = Date.now();
+            await Currencies.setData(event.senderID, { data });
+            return;
+        }, messageID);
+    }     
+}
