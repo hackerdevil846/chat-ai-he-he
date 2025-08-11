@@ -1,21 +1,25 @@
+<h1 align="center">Facebook Messenger Bot</h1>
 
-<h1 align="center">💬 GoatBot V2 - Messenger Bot</h1>
+<p align="center">
+  <img src="https://files.catbox.moe/e7bozl.jpg" alt="Facebook Messenger Bot Screenshot" width="500">
+</p>
 
 <p align="center">
   A modular, fast and customizable Facebook Messenger chatbot based on Node.js. Run it 24/7 on Render or GitHub with ease.
 </p>
 
 ---
-
 ## 👑 Author Info
 
-- 👤 Name: Mahi
-- 🎂 Age: 16
-- 🏫 Class: 11
-- 🌍 From: Bangladesh
-- 📘 Facebook: [Click Here](https://facebook.com/mahi68x)
-- 💻 GitHub: [github.com/itachi-prime99](https://github.com/prime-eren99)
-- 🧠 _"If you win, you live. If you lose, you die. If you don’t fight, you can’t win!"_ — **Eren Yeager**
+- 👤 Name: Asif Mahmud (Jāmāi)
+- 🎂 Age: 18+
+- 🌍 From: Chandpur, Bangladesh
+- 🏠 Living: Dania, Dhaka 1236
+- 📘 Facebook: [Asif Mahmud](https://www.facebook.com/share/15yVioQQyq/)
+- 📱 WhatsApp: [+8801586400590](wa.me/+8801586400590)
+- 📧 Email: mrsmokey232@gmail.com
+- 💻 GitHub: [devilhacker523](https://github.com/devilhacker523)
+- 🧠 “Every scar tells a story. Mine scream that I refused to back down.” — Asif
 
 ---
 
@@ -93,8 +97,8 @@ jobs:
 ## 💻 Local Installation (Optional)
 
 ```bash
-git clone https://github.com/itachi-prime99/GoatBot-V2.git
-cd GoatBot-V2
+git clone https://github.com/devilhacker523/ATOMIC
+cd ATOMIC
 npm install
 node index.js
 ```
