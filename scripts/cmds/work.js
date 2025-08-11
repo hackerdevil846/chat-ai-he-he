@@ -1,10 +1,10 @@
 module.exports.config = {
 	name: "work",
 	version: "1.0.1",
-	hasPermssion: 0,
+	Permssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑲𝒂𝒂𝒋 𝒌𝒐𝒓𝒆 𝒕𝒂𝒌𝒂 𝒖𝒑𝒂𝒓𝒋𝒐𝒏 𝒌𝒐𝒓𝒖𝒏!",
-	commandCategory: "Entertainment",
+	Category: "Entertainment",
     cooldowns: 5,
     envConfig: {
         cooldownTime: 1200000
@@ -33,12 +33,12 @@ module.exports.languages = {
     }
 }
 
-module.exports.run = async ({ event, api, Currencies, getText }) => {
+module.exports.run = async function({ event, api, Currencies, getText }) {
     const { threadID, messageID, senderID } = event;
     
     const cooldown = global.configModule[this.config.name].cooldownTime;
     let data = (await Currencies.getData(senderID)).data || {};
-    if (typeof data !== "undefined" && cooldown - (Date.now() - data.workTime) > 0) {
+    if (typeof data.workTime !== "undefined" && cooldown - (Date.now() - data.workTime) > 0) {
         var time = cooldown - (Date.now() - data.workTime),
             minutes = Math.floor(time / 60000),
             seconds = ((time % 60000) / 1000).toFixed(0);
