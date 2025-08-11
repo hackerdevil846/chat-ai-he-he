@@ -1,78 +1,101 @@
 const axios = require('axios');
-
-async function getStreamFromURL(url) {
-  const response = await axios.get(url, { responseType: 'stream' });
-  return response.data;
-}
-
-async function fetchTikTokVideos(query) {
-  try {
-    const response = await axios.get(`https://mahi-apis.onrender.com/api/tiktok?search=${query}`);
-    return response.data.data;
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-}
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
   config: {
     name: "anisearch",
-    aliases: ["animeedit", "tiktoksearch"],
-    author: "Mahi--",
+    aliases: ["aniedit", "anitoks", "tiktokani"],
+    author: "Mahi Changes made by Asif",
     version: "2.1",
+    role: 0,
+    prefix: true,
     shortDescription: {
-      en: "Search for TikTok anime edit videos",
+      en: "Search TikTok anime edit videos"
     },
     longDescription: {
-      en: "Search and fetch TikTok anime edit videos based on your query.",
+      en: "Search and fetch TikTok anime edit videos based on your query"
     },
-    category: "fun",
+    category: "media",
     guide: {
-      en: "{p}{n} [query]",
+      en: "{p}anisearch [query]"
     },
+    cooldowns: 15
   },
   onStart: async function ({ api, event, args }) {
-    api.setMessageReaction("✨", event.messageID, (err) => {}, true);
-
-    const query = args.join(' ');
-
-    if (!query) {
-      api.sendMessage({ body: "Please provide a search query." }, event.threadID, event.messageID);
-      return;
-    }
-
-    // Append "anime edit" to the query
-    const modifiedQuery = `${query} anime edit`;
-
-    const videos = await fetchTikTokVideos(modifiedQuery);
-
-    if (!videos || videos.length === 0) {
-      api.sendMessage({ body: `No videos found for query: ${query}.` }, event.threadID, event.messageID);
-      return;
-    }
-
-    const selectedVideo = videos[Math.floor(Math.random() * videos.length)];
-    const videoUrl = selectedVideo.video;
-    const title = selectedVideo.title || "No title available";
-
-    if (!videoUrl) {
-      api.sendMessage({ body: 'Error: Video not found in the API response.' }, event.threadID, event.messageID);
-      return;
-    }
-
     try {
-      const videoStream = await getStreamFromURL(videoUrl);
+      // Show processing reaction
+      api.setMessageReaction("🕐", event.messageID, (err) => {}, true);
+      
+      // Check if query is provided
+      if (!args[0]) {
+        return api.sendMessage("🔍 Please provide a search query (e.g., naruto fight)", event.threadID, event.messageID);
+      }
 
-      await api.sendMessage({
-        body: `🎥 Video Title: ${title}\n\nHere's the video you requested!`,
-        attachment: videoStream,
-      }, event.threadID, event.messageID);
-    } catch (error) {
-      console.error(error);
+      // Prepare the search query
+      const query = encodeURIComponent(args.join(' ') + " anime edit");
+      const apiUrl = `https://mahi-apis.onrender.com/api/tiktok?search=${query}`;
+      
+      // Fetch videos from API
+      const response = await axios.get(apiUrl);
+      const videos = response.data.data;
+      
+      // Check if videos were found
+      if (!videos || videos.length === 0) {
+        return api.sendMessage("❌ No videos found for your search", event.threadID, event.messageID);
+      }
+
+      // Select a random video
+      const videoData = videos[Math.floor(Math.random() * videos.length)];
+      const videoUrl = videoData.video;
+      const title = videoData.title || "Untitled";
+
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, 'cache');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir);
+      }
+
+      // Set file path
+      const tempPath = path.join(cacheDir, `anitok_${Date.now()}.mp4`);
+      
+      // Download the video
+      const writer = fs.createWriteStream(tempPath);
+      const videoResponse = await axios({
+        method: 'get',
+        url: videoUrl,
+        responseType: 'stream'
+      });
+
+      videoResponse.data.pipe(writer);
+      
+      // Wait for download to complete
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+
+      // Show success reaction
+      api.setMessageReaction("✅", event.messageID, (err) => {}, true);
+      
+      // Send the video
       api.sendMessage({
-        body: 'An error occurred while processing the video.\nPlease try again later.',
-      }, event.threadID, event.messageID);
+        body: `🎬 Title: ${title}\n🔍 Query: ${args.join(' ')}\n\nEnjoy the anime edit!`,
+        attachment: fs.createReadStream(tempPath)
+      }, event.threadID, () => {
+        // Clean up: delete the temporary file
+        try {
+          fs.unlinkSync(tempPath);
+        } catch (e) {
+          console.error("Error deleting file:", e);
+        }
+      }, event.messageID);
+      
+    } catch (error) {
+      console.error("Anisearch Error:", error);
+      // Show error reaction
+      api.setMessageReaction("❌", event.messageID, (err) => {}, true);
+      api.sendMessage("⚠️ An error occurred while processing your request. Please try again later.", event.threadID, event.messageID);
     }
-  },
+  }
 };
