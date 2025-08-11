@@ -1,123 +1,221 @@
 const axios = require("axios");
 const moment = require("moment-timezone");
-const Canvas = require("canvas");
+const { createCanvas, loadImage } = require("canvas");
 const fs = require("fs-extra");
+const path = require("path");
 
-Canvas.registerFont(
-	__dirname + "/assets/font/BeVietnamPro-SemiBold.ttf", {
-	family: "BeVietnamPro-SemiBold"
-});
-Canvas.registerFont(
-	__dirname + "/assets/font/BeVietnamPro-Regular.ttf", {
-	family: "BeVietnamPro-Regular"
-});
-
-function convertFtoC(F) {
-	return Math.floor((F - 32) / 1.8);
-}
-function formatHours(hours) {
-	return moment(hours).tz("Asia/Ho_Chi_Minh").format("HH[h]mm[p]");
-}
-
-module.exports = {
-	config: {
-		name: "weather",
-		version: "1.2",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "xem dự báo thời tiết hiện tại và 5 ngày sau",
-			en: "view the current and next 5 days weather forecast"
-		},
-		category: "other",
-		guide: {
-			vi: "{pn} <địa điểm>",
-			en: "{pn} <location>"
-		},
-		envGlobal: {
-			weatherApiKey: "d7e795ae6a0d44aaa8abb1a0a7ac19e4"
-		}
-	},
-
-	langs: {
-		vi: {
-			syntaxError: "Vui lòng nhập địa điểm",
-			notFound: "Không thể tìm thấy địa điểm: %1",
-			error: "Đã xảy ra lỗi: %1",
-			today: "Thời tiết hôm nay: %1\n%2\n🌡 Nhiệt độ thấp nhất - cao nhất %3°C - %4°C\n🌡 Nhiệt độ cảm nhận được %5°C - %6°C\n🌅 Mặt trời mọc %7\n🌄 Mặt trời lặn %8\n🌃 Mặt trăng mọc %9\n🏙️ Mặt trăng lặn %10\n🌞 Ban ngày: %11\n🌙 Ban đêm: %12"
-		},
-		en: {
-			syntaxError: "Please enter a location",
-			notFound: "Location not found: %1",
-			error: "An error has occurred: %1",
-			today: "Today's weather: %1\n%2\n🌡 Low - high temperature %3°C - %4°C\n🌡 Feels like %5°C - %6°C\n🌅 Sunrise %7\n🌄 Sunset %8\n🌃 Moonrise %9\n🏙️ Moonset %10\n🌞 Day: %11\n🌙 Night: %12"
-		}
-	},
-
-	onStart: async function ({ args, message, envGlobal, getLang }) {
-		const apikey = envGlobal.weatherApiKey;
-
-		const area = args.join(" ");
-		if (!area)
-			return message.reply(getLang("syntaxError"));
-		let areaKey, dataWeather, areaName;
-
-		try {
-			const response = (await axios.get(`https://api.accuweather.com/locations/v1/cities/search.json?q=${encodeURIComponent(area)}&apikey=${apikey}&language=vi-vn`)).data;
-			if (response.length == 0)
-				return message.reply(getLang("notFound", area));
-			const data = response[0];
-			areaKey = data.Key;
-			areaName = data.LocalizedName;
-		}
-		catch (err) {
-			return message.reply(getLang("error", err.response.data.Message));
-		}
-
-		try {
-			dataWeather = (await axios.get(`http://api.accuweather.com/forecasts/v1/daily/10day/${areaKey}?apikey=${apikey}&details=true&language=vi`)).data;
-		}
-		catch (err) {
-			return message.reply(`❌ Đã xảy ra lỗi: ${err.response.data.Message}`);
-		}
-
-		const dataWeatherDaily = dataWeather.DailyForecasts;
-		const dataWeatherToday = dataWeatherDaily[0];
-		const msg = getLang("today", areaName, dataWeather.Headline.Text, convertFtoC(dataWeatherToday.Temperature.Minimum.Value), convertFtoC(dataWeatherToday.Temperature.Maximum.Value), convertFtoC(dataWeatherToday.RealFeelTemperature.Minimum.Value), convertFtoC(dataWeatherToday.RealFeelTemperature.Maximum.Value), formatHours(dataWeatherToday.Sun.Rise), formatHours(dataWeatherToday.Sun.Set), formatHours(dataWeatherToday.Moon.Rise), formatHours(dataWeatherToday.Moon.Set), dataWeatherToday.Day.LongPhrase, dataWeatherToday.Night.LongPhrase);
-
-		const bg = await Canvas.loadImage(__dirname + "/assets/image/bgWeather.jpg");
-		const { width, height } = bg;
-		const canvas = Canvas.createCanvas(width, height);
-		const ctx = canvas.getContext("2d");
-		ctx.drawImage(bg, 0, 0, width, height);
-		let X = 100;
-		ctx.fillStyle = "#ffffff";
-		const data = dataWeather.DailyForecasts.slice(0, 7);
-		for (const item of data) {
-			const icon = await Canvas.loadImage("http://vortex.accuweather.com/adc2010/images/slate/icons/" + item.Day.Icon + ".svg");
-			ctx.drawImage(icon, X, 210, 80, 80);
-
-			ctx.font = "30px BeVietnamPro-SemiBold";
-			const maxC = `${convertFtoC(item.Temperature.Maximum.Value)}°C `;
-			ctx.fillText(maxC, X, 366);
-
-			ctx.font = "30px BeVietnamPro-Regular";
-			const minC = String(`${convertFtoC(item.Temperature.Minimum.Value)}°C`);
-			const day = moment(item.Date).format("DD");
-			ctx.fillText(minC, X, 445);
-			ctx.fillText(day, X + 20, 140);
-
-			X += 135;
-		}
-
-		const pathSaveImg = `${__dirname}/tmp/weather_${areaKey}.jpg`;
-		fs.writeFileSync(pathSaveImg, canvas.toBuffer());
-
-		return message.reply({
-			body: msg,
-			attachment: fs.createReadStream(pathSaveImg)
-		}, () => fs.unlinkSync(pathSaveImg));
-
-	}
+module.exports.config = {
+  name: "weather",
+  version: "1.5.0",
+  hasPermssion: 0,
+  credits: "Asif",
+  description: "Get detailed weather forecasts",
+  category: "info",
+  usages: "[location]",
+  cooldowns: 15,
+  dependencies: {
+    "axios": "",
+    "moment-timezone": "",
+    "canvas": "",
+    "fs-extra": "",
+    "path": ""
+  },
+  envConfig: {
+    weatherApiKey: "d7e795ae6a0d44aaa8abb1a0a7ac19e4"
+  }
 };
+
+// Helper functions
+function convertFtoC(F) {
+  return Math.floor((F - 32) / 1.8);
+}
+
+function formatHours(date) {
+  return moment(date).tz("Asia/Dhaka").format("h:mm A");
+}
+
+function createGradientBackground(width, height) {
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
+  
+  // Create gradient
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, "#1e5799");
+  gradient.addColorStop(0.5, "#2989d8");
+  gradient.addColorStop(1, "#7db9e8");
+  
+  // Fill background
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+  
+  // Add cloud effect
+  ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+  for (let i = 0; i < 15; i++) {
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    const radius = 30 + Math.random() * 70;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  return canvas;
+}
+
+module.exports.run = async function({ api, event, args }) {
+  const apikey = this.config.envConfig.weatherApiKey;
+  const { threadID, messageID } = event;
+  
+  // Default to Dhaka if no location specified
+  const area = args.length > 0 ? args.join(" ") : "Dhaka";
+  let loadingMsg;
+  
+  try {
+    // Send loading message
+    loadingMsg = await api.sendMessage(`⏳ Fetching weather data for ${area}...`, threadID);
+    
+    // Get location data
+    const locationResponse = await axios.get(
+      "https://api.accuweather.com/locations/v1/cities/search.json", {
+        params: {
+          q: area,
+          apikey: apikey,
+          language: "en"
+        }
+      }
+    );
+
+    if (!locationResponse.data || locationResponse.data.length === 0) {
+      await api.unsendMessage(loadingMsg.messageID);
+      return api.sendMessage(`❌ Location not found: ${area}`, threadID, messageID);
+    }
+
+    const locationData = locationResponse.data[0];
+    const areaKey = locationData.Key;
+    const areaName = locationData.LocalizedName + ", " + locationData.Country.LocalizedName;
+
+    // Get weather data
+    const weatherResponse = await axios.get(
+      `https://api.accuweather.com/forecasts/v1/daily/5day/${areaKey}`, {
+        params: {
+          apikey: apikey,
+          details: true,
+          language: "en",
+          metric: false
+        }
+      }
+    );
+
+    const weatherData = weatherResponse.data;
+    if (!weatherData.DailyForecasts || weatherData.DailyForecasts.length === 0) {
+      throw new Error("No forecast data available");
+    }
+
+    const forecastData = weatherData.DailyForecasts;
+    const today = forecastData[0];
+
+    // Create text summary
+    const summary = `📍 ${areaName}\n\n☁️ ${weatherData.Headline?.Text || "No weather summary available"}\n🌡 Low: ${convertFtoC(today.Temperature?.Minimum?.Value) || "N/A"}°C | High: ${convertFtoC(today.Temperature?.Maximum?.Value) || "N/A"}°C\n🌡 Feels like: ${convertFtoC(today.RealFeelTemperature?.Minimum?.Value) || "N/A"}°C - ${convertFtoC(today.RealFeelTemperature?.Maximum?.Value) || "N/A"}°C\n🌅 Sunrise: ${formatHours(today.Sun?.Rise) || "N/A"}\n🌄 Sunset: ${formatHours(today.Sun?.Set) || "N/A"}\n🌃 Moonrise: ${formatHours(today.Moon?.Rise) || "N/A"}\n🏙️ Moonset: ${formatHours(today.Moon?.Set) || "N/A"}\n🌞 Day: ${today.Day?.LongPhrase || "N/A"}\n🌙 Night: ${today.Night?.LongPhrase || "N/A"}`;
+
+    // Create weather image
+    const canvasWidth = 900;
+    const canvasHeight = 400;
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d");
+    
+    // Create gradient background
+    const bgCanvas = createGradientBackground(canvasWidth, canvasHeight);
+    ctx.drawImage(bgCanvas, 0, 0, canvasWidth, canvasHeight);
+    
+    // Set up text styles
+    ctx.fillStyle = "#ffffff";
+    ctx.textAlign = "center";
+    
+    // Title and date
+    ctx.font = "bold 32px Arial";
+    ctx.fillText(areaName, canvasWidth / 2, 40);
+    
+    ctx.font = "20px Arial";
+    ctx.fillText(moment().tz("Asia/Dhaka").format("dddd, MMMM D, YYYY"), canvasWidth / 2, 70);
+    
+    // Current weather info
+    ctx.font = "bold 24px Arial";
+    ctx.fillText("5-Day Forecast", canvasWidth / 2, 110);
+    
+    // Draw forecast days
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const startX = 80;
+    const y = 180;
+    const spacing = 160;
+    
+    for (let i = 0; i < Math.min(5, forecastData.length); i++) {
+      const day = forecastData[i];
+      const date = moment(day.Date).tz("Asia/Dhaka");
+      const x = startX + (i * spacing);
+      
+      // Draw day name and date
+      ctx.font = "bold 22px Arial";
+      ctx.fillText(days[date.day()], x, y - 20);
+      
+      ctx.font = "18px Arial";
+      ctx.fillText(date.format("MMM D"), x, y);
+      
+      try {
+        // Load weather icon
+        const iconUrl = `https://developer.accuweather.com/sites/default/files/${day.Day.Icon < 10 ? '0' + day.Day.Icon : day.Day.Icon}-s.png`;
+        const { data: iconBuffer } = await axios.get(iconUrl, { responseType: 'arraybuffer' });
+        const icon = await loadImage(iconBuffer);
+        ctx.drawImage(icon, x - 35, y + 10, 70, 45);
+      } catch (iconError) {
+        console.error("Weather icon error:", iconError);
+      }
+      
+      // Draw temperatures
+      const maxTemp = convertFtoC(day.Temperature?.Maximum?.Value);
+      const minTemp = convertFtoC(day.Temperature?.Minimum?.Value);
+      ctx.font = "bold 20px Arial";
+      ctx.fillText(`↑ ${maxTemp}°C`, x, y + 90);
+      ctx.font = "18px Arial";
+      ctx.fillText(`↓ ${minTemp}°C`, x, y + 115);
+    }
+
+    // Add footer
+    ctx.font = "14px Arial";
+    ctx.fillText("Powered by AccuWeather", canvasWidth / 2, canvasHeight - 20);
+
+    // Save image
+    const cacheDir = path.join(__dirname, "cache", "weather");
+    await fs.ensureDir(cacheDir);
+    
+    const outputPath = path.join(cacheDir, `weather_${Date.now()}.jpg`);
+    const buffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
+    await fs.writeFile(outputPath, buffer);
+
+    // Send result
+    await api.unsendMessage(loadingMsg.messageID);
+    await api.sendMessage({
+      body: summary,
+      attachment: fs.createReadStream(outputPath)
+    }, threadID);
+    
+    // Clean up after sending
+    setTimeout(() => {
+      fs.unlink(outputPath, () => {});
+    }, 5000);
+
+  } catch (error) {
+    console.error("Weather command error:", error);
+    if (loadingMsg) {
+      try {
+        await api.unsendMessage(loadingMsg.messageID);
+      } catch (e) {}
+    }
+    api.sendMessage(
+      `❌ Weather service is currently unavailable for ${area}.\nError: ${error.message}`,
+      threadID,
+      messageID
+    );
+  }
+};
+
+module.exports.onStart = async function() {};
