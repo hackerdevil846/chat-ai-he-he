@@ -6,7 +6,7 @@ module.exports.config = {
   name: "zodiac",
   version: "1.5.0",
   hasPermssion: 0,
-  credits: "Asif",
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Information about the 12 zodiac animals",
   category: "Utilities",
   usages: "zodiac",
@@ -157,7 +157,7 @@ Reply with the number of your choice (1-12)`;
   });
 };
 
-module.exports.onReply = async ({ api, event, Reply }) => {
+module.exports.onReply = async ({ api, event, handleReply }) => {
   const { threadID, messageID, body } = event;
   const choice = parseInt(body);
 
