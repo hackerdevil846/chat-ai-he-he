@@ -6,7 +6,7 @@ module.exports.config = {
   name: "xbin",
   version: "2.0.0",
   hasPermission: 2,
-  credits: "Asif",
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Upload command files to pastebin service",
   category: "system",
   usages: "[filename]",
@@ -23,8 +23,8 @@ module.exports.run = async function({ api, event, args }) {
     // Validate input
     if (!args[0]) {
       return api.sendMessage(
-        "📁 Please specify a filename.\nUsage: bin <filename>", 
-        event.threadID, 
+        "📁 Please specify a filename.\nUsage: bin <filename>",
+        event.threadID,
         event.messageID
       );
     }
@@ -47,8 +47,8 @@ module.exports.run = async function({ api, event, args }) {
 
     if (!filePath) {
       return api.sendMessage(
-        `❌ File "${fileName}" not found in commands folder.`, 
-        event.threadID, 
+        `❌ File "${fileName}" not found in commands folder.`,
+        event.threadID,
         event.messageID
       );
     }
@@ -57,42 +57,42 @@ module.exports.run = async function({ api, event, args }) {
     const fileContent = await fs.promises.readFile(filePath, 'utf8');
     if (!fileContent.trim()) {
       return api.sendMessage(
-        `⚠️ File "${path.basename(filePath)}" is empty.`, 
-        event.threadID, 
+        `⚠️ File "${path.basename(filePath)}" is empty.`,
+        event.threadID,
         event.messageID
       );
     }
 
     // Send progress message
     const progressMsg = await api.sendMessage(
-      "📤 Uploading file to PasteBin, please wait...", 
+      "📤 Uploading file to PasteBin, please wait...",
       event.threadID
     );
 
     // Upload to pastebin
     const pastebinAPI = "https://pastebin-api.vercel.app";
     const response = await axios.post(
-      `${pastebinAPI}/paste`, 
+      `${pastebinAPI}/paste`,
       { text: fileContent },
       { timeout: 15000 }
     );
-    
+
     if (!response.data?.id) {
       throw new Error('Invalid PasteBin API response: Missing paste ID');
     }
 
     const rawUrl = `${pastebinAPI}/raw/${response.data.id}`;
     const successMessage = `✅ File uploaded successfully!\n\n📝 Filename: ${path.basename(filePath)}\n🔗 Raw URL: ${rawUrl}`;
-    
+
     // Delete progress message
     await api.unsendMessage(progressMsg.messageID);
-    
+
     // Send success message
     return api.sendMessage(successMessage, event.threadID);
 
   } catch (error) {
     console.error('Bin Command Error:', error);
-    
+
     let errorMessage;
     if (error.code === 'ECONNABORTED') {
       errorMessage = '⚠️ Upload timed out. Please try again later.';
@@ -103,7 +103,7 @@ module.exports.run = async function({ api, event, args }) {
     } else {
       errorMessage = '❌ An error occurred while processing your request.';
     }
-    
+
     return api.sendMessage(errorMessage, event.threadID, event.messageID);
   }
 };
