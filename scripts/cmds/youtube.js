@@ -24,8 +24,8 @@ How to use:
   usePrefix: true
 };
 
-const API_URL = "https://asif-youtube-api.onrender.com";
-const API_KEY = "mysecret123";
+const API_URL = "https://asif-youtube-api.onrender.com";  // তোমার API URL এখানে বসাবে
+const API_KEY = "mysecret123";  // তোমার API KEY এখানে বসাবে
 
 const MAX_RESULTS = 7;
 
