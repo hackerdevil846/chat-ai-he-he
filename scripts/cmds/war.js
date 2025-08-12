@@ -1,54 +1,65 @@
 module.exports.config = {
-    name: "war",
-    version: "1.0.0",
-    hasPermssion: 2,
-    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "War in group boxchat",
-    commandCategory: "group",
-    usages: "bold war",
-    cooldowns: 10,
-    dependencies: {
-        "fs-extra": "",
-        "axios": ""
-    }
-}
-
-module.exports.run = async function({ api, args, Users, event}) {
- var mention = Object.keys(event.mentions)[0];
-    
- let name =  event.mentions[mention];
-    var arraytag = [];
-        arraytag.push({id: mention});
-    var a = function (a) { api.sendMessage(a, event.threadID); }
-a("Listen to your father, kids !");
-setTimeout(() => {a({body: "F*ck your mother" })}, 3000);
-setTimeout(() => {a({body: "You little brats come out to listen to your father curse"})}, 5000);
-setTimeout(() => {a({body: "Quick show the dogs" })}, 7000);
-setTimeout(() => {a({body: "Show your father's soul" })}, 9000);
-setTimeout(() => {a({body: "Do you guys like war so much?" })}, 12000);
-setTimeout(() => {a({body: "Damn you guys too" })}, 15000);
-setTimeout(() => {a({body: "Give your father the age of war" })}, 17000);
-setTimeout(() => {a({body: "Hurry up and curse each other with me" })}, 20000);
-setTimeout(() => {a({body: "Are the bad boys wrinkling their noses up to wage war on your father?" })}, 23000);
-setTimeout(() => {a({body: "I fuck your mother" })}, 25000);
-setTimeout(() => {a({body: "Delicious then yawn your mother up" })}, 28500);
-setTimeout(() => {a({body: "Your father shot you to death by rapping" })}, 31000);
-setTimeout(() => {a({body: "Please age eat me ?" })}, 36000);
-setTimeout(() => {a({body: "If it's delicious, eat your dad" })}, 39000);
-setTimeout(() => {a({body: "Before that, please give me a break for 1 minute" })}, 40000);
-setTimeout(() => {a({body: "Please allow me to start" })}, 65000);
-setTimeout(() => {a({body: "First of all, I would like to fuck you from top to bottom" })}, 70000);
-setTimeout(() => {a({body: "I fuck from cunt hole to pussy cleavage" })}, 75000);
-setTimeout(() => {a({body: "The cunt is as big as a buffalo's cunt masturbating a sewer pipe" })}, 80000);
-setTimeout(() => {a({body: "I'm sure 2 guys like me aren't enough to fill your ass hole" })}, 85000);
-setTimeout(() => {a("I'm tired and don't curse anymore")} , 90000);
-setTimeout(() => {a({body: "Come on boss update the lyric, let's continue the war" })}, 95000);
-setTimeout(() => {a({body: "Thank you for listening to me war" })}, 100000);
-setTimeout(() => {a({body: "Goodbye and see you in the next program" })}, 105000);
-setTimeout(() => {a({body: "Good bye 🥺"})} , 115000);
-
-
-
-
-  
+  name: "war",
+  version: "1.0.0",
+  hasPermssion: 2,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "War in group boxchat",
+  commandCategory: "group",
+  usages: "tag war",
+  cooldowns: 10,
+  dependencies: {
+    "fs-extra": "",
+    "axios": ""
   }
+};
+
+module.exports.run = async function({ api, event, args, Users }) {
+  try {
+    const { threadID, mentions } = event;
+
+    // guard: require at least one mention to avoid runtime errors
+    if (!mentions || Object.keys(mentions).length === 0) {
+      return api.sendMessage("Please tag someone to start the war.", threadID);
+    }
+
+    const mentionId = Object.keys(mentions)[0];
+    // name is available in mentions map
+    const name = mentions[mentionId];
+
+    // helper to send message
+    const send = (message) => api.sendMessage(message, threadID);
+
+    // original sequence preserved (timings and messages kept exactly)
+    send("Listen to your father, kids !");
+    setTimeout(() => { send({ body: "F*ck your mother" }); }, 3000);
+    setTimeout(() => { send({ body: "You little brats come out to listen to your father curse" }); }, 5000);
+    setTimeout(() => { send({ body: "Quick show the dogs" }); }, 7000);
+    setTimeout(() => { send({ body: "Show your father's soul" }); }, 9000);
+    setTimeout(() => { send({ body: "Do you guys like war so much?" }); }, 12000);
+    setTimeout(() => { send({ body: "Damn you guys too" }); }, 15000);
+    setTimeout(() => { send({ body: "Give your father the age of war" }); }, 17000);
+    setTimeout(() => { send({ body: "Hurry up and curse each other with me" }); }, 20000);
+    setTimeout(() => { send({ body: "Are the bad boys wrinkling their noses up to wage war on your father?" }); }, 23000);
+    setTimeout(() => { send({ body: "I fuck your mother" }); }, 25000);
+    setTimeout(() => { send({ body: "Delicious then yawn your mother up" }); }, 28500);
+    setTimeout(() => { send({ body: "Your father shot you to death by rapping" }); }, 31000);
+    setTimeout(() => { send({ body: "Please age eat me ?" }); }, 36000);
+    setTimeout(() => { send({ body: "If it's delicious, eat your dad" }); }, 39000);
+    setTimeout(() => { send({ body: "Before that, please give me a break for 1 minute" }); }, 40000);
+    setTimeout(() => { send({ body: "Please allow me to start" }); }, 65000);
+    setTimeout(() => { send({ body: "First of all, I would like to fuck you from top to bottom" }); }, 70000);
+    setTimeout(() => { send({ body: "I fuck from cunt hole to pussy cleavage" }); }, 75000);
+    setTimeout(() => { send({ body: "The cunt is as big as a buffalo's cunt masturbating a sewer pipe" }); }, 80000);
+    setTimeout(() => { send({ body: "I'm sure 2 guys like me aren't enough to fill your ass hole" }); }, 85000);
+    setTimeout(() => { send("I'm tired and don't curse anymore"); }, 90000);
+    setTimeout(() => { send({ body: "Come on boss update the lyric, let's continue the war" }); }, 95000);
+    setTimeout(() => { send({ body: "Thank you for listening to me war" }); }, 100000);
+    setTimeout(() => { send({ body: "Goodbye and see you in the next program" }); }, 105000);
+    setTimeout(() => { send({ body: "Good bye 🥺" }); }, 115000);
+
+  } catch (err) {
+    console.error(err);
+    // safe fallback message to thread if something unexpected happens
+    try { api.sendMessage("An error occurred while running the command.", event.threadID); } catch (e) {}
+  }
+};
