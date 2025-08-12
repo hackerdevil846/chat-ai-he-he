@@ -3,66 +3,66 @@ module.exports.config = {
 	version: "1.0.5",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑩𝒂𝒏 𝒐𝒓 𝒖𝒏𝒃𝒍𝒐𝒄𝒌 𝒖𝒔𝒆𝒓𝒔",
-	usages: "[𝒖𝒏𝒃𝒂𝒏/𝒃𝒂𝒏/𝒔𝒆𝒂𝒓𝒄𝒉] [𝑰𝑫 𝒐𝒓 𝒕𝒆𝒙𝒕]",
+	description: "Ban or unblock users",
 	commandCategory: "system",
+	usages: "[unban/ban/search/banCommand/unbanCommand/list/info] [ID or mention]",
 	cooldowns: 5
 };
 
 module.exports.languages = {
 	"vi": {
-		"reason": "𝑳𝒚 𝒅𝒐",
-		"at": "𝒗𝒂̀𝒐 𝒍𝒖́𝒄",
-		"allCommand": "𝒕𝒐𝒂̀𝒏 𝒃𝒐̣̂ 𝒍𝒆̣̂𝒏𝒉",
-		"commandList": "𝒏𝒉𝒖̛̃𝒏𝒈 𝒍𝒆̣𝒏𝒉",
-		"banSuccess": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] Đ𝒂̃ 𝒙𝒖̛̉ 𝒍𝒚́ 𝒕𝒉𝒂̀𝒏𝒉 𝒄𝒐̂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒄𝒂̂́𝒎 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈: %1",
-		"unbanSuccess": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] Đ𝒂̃ 𝒙𝒖̛̉ 𝒍𝒚́ 𝒕𝒉𝒂̀𝒏𝒉 𝒄𝒐̂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 %1",
-		"banCommandSuccess": "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] Đ𝒂̃ 𝒙𝒖̛̉ 𝒍𝒚́ 𝒕𝒉𝒂̀𝒏𝒉 𝒄𝒐̂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒄𝒂̂́𝒎 𝒍𝒆̣̂𝒏𝒉 đ𝒐̂́𝒊 𝒗𝒐̛́𝒊 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈: %1",
-		"unbanCommandSuccess": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] Đ𝒂̃ 𝒙𝒖̛̉ 𝒍𝒚́ 𝒕𝒉𝒂̀𝒏𝒉 𝒄𝒐̂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎 %1 đ𝒐̂́𝒊 𝒗𝒐̛́𝒊 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈: %2",
-		"errorReponse": "%1 𝑲𝒉𝒐̂𝒏𝒈 𝒕𝒉𝒆̂̉ 𝒉𝒐𝒂̀𝒏 𝒕𝒂̂́𝒕 𝒄𝒐̂𝒏𝒈 𝒗𝒊𝒆̣̂𝒄 𝒃𝒂̣𝒏 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖",
-		"IDNotFound": "%1 𝑰𝑫 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒃𝒂̣𝒏 𝒏𝒉𝒂̣̂𝒑 𝒌𝒉𝒐̂𝒏𝒈 𝒕𝒐̂̀𝒏 𝒕𝒂̣𝒊 𝒕𝒓𝒐𝒏𝒈 𝒄𝒐̛ 𝒔𝒐̛̉ 𝒅𝒖̛̃ 𝒍𝒊𝒆̣̂𝒖",
-		"existBan": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑵𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 %1 đ𝒂̃ 𝒃𝒊̣ 𝒃𝒂𝒏 𝒕𝒖̛̀ 𝒕𝒓𝒖̛𝒐̛́𝒄 %2 %3",
-		"notExistBan": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑵𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒃𝒂̣𝒏 𝒏𝒉𝒂̣̂𝒑 𝒄𝒉𝒖̛𝒂 𝒕𝒖̛̀𝒏𝒈 𝒃𝒊̣ 𝒄𝒂̂́𝒎 𝒔𝒖̛̉ 𝒅𝒖̣𝒏𝒈 𝒃𝒐𝒕",
-		"missingCommandInput": "%1 𝑷𝒉𝒂̂̀𝒏 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒄𝒂̂̀𝒏 𝒄𝒂̂́𝒎 𝒌𝒉𝒐̂𝒏𝒈 đ𝒖̛𝒐̛̣𝒄 đ𝒆̂̉ 𝒕𝒓𝒐̂́𝒏𝒈!",
-		"notExistBanCommand": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 𝑰𝑫 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒃𝒂̣𝒏 𝒏𝒉𝒂̣̂𝒑 𝒄𝒉𝒖̛𝒂 𝒕𝒖̛̀𝒏𝒈 𝒃𝒊̣ 𝒄𝒂̂́𝒎 𝒔𝒖̛̉ 𝒅𝒖̣𝒏𝒈 𝒍𝒆̣̂𝒏𝒉",
+		"reason": "Lý do",
+		"at": "vào lúc",
+		"allCommand": "toàn bộ lệnh",
+		"commandList": "những lệnh",
+		"banSuccess": "[ Ban User ] Đã xử lý thành công yêu cầu cấm người dùng: %1",
+		"unbanSuccess": "[ Unban User ] Đã xử lý thành công yêu cầu gỡ cấm người dùng %1",
+		"banCommandSuccess": "[ banCommand User ] Đã xử lý thành công yêu cầu cấm lệnh đối với người dùng: %1",
+		"unbanCommandSuccess": "[ UnbanCommand User ] Đã xử lý thành công yêu cầu gỡ cấm %1 đối với người dùng: %2",
+		"errorReponse": "%1 Không thể hoàn tất công việc bạn yêu cầu",
+		"IDNotFound": "%1 ID người dùng bạn nhập không tồn tại trong cơ sở dữ liệu",
+		"existBan": "[ Ban User ] Người dùng %1 đã bị ban từ trước %2 %3",
+		"notExistBan": "[ Unban User ] Người dùng bạn nhập chưa từng bị cấm sử dụng bot",
+		"missingCommandInput": "%1 Phần command cần cấm không được để trống!",
+		"notExistBanCommand": "[ UnbanCommand User ] Hiện tại ID người dùng bạn nhập chưa từng bị cấm sử dụng lệnh",
 
-		"returnBan": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 𝒃𝒂̣𝒏 đ𝒂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒄𝒂̂́𝒎 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈:\n- 𝑰𝑫 𝒗𝒂̀ 𝒕𝒆̂𝒏 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒄𝒂̂̀𝒏 𝒄𝒂̂́𝒎: %1%2\n\n❮ 𝑹𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒕𝒊𝒏 𝒏𝒉𝒂̆́𝒏 𝒏𝒂̀𝒚 đ𝒆̂̉ 𝒙𝒂́𝒄 𝒕𝒉𝒖̛̣𝒄 ❯",
-		"returnUnban": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 𝒃𝒂̣𝒏 đ𝒂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈:\n- 𝑰𝑫 𝒗𝒂̀ 𝒕𝒆̂𝒏 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒄𝒂̂̀𝒏 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎: %1\n\n❮ 𝑹𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒕𝒊𝒏 𝒏𝒉𝒂̆́𝒏 𝒏𝒂̀𝒚 đ𝒆̂̉ 𝒙𝒂́𝒄 𝒕𝒉𝒖̛̣𝒄 ❯",
-		"returnBanCommand": "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 𝒃𝒂̣𝒏 đ𝒂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒄𝒂̂́𝒎 𝒔𝒖̛̉ 𝒅𝒖̣𝒏𝒈 𝒍𝒆̣̂𝒏𝒉 đ𝒐̂́𝒊 𝒗𝒐̛́𝒊 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈:\n - 𝑰𝑫 𝒗𝒂̀ 𝒕𝒆̂𝒏 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒄𝒂̂̀𝒏 𝒄𝒂̂́𝒎: %1\n- 𝑪𝒂́𝒄 𝒍𝒆̣̂𝒏𝒉 𝒄𝒂̂̀𝒏 𝒄𝒂̂́𝒎: %2\n\n❮ 𝑹𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒕𝒊𝒏 𝒏𝒉𝒂̆́𝒏 𝒏𝒂̀𝒚 đ𝒆̂̉ 𝒙𝒂́𝒄 𝒕𝒉𝒖̛̣𝒄 ❯",
-		"returnUnbanCommand": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 𝒃𝒂̣𝒏 đ𝒂𝒏𝒈 𝒚𝒆̂𝒖 𝒄𝒂̂̀𝒖 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎 𝒔𝒖̛̉ 𝒅𝒖̣𝒏𝒈 𝒍𝒆̣̂𝒏𝒉 đ𝒐̂́𝒊 𝒗𝒐̛́𝒊 𝒗𝒐̛́𝒊 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈:\n - 𝑰𝑫 𝒗𝒂̀ 𝒕𝒆̂𝒏 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒄𝒂̂̀𝒏 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎 𝒍𝒆̣̂𝒏𝒉: %1\n- 𝑪𝒂́𝒄 𝒍𝒆̣̂𝒏𝒉 𝒄𝒂̂̀𝒏 𝒈𝒐̛̃ 𝒄𝒂̂́𝒎: %2\n\n❮ 𝑹𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒕𝒊𝒏 𝒏𝒉𝒂̆́𝒏 𝒏𝒂̀𝒚 đ𝒆̂̉ 𝒙𝒂́𝒄 𝒕𝒉𝒖̛̣𝒄 ❯",
+		"returnBan": "[ Ban User ] Hiện tại bạn đang yêu cầu cấm người dùng:\n- ID và tên người dùng cần cấm: %1%2\n\n❮ Reaction tin nhắn này để xác thực ❯",
+		"returnUnban": "[ Unban User ] Hiện tại bạn đang yêu cầu gỡ cấm người dùng:\n- ID và tên người dùng cần gỡ cấm: %1\n\n❮ Reaction tin nhắn này để xác thực ❯",
+		"returnBanCommand": "[ banCommand User ] Hiện tại bạn đang yêu cầu cấm sử dụng lệnh đối với người dùng:\n - ID và tên người dùng cần cấm: %1\n- Các lệnh cần cấm: %2\n\n❮ Reaction tin nhắn này để xác thực ❯",
+		"returnUnbanCommand": "[ UnbanCommand User ] Hiện tại bạn đang yêu cầu gỡ cấm sử dụng lệnh đối với với người dùng:\n - ID và tên người dùng cần gỡ cấm lệnh: %1\n- Các lệnh cần gỡ cấm: %2\n\n❮ Reaction tin nhắn này để xác thực ❯",
 	
-		"returnResult": "Đ𝒂̂𝒚 𝒍𝒂̀ 𝒌𝒆̂́𝒕 𝒒𝒖𝒂̉ 𝒑𝒉𝒖̀ 𝒉𝒐̛̣𝒑: \n",
-		"returnNull": "𝑲𝒉𝒐̂𝒏𝒈 𝒕𝒊̀𝒎 𝒕𝒉𝒂̂́𝒚 𝒌𝒆̂́𝒕 𝒒𝒖𝒂̉ 𝒅𝒖̛̣𝒂 𝒗𝒂̀𝒐 𝒕𝒊̀𝒎 𝒌𝒊𝒆̂́𝒎 𝒄𝒖̉𝒂 𝒃𝒂̣𝒏!",
-		"returnList": "[ 𝑼𝒔𝒆𝒓 𝑳𝒊𝒔𝒕 ]\n𝑯𝒊𝒆̣̂𝒏 𝒕𝒂̣𝒊 đ𝒂𝒏𝒈 𝒄𝒐́ %1 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒃𝒊̣ 𝒃𝒂𝒏, 𝒅𝒖̛𝒐̛́𝒊 đ𝒂̂𝒚 𝒍𝒂̀ %2 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈\n\n%3",
-		"returnInfo": "[ 𝑰𝒏𝒇𝒐 𝑼𝒔𝒆𝒓 ] Đ𝒂̂𝒚 𝒍𝒂̀ 𝒎𝒐̣̂𝒕 𝒔𝒐̂ 𝒕𝒉𝒐̂𝒏𝒈 𝒕𝒊𝒏 𝒗𝒆̂̀ 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈 𝒃𝒂̣𝒏 𝒄𝒂̂̀𝒏 𝒕𝒊̀𝒎:\n- 𝑰𝑫 𝒗𝒂̀ 𝒕𝒆̂𝒏 𝒄𝒖̉𝒂 𝒏𝒈𝒖̛𝒐̛̀𝒊 𝒅𝒖̀𝒏𝒈: %1𝒏- 𝑪𝒐́ 𝒃𝒊̣ 𝒃𝒂𝒏?: %2 %3 %4\n- 𝑩𝒊̣ 𝒃𝒂𝒏 𝒍𝒆̣̂𝒏𝒉?: %5"
+		"returnResult": "Đây là kết quả phù hợp: \n",
+		"returnNull": "Không tìm thấy kết quả dựa vào tìm kiếm của bạn!",
+		"returnList": "[ User List ]\nHiện tại đang có %1 người dùng bị ban, dưới đây là %2 người dùng\n\n%3",
+		"returnInfo": "[ Info User ] Đây là một số thông tin về người dùng bạn cần tìm:\n- ID và tên của người dùng: %1\n- Có bị ban?: %2 %3 %4\n- Bị ban lệnh?: %5"
 	},
 	"en": {
-		"reason": "𝑲𝒂𝒓𝒐𝒏",
-		"at": "𝑺𝒐𝒎𝒐𝒚",
-		"allCommand": "𝑺𝒐𝒃 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
-		"commandList": "𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔",
-		"banSuccess": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆: %1",
-		"unbanSuccess": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝒖𝒏𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆 %1",
-		"banCommandSuccess": "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆: %1",
-		"unbanCommandSuccess": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 %1 𝒖𝒏𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆: %2",
-		"errorReponse": "%1 𝑨𝒑𝒏𝒊 𝒋𝒂 𝒄𝒉𝒂𝒏 𝒕𝒂 𝒌𝒐𝒓𝒂 𝒔𝒐𝒎𝒃𝒉𝒐𝒃 𝒏𝒐𝒚",
-		"IDNotFound": "%1 𝑨𝒑𝒏𝒂𝒓 𝒅𝒆𝒚𝒂 𝑰𝑫 𝒅𝒂𝒕𝒂𝒃𝒂𝒔𝒆 𝒏𝒆𝒊",
-		"existBan": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 %1 𝒂𝒈𝒆 𝒕𝒉𝒆𝒌𝒆𝒊 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒂𝒄𝒉𝒆 %2 %3",
-		"notExistBan": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝒂𝒈𝒆 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒄𝒉𝒊𝒍𝒐 𝒏𝒂",
-		"missingCommandInput": "%1 𝑨𝒑𝒏𝒂𝒌𝒆 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆!",
-		"notExistBanCommand": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒂𝒈𝒆 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒄𝒉𝒊𝒍𝒐 𝒏𝒂",
+		"reason": "Reason",
+		"at": "at",
+		"allCommand": "all commands",
+		"commandList": "Commands",
+		"banSuccess": "[ Ban User ] Successfully banned user: %1",
+		"unbanSuccess": "[ Unban User ] Successfully unbanned user %1",
+		"banCommandSuccess": "[ banCommand User ] Successfully banned commands for user: %1",
+		"unbanCommandSuccess": "[ UnbanCommand User ] Successfully unbanned %1 for user: %2",
+		"errorReponse": "%1 Could not complete your request",
+		"IDNotFound": "%1 The user ID you entered does not exist in the database",
+		"existBan": "[ Ban User ] User %1 has been banned before %2 %3",
+		"notExistBan": "[ Unban User ] The user you entered has never been banned from using the bot",
+		"missingCommandInput": "%1 The command field to ban cannot be empty!",
+		"notExistBanCommand": "[ UnbanCommand User ] The user ID you entered has never been command-banned",
 
-		"returnBan": "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑨𝒑𝒏𝒊 𝒖𝒔𝒆𝒓 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒂𝒃𝒆𝒅𝒐𝒏 𝒌𝒐𝒓𝒄𝒉𝒆𝒏:\n- 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒐 𝒏𝒂𝒎 𝒋𝒂𝒌𝒆 𝒃𝒂𝒏 𝒌𝒐𝒓𝒕𝒆 𝒄𝒉𝒂𝒏: %1%2\n\n❮ 𝑬𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒅𝒊𝒚𝒆 𝒄𝒐𝒎𝒑𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒖𝒏 ❯",
-		"returnUnban": "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ] 𝑨𝒑𝒏𝒊 𝒖𝒔𝒆𝒓 𝒖𝒏𝒃𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒂𝒃𝒆𝒅𝒐𝒏 𝒌𝒐𝒓𝒄𝒉𝒆𝒏:\n- 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒐 𝒏𝒂𝒎 𝒋𝒂𝒌𝒆 𝒖𝒏𝒃𝒂𝒏 𝒌𝒐𝒓𝒕𝒆 𝒄𝒉𝒂𝒏: %1\n\n❮ 𝑬𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒅𝒊𝒚𝒆 𝒄𝒐𝒎𝒑𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒖𝒏 ❯",
-		"returnBanCommand": "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑨𝒑𝒏𝒊 𝒖𝒔𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒂𝒃𝒆𝒅𝒐𝒏 𝒌𝒐𝒓𝒄𝒉𝒆𝒏:\n - 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒐 𝒏𝒂𝒎 𝒋𝒂𝒌𝒆 𝒃𝒂𝒏 𝒌𝒐𝒓𝒕𝒆 𝒄𝒉𝒂𝒏: %1\n- 𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔: %2\n\n❮ 𝑬𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒅𝒊𝒚𝒆 𝒄𝒐𝒎𝒑𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒖𝒏 ❯",
-		"returnUnbanCommand": "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ] 𝑨𝒑𝒏𝒊 𝒖𝒔𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒖𝒏𝒃𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒂𝒃𝒆𝒅𝒐𝒏 𝒌𝒐𝒓𝒄𝒉𝒆𝒏:\n - 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒐 𝒏𝒂𝒎: %1\n- 𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔: %2\n\n❮ 𝑬𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏 𝒅𝒊𝒚𝒆 𝒄𝒐𝒎𝒑𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒖𝒏 ❯",
+		"returnBan": "[ Ban User ] You are requesting to ban a user:\n- ID and name of the user to ban: %1%2\n\n❮ React to this message to confirm ❯",
+		"returnUnban": "[ Unban User ] You are requesting to unban a user:\n- ID and name of the user to unban: %1\n\n❮ React to this message to confirm ❯",
+		"returnBanCommand": "[ banCommand User ] You are requesting to ban commands for a user:\n - ID and name of the user: %1\n- Commands to ban: %2\n\n❮ React to this message to confirm ❯",
+		"returnUnbanCommand": "[ UnbanCommand User ] You are requesting to unban commands for a user:\n - ID and name of the user: %1\n- Commands to unban: %2\n\n❮ React to this message to confirm ❯",
 	
-		"returnResult": "𝑬𝒊𝒕𝒂 𝒂𝒑𝒏𝒂𝒓 𝒑𝒉𝒐𝒍𝒂𝒑𝒉𝒐𝒍: \n",
-		"returnNull": "𝑨𝒑𝒏𝒂𝒓 𝒊𝒏𝒑𝒖𝒕 𝒅𝒊𝒚𝒆 𝒌𝒐𝒏𝒐 𝒑𝒉𝒐𝒍𝒂𝒑𝒉𝒐𝒍 𝒑𝒂𝒐𝒚𝒂 𝒋𝒂𝒚 𝒏𝒊!",
-		"returnList": "[ 𝑼𝒔𝒆𝒓 𝑳𝒊𝒔𝒕 ]\n%1 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒖𝒔𝒆𝒓 𝒂𝒄𝒉𝒆, 𝒆𝒌𝒉𝒂𝒏𝒆 %2 𝒖𝒔𝒆𝒓:\n\n%3",
-		"returnInfo": "[ 𝑰𝒏𝒇𝒐 𝑼𝒔𝒆𝒓 ] 𝑨𝒑𝒏𝒊 𝒋𝒆 𝒖𝒔𝒆𝒓 𝒌𝒆 𝒌𝒉𝒖̃𝒋𝒄𝒉𝒆𝒏 𝒕𝒂𝒓 𝒌𝒊𝒄𝒉𝒖 𝒕𝒉𝒐𝒕𝒉𝒚𝒐 𝒆𝒌𝒉𝒂𝒏𝒆 𝒅𝒆𝒚𝒂 𝒉𝒐𝒍𝒐:\n- 𝑼𝒔𝒆𝒓 𝑰𝑫 𝒐 𝒏𝒂𝒎: %1𝒏- 𝑩𝒂𝒏 𝒌𝒐𝒓𝒂 𝒂𝒄𝒉𝒆?: %2 %3 %4\n- 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒃𝒂𝒏 𝒌𝒐𝒓𝒂 𝒂𝒄𝒉𝒆?: %5"
+		"returnResult": "Here are the matching results: \n",
+		"returnNull": "No results found based on your search!",
+		"returnList": "[ User List ]\nThere are currently %1 banned users, here are %2 of them:\n\n%3",
+		"returnInfo": "[ Info User ] Here is some information about the user you are looking for:\n- User ID and name: %1\n- Is banned?: %2 %3 %4\n- Command banned?: %5"
 	}
-}
+};
 
 module.exports.handleReaction = async ({ event, api, Users, handleReaction, getText }) => {
 	if (parseInt(event.userID) !== parseInt(handleReaction.author)) return;
@@ -70,8 +70,7 @@ module.exports.handleReaction = async ({ event, api, Users, handleReaction, getT
 	const { threadID } = event;
 	const { messageID, type, targetID, reason, commandNeedBan, nameTarget } = handleReaction;
 	
-	const time = moment.tz("Asia/Kolkata").format("HH:MM:ss L");
-	global.client.handleReaction.splice(global.client.handleReaction.findIndex(item => item.messageID == messageID), 1);
+	const time = moment.tz("Asia/Kolkata").format("HH:mm:ss L");
 	
 	switch (type) {
 		case "ban": {
@@ -82,10 +81,9 @@ module.exports.handleReaction = async ({ event, api, Users, handleReaction, getT
 				data.dateAdded = time;
 				await Users.setData(targetID, { data });
 				global.data.userBanned.set(targetID, { reason: data.reason, dateAdded: data.dateAdded });
-				return api.sendMessage(getText("banSuccess", `${targetID} - ${nameTarget}`), threadID, () => {
-					return api.unsendMessage(messageID);
-				});
-			} catch { return api.sendMessage(getText("errorReponse", "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ]"), threadID) };
+				api.unsendMessage(messageID);
+				return api.sendMessage(getText("banSuccess", `${targetID} - ${nameTarget}`), threadID);
+			} catch { return api.sendMessage(getText("errorReponse", "[ Ban User ]"), threadID) };
 		}
 
 		case "unban": {
@@ -96,63 +94,71 @@ module.exports.handleReaction = async ({ event, api, Users, handleReaction, getT
 				data.dateAdded = null;
 				await Users.setData(targetID, { data });
 				global.data.userBanned.delete(targetID);
-				return api.sendMessage(getText("unbanSuccess", `${targetID} - ${nameTarget}`), threadID, () => {
-					return api.unsendMessage(messageID);
-				});
-			} catch { return api.sendMessage(getText("errorReponse", "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ]"), threadID) };
+				api.unsendMessage(messageID);
+				return api.sendMessage(getText("unbanSuccess", `${targetID} - ${nameTarget}`), threadID);
+			} catch { return api.sendMessage(getText("errorReponse", "[ Unban User ]"), threadID) };
 		}
 
 		case "banCommand": {
 			try {	
 				let data = (await Users.getData(targetID)).data || {};
-				data.commandBanned = [...data.commandBanned || [], ...commandNeedBan];
+				data.commandBanned = [...(data.commandBanned || []), ...commandNeedBan];
 				await Users.setData(targetID, { data });
 				global.data.commandBanned.set(targetID, data.commandBanned);
-				return api.sendMessage(getText("banCommandSuccess", `${targetID} - ${nameTarget}`), threadID, () => {
-					return api.unsendMessage(messageID);
-				});
-			} catch (e) { return api.sendMessage(getText("errorReponse", "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID) };
+				api.unsendMessage(messageID);
+				return api.sendMessage(getText("banCommandSuccess", `${targetID} - ${nameTarget}`), threadID);
+			} catch (e) { return api.sendMessage(getText("errorReponse", "[ banCommand User ]"), threadID) };
 		}
 
 		case "unbanCommand": {
 			try {
 				let data = (await Users.getData(targetID)).data || {};
-				data.commandBanned = [...data.commandBanned.filter(item => !commandNeedBan.includes(item))];
+				data.commandBanned = (data.commandBanned || []).filter(item => !commandNeedBan.includes(item));
 				await Users.setData(targetID, { data });
 				global.data.commandBanned.set(targetID, data.commandBanned);
-				if(data.commandBanned.length == 0) global.data.commandBanned.delete(targetID)
-				return api.sendMessage(getText("unbanCommandSuccess", ((data.commandBanned.length == 0) ? getText("allCommand") : `${getText("commandList")}: ${commandNeedBan.join(", ")}`), `${targetID} - ${nameTarget}`), threadID, () => {
-					return api.unsendMessage(messageID);
-				});
-			} catch (e) { return api.sendMessage(getText("errorReponse", "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID) };
+				if(data.commandBanned.length == 0) global.data.commandBanned.delete(targetID);
+				api.unsendMessage(messageID);
+				return api.sendMessage(getText("unbanCommandSuccess", ((data.commandBanned.length == 0) ? getText("allCommand") : `${getText("commandList")}: ${commandNeedBan.join(", ")}`), `${targetID} - ${nameTarget}`), threadID);
+			} catch (e) { return api.sendMessage(getText("errorReponse", "[ UnbanCommand User ]"), threadID) };
 		}
 	}
-}
+};
 
-module.exports.run = async ({ event, api, args, Users, getText }) => {
+module.exports.run = async ({ event, api, args, Users, getText, client }) => {
 	const { threadID, messageID } = event;
 	const type = args[0];
 	var targetID = String(args[1]);
 	var reason = (args.slice(2, args.length)).join(" ") || null;
 
-	if (isNaN(targetID)) {
+	if (!targetID) {
 		const mention = Object.keys(event.mentions);
-		args = args.join(" ");
-		targetID = String(mention[0]);
-		reason = (args.slice(args.indexOf(event.mentions[mention[0]]) + (event.mentions[mention[0]] || "").length + 1, args.length)) || null;
-	}
+		if (mention.length > 0) {
+			targetID = String(mention[0]);
+			reason = args.slice(1).join(" ").replace(event.mentions[mention[0]], "").trim() || null;
+		}
+	} else if (isNaN(targetID)) {
+        const mention = Object.keys(event.mentions);
+		if (mention.length > 0) {
+			const mentionedUserID = mention[0];
+			const fullArg = args.join(" ");
+			targetID = String(mentionedUserID);
+			reason = fullArg.slice(fullArg.indexOf(event.mentions[mentionedUserID]) + event.mentions[mentionedUserID].length).trim();
+		}
+    }
+
 
 	switch (type) {
 		case "ban":
 		case "-b": {
-			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ 𝑩𝒂𝒏 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
+			if (!targetID) return api.sendMessage(getText("IDNotFound", "[ Ban User ]"), threadID, messageID);
+			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ Ban User ]"), threadID, messageID);
 			if (global.data.userBanned.has(targetID)) {
-				const { reason, dateAdded } = global.data.userBanned.get(targetID) || {};
-				return api.sendMessage(getText("existBan", targetID, ((reason) ? `${getText("reason")}: "${reason}"` : ""), ((dateAdded) ? `${getText("at")} ${dateAdded}` : "")), threadID, messageID);
+				const { reason: r, dateAdded: d } = global.data.userBanned.get(targetID) || {};
+				return api.sendMessage(getText("existBan", targetID, ((r) ? `${getText("reason")}: "${r}"` : ""), ((d) ? `${getText("at")} ${d}` : "")), threadID, messageID);
 			}
 			const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
 			return api.sendMessage(getText("returnBan", `${targetID} - ${nameTarget}`, ((reason) ? `\n- ${getText("reason")}: ${reason}` : "")), threadID, (error, info) => {
-				global.client.handleReaction.push({
+				client.handleReaction.push({
 					type: "ban",
 					targetID,
 					reason,
@@ -160,34 +166,34 @@ module.exports.run = async ({ event, api, args, Users, getText }) => {
 					name: this.config.name,
 					messageID: info.messageID,
 					author: event.senderID,
-					
 				});
 			}, messageID);
 		}
 
 		case "unban":
 		case "-ub": {
-			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ 𝑼𝒏𝒃𝒂𝒏 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
+			if (!targetID) return api.sendMessage(getText("IDNotFound", "[ Unban User ]"), threadID, messageID);
+			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ Unban User ]"), threadID, messageID);
 			if (!global.data.userBanned.has(targetID)) return api.sendMessage(getText("notExistBan"), threadID, messageID);
 			const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
 			return api.sendMessage(getText("returnUnban", `${targetID} - ${nameTarget}`), threadID, (error, info) => {
-				global.client.handleReaction.push({
+				client.handleReaction.push({
 					type: "unban",
 					targetID,
 					nameTarget,
 					name: this.config.name,
 					messageID: info.messageID,
 					author: event.senderID,
-					
 				});
 			}, messageID);
 		}
 
 		case "search":
 		case "-s": {
-			const contentJoin = reason || "";
-			const getUsers = (await Users.getAll([\'userID\', \'name\'])).filter(item => !!item.name);
-			var matchUsers = [], a = \'\', b = 0;
+			const contentJoin = args.slice(1).join(" ");
+			if (!contentJoin) return api.sendMessage("Please enter a name to search.", threadID, messageID);
+			const getUsers = (await Users.getAll(['userID', 'name'])).filter(item => !!item.name);
+			var matchUsers = [], a = '', b = 0;
 			getUsers.forEach(i => {
 				if (i.name.toLowerCase().includes(contentJoin.toLowerCase())) {
 					matchUsers.push({
@@ -196,25 +202,30 @@ module.exports.run = async ({ event, api, args, Users, getText }) => {
 					});
 				}
 			});
-			matchUsers.forEach(i => a += `\n${b += 1}. ${i.name} - ${i.id}`);
-			(matchUsers.length > 0) ? api.sendMessage(getText("returnResult", a), threadID) : api.sendMessage(getText("returnNull"), threadID);
+			if (matchUsers.length > 0) {
+				matchUsers.forEach(i => a += `\n${b += 1}. ${i.name} - ${i.id}`);
+				api.sendMessage(getText("returnResult", a), threadID);
+			} else {
+				api.sendMessage(getText("returnNull"), threadID);
+			}
 			return;
 		}
 		
 		case "banCommand":
 		case "-bc": {
-			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
-			if (reason == null || reason.length == 0) return api.sendMessage(getText("missingCommandInput", "[ 𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
-			if (reason == "all") {
-				var allCommandName = [];
-				const commandValues = global.client.commands.keys();
-				for (const cmd of commandValues) allCommandName.push(cmd);
-				reason = allCommandName.join(" ");
+			if (!targetID) return api.sendMessage(getText("IDNotFound", "[ banCommand User ]"), threadID, messageID);
+			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ banCommand User ]"), threadID, messageID);
+			if (reason == null || reason.length == 0) return api.sendMessage(getText("missingCommandInput", "[ banCommand User ]"), threadID, messageID);
+			
+			let commandNeedBan = reason.split(" ").map(cmd => cmd.trim());
+			if (commandNeedBan[0] == "all") {
+				const commandValues = client.commands.keys();
+				commandNeedBan = Array.from(commandValues);
 			}
-			const commandNeedBan = reason.split(" ");
+
 			const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
-			return api.sendMessage(getText("returnBanCommand", `${targetID} - ${nameTarget}`, ((commandNeedBan.length == global.client.commands.size) ? getText("allCommand") : commandNeedBan.join(", "))), threadID, (error, info) => {
-				global.client.handleReaction.push({
+			return api.sendMessage(getText("returnBanCommand", `${targetID} - ${nameTarget}`, ((commandNeedBan.length === client.commands.size) ? getText("allCommand") : commandNeedBan.join(", "))), threadID, (error, info) => {
+				client.handleReaction.push({
 					type: "banCommand",
 					targetID,
 					commandNeedBan,
@@ -222,23 +233,26 @@ module.exports.run = async ({ event, api, args, Users, getText }) => {
 					name: this.config.name,
 					messageID: info.messageID,
 					author: event.senderID,
-					
 				});
 			}, messageID);
 		}
 
 		case "unbanCommand":
 		case "-ubc": {
-			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
+			if (!targetID) return api.sendMessage(getText("IDNotFound", "[ UnbanCommand User ]"), threadID, messageID);
+			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ UnbanCommand User ]"), threadID, messageID);
 			if (!global.data.commandBanned.has(targetID)) return api.sendMessage(getText("notExistBanCommand"), threadID, messageID);
-			if (reason == null || reason.length == 0) return api.sendMessage(getText("missingCommandInput", "[ 𝑼𝒏𝒃𝒂𝒏𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
-			if (reason == "all") {
-				reason = (global.data.commandBanned.get(targetID)).join(" ");
+			if (reason == null || reason.length == 0) return api.sendMessage(getText("missingCommandInput", "[ UnbanCommand User ]"), threadID, messageID);
+			
+			let commandNeedBan = reason.split(" ").map(cmd => cmd.trim());
+			const userBannedCommands = global.data.commandBanned.get(targetID) || [];
+			if (commandNeedBan[0] == "all") {
+				commandNeedBan = [...userBannedCommands];
 			}
-			const commandNeedBan = reason.split(" ");
+			
 			const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
-			return api.sendMessage(getText("returnUnbanCommand", `${targetID} - ${nameTarget}`, ((commandNeedBan.length == global.data.commandBanned.get(targetID).length) ? getText("allCommand") : commandNeedBan.join(", "))), threadID, (error, info) => {
-				global.client.handleReaction.push({
+			return api.sendMessage(getText("returnUnbanCommand", `${targetID} - ${nameTarget}`, ((commandNeedBan.length == userBannedCommands.length) ? getText("allCommand") : commandNeedBan.join(", "))), threadID, (error, info) => {
+				client.handleReaction.push({
 					type: "unbanCommand",
 					targetID,
 					commandNeedBan,
@@ -246,7 +260,6 @@ module.exports.run = async ({ event, api, args, Users, getText }) => {
 					name: this.config.name,
 					messageID: info.messageID,
 					author: event.senderID,
-					
 				});
 			}, messageID);
 		}
@@ -254,26 +267,41 @@ module.exports.run = async ({ event, api, args, Users, getText }) => {
 		case "list":
 		case "-l": {
 			var listBan = [], i = 0;
-			const threadData = global.data.userBanned.keys();
-			for (; ;) {
-				let idUser = String(threadData.next().value);
-				if (typeof idUser == "undefined") {
-					const userName = (await Users.getData(idUser)).name || "unknown";
-					listBan.push(`${i+=1}/ ${idUser} - ${userName}`);
-				}
-				if (i == global.data.userBanned.size || i == (parseInt(reason) || 10)) break;
+			const bannedUsers = Array.from(global.data.userBanned.keys());
+			const limit = parseInt(args[1]) || 10;
+
+			for (const idUser of bannedUsers) {
+				const userName = (await Users.getNameUser(idUser)) || "Unknown User";
+				listBan.push(`${i+=1}. ${idUser} - ${userName}`);
+				if (i >= limit) break;
 			}
-			return api.sendMessage(getText("returnList",(global.data.userBanned.size || 0), listBan.length, listBan.join("\n")), threadID, messageID);
+			return api.sendMessage(getText("returnList", (global.data.userBanned.size || 0), listBan.length, listBan.join("\n")), threadID, messageID);
 		}
 
 		case "info":
 		case "-i": {
-			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ 𝑰𝒏𝒇𝒐 𝑼𝒔𝒆𝒓 ]"), threadID, messageID);
-			if (global.data.commandBanned.has(targetID)) { var commandBanned = global.data.commandBanned.get(targetID) || [] };
-			if (global.data.userBanned.has(targetID)) { var { reason, dateAdded } = global.data.userBanned.get(targetID) || {} };
+			if (!targetID) return api.sendMessage(getText("IDNotFound", "[ Info User ]"), threadID, messageID);
+			if (!global.data.allUserID.includes(targetID)) return api.sendMessage(getText("IDNotFound", "[ Info User ]"), threadID, messageID);
+			
+			const commandBannedData = global.data.commandBanned.get(targetID);
+			const userBannedData = global.data.userBanned.get(targetID);
+
+			const isBanned = userBannedData ? "Yes" : "No";
+			const reasonText = userBannedData?.reason ? `${getText("reason")}: "${userBannedData.reason}"` : "";
+			const dateAddedText = userBannedData?.dateAdded ? `${getText("at")}: ${userBannedData.dateAdded}` : "";
+			
+			let commandBannedText = "No";
+			if (commandBannedData && commandBannedData.length > 0) {
+				const allCommandsBanned = commandBannedData.length === client.commands.size;
+				commandBannedText = `Yes: ${allCommandsBanned ? getText("allCommand") : commandBannedData.join(", ")}`;
+			}
+
 			const nameTarget = global.data.userName.get(targetID) || await Users.getNameUser(targetID);
-			return api.sendMessage(getText("returnInfo", `${targetID} - ${nameTarget}`, ((!dateAdded) ? "𝒀𝑬𝑺" : "𝑵𝑶"), ((reason) ? `${getText("reason")}: "${reason}"` : ""), ((dateAdded) ? `${getText("at")}: ${dateAdded}` : ""), ((commandBanned) ? `𝒀𝑬𝑺: ${(commandNeedBan.length == global.client.commands.size) ? getText("allCommand") : commandNeedBan.join(", ")}` : "𝑵𝑶")), threadID, messageID);
+			return api.sendMessage(getText("returnInfo", `${targetID} - ${nameTarget}`, isBanned, reasonText, dateAddedText, commandBannedText), threadID, messageID);
+		}
+		
+		default: {
+			return api.sendMessage(this.config.usages, threadID, messageID);
 		}
 	}
 }
-
