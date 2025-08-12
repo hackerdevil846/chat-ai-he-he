@@ -1,10 +1,10 @@
 module.exports.config = {
   name: "wasted",
   version: "1.0.1",
-  hasPermssion: 0,
+  Permssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙒𝘼𝙎𝙏𝙀𝘿 𝙗𝙖𝙣𝙣𝙚𝙧 𝙘𝙧𝙚𝙖𝙩𝙤𝙧",
-  commandCategory: "𝙗𝙖𝙣𝙣𝙚𝙧",
+  Category: "𝙗𝙖𝙣𝙣𝙚𝙧",
   cooldowns: 2,
   dependencies: {
     canvas: "",
