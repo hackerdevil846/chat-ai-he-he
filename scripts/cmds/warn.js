@@ -4,7 +4,7 @@ module.exports = {
 	config: {
 		name: "warn",
 		version: "1.8",
-		author: "NTKhang",
+		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		countDown: 5,
 		role: 0,
 		description: {
@@ -55,7 +55,7 @@ module.exports = {
 			invalidUid4: "⚠️ Bạn cần phải tag hoặc phản hồi tin nhắn của người muốn cảnh cáo",
 			warnSuccess: "⚠️ Đã cảnh cáo thành viên %1 lần %2\n- Uid: %3\n- Lý do: %4\n- Date Time: %5\nThành viên này đã bị cảnh cáo đủ 3 lần và bị ban khỏi box, để gỡ ban hãy sử dụng lệnh \"%6warn unban <uid>\" (với uid là uid của người muốn gỡ ban)",
 			noPermission5: "⚠️ Bot cần quyền quản trị viên để kick thành viên bị ban",
-			warnSuccess2: "⚠️ Đã cảnh cáo thành viên %1 lần %2\n- Uid: %3\n- Lý do: %4\n- Date Time: %5\nNếu vi phạm %6 lần nữa người này sẽ bị ban khỏi box",
+			warnSuccess2: "⚠️ Đã cảnh cáo thành viên %1 %2 lần\n- Uid: %3\n- Lý do: %4\n- Date Time: %5\nNếu vi phạm %6 lần nữa người này sẽ bị ban khỏi box",
 			hasBanned: "⚠️ Thành viên sau đã bị cảnh cáo đủ 3 lần trước đó và bị ban khỏi box:\n%1",
 			failedKick: "⚠️ Đã xảy ra lỗi khi kick những thành viên sau:\n%1",
 			userNotInGroup: "⚠️ Người dùng \"%1\" hiện tại không có trong nhóm của bạn"
@@ -128,7 +128,7 @@ module.exports = {
 				else
 					uids = [senderID];
 
-				if (!uids)
+				if (!uids || !uids.length)
 					return message.reply(getLang("invalidUid"));
 				msg += (await Promise.all(uids.map(async uid => {
 					if (isNaN(uid))
@@ -142,9 +142,9 @@ module.exports = {
 					else {
 						msg += `\nName: ${userName}`
 							+ `\nWarn list:` + dataWarnOfUser.list.reduce((acc, warn) => {
-								const { dateTime, reason } = warn;
-								return acc + `\n  - Reason: ${reason}\n    Time: ${dateTime}`;
-							}, "");
+							const { dateTime, reason } = warn;
+							return acc + `\n  - Reason: ${reason}\n    Time: ${dateTime}`;
+						}, "");
 					}
 					return msg;
 				}))).filter(msg => msg).join("\n\n");
@@ -159,8 +159,8 @@ module.exports = {
 					uidUnban = Object.keys(event.mentions)[0];
 				else if (event.messageReply?.senderID)
 					uidUnban = event.messageReply.senderID;
-				else if (args.slice(1).length)
-					uidUnban = args.slice(1);
+				else if (args[1])
+					uidUnban = args[1];
 				else
 					uidUnban = senderID;
 
@@ -183,11 +183,11 @@ module.exports = {
 				let uid, num;
 				if (Object.keys(event.mentions)[0]) {
 					uid = Object.keys(event.mentions)[0];
-					num = args[args.length - 1];
+					num = parseInt(args[args.length - 1]) - 1;
 				}
 				else if (event.messageReply?.senderID) {
 					uid = event.messageReply.senderID;
-					num = args[1];
+					num = parseInt(args[1]) - 1;
 				}
 				else {
 					uid = args[1];
@@ -251,7 +251,7 @@ module.exports = {
 
 				await threadsData.set(threadID, warnList, "data.warn");
 
-				const times = dataWarnOfUser?.list.length ?? 1;
+				const times = (warnList.find(item => item.uid == uid)?.list.length) ?? 1;
 
 				const userName = await usersData.getName(uid);
 				if (times >= 3) {
@@ -265,27 +265,28 @@ module.exports = {
 									return message.reply(getLang("noPermission5"), (e, info) => {
 										const { onEvent } = global.GoatBot;
 										onEvent.push({
-											messageID: info.messageID,
-											onStart: async ({ event }) => {
-												if (event.logMessageType === "log:thread-admins" && event.logMessageData.ADMIN_EVENT == "add_admin") {
-													const { TARGET_ID } = event.logMessageData;
-													if (TARGET_ID == api.getCurrentUserID()) {
-														const warnList = await threadsData.get(event.threadID, "data.warn", []);
-														if ((warnList.find(user => user.uid == uid)?.list.length ?? 0) <= 3)
-															global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
-														else
-															api.removeUserFromGroup(uid, event.threadID, () => global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID));
-													}
+										messageID: info.messageID,
+										onStart: async ({ event }) => {
+											if (event.logMessageType === "log:thread-admins" && event.logMessageData.ADMIN_EVENT == "add_admin") {
+												const { TARGET_ID } = event.logMessageData;
+												if (TARGET_ID == api.getCurrentUserID()) {
+													const warnList = await threadsData.get(event.threadID, "data.warn", []);
+													if ((warnList.find(user => user.uid == uid)?.list.length ?? 0) <= 3)
+														global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
+													else
+														api.removeUserFromGroup(uid, event.threadID, () => global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID));
 												}
 											}
-										});
+										}
 									});
+								});
 							}
 						});
 					});
 				}
 				else
 					message.reply(getLang("warnSuccess2", userName, times, uid, reason, dateTime, 3 - (times)));
+				break;
 			}
 		}
 	},
@@ -310,8 +311,8 @@ module.exports = {
 					if (list.length >= 3) {
 						const userName = await usersData.getName(uid);
 						hasBanned.push({
-							uid,
-							name: userName
+						uid,
+						name: userName
 						});
 					}
 				}
@@ -322,22 +323,22 @@ module.exports = {
 						message.reply(getLang("noPermission5"), (e, info) => {
 							const { onEvent } = global.GoatBot;
 							onEvent.push({
-								messageID: info.messageID,
-								onStart: async ({ event }) => {
-									if (
-										event.logMessageType === "log:thread-admins"
-										&& event.logMessageData.ADMIN_EVENT == "add_admin"
-										&& event.logMessageData.TARGET_ID == api.getCurrentUserID()
-									) {
-										const threadData = await threadsData.get(event.threadID);
-										const warnList = threadData.data.warn;
-										const members = threadData.members;
-										removeUsers(hasBanned, warnList, api, event, message, getLang, members);
-										global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
-									}
+							messageID: info.messageID,
+							onStart: async ({ event }) => {
+								if (
+									event.logMessageType === "log:thread-admins"
+									&& event.logMessageData.ADMIN_EVENT == "add_admin"
+									&& event.logMessageData.TARGET_ID == api.getCurrentUserID()
+								) {
+									const threadData = await threadsData.get(event.threadID);
+									const warnList = threadData.data.warn;
+									const members = threadData.members;
+									removeUsers(hasBanned, warnList, api, event, message, getLang, members);
+									global.GoatBot.onEvent = onEvent.filter(item => item.messageID != info.messageID);
 								}
-							});
+							}
 						});
+					});
 					else {
 						const members = await threadsData.get(event.threadID, "members");
 						removeUsers(hasBanned, warnList, api, event, message, getLang, members);
