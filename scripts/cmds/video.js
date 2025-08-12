@@ -91,4 +91,3 @@ module.exports.run = async function ({ api, args, event }) {
         return api.sendMessage("⚠️ 𝑬𝒓𝒓𝒐𝒓: " + (err.message || "𝑲𝒊𝒄𝒉𝒖 𝒆𝒌𝒕𝒂 𝒈𝒐𝒍𝒎𝒂𝒍 𝒉𝒐𝒚𝒆𝒄𝒉𝒆."), event.threadID, event.messageID);
     }
 };
-
