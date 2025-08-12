@@ -6,6 +6,7 @@ module.exports = {
     name: "wanted2",
     version: "1.1",
     author: "Asif Mahmud",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 1,
     role: 0,
     shortDescription: {
@@ -39,32 +40,47 @@ module.exports = {
   },
 
   onStart: async function ({ event, message, usersData, args, getLang }) {
-    let mention = Object.keys(event.mentions);
-    let uid;
-
-    if (event.type == "message_reply") {
-      uid = event.messageReply.senderID;
-    } else {
-      uid = mention[0] || event.senderID;
-    }
-
     try {
+      const mentions = Object.keys(event.mentions || {});
+      let uid;
+
+      if (event.type === "message_reply" && event.messageReply) {
+        uid = event.messageReply.senderID;
+      } else {
+        uid = mentions[0] || event.senderID;
+      }
+
+      // get avatar URL and generate image
       let url = await usersData.getAvatarUrl(uid);
       let avt = await new DIG.Wanted().getImage(url);
 
-      const pathSave = `${__dirname}/tmp/wanted.png`;
+      // ensure tmp directory exists (path kept as requested)
+      const tmpDir = `${__dirname}/tmp`;
+      fs.ensureDirSync(tmpDir);
+
+      const pathSave = `${tmpDir}/wanted.png`;
       fs.writeFileSync(pathSave, Buffer.from(avt));
 
-      let body = mention[0] ? "NEPAL KO WANTED MANXE" : "আপনি নিজেই ওয়ান্টেড!";
+      // message body: same behavior as original
+      let body = mentions[0] ? "NEPAL KO WANTED MANXE" : "আপনি নিজেই ওয়ান্টেড!";
 
-      message.reply({
-        body: body,
-        attachment: fs.createReadStream(pathSave)
-      }, () => fs.unlinkSync(pathSave));
-
+      // send reply with attachment, then remove temp file
+      message.reply(
+        {
+          body: body,
+          attachment: fs.createReadStream(pathSave)
+        },
+        () => {
+          try {
+            fs.unlinkSync(pathSave);
+          } catch (e) {
+            // ignore unlink errors
+          }
+        }
+      );
     } catch (err) {
       console.error(err);
-      message.reply(getLang("noTag"));
+      return message.reply(getLang("noTag"));
     }
   }
 };
