@@ -13,11 +13,13 @@ module.exports.run = async ({ api, event, args }) => {
     const axios = require("axios");
     const fs = require("fs");
     const request = require("request");
+    const path = require("path");
 
     const API_KEY = "5ab098dd-7c70-4cdb-be66-a069ce996f7c";
     const HOLODEX_API_BASE_URL = "https://holodex.net/api/v2";
 
-    if (!args[0]) {
+    // check args
+    if (!args || args.length === 0) {
         return api.sendMessage("❌ 𝘼𝙣𝙪𝙨𝙖𝙣𝙙𝙝𝙖𝙣 𝙠𝙝𝙖𝙡𝙞 𝙧𝙖𝙠𝙝𝙖 𝙟𝙖𝙗𝙚 𝙣𝙖!", event.threadID, event.messageID);
     }
 
@@ -42,18 +44,21 @@ module.exports.run = async ({ api, event, args }) => {
         }
 
         const vtuber = channels[0];
-        const cacheDir = __dirname + '/cache';
-        
+        const cacheDir = path.join(__dirname, 'cache');
+
         if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir);
+            try {
+                fs.mkdirSync(cacheDir);
+            } catch (err) {
+                console.error("Cache dir create error:", err);
+            }
         }
 
         const imageUrl = vtuber.photo;
-        const imagePath = `${cacheDir}/vtuber_${event.senderID}.png`;
+        const imagePath = path.join(cacheDir, `vtuber_${event.senderID}.png`);
 
-        if (imageUrl) {
-            request(imageUrl).pipe(fs.createWriteStream(imagePath)).on("close", () => {
-                const messageBody = `
+        // build message body (keep same content/format)
+        const messageBody = `
 ✨ 𝑽𝑻𝒖𝒃𝒆𝒓 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 ✨
 
 𝑵𝒂𝒎𝒆: ${vtuber.name || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
@@ -65,27 +70,40 @@ module.exports.run = async ({ api, event, args }) => {
 𝒀𝒐𝒖𝑻𝒖𝒃𝒆: ${vtuber.youtube_link || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
 
 ${vtuber.description ? `𝑫𝒆𝒔𝒄𝒓𝒊𝒑𝒕𝒊𝒐𝒏: ${vtuber.description}` : ''}
-                `;
+        `;
 
+        if (imageUrl) {
+            // download image and send as attachment
+            const writeStream = fs.createWriteStream(imagePath);
+            const req = request(imageUrl);
+            req.pipe(writeStream);
+
+            req.on('error', (err) => {
+                console.error("Image request error:", err);
+                // fallback to text-only message
+                return api.sendMessage(messageBody, event.threadID, event.messageID);
+            });
+
+            writeStream.on('error', (err) => {
+                console.error("Write stream error:", err);
+                return api.sendMessage(messageBody, event.threadID, event.messageID);
+            });
+
+            writeStream.on('close', () => {
+                // send message with attachment, then cleanup
                 api.sendMessage({
                     body: messageBody,
                     attachment: fs.createReadStream(imagePath)
-                }, event.threadID, () => fs.unlinkSync(imagePath), event.messageID);
+                }, event.threadID, () => {
+                    try {
+                        if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+                    } catch (e) {
+                        console.error("Cleanup error:", e);
+                    }
+                }, event.messageID);
             });
         } else {
-            const messageBody = `
-✨ 𝑽𝑻𝒖𝒃𝒆𝒓 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 ✨
-
-𝑵𝒂𝒎𝒆: ${vtuber.name || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝑪𝒉𝒂𝒏𝒏𝒆𝒍 𝑰𝑫: ${vtuber.id || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝑺𝒖𝒃𝒔𝒄𝒓𝒊𝒃𝒆𝒓𝒔: ${vtuber.subscriber_count ? vtuber.subscriber_count.toLocaleString() : '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝑽𝒊𝒆𝒘𝒔: ${vtuber.view_count ? vtuber.view_count.toLocaleString() : '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝑽𝒊𝒅𝒆𝒐𝒔: ${vtuber.video_count || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝑻𝒘𝒊𝒕𝒕𝒆𝒓: ${vtuber.twitter_link || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-𝒀𝒐𝒖𝑻𝒖𝒃𝒆: ${vtuber.youtube_link || '𝙐𝙥𝙖𝙡𝙖𝙗𝙙𝙝𝙖 𝙣𝙤𝙮'}
-
-${vtuber.description ? `𝑫𝒆𝒔𝒄𝒓𝒊𝒑𝒕𝒊𝒐𝒏: ${vtuber.description}` : ''}
-            `;
+            // no image available, send text-only
             api.sendMessage(messageBody, event.threadID, event.messageID);
         }
 
