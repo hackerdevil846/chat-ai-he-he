@@ -7,7 +7,7 @@ module.exports = {
 	config: {
 		name: "update",
 		version: "1.5",
-		author: "Chat GPT, NTKhang",
+		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		role: 2,
 		description: {
 			en: "Check for and install updates for the chatbot.",
@@ -60,54 +60,61 @@ module.exports = {
 	},
 
 	onStart: async function ({ message, getLang, commandName, event }) {
-		// Check for updates
-		const { data: { version } } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
-		const { data: versions } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/versions.json");
+		try {
+			// Check for updates
+			const { data: pkg } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/package.json");
+			const version = pkg.version;
+			const { data: versions } = await axios.get("https://raw.githubusercontent.com/ntkhang03/Goat-Bot-V2/main/versions.json");
 
-		const currentVersion = require("../../package.json").version;
-		if (compareVersion(version, currentVersion) < 1)
-			return message.reply(getLang("noUpdates", currentVersion));
+			const currentVersion = require("../../package.json").version;
+			if (compareVersion(version, currentVersion) < 1)
+				return message.reply(getLang("noUpdates", currentVersion));
 
-		const newVersions = versions.slice(versions.findIndex(v => v.version == currentVersion) + 1);
+			const idx = versions.findIndex(v => v.version == currentVersion);
+			const newVersions = versions.slice(idx + 1);
 
-		let fileWillUpdate = [...new Set(newVersions.map(v => Object.keys(v.files || {})).flat())]
-			.sort()
-			.filter(f => f?.length);
-		const totalUpdate = fileWillUpdate.length;
-		fileWillUpdate = fileWillUpdate
-			.slice(0, 10)
-			.map(file => ` - ${file}`).join("\n");
+			let fileWillUpdate = [...new Set(newVersions.map(v => Object.keys(v.files || {})).flat())]
+				.sort()
+				.filter(f => f?.length);
+			const totalUpdate = fileWillUpdate.length;
+			fileWillUpdate = fileWillUpdate
+				.slice(0, 10)
+				.map(file => ` - ${file}`).join("\n");
 
-		let fileWillDelete = [...new Set(newVersions.map(v => Object.keys(v.deleteFiles || {}).flat()))]
-			.sort()
-			.filter(f => f?.length);
-		const totalDelete = fileWillDelete.length;
-		fileWillDelete = fileWillDelete
-			.slice(0, 10)
-			.map(file => ` - ${file}`).join("\n");
+			let fileWillDelete = [...new Set(newVersions.map(v => Object.keys(v.deleteFiles || {})).flat())]
+				.sort()
+				.filter(f => f?.length);
+			const totalDelete = fileWillDelete.length;
+			fileWillDelete = fileWillDelete
+				.slice(0, 10)
+				.map(file => ` - ${file}`).join("\n");
 
-		// Prompt user to update
-		message.reply(
-			getLang(
-				"updatePrompt",
-				currentVersion,
-				version,
-				fileWillUpdate + (totalUpdate > 10 ? "\n" + getLang("andMore", totalUpdate - 10) : ""),
-				totalDelete > 0 ? "\n" + getLang(
-					"fileWillDelete",
-					fileWillDelete + (totalDelete > 10 ? "\n" + getLang("andMore", totalDelete - 10) : "")
-				) : ""
-			), (err, info) => {
-				if (err)
-					return console.error(err);
+			// Prompt user to update
+			message.reply(
+				getLang(
+					"updatePrompt",
+					currentVersion,
+					version,
+					fileWillUpdate + (totalUpdate > 10 ? "\n" + getLang("andMore", totalUpdate - 10) : ""),
+					totalDelete > 0 ? "\n" + getLang(
+						"fileWillDelete",
+						fileWillDelete + (totalDelete > 10 ? "\n" + getLang("andMore", totalDelete - 10) : "")
+					) : ""
+				), (err, info) => {
+					if (err)
+						return console.error(err);
 
-				global.GoatBot.onReaction.set(info.messageID, {
-					messageID: info.messageID,
-					threadID: info.threadID,
-					authorID: event.senderID,
-					commandName
+					global.GoatBot.onReaction.set(info.messageID, {
+						messageID: info.messageID,
+						threadID: info.threadID,
+						authorID: event.senderID,
+						commandName
+					});
 				});
-			});
+		} catch (e) {
+			console.error(e);
+			return message.reply("An error occurred while checking for updates.");
+		}
 	},
 
 	onReaction: async function ({ message, getLang, Reaction, event, commandName }) {
@@ -115,35 +122,42 @@ module.exports = {
 		if (userID != Reaction.authorID)
 			return;
 
-		const { data: lastCommit } = await axios.get('https://api.github.com/repos/ntkhang03/Goat-Bot-V2/commits/main');
-		const lastCommitDate = new Date(lastCommit.commit.committer.date);
-		// if < 5min then stop update and show message
-		if (new Date().getTime() - lastCommitDate.getTime() < 5 * 60 * 1000) {
-			const minutes = Math.floor((new Date().getTime() - lastCommitDate.getTime()) / 1000 / 60);
-			const seconds = Math.floor((new Date().getTime() - lastCommitDate.getTime()) / 1000 % 60);
-			const minutesCooldown = Math.floor((5 * 60 * 1000 - (new Date().getTime() - lastCommitDate.getTime())) / 1000 / 60);
-			const secondsCooldown = Math.floor((5 * 60 * 1000 - (new Date().getTime() - lastCommitDate.getTime())) / 1000 % 60);
-			return message.reply(getLang("updateTooFast", minutes, seconds, minutesCooldown, secondsCooldown));
-		}
+		try {
+			const { data: lastCommit } = await axios.get('https://api.github.com/repos/ntkhang03/Goat-Bot-V2/commits/main');
+			const lastCommitDate = new Date(lastCommit.commit.committer.date);
+			// if < 5min then stop update and show message
+			if (new Date().getTime() - lastCommitDate.getTime() < 5 * 60 * 1000) {
+				const diff = new Date().getTime() - lastCommitDate.getTime();
+				const minutes = Math.floor(diff / 1000 / 60);
+				const seconds = Math.floor(diff / 1000 % 60);
+				const remaining = 5 * 60 * 1000 - diff;
+				const minutesCooldown = Math.floor(remaining / 1000 / 60);
+				const secondsCooldown = Math.floor(remaining / 1000 % 60);
+				return message.reply(getLang("updateTooFast", minutes, seconds, minutesCooldown, secondsCooldown));
+			}
 
-		await message.reply(getLang("updateConfirmed"));
-		// Update chatbot
-		execSync("node update", {
-			stdio: "inherit"
-		});
-		fs.writeFileSync(dirBootLogTemp, event.threadID);
-
-		message.reply(getLang("updateComplete"), (err, info) => {
-			if (err)
-				return console.error(err);
-
-			global.GoatBot.onReply.set(info.messageID, {
-				messageID: info.messageID,
-				threadID: info.threadID,
-				authorID: event.senderID,
-				commandName
+			await message.reply(getLang("updateConfirmed"));
+			// Update chatbot
+			execSync("node update", {
+				stdio: "inherit"
 			});
-		});
+			fs.writeFileSync(dirBootLogTemp, event.threadID);
+
+			message.reply(getLang("updateComplete"), (err, info) => {
+				if (err)
+					return console.error(err);
+
+				global.GoatBot.onReply.set(info.messageID, {
+					messageID: info.messageID,
+					threadID: info.threadID,
+					authorID: event.senderID,
+					commandName
+				});
+			});
+		} catch (e) {
+			console.error(e);
+			return message.reply("An error occurred while attempting to update.");
+		}
 	},
 
 	onReply: async function ({ message, getLang, event }) {
@@ -158,9 +172,11 @@ function compareVersion(version1, version2) {
 	const v1 = version1.split(".");
 	const v2 = version2.split(".");
 	for (let i = 0; i < 3; i++) {
-		if (parseInt(v1[i]) > parseInt(v2[i]))
+		const n1 = parseInt(v1[i] || 0);
+		const n2 = parseInt(v2[i] || 0);
+		if (n1 > n2)
 			return 1;
-		if (parseInt(v1[i]) < parseInt(v2[i]))
+		if (n1 < n2)
 			return -1;
 	}
 	return 0;
