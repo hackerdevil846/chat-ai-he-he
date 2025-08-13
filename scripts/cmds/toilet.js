@@ -1,80 +1,112 @@
+// toilet.js
+
 module.exports.config = {
-	name: "toilet",
-	version: "1.0.1",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝙏𝙤𝙞𝙡𝙚𝙩 🚽",
-	commandCategory: "𝙄𝙢𝙖𝙜𝙚",
-	usages: "𝙏𝙤𝙞𝙡𝙚𝙩",
-	cooldowns: 5,
-	dependencies: {
-		"fs-extra": "",
-		"axios": "",
-		"canvas" :"",
-		"jimp": ""
-	}
+  name: "toilet",
+  version: "1.0.1",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝙏𝙤𝙞𝙡𝙚𝙩 🚽",
+  commandCategory: "𝙄𝙢𝙖𝙜𝙚",
+  usages: "toilet @tag",
+  cooldowns: 5,
+  dependencies: {
+    "fs-extra": "",
+    "axios": "",
+    "canvas": "",
+    "jimp": ""
+  }
 };
 
-module.exports.onLoad = async() => {
-	const { resolve } = global.nodemodule["path"];
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-	const { downloadFile } = global.utils;
-	const dirMaterial = __dirname + `/cache/`;
-	const path = resolve(__dirname, 'cache', 'toilet.png');
-	if (!existsSync(dirMaterial + "")) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(path)) await downloadFile("https://i.imgur.com/BtSlsSS.jpg", path);
-}
+module.exports.onLoad = async () => {
+  const { resolve } = global.nodemodule["path"];
+  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+  const { downloadFile } = global.utils;
+
+  const dirMaterial = __dirname + "/cache/";
+  const templatePath = resolve(__dirname, "cache", "toilet.png");
+
+  if (!existsSync(dirMaterial)) {
+    mkdirSync(dirMaterial, { recursive: true });
+  }
+  if (!existsSync(templatePath)) {
+    await downloadFile(
+      "https://i.imgur.com/BtSlsSS.jpg",
+      templatePath
+    );
+  }
+};
 
 async function makeImage({ one, two }) {
-	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
-	const axios = global.nodemodule["axios"]; 
-	const jimp = global.nodemodule["jimp"];
-	const __root = path.resolve(__dirname, "cache");
+  const fs = global.nodemodule["fs-extra"];
+  const path = global.nodemodule["path"];
+  const axios = global.nodemodule["axios"];
+  const jimp = global.nodemodule["jimp"];
 
-	let hon_img = await jimp.read(__root + "/toilet.png");
-	let pathImg = __root + `/toilet_${one}_${two}.png`;
-	let avatarOne = __root + `/avt_${one}.png`;
-	let avatarTwo = __root + `/avt_${two}.png`;
-	
-	let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-	fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-	
-	let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-	fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-	
-	let circleOne = await jimp.read(await circle(avatarOne));
-	let circleTwo = await jimp.read(await circle(avatarTwo));
-	hon_img.resize(292, 345).composite(circleOne.resize(70, 70), 100, 200).composite(circleTwo.resize(70, 70), 100, 200);
-	
-	let raw = await hon_img.getBufferAsync("image/png");
-	
-	fs.writeFileSync(pathImg, raw);
-	fs.unlinkSync(avatarOne);
-	fs.unlinkSync(avatarTwo);
-	
-	return pathImg;
+  const cacheDir = path.resolve(__dirname, "cache");
+  const baseImg = await jimp.read(cacheDir + "/toilet.png");
+  const outPath = cacheDir + `/toilet_${one}_${two}.png`;
+
+  const avatarOnePath = cacheDir + `/avt_${one}.png`;
+  const avatarTwoPath = cacheDir + `/avt_${two}.png`;
+
+  // Download avatars
+  const avatarOneData = (
+    await axios.get(
+      `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+      { responseType: "arraybuffer" }
+    )
+  ).data;
+  fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneData, "utf-8"));
+
+  const avatarTwoData = (
+    await axios.get(
+      `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+      { responseType: "arraybuffer" }
+    )
+  ).data;
+  fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoData, "utf-8"));
+
+  // Make circular avatars
+  const circleOne = await jimp.read(await circle(avatarOnePath));
+  const circleTwo = await jimp.read(await circle(avatarTwoPath));
+
+  // Composite onto template
+  baseImg
+    .resize(292, 345)
+    .composite(circleOne.resize(70, 70), 100, 200)
+    .composite(circleTwo.resize(70, 70), 100, 200);
+
+  // Save and cleanup
+  const buffer = await baseImg.getBufferAsync("image/png");
+  fs.writeFileSync(outPath, buffer);
+  fs.unlinkSync(avatarOnePath);
+  fs.unlinkSync(avatarTwoPath);
+
+  return outPath;
 }
 
-async function circle(image) {
-	const jimp = require("jimp");
-	image = await jimp.read(image);
-	image.circle();
-	return await image.getBufferAsync("image/png");
+async function circle(imagePath) {
+  const jimp = require("jimp");
+  const image = await jimp.read(imagePath);
+  image.circle();
+  return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args, Currencies }) { 
-	const fs = global.nodemodule["fs-extra"];
-	const hc = Math.floor(Math.random() * 101);
-	const rd = Math.floor(Math.random() * 100000) + 100000;
-	const { threadID, messageID, senderID } = event;
-	const mention = Object.keys(event.mentions);
-	var one = senderID, two = mention[0];
-	
-	if (!two) return;
-	else {
-		return makeImage({ one, two }).then(path => api.sendMessage({ 
-			attachment: fs.createReadStream(path)
-		}, threadID, () => fs.unlinkSync(path), messageID));
-	}
-}
+module.exports.run = async function ({ event, api }) {
+  const fs = global.nodemodule["fs-extra"];
+  const { threadID, messageID, senderID, mentions } = event;
+  const tagged = Object.keys(mentions);
+
+  if (!tagged.length) return;
+  const one = senderID;
+  const two = tagged[0];
+
+  makeImage({ one, two }).then((imgPath) => {
+    api.sendMessage(
+      { attachment: fs.createReadStream(imgPath) },
+      threadID,
+      () => fs.unlinkSync(imgPath),
+      messageID
+    );
+  });
+};
