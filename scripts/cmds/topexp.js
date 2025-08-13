@@ -2,7 +2,7 @@ module.exports = {
   config: {
     name: "topexp",
     version: "1.2",
-    author: "Asif Mahmud",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     role: 0,
     shortDescription: {
       en: "Top 10 Exp users",
@@ -22,34 +22,38 @@ module.exports = {
   langs: {
     en: {
       noExpUsers: "There are no users with experience points.",
-      headerText: "\ud83c\udfc6 Top 10 EXP Users \ud83c\udfc6"
+      headerText: "🏆 Top 10 EXP Users 🏆"
     },
     bn: {
       noExpUsers: "কোনো ইউজারের অভিজ্ঞতা পয়েন্ট নেই।",
-      headerText: "\ud83c\udfc6 শীর্ষ ১০ অভিজ্ঞতা ইউজার \ud83c\udfc6"
+      headerText: "🏆 শীর্ষ ১০ অভিজ্ঞতা ইউজার 🏆"
     }
   },
 
-  onStart: async function ({ api, args, message, event, usersData, getLang }) {
+  onStart: async function ({ api, message, event, usersData }) {
     try {
       const allUsers = await usersData.getAll();
-      const usersWithExp = allUsers.filter(user => user.exp && user.exp > 0);
+      const usersWithExp = allUsers.filter(u => u.exp && u.exp > 0);
 
-      if (usersWithExp.length < 1) {
-        return message.reply(getLang("noExpUsers"));
+      if (usersWithExp.length === 0) {
+        return message.reply(this.langs.en.noExpUsers);
       }
 
-      const topExp = usersWithExp.sort((a, b) => b.exp - a.exp).slice(0, 10);
-      const topUsersList = topExp.map((user, index) => `${index + 1}. ${user.name || "Unknown"}: ${user.exp} EXP`);
+      const topExp = usersWithExp
+        .sort((a, b) => b.exp - a.exp)
+        .slice(0, 10);
 
-      const threadLang = (await api.getThreadInfo(event.threadID)).data?.lang || "en";
+      const list = topExp.map((u, i) =>
+        `${i + 1}. ${u.name || "Unknown"}: ${u.exp} EXP`
+      );
+
+      const threadInfo = await api.getThreadInfo(event.threadID);
+      const threadLang = threadInfo.data?.lang || "en";
       const lang = ["bn", "en"].includes(threadLang) ? threadLang : "en";
-      const headerText = this.langs[lang].headerText;
+      const header = this.langs[lang].headerText;
 
-      const messageText = `${headerText}:
-${topUsersList.join("\n")}`;
-
-      message.reply(messageText);
+      const msg = `${header}:\n${list.join("\n")}`;
+      return message.reply(msg);
     } catch (err) {
       console.error("[topexp error]", err);
       return message.reply("❌ Something went wrong while fetching EXP data.");
