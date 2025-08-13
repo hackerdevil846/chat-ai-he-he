@@ -1,3 +1,5 @@
+"use strict";
+
 let games = {};
 let points = {}; // Point system
 
@@ -71,7 +73,7 @@ module.exports = {
     name: "ttt",
     aliases: ["tictactoe"],
     version: "2.2",
-    author: "asif",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     category: "game",
     guide: "{pn} [stop|exit]",
     shortDescription: "Play TicTacToe with bot",
@@ -126,7 +128,7 @@ To stop the game: type "ttt stop"`;
     // যদি কিন্তু session নাই, নীরব: কোন “Start the game first” মেসেজ দেব না
     if (!games[id]) return;
 
-    const pos = parseInt(text);
+    const pos = parseInt(text, 10);
     if (games[id].board[pos - 1]) {
       // যদি সেল ভর্তি থাকে, শুধু “Invalid move” দেখাব
       return api.sendMessage("❗ Invalid move. Try a number (1-9) in an empty cell.", threadID);
@@ -170,3 +172,4 @@ To stop the game: type "ttt stop"`;
     await api.sendMessage(displayBoard(games[id].board), threadID);
   },
 };
+```
