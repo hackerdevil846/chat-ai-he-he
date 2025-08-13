@@ -43,7 +43,7 @@ module.exports = {
       const options = { year: "numeric", month: "numeric", day: "numeric" };
       const date = currentDate.toLocaleDateString("en-US", options);
       const time = currentDate.toLocaleTimeString("en-US", {
-        timeZone: "Asia/Kolkata",
+        timeZone: "Asia/Dhaka",
         hour12: true,
       });
 
@@ -72,7 +72,7 @@ module.exports = {
 │𝑪𝑷𝑼 𝑴𝑶𝑫𝑬𝑳: ${os.cpus()[0].model}
 │𝑺𝑻𝑶𝑹𝑨𝑮𝑬: ${usedMemoryGB.toFixed(2)} 𝑮𝑩 / ${totalMemoryGB.toFixed(2)} 𝑮𝑩
 │𝑪𝑷𝑼 𝑼𝑺𝑨𝑮𝑬: ${cpuUsage.toFixed(1)}%
-│𝑹𝑨𝑴 𝑼𝑺𝑮𝑬: ${process.memoryUsage().heapUsed / 1024 / 1024} 𝑴𝑩;
+│𝑹𝑨𝑴 𝑼𝑺𝑮𝑬: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} 𝑴𝑩
 ├───────────────⟡
 │ ✅ 𝑶𝑻𝑯𝑬𝑹 𝑰𝑵𝑭𝑶
 │𝑫𝑨𝑻𝑬: ${date}
@@ -102,10 +102,8 @@ module.exports = {
       console.error("Error retrieving system information:", error);
       api.sendMessage(
         "𝑼𝒏𝒂𝒃𝒍𝒆 𝒕𝒐 𝒓𝒆𝒕𝒓𝒊𝒆𝒗𝒆 𝒔𝒚𝒔𝒕𝒆𝒎 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏.",
-        event.threadID,
-        event.messageID,
+        event.threadID
       );
     }
-  },
+  }
 };
-
