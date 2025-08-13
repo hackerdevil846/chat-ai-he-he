@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "trash",
     version: "2.0",
-    author: "Asif Mahmud",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 5,
     role: 0,
     shortDescription: "Make someone look like trash meme",
@@ -20,7 +20,9 @@ module.exports = {
 
   onStart: async function ({ event, message, usersData }) {
     try {
-      const uid = Object.keys(event.mentions)[0] || event.senderID;
+      const mentionIDs = event.mentions ? Object.keys(event.mentions) : [];
+      const uid = mentionIDs[0] || event.senderID;
+
       const userInfo = await usersData.get(uid);
       const displayName = userInfo?.name || "User";
 
@@ -33,11 +35,13 @@ module.exports = {
       const pathSave = path.join(tmpDir, `${uid}_delete.png`);
       fs.writeFileSync(pathSave, Buffer.from(img));
 
-      message.reply({
-        body: `${displayName} is now trash 🗑️`,
-        attachment: fs.createReadStream(pathSave)
-      }, () => fs.unlink(pathSave).catch(() => {}));
-
+      message.reply(
+        {
+          body: `${displayName} is now trash 🗑️`,
+          attachment: fs.createReadStream(pathSave)
+        },
+        () => fs.unlink(pathSave).catch(() => {})
+      );
     } catch (err) {
       console.error("Trash command error:", err);
       message.reply("❌ Failed to generate the trash image. Please try again later.");
