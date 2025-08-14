@@ -1,4 +1,6 @@
 const axios = require('axios');
+const fs = require('fs').promises;
+const path = require('path');
 
 // Quran Metadata
 const QuranData = {
@@ -123,13 +125,81 @@ const QuranData = {
   ]
 };
 
+// Configuration for backup systems
+const BACKUP_CONFIG = {
+  cacheDir: './quran_cache',
+  maxRetries: 3,
+  retryDelay: 1000,
+  cacheExpiry: 24 * 60 * 60 * 1000, // 24 hours
+  fallbackAPIs: [
+    'https://api.quran.com/api/v4/verses/by_chapter/{chapter}?verse_key={chapter}:{verse}&limit={count}&translations=131',
+    'https://api.alquran.cloud/v1/ayah/{chapter}:{verse}/en.asad'
+  ]
+};
+
 function toArabDigits(num) {
   const arabdigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
   return num.toString().split('').map(digit => arabdigits[digit]).join('');
 }
 
-async function fetchQuranText(chapter, verse, count = 1) {
-  // Calculate starting row in spreadsheet
+// Ensure cache directory exists
+async function ensureCacheDir() {
+  try {
+    await fs.mkdir(BACKUP_CONFIG.cacheDir, { recursive: true });
+  } catch (error) {
+    console.warn('Could not create cache directory:', error.message);
+  }
+}
+
+// Generate cache key for verse data
+function getCacheKey(chapter, verse, count) {
+  return `${chapter}_${verse}_${count}.json`;
+}
+
+// Save data to cache
+async function saveToCache(key, data) {
+  try {
+    await ensureCacheDir();
+    const cacheFile = path.join(BACKUP_CONFIG.cacheDir, key);
+    const cacheData = {
+      timestamp: Date.now(),
+      data: data
+    };
+    await fs.writeFile(cacheFile, JSON.stringify(cacheData, null, 2));
+    console.log(`Cached data saved: ${key}`);
+  } catch (error) {
+    console.warn('Failed to save cache:', error.message);
+  }
+}
+
+// Load data from cache
+async function loadFromCache(key) {
+  try {
+    const cacheFile = path.join(BACKUP_CONFIG.cacheDir, key);
+    const cacheContent = await fs.readFile(cacheFile, 'utf8');
+    const cacheData = JSON.parse(cacheContent);
+    
+    // Check if cache is still valid
+    if (Date.now() - cacheData.timestamp < BACKUP_CONFIG.cacheExpiry) {
+      console.log(`Using cached data: ${key}`);
+      return cacheData.data;
+    } else {
+      console.log(`Cache expired: ${key}`);
+      return null;
+    }
+  } catch (error) {
+    console.log(`No cache found: ${key}`);
+    return null;
+  }
+}
+
+// Sleep function for retry delays
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Primary method: Fetch from Google Sheets
+async function fetchFromGoogleSheets(chapter, verse, count) {
   let vnum = 0;
   for (let i = 1; i < chapter; i++) {
     vnum += QuranData.Sura[i][1];
@@ -138,43 +208,258 @@ async function fetchQuranText(chapter, verse, count = 1) {
 
   const url = `https://docs.google.com/spreadsheets/d/0Aps7j0tW_eq0dFUzN3djMC1IUUYyMHV4VFhqRUhJSmc/gviz/tq?tqx=out:json&range=C${vnum}:D${vnum + count - 1}`;
 
-  try {
-    const response = await axios.get(url);
-    let data = response.data;
+  const response = await axios.get(url, { timeout: 10000 });
+  let data = response.data;
+  
+  if (data.startsWith('/*O_o*/')) {
+    data = data.substring('/*O_o*/'.length);
+  }
+  
+  const jsonData = JSON.parse(data);
+  return jsonData.table.rows.map(row => ({
+    arabic: row.c[0]?.v || '',
+    translation: row.c[1]?.v || ''
+  }));
+}
+
+// Fallback method 1: Quran.com API
+async function fetchFromQuranAPI(chapter, verse, count) {
+  const url = `https://api.quran.com/api/v4/verses/by_chapter/${chapter}?verse_key=${chapter}:${verse}&limit=${count}&translations=131`;
+  
+  const response = await axios.get(url, { timeout: 10000 });
+  const data = response.data;
+  
+  if (!data.verses || data.verses.length === 0) {
+    throw new Error('No verses found in Quran.com API response');
+  }
+  
+  return data.verses.map(verse => ({
+    arabic: verse.text_uthmani || verse.text_imlaei || '',
+    translation: verse.translations && verse.translations[0] ? verse.translations[0].text : 'Translation not available'
+  }));
+}
+
+// Fallback method 2: AlQuran.cloud API
+async function fetchFromAlQuranCloud(chapter, verse, count) {
+  const verses = [];
+  
+  for (let i = 0; i < count; i++) {
+    const currentVerse = verse + i;
+    const url = `https://api.alquran.cloud/v1/ayah/${chapter}:${currentVerse}/en.asad`;
     
-    // Clean JSON response
-    if (data.startsWith('/*O_o*/')) {
-      data = data.substring('/*O_o*/'.length);
+    try {
+      const response = await axios.get(url, { timeout: 10000 });
+      const data = response.data;
+      
+      if (data.code === 200 && data.data) {
+        // Get Arabic text separately
+        const arabicUrl = `https://api.alquran.cloud/v1/ayah/${chapter}:${currentVerse}`;
+        const arabicResponse = await axios.get(arabicUrl, { timeout: 10000 });
+        const arabicData = arabicResponse.data;
+        
+        verses.push({
+          arabic: arabicData.data ? arabicData.data.text : '',
+          translation: data.data.text || 'Translation not available'
+        });
+      }
+    } catch (error) {
+      console.warn(`Failed to fetch verse ${chapter}:${currentVerse} from AlQuran.cloud:`, error.message);
+      verses.push({
+        arabic: '',
+        translation: 'Translation not available'
+      });
     }
     
-    // Parse JSON and extract rows
-    const jsonData = JSON.parse(data);
-    return jsonData.table.rows.map(row => ({
-      arabic: row.c[0]?.v || '',
-      translation: row.c[1]?.v || ''
-    }));
+    // Small delay between requests to avoid rate limiting
+    if (i < count - 1) {
+      await sleep(200);
+    }
+  }
+  
+  return verses;
+}
+
+// Fallback method 3: Generate basic fallback data
+function generateFallbackData(chapter, verse, count) {
+  console.log('Using fallback data generation');
+  const verses = [];
+  
+  for (let i = 0; i < count; i++) {
+    const currentVerse = verse + i;
+    verses.push({
+      arabic: `[Verse ${chapter}:${currentVerse} - Arabic text unavailable]`,
+      translation: `[Verse ${chapter}:${currentVerse} - Translation unavailable. Please try again later or check your internet connection.]`
+    });
+  }
+  
+  return verses;
+}
+
+// Main function with comprehensive fallback system
+async function fetchQuranTextWithBackup(chapter, verse, count = 1) {
+  const cacheKey = getCacheKey(chapter, verse, count);
+  
+  // Try to load from cache first
+  const cachedData = await loadFromCache(cacheKey);
+  if (cachedData) {
+    return cachedData;
+  }
+  
+  const methods = [
+    { name: 'Google Sheets', func: fetchFromGoogleSheets },
+    { name: 'Quran.com API', func: fetchFromQuranAPI },
+    { name: 'AlQuran.cloud API', func: fetchFromAlQuranCloud }
+  ];
+  
+  let lastError = null;
+  
+  // Try each method with retries
+  for (const method of methods) {
+    console.log(`Attempting to fetch from ${method.name}...`);
+    
+    for (let retry = 0; retry < BACKUP_CONFIG.maxRetries; retry++) {
+      try {
+        const data = await method.func(chapter, verse, count);
+        
+        // Validate data
+        if (data && data.length > 0 && data[0].arabic && data[0].translation) {
+          console.log(`Successfully fetched from ${method.name}`);
+          
+          // Save to cache for future use
+          await saveToCache(cacheKey, data);
+          
+          return data;
+        } else {
+          throw new Error('Invalid or empty data received');
+        }
+      } catch (error) {
+        lastError = error;
+        console.warn(`${method.name} attempt ${retry + 1} failed:`, error.message);
+        
+        if (retry < BACKUP_CONFIG.maxRetries - 1) {
+          console.log(`Retrying in ${BACKUP_CONFIG.retryDelay}ms...`);
+          await sleep(BACKUP_CONFIG.retryDelay);
+        }
+      }
+    }
+  }
+  
+  // If all methods fail, generate fallback data
+  console.error('All backup methods failed. Last error:', lastError?.message);
+  const fallbackData = generateFallbackData(chapter, verse, count);
+  
+  // Still save fallback data to cache to avoid repeated failures
+  await saveToCache(cacheKey, fallbackData);
+  
+  return fallbackData;
+}
+
+// Enhanced error handling wrapper
+async function fetchQuranText(chapter, verse, count = 1) {
+  try {
+    return await fetchQuranTextWithBackup(chapter, verse, count);
   } catch (error) {
-    throw new Error('Failed to fetch Quran text from Google Sheets');
+    console.error('Critical error in fetchQuranText:', error);
+    return generateFallbackData(chapter, verse, count);
+  }
+}
+
+// Cache management functions
+async function clearCache() {
+  try {
+    const files = await fs.readdir(BACKUP_CONFIG.cacheDir);
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        await fs.unlink(path.join(BACKUP_CONFIG.cacheDir, file));
+      }
+    }
+    console.log('Cache cleared successfully');
+  } catch (error) {
+    console.warn('Failed to clear cache:', error.message);
+  }
+}
+
+async function getCacheStats() {
+  try {
+    const files = await fs.readdir(BACKUP_CONFIG.cacheDir);
+    const jsonFiles = files.filter(file => file.endsWith('.json'));
+    
+    let totalSize = 0;
+    let validFiles = 0;
+    let expiredFiles = 0;
+    
+    for (const file of jsonFiles) {
+      const filePath = path.join(BACKUP_CONFIG.cacheDir, file);
+      const stats = await fs.stat(filePath);
+      totalSize += stats.size;
+      
+      try {
+        const content = await fs.readFile(filePath, 'utf8');
+        const data = JSON.parse(content);
+        
+        if (Date.now() - data.timestamp < BACKUP_CONFIG.cacheExpiry) {
+          validFiles++;
+        } else {
+          expiredFiles++;
+        }
+      } catch (error) {
+        // Invalid cache file
+      }
+    }
+    
+    return {
+      totalFiles: jsonFiles.length,
+      validFiles,
+      expiredFiles,
+      totalSize: Math.round(totalSize / 1024) + ' KB'
+    };
+  } catch (error) {
+    return { error: error.message };
   }
 }
 
 module.exports = {
   config: {
     name: "surah",
-    version: "1.0",
-    author: "Asif",
+    version: "2.0",
+    author: "Asif (Enhanced with Backup by Manus)",
     category: "Islamic",
-    shortDescription: "Get Quran verses",
-    longDescription: "Fetch and display Quran verses with translation",
-    guide: "{prefix}surah [chapter] [verse] [count=1]",
+    shortDescription: "Get Quran verses with fallback backup",
+    longDescription: "Fetch and display Quran verses with translation using multiple backup sources and caching",
+    guide: "{prefix}surah [chapter] [verse] [count=1]\n{prefix}surah cache-stats\n{prefix}surah clear-cache",
     countDown: 5
   },
+
+  // Export utility functions for testing and external use
+  fetchQuranText,
+  fetchQuranTextWithBackup,
+  clearCache,
+  getCacheStats,
+  toArabDigits,
 
   onStart: async function ({ api, event, args }) {
     try {
       const { threadID, messageID } = event;
       
-      // Parse arguments
+      // Handle cache management commands
+      if (args[0] === 'cache-stats') {
+        const stats = await getCacheStats();
+        const message = stats.error 
+          ? `❌ Error getting cache stats: ${stats.error}`
+          : `📊 Cache Statistics:\n` +
+            `• Total files: ${stats.totalFiles}\n` +
+            `• Valid files: ${stats.validFiles}\n` +
+            `• Expired files: ${stats.expiredFiles}\n` +
+            `• Total size: ${stats.totalSize}`;
+        return api.sendMessage(message, threadID, messageID);
+      }
+      
+      if (args[0] === 'clear-cache') {
+        await clearCache();
+        return api.sendMessage("🗑️ Cache cleared successfully!", threadID, messageID);
+      }
+      
+      // Parse arguments for verse fetching
       let chapter = parseInt(args[0]);
       let verse = parseInt(args[1]);
       let count = parseInt(args[2]) || 1;
@@ -195,11 +480,20 @@ module.exports = {
         return api.sendMessage(`❌ Invalid count. Maximum ${maxVerse - verse + 1} verses available from verse ${verse}.`, threadID, messageID);
       }
 
-      // Fetch verses
+      // Show loading message for longer requests
+      if (count > 5) {
+        api.sendMessage("🔄 Fetching verses... This may take a moment.", threadID);
+      }
+
+      // Fetch verses with backup system
       const verses = await fetchQuranText(chapter, verse, count);
       
       // Format output
-      let output = `📖 Surah ${QuranData.Sura[chapter][4]} (${chapter}:${verse}-${verse + count - 1})\n\n`;
+      let output = `📖 Surah ${QuranData.Sura[chapter][4]} (${chapter}:${verse}`;
+      if (count > 1) {
+        output += `-${verse + count - 1}`;
+      }
+      output += `)\n\n`;
       
       verses.forEach((v, i) => {
         const currentVerse = verse + i;
@@ -210,13 +504,19 @@ module.exports = {
       // Add audio link
       const leadZero = (num, digits) => num.toString().padStart(digits, '0');
       const audioUrl = `https://www.everyayah.com/data/Abdul_Basit_Mujawwad_128kbps/${leadZero(chapter,3)}${leadZero(verse,3)}.mp3`;
-      output += `🎧 Audio: ${audioUrl}`;
+      output += `🎧 Audio: ${audioUrl}\n`;
+      
+      // Add backup system info if fallback was used
+      if (verses[0].arabic.includes('[Verse') || verses[0].translation.includes('unavailable')) {
+        output += `\n⚠️ Note: Using fallback data due to connectivity issues. Please try again later for complete content.`;
+      }
       
       api.sendMessage(output, threadID, messageID);
       
     } catch (error) {
       console.error("Quran command error:", error);
-      api.sendMessage("❌ Failed to fetch Quran verses. Please try again later.", threadID, messageID);
+      api.sendMessage("❌ An unexpected error occurred. The backup system will help ensure this works better next time.", threadID, messageID);
     }
   }
 };
+
