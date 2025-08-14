@@ -17,8 +17,14 @@ async function getTruth() {
     const response = await axios.get(`${baseUrl}/truth`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching truth:", error);
-    return { error: "Failed to fetch truth. Please try again later." };
+    console.error("Error fetching truth from primary API:", error);
+    try {
+      const backupResponse = await axios.get('https://api.truthordarebot.xyz/v1/truth');
+      return { result: backupResponse.data.question };
+    } catch (backupError) {
+      console.error("Error fetching truth from backup API:", backupError);
+      return { error: "Failed to fetch truth. Please try again later." };
+    }
   }
 }
 
@@ -28,8 +34,14 @@ async function getDare() {
     const response = await axios.get(`${baseUrl}/dare`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching dare:", error);
-    return { error: "Failed to fetch dare. Please try again later." };
+    console.error("Error fetching dare from primary API:", error);
+    try {
+      const backupResponse = await axios.get('https://api.truthordarebot.xyz/v1/dare');
+      return { result: backupResponse.data.question };
+    } catch (backupError) {
+      console.error("Error fetching dare from backup API:", backupError);
+      return { error: "Failed to fetch dare. Please try again later." };
+    }
   }
 }
 
@@ -38,7 +50,7 @@ module.exports = {
     name: "truthdare",
     aliases: ["td"],
     version: "1.1",
-    author: "✨ Eren Yeh ✨",
+    author: "✨𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅✨",
     shortDescription: "Random Truth or Dare",
     longDescription: "Fetch a random truth or dare question from a dynamic API.",
     category: "fun",
@@ -69,3 +81,4 @@ module.exports = {
     }
   }
 };
+
