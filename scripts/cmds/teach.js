@@ -1,120 +1,126 @@
 module.exports.config = {
-    name: "teach",
-    version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝙎𝙞𝙢𝙢𝙞𝙠𝙚 𝙨𝙞𝙠𝙝𝙖𝙣𝙤 𝙠𝙖𝙟 𝙩𝙚𝙖𝙘𝙝 𝙙𝙞𝙮𝙚",
-    commandCategory: "𝙎𝙞𝙢",
-    usages: "",
-    cooldowns: 2,
-    dependencies: {
-        "axios": ""
-    }
+  name: "teach",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Simmike shikhano kaj - prosno o uttor add koro",
+  commandCategory: "𝙎𝙞𝙢",
+  usages: "",
+  cooldowns: 2,
+  dependencies: {
+    "axios": ""
+  },
+  envConfig: {
+    SIM_API_KEY: "" // set your API key here if you have one
+  }
 };
 
-const API_KEY = "";
+module.exports.run = async function({ api, event, args, Users }) {
+  const { threadID, messageID, senderID } = event;
+  return api.sendMessage(
+    "⸙͎ Prosno likhen — simmike shikhano jonno ei message-er reply e prosno pathan.",
+    threadID,
+    (err, info) => {
+      if (err) return console.error(err);
+      // register a handleReply object so next reply is handled by handleReply
+      global.client.handleReply.push({
+        step: 1,
+        name: module.exports.config.name,
+        messageID: info.messageID,
+        content: {
+          id: senderID,
+          ask: "",
+          ans: ""
+        }
+      });
+    },
+    messageID
+  );
+};
 
-module.exports.run = ({ api, event, args }) => {
-    const { threadID, messageID, senderID } = event;
-    return api.sendMessage(
-        "⸙͎ �𝙧𝙤𝙨𝙣𝙤 𝙡𝙞𝙠𝙝𝙤 𝙨𝙞𝙢𝙢𝙞𝙠𝙚 𝙨𝙞𝙠𝙝𝙖𝙣𝙤𝙧 𝙟𝙤𝙣𝙣𝙤 𝙚𝙞 𝙧𝙚𝙥𝙡𝙖𝙮 𝙠𝙤𝙧𝙪𝙣",
-        threadID, 
+module.exports.handleReply = async function({ api, event, Users, handleReply }) {
+  const axios = require("axios");
+  const { threadID, messageID, senderID, body } = event;
+
+  // only accept replies from the original user who invoked the command
+  if (!handleReply || !handleReply.content || handleReply.content.id !== senderID) return;
+
+  const userInput = (body || "").trim();
+
+  // helper: remove old stored handleReply and optionally push new one
+  const replaceHandleReply = (newObj) => {
+    try {
+      const idx = global.client.handleReply.findIndex(i => i.messageID == handleReply.messageID && i.name == handleReply.name);
+      if (idx !== -1) global.client.handleReply.splice(idx, 1);
+      if (newObj) global.client.handleReply.push(newObj);
+      // try to unsend the bot's previous prompt (cleanup)
+      try { api.unsendMessage(handleReply.messageID); } catch(e) {}
+    } catch(e) { console.error(e); }
+  };
+
+  switch (handleReply.step) {
+    case 1:
+      // user has replied with the question (prosno)
+      handleReply.content.ask = userInput;
+      // send next prompt to get the answer
+      api.sendMessage(
+        "⸙͎ Uttor likhen — ekhon ei message-er reply e uttor pathan.",
+        threadID,
         (err, info) => {
-            global.client.handleReply.push({
-                step: 1,
-                name: this.config.name,
-                messageID: info.messageID,
-                content: {
-                    id: senderID,
-                    ask: "",
-                    ans: ""
-                }
-            });
-        }, 
+          if (err) return console.error(err);
+          // remove old and push updated handleReply with step 2
+          replaceHandleReply({
+            step: 2,
+            name: module.exports.config.name,
+            messageID: info.messageID,
+            content: handleReply.content
+          });
+        },
         messageID
-    );
-};
+      );
+      break;
 
-module.exports.handleReply = async({ api, event, Users, handleReply }) => {
-    const axios = require("axios");
-    const moment = require("moment-timezone");
-    const { threadID, messageID, senderID, body } = event;
-    
-    if (handleReply.content.id !== senderID) return;
-    
-    const input = body.trim();
-    const timeZ = moment.tz("Asia/Dhaka").format("HH:mm:ss | DD/MM/YYYY");
-    const by_name = (await Users.getData(senderID)).name;
+    case 2:
+      // user replied with the answer (uttor)
+      handleReply.content.ans = userInput;
 
-    const sendNextStep = (msg, step, content) => {
-        api.sendMessage(msg, threadID, (err, info) => {
-            const index = global.client.handleReply.indexOf(handleReply);
-            if (index > -1) {
-                global.client.handleReply.splice(index, 1);
-            }
-            api.unsendMessage(handleReply.messageID);
-            global.client.handleReply.push({
-                step: step,
-                name: this.config.name,
-                messageID: info.messageID,
-                content: content
-            });
-        }, messageID);
-    };
+      // remove stored handleReply (we will finish now)
+      replaceHandleReply(null);
 
-    switch (handleReply.step) {
-        case 1:
-            handleReply.content.ask = input;
-            sendNextStep(
-                "⸙͎ 𝙐𝙩𝙩𝙤𝙧 𝙡𝙞𝙠𝙝𝙤 𝙚𝙞 𝙧𝙚𝙥𝙡𝙖𝙮 𝙠𝙤𝙧𝙪𝙣", 
-                2, 
-                handleReply.content
-            );
-            break;
+      // prepare timestamp in Asia/Dhaka without external libs
+      const timeZ = new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" });
 
-        case 2:
-            handleReply.content.ans = input;
-            const content = handleReply.content;
-            
-            // Clean up previous messages
-            const index = global.client.handleReply.indexOf(handleReply);
-            if (index > -1) {
-                global.client.handleReply.splice(index, 1);
-            }
-            api.unsendMessage(handleReply.messageID);
-            
-            try {
-                const res = await axios.get(encodeURI(
-                    `https://sim-api-by-priyansh.glitch.me/sim?type=teach&ask=${content.ask}&ans=${content.ans}&apikey=PriyanshVip`
-                ));
-                
-                if (res.data.error) {
-                    return api.sendMessage(
-                        `❌ �𝙧𝙤𝙗𝙡𝙚𝙢: ${res.data.error}`,
-                        threadID,
-                        messageID
-                    );
-                }
-                
-                api.sendMessage(
-                    `✅ 𝙎𝙖𝙛𝙖𝙡𝙡𝙮 𝙨𝙞𝙠𝙝𝙖𝙣𝙤 𝙝𝙤𝙮𝙚𝙘𝙝𝙚\n\n` +
-                    `🤤 𝙋𝙧𝙤𝙨𝙣𝙤: ${content.ask}\n` +
-                    `🤓 �𝙪𝙩𝙩𝙤𝙧: ${content.ans}\n\n` +
-                    `⏱ 𝙎𝙤𝙢𝙤𝙮: ${timeZ}`,
-                    threadID,
-                    messageID
-                );
-            } catch (error) {
-                console.error("❌ 𝙀𝙧𝙧𝙤𝙧:", error);
-                api.sendMessage(
-                    "❌ 𝙆𝙞𝙘𝙝𝙪 𝙚𝙠𝙩𝙖 𝙥𝙧𝙤𝙗𝙡𝙚𝙢 𝙝𝙤𝙮𝙚𝙘𝙝𝙚, 𝙥𝙪𝙣𝙤𝙧𝙖𝙮 𝙘𝙝𝙚𝙨𝙩𝙖 𝙠𝙤𝙧𝙪𝙣",
-                    threadID,
-                    messageID
-                );
-            }
-            break;
-            
-        default:
-            break;
-    }
+      // call external API to save the Q/A (fallback to PriyanshVip if no env key)
+      const apikey = (module.exports.config.envConfig && module.exports.config.envConfig.SIM_API_KEY) ? module.exports.config.envConfig.SIM_API_KEY : "PriyanshVip";
+      const ask = encodeURIComponent(handleReply.content.ask);
+      const ans = encodeURIComponent(handleReply.content.ans);
+      const url = `https://sim-api-by-priyansh.glitch.me/sim?type=teach&ask=${ask}&ans=${ans}&apikey=${apikey}`;
+
+      try {
+        const res = await axios.get(url);
+        if (res.data && res.data.error) {
+          return api.sendMessage(`❌ Problem: ${res.data.error}`, threadID, messageID);
+        }
+
+        // success message (Banglish)
+        return api.sendMessage(
+          `✅ Safollo — simmike sikkhano hoye geche.\n\n` +
+          `🤤 Prosno: ${handleReply.content.ask}\n` +
+          `🤓 Uttor: ${handleReply.content.ans}\n\n` +
+          `⏱ Somoy: ${timeZ}`,
+          threadID,
+          messageID
+        );
+      } catch (error) {
+        console.error("Error while saving teach:", error);
+        return api.sendMessage(
+          "❌ Kichu ekta problem hoyeche, poroborti te abar chesta korun.",
+          threadID,
+          messageID
+        );
+      }
+
+    default:
+      break;
+  }
 };
