@@ -2,7 +2,7 @@ module.exports.config = {
   name: "spamkick",
   version: "2.0.0",
   role: 0,
-  author: "Asif Mahmud",
+  author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   usePrefix: true,
   description: {
     en: "Auto-kick spammer from group"
@@ -29,7 +29,7 @@ module.exports.onChat = async ({ api, event, usersData, commandName }) => {
     user.count = 1;
     user.time = Date.now();
   } else if (user.count > SPAM_LIMIT) {
-    if (global.GoatBot.config.adminBot.includes(senderID)) return;
+    if (global.GoatBot.config.adminBot?.includes(senderID)) return;
 
     api.removeUserFromGroup(senderID, threadID, async (err) => {
       if (!err) {
@@ -38,6 +38,7 @@ module.exports.onChat = async ({ api, event, usersData, commandName }) => {
           body: `${userName} ke spam korar jonne group theke remove kora holo.\nReact ei message e dile abar add korbo.`,
         }, threadID, (err, info) => {
           if (!err) {
+            if (!global.GoatBot.onReaction) global.GoatBot.onReaction = new Map();
             global.GoatBot.onReaction.set(info.messageID, {
               commandName,
               uid: senderID,
@@ -47,6 +48,7 @@ module.exports.onChat = async ({ api, event, usersData, commandName }) => {
         });
       }
     });
+
     user.count = 1;
     user.time = Date.now();
   }
