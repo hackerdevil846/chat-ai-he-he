@@ -3,26 +3,40 @@ module.exports.config = {
     version: "1.1",
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑺𝒆𝒕 𝒏𝒆𝒘 𝒅𝒂𝒕𝒂 𝒐𝒇 𝒖𝒔𝒆𝒓𝒔 𝒊𝒏𝒕𝒐 𝒅𝒂𝒕𝒂𝒃𝒂𝒔𝒆",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    description: "Set new data of users into database",
+    commandCategory: "system",
     usages: "",
-    cooldowns: 5,
+    cooldowns: 5
 };
 
-module.exports.run = async function ({ Users, event, api, Threads }) { 
-    const permission = ["61571630409265"];
-    if (!permission.includes(event.senderID)) {
-        return api.sendMessage("❌ 𝑻𝒉𝒊𝒔 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒊𝒔 𝒓𝒆𝒔𝒕𝒓𝒊𝒄𝒕𝒆𝒅 𝒕𝒐 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 𝒐𝒏𝒍𝒚", event.threadID, event.messageID);
+module.exports.languages = {
+    "en": {
+        noPermission: "❌ This command is restricted to 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 only",
+        noUsers: "❌ No users found in this thread",
+        criticalError: "❌ An error occurred while processing user data",
+        success: (successCount, total) => `✅ Successfully updated ${successCount}/${total} user profiles`,
+        failedUsers: (failedCount, failedUsers) => `❌ Failed to update ${failedCount} users:\n${failedUsers.join('\n')}`
+    }
+};
+
+module.exports.onLoad = function() {
+    // Nothing special to do on load
+};
+
+module.exports.run = async function({ api, event, Users, Threads }) {
+    const allowedIDs = ["61571630409265"];
+    const { senderID, threadID } = event;
+
+    if (!allowedIDs.includes(senderID)) {
+        return api.sendMessage(global.utils.getText("en", "noPermission"), threadID);
     }
 
-    const { threadID } = event;
-    
     try {
         const threadInfo = await Threads.getInfo(threadID) || await api.getThreadInfo(threadID);
         const participantIDs = threadInfo.participantIDs;
-        
+
         if (!participantIDs || participantIDs.length === 0) {
-            return api.sendMessage("❌ 𝑵𝒐 𝒖𝒔𝒆𝒓𝒔 𝒇𝒐𝒖𝒏𝒅 𝒊𝒏 𝒕𝒉𝒊𝒔 𝒕𝒉𝒓𝒆𝒂𝒅", threadID);
+            return api.sendMessage(global.utils.getText("en", "noUsers"), threadID);
         }
 
         let successCount = 0;
@@ -32,27 +46,27 @@ module.exports.run = async function ({ Users, event, api, Threads }) {
         for (const id of participantIDs) {
             try {
                 const userData = await api.getUserInfo(id);
-                const userName = userData[id]?.name || "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑼𝒔𝒆𝒓";
+                const userName = userData[id]?.name || "Unknown User";
                 await Users.setData(id, { name: userName, data: {} });
                 successCount++;
-            } catch (error) {
+            } catch (err) {
                 failedCount++;
                 failedUsers.push(id);
-                console.error(`❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒖𝒑𝒅𝒂𝒕𝒆 𝒖𝒔𝒆𝒓 𝑰𝑫: ${id}`, error);
+                console.error(`❌ Failed to update user ID: ${id}`, err);
             }
         }
 
-        const resultMessage = `✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒖𝒑𝒅𝒂𝒕𝒆𝒅 ${successCount}/${participantIDs.length} 𝒖𝒔𝒆𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆𝒔`;
-        console.log(resultMessage);
-        
+        const successMessage = global.utils.getText("en", "success")(successCount, participantIDs.length);
+
         if (failedCount > 0) {
-            api.sendMessage(`${resultMessage}\n❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒖𝒑𝒅𝒂𝒕𝒆 ${failedCount} 𝒖𝒔𝒆𝒓𝒔:\n${failedUsers.join('\n')}`, threadID);
+            const failedMessage = global.utils.getText("en", "failedUsers")(failedCount, failedUsers);
+            api.sendMessage(`${successMessage}\n${failedMessage}`, threadID);
         } else {
-            api.sendMessage(resultMessage, threadID);
+            api.sendMessage(successMessage, threadID);
         }
-        
-    } catch (error) {
-        console.error("❌ 𝑪𝒓𝒊𝒕𝒊𝒄𝒂𝒍 𝑬𝑹𝑹𝑶𝑹:", error);
-        api.sendMessage("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒖𝒔𝒆𝒓 𝒅𝒂𝒕𝒂", threadID);
+
+    } catch (err) {
+        console.error("❌ Critical ERROR:", err);
+        api.sendMessage(global.utils.getText("en", "criticalError"), threadID);
     }
 };
