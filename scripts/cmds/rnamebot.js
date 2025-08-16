@@ -3,37 +3,67 @@ module.exports.config = {
 	version: "1.0.1",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝒃𝒐𝒕 𝒆𝒓 𝒏𝒂𝒎 𝒔𝒐𝒃 𝒈𝒓𝒖𝒑 𝒆 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒐𝒏 𝒌𝒐𝒓𝒐!",
-	commandCategory: "𝒔𝒊𝒔𝒕𝒆𝒎",
-	usages: "[𝒏𝒂𝒎]",
+	description: "📛 | Change bot's nickname in all groups",
+	commandCategory: "⚙️ System",
+	usages: "[name]",
 	cooldowns: 20,
+	dependencies: {}
 };
 
 module.exports.run = async ({ event, api, args, Threads }) => {
-    const custom = args.join(" "),
-            allThread = await Threads.getAll(["threadID"]),
-            idBot = api.getCurrentUserID();
-    var threadError = [],
-        count = 0;
-    if (custom.length != 0) {
-        for (const idThread of allThread) {
-            api.changeNickname(custom, idThread.threadID, idBot, (err) => (err) ? threadError.push(idThread.threadID) : '');
-            count+=1;
-            await new Promise(resolve => setTimeout(resolve, 500));
+    const customName = args.join(" ");
+    const allThread = await Threads.getAll(["threadID"]);
+    const botID = api.getCurrentUserID();
+    
+    let threadError = [];
+    let count = 0;
+    
+    try {
+        if (customName) {
+            // Custom name mode
+            for (const thread of allThread) {
+                try {
+                    await api.changeNickname(customName, thread.threadID, botID);
+                    count++;
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                } catch (err) {
+                    threadError.push(thread.threadID);
+                }
+            }
+            
+            let msg = `✅ | Successfully changed bot name in ${count} groups!`;
+            if (threadError.length) {
+                msg += `\n⚠️ | Failed in ${threadError.length} groups`;
+            }
+            return api.sendMessage(msg, event.threadID);
+        } else {
+            // Reset to default mode
+            for (const thread of allThread) {
+                try {
+                    const threadSetting = global.client.threadData.get(thread.threadID) || {};
+                    const prefix = threadSetting.PREFIX || global.config.PREFIX;
+                    const botName = global.config.BOTNAME || "Goat Bot";
+                    
+                    await api.changeNickname(
+                        `[ ${prefix} ] • ${botName}`,
+                        thread.threadID,
+                        botID
+                    );
+                    count++;
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                } catch (err) {
+                    threadError.push(thread.threadID);
+                }
+            }
+            
+            let msg = `🔄 | Successfully reset bot name in ${count} groups!`;
+            if (threadError.length) {
+                msg += `\n⚠️ | Failed in ${threadError.length} groups`;
+            }
+            return api.sendMessage(msg, event.threadID);
         }
-        return api.sendMessage(`𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 ${count} 𝒕𝒊 𝒈𝒓𝒖𝒑 𝒆 𝒃𝒐𝒕 𝒆𝒓 𝒏𝒂𝒎 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒐𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐!`, event.threadID, () => {
-            if (threadError.length != 0) return api.sendMessage(`[!] 𝒔𝒐𝒎𝒐𝒌𝒌𝒉𝒆 ${threadError.length} 𝒕𝒊 𝒈𝒓𝒖𝒑 𝒆 𝒏𝒂𝒎 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒐𝒏 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂!`, event.threadID, event.messageID)
-        }, event.messageID);
+    } catch (error) {
+        console.error(error);
+        return api.sendMessage("❌ | An error occurred while processing your request", event.threadID);
     }
-    else {
-        for (const idThread of allThread) {
-            const threadSetting = global.client.threadData.get(idThread.threadID) || {};
-            api.changeNickname(`[ ${(threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "MrTomXxX" : global.config.BOTNAME}`, idThread.threadID, idBot, (err) => (err) ? threadError.push(idThread.threadID) : '');
-            count+=1;
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-        return api.sendMessage(`𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 ${count} 𝒕𝒊 𝒈𝒓𝒖𝒑 𝒆 𝒃𝒐𝒕 𝒆𝒓 𝒏𝒂𝒎 𝒑𝒖𝒓𝒐𝒏𝒐 𝒏𝒂𝒎 𝒆 𝒓𝒂𝒌𝒉𝒂 𝒉𝒐𝒍𝒐!`, event.threadID, () => {
-            if (threadError.length != 0) return api.sendMessage(`[!] 𝒔𝒐𝒎𝒐𝒌𝒌𝒉𝒆 ${threadError.length} 𝒕𝒊 𝒈𝒓𝒖𝒑 𝒆 𝒏𝒂𝒎 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒐𝒏 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂!`, event.threadID, event.messageID)
-        }, event.messageID);
-    }
-}
+};
