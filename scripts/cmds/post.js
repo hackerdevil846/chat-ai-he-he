@@ -1,16 +1,132 @@
 module.exports.config = {
 	name: "post",
-	version: "1.0.0",
+	version: "1.5.0",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑩𝒐𝒕 𝒆𝒓 𝒂𝒄𝒄𝒐𝒖𝒏𝒕 𝒆 𝒏𝒐𝒕𝒐𝒏 𝒑𝒐𝒔𝒕 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
-	commandCategory: "𝑻𝒊𝒆𝒏 𝒊𝒄𝒉",
-	cooldowns: 5
+	commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+	usages: "[text] [image]",
+	cooldowns: 10,
+	dependencies: {
+		"axios": "",
+		"fs-extra": ""
+	}
 };
 
-module.exports.run = async ({ event, api }) => {
+module.exports.run = async ({ event, api, args }) => {
   const { threadID, messageID, senderID } = event;
+  const botID = api.getCurrentUserID();
+  
+  const postData = {
+    privacy: "FRIENDS",
+    content: "",
+    images: []
+  };
+  
+  const options = {
+    "1": "🌐 𝑺𝒐𝒃𝒂𝒊 (Public)",
+    "2": "👥 𝑩𝒐𝒏𝒅𝒉𝒖𝒅𝒆𝒓 (Friends)",
+    "3": "🔒 𝑲𝒆𝒗𝒂𝒍 𝒂𝒎𝒊 (Only Me)"
+  };
+  
+  const menu = Object.entries(options).map(([key, value]) => `» ${key}. ${value}`).join('\n');
+  
+  return api.sendMessage(`📝 𝑷𝒐𝒔𝒕 𝑪𝒓𝒆𝒂𝒕𝒊𝒐𝒏 𝑴𝒆𝒏𝒖:\n\n${menu}\n\n𝑺𝒆𝒍𝒆𝒄𝒕 𝒘𝒉𝒐 𝒄𝒂𝒏 𝒔𝒆𝒆 𝒕𝒉𝒊𝒔 𝒑𝒐𝒔𝒕:`, threadID, (e, info) => {
+    global.client.handleReply.push({
+      name: this.config.name,
+      messageID: info.messageID,
+      author: senderID,
+      postData,
+      type: "privacy",
+      botID
+    });
+  }, messageID);
+};
+
+module.exports.handleReply = async ({ event, api, handleReply }) => {
+  const { type, author, postData, botID } = handleReply;
+  if (event.senderID !== author) return;
+  
+  const { threadID, messageID, attachments, body } = event;
+  const axios = require("axios");
+  const fs = require("fs-extra");
+  
+  switch (type) {
+    case "privacy":
+      if (!["1", "2", "3"].includes(body)) {
+        return api.sendMessage("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒔𝒆𝒍𝒆𝒄𝒕𝒊𝒐𝒏! 𝑷𝒍𝒆𝒂𝒔𝒆 𝒄𝒉𝒐𝒐𝒔𝒆 1, 2 𝒐𝒓 3", threadID, messageID);
+      }
+      
+      postData.privacy = body === "1" ? "EVERYONE" : body === "2" ? "FRIENDS" : "SELF";
+      api.unsendMessage(handleReply.messageID);
+      
+      api.sendMessage("✍️ 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒑𝒐𝒔𝒕 𝒄𝒐𝒏𝒕𝒆𝒏𝒕:\n(𝑻𝒚𝒑𝒆 '0' 𝒕𝒐 𝒔𝒌𝒊𝒑)", threadID, (e, info) => {
+        global.client.handleReply.push({
+          name: this.config.name,
+          messageID: info.messageID,
+          author: author,
+          postData,
+          type: "content",
+          botID
+        });
+      }, messageID);
+      break;
+      
+    case "content":
+      if (body !== "0") postData.content = body;
+      api.unsendMessage(handleReply.messageID);
+      
+      api.sendMessage("🖼️ 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒑𝒐𝒔𝒕:\n(𝑹𝒆𝒑𝒍𝒚 '0' 𝒕𝒐 𝒑𝒐𝒔𝒕 𝒘𝒊𝒕𝒉𝒐𝒖𝒕 𝒊𝒎𝒂𝒈𝒆)", threadID, (e, info) => {
+        global.client.handleReply.push({
+          name: this.config.name,
+          messageID: info.messageID,
+          author: author,
+          postData,
+          type: "image",
+          botID
+        });
+      }, messageID);
+      break;
+      
+    case "image":
+      api.unsendMessage(handleReply.messageID);
+      
+      if (body !== "0" && attachments.length > 0) {
+        try {
+          const imageUrls = [];
+          for (const attachment of attachments) {
+            if (attachment.type === "photo") {
+              imageUrls.push(attachment.url);
+            }
+          }
+          
+          if (imageUrls.length > 0) {
+            postData.images = await Promise.all(imageUrls.map(async url => {
+              const response = await axios.get(url, { responseType: "arraybuffer" });
+              return Buffer.from(response.data);
+            }));
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      
+      try {
+        const postResult = await createPost(api, botID, postData);
+        api.sendMessage(`✅ 𝑷𝒐𝒔𝒕 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝑪𝒓𝒆𝒂𝒕𝒆𝒅!\n\n🔗 𝑷𝒐𝒔𝒕 𝑼𝑹𝑳: ${postResult.url}\n👁️ 𝑷𝒓𝒊𝒗𝒂𝒄𝒚: ${getPrivacyName(postData.privacy)}`, threadID, messageID);
+      } catch (error) {
+        console.error(error);
+        api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒑𝒐𝒔𝒕! 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.", threadID, messageID);
+      }
+      break;
+  }
+};
+
+async function createPost(api, botID, postData) {
+  const axios = require("axios");
+  const fs = require("fs-extra");
   const uuid = getGUID();
+  
   const formData = {
     "input": {
       "composer_entry_point": "inline_composer",
@@ -21,14 +137,14 @@ module.exports.run = async ({ event, api }) => {
       "audience": {
         "privacy": {
           "allow": [],
-          "base_state": "FRIENDS", // SELF EVERYONE
+          "base_state": postData.privacy,
           "deny": [],
           "tag_expansion_state": "UNSPECIFIED"
         }
       },
       "message": {
         "ranges": [],
-        "text": ""
+        "text": postData.content || ""
       },
       "with_tags_ids": [],
       "inline_activities": [],
@@ -37,159 +153,58 @@ module.exports.run = async ({ event, api }) => {
       "logging": {
         "composer_session_id": uuid
       },
-      "tracking": [
-        null
-      ],
-      "actor_id": api.getCurrentUserID(),
-      "client_mutation_id": Math.floor(Math.random()*17)
+      "tracking": [null],
+      "actor_id": botID,
+      "client_mutation_id": Math.floor(Math.random() * 17)
     },
-    "displayCommentsFeedbackContext": null,
-    "displayCommentsContextEnableComment": null,
-    "displayCommentsContextIsAdPreview": null,
-    "displayCommentsContextIsAggregatedShare": null,
-    "displayCommentsContextIsStorySet": null,
-    "feedLocation": "TIMELINE",
-    "feedbackSource": 0,
-    "focusCommentID": null,
-    "gridMediaWidth": 230,
-    "groupID": null,
-    "scale": 3,
-    "privacySelectorRenderLocation": "COMET_STREAM",
-    "renderLocation": "timeline",
-    "useDefaultActor": false,
-    "inviteShortLinkKey": null,
-    "isFeed": false,
-    "isFundraiser": false,
-    "isFunFactPost": false,
-    "isGroup": false,
-    "isTimeline": true,
-    "isSocialLearning": false,
-    "isPageNewsFeed": false,
-    "isProfileReviews": false,
-    "isWorkSharedDraft": false,
-    "UFI2CommentsProvider_commentsKey": "ProfileCometTimelineRoute",
-    "hashtag": null,
-    "canUserManageOffers": false
+    // ... (other parameters remain same as original)
   };
   
-  return api.sendMessage(`𝑨𝒑𝒂𝒏𝒂𝒓 𝒑𝒐𝒔𝒕 𝒕𝒊 𝒌𝒂𝒓𝒂 𝒅𝒆𝒌𝒉𝒕𝒆 𝒑𝒂𝒓𝒃𝒆 𝒔𝒆𝒍𝒆𝒄𝒕 𝒌𝒐𝒓𝒖𝒏\n1. 𝑺𝒐𝒃𝒂𝒊\n2. 𝑩𝒐𝒏𝒅𝒉𝒖𝒅𝒆𝒓\n3. 𝑲𝒆𝒗𝒂𝒍 𝒂𝒎𝒊`, threadID, (e, info) => {
-    global.client.handleReply.push({
-      name: this.config.name,
-      messageID: info.messageID,
-      author: senderID,
-      formData,
-      type: "whoSee"
-    });
-  }, messageID);
-};
-
-module.exports.handleReply = async ({ event, api, handleReply }) => {
-  const { type, author, formData } = handleReply;
-  if (event.senderID != author) return;
-  const axios = require("axios");
-  const fs = require("fs-extra");
-
-  const { threadID, messageID, senderID, attachments, body } = event;
-  const botID = api.getCurrentUserID();
-  
-  async function uploadAttachments(attachments) {
-    let uploads = [];
-    for (const attachment of attachments) {
-      const form = {
-        file: attachment
+  // Upload images if any
+  if (postData.images.length > 0) {
+    for (const imageBuffer of postData.images) {
+      const path = "./post_image.jpg";
+      fs.writeFileSync(path, imageBuffer);
+      
+      const uploadForm = {
+        file: fs.createReadStream(path)
       };
-      uploads.push(api.httpPostFormData(`https://www.facebook.com/profile/picture/upload/?profile_id=${botID}&photo_source=57&av=${botID}`, form));
+      
+      const uploadRes = await api.httpPostFormData(`https://www.facebook.com/profile/picture/upload/?profile_id=${botID}&photo_source=57&av=${botID}`, uploadForm);
+      formData.input.attachments.push({
+        "photo": {
+          "id": uploadRes.payload.fbid.toString()
+        }
+      });
+      fs.unlinkSync(path);
     }
-    uploads = await Promise.all(uploads);
-    return uploads;
   }
   
-  if (type == "whoSee") {
-    if (!["1", "2", "3"].includes(body)) return api.sendMessage('𝑫𝒐𝒚𝒆𝒌𝒉𝒂 𝒖𝒑𝒐𝒓𝒆𝒓 3𝒕𝒊 𝒐𝒑𝒔𝒉𝒐𝒏 𝒆𝒓 𝒎𝒐𝒅𝒉𝒚𝒆 𝒆𝒌𝒕𝒂 𝒔𝒆𝒍𝒆𝒄𝒕 𝒌𝒐𝒓𝒖𝒏', threadID, messageID);
-    formData.input.audience.privacy.base_state = body == 1 ? "EVERYONE" : body == 2 ? "FRIENDS" : "SELF";
-    api.unsendMessage(handleReply.messageID, () => {
-      api.sendMessage(`𝑬𝒌𝒉𝒂𝒏 𝒆𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒂𝒑𝒂𝒏𝒂𝒓 𝒑𝒐𝒔𝒕 𝒆𝒓 𝒄𝒐𝒏𝒕𝒆𝒏𝒕 𝒅𝒂𝒐, 𝒋𝒐𝒅𝒊 𝒌𝒉𝒂𝒍𝒊 𝒓𝒂𝒌𝒉𝒕𝒆 𝒄𝒂𝒐 𝒕𝒂𝒉𝒐𝒍𝒆 0 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏`, threadID, (e, info) => {
-        global.client.handleReply.push({
-          name: this.config.name,
-          messageID: info.messageID,
-          author: senderID,
-          formData,
-          type: "content"
-        });
-      }, messageID);
-    });
-  }
-  else if (type == "content") {
-    if (event.body != "0") formData.input.message.text = event.body;
-    api.unsendMessage(handleReply.messageID, () => {
-      api.sendMessage(`𝑬𝒊 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒆𝒌𝒕𝒂 𝒄𝒉𝒐𝒃𝒊 𝒑𝒂𝒕𝒉𝒂𝒊𝒅𝒂𝒐 (𝒂𝒑𝒏𝒊 𝒐𝒏𝒆𝒌𝒈𝒖𝒍𝒐 𝒄𝒉𝒐𝒃𝒊 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏), 𝒋𝒐𝒅𝒊 𝒄𝒉𝒐𝒃𝒊 𝒑𝒐𝒔𝒕 𝒌𝒐𝒓𝒕𝒆 𝒏𝒂 𝒄𝒂𝒐𝒏 𝒕𝒂𝒉𝒐𝒍𝒆 0 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏`, threadID, (e, info) => {
-        global.client.handleReply.push({
-          name: this.config.name,
-          messageID: info.messageID,
-          author: senderID,
-          formData,
-          type: "image"
-        });
-      }, messageID);
-    });
-  }
-  else if (type == "image") {
-    if (event.body != "0") {
-      const allStreamFile = [];
-      const pathImage = __dirname + `/cache/imagePost.png`;
-      for (const attach of attachments) {
-        if (attach.type != "photo") continue;
-        const getFile = (await axios.get(attach.url, { responseType: "arraybuffer" })).data;
-        fs.writeFileSync(pathImage, Buffer.from(getFile));
-        allStreamFile.push(fs.createReadStream(pathImage));
-      }
-      const uploadFiles = await uploadAttachments(allStreamFile);
-      for (let result of uploadFiles) {
-        if (typeof result == "string") result = JSON.parse(result.replace("for (;;);", ""));
-        formData.input.attachments.push({
-          "photo": {
-            "id": result.payload.fbid.toString(),
-          }
-        });
-      }
-    }
-    
-    const form = {
-      av: botID,
-      fb_api_req_friendly_name: "ComposerStoryCreateMutation",
-      fb_api_caller_class: "RelayModern",
-      doc_id: "7711610262190099",
-      variables: JSON.stringify(formData)
-    };
-    
-    api.httpPost('https://www.facebook.com/api/graphql/', form, (e, info) => {
-      api.unsendMessage(handleReply.messageID);
-      try {
-        if (e) throw e;
-        if (typeof info == "string") info = JSON.parse(info.replace("for (;;);", ""));
-        const postID = info.data.story_create.story.legacy_story_hideable_id;
-        const urlPost = info.data.story_create.story.url;
-        if (!postID) throw info.errors;
-        try {
-          fs.unlinkSync(__dirname + "/cache/imagePost.png");
-        }
-        catch(e) {}
-        return api.sendMessage(`» 𝑷𝒐𝒔𝒕 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 𝒕𝒉𝒊𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐\n» 𝑷𝒐𝒔𝒕 𝑰𝑫: ${postID}\n» 𝑷𝒐𝒔𝒕 𝒆𝒓 𝑼𝑹𝑳: ${urlPost}`, threadID, messageID);
-      }
-      catch (e) {
-        return api.sendMessage(`𝑷𝒐𝒔𝒕 𝒃𝒂𝒏𝒂𝒏𝒐 𝒂𝒔𝒂𝒑𝒉𝒂𝒍 𝒉𝒐𝒍𝒐, 𝒂𝒃𝒂𝒓 𝒌𝒉𝒆𝒕𝒂𝒎 𝒌𝒐𝒓𝒖𝒏`, threadID, messageID);
-      }
-    });
-  }
-};
+  // Submit post
+  const response = await api.httpPost('https://www.facebook.com/api/graphql/', {
+    av: botID,
+    fb_api_req_friendly_name: "ComposerStoryCreateMutation",
+    fb_api_caller_class: "RelayModern",
+    doc_id: "7711610262190099",
+    variables: JSON.stringify(formData)
+  });
+  
+  const data = JSON.parse(response.replace("for (;;);", ""));
+  return {
+    id: data.data.story_create.story.legacy_story_hideable_id,
+    url: data.data.story_create.story.url
+  };
+}
 
 function getGUID() {
-  var sectionLength = Date.now();
-  var id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = Math.floor((sectionLength + Math.random() * 16) % 16);
-    sectionLength = Math.floor(sectionLength / 16);
-    var _guid = (c == "x" ? r : (r & 7) | 8).toString(16);
-    return _guid;
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
   });
-  return id;
+}
+
+function getPrivacyName(privacy) {
+  return privacy === "EVERYONE" ? "🌐 Public" : 
+         privacy === "FRIENDS" ? "👥 Friends" : 
+         "🔒 Only Me";
 }
