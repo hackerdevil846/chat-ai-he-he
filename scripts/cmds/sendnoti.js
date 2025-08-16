@@ -3,74 +3,106 @@ module.exports.config = {
 	version: "1.0.2",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑨𝒅𝒎𝒊𝒏 𝒕𝒉𝒆𝒌𝒆 𝒏𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 𝒑𝒂𝒕𝒉𝒂𝒏𝒐",
-	commandCategory: "𝑨𝒅𝒎𝒊𝒏",
+	description: "✨ 𝑨𝒅𝒎𝒊𝒏-𝒐𝒏𝒍𝒚 𝒈𝒍𝒐𝒃𝒂𝒍 𝒏𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 𝒔𝒚𝒔𝒕𝒆𝒎",
+	commandCategory: "⚙️ 𝑨𝒅𝒎𝒊𝒏",
 	usages: "[𝑻𝒆𝒙𝒕]",
-	cooldowns: 5
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"moment-timezone": ""
+	}
 };
- 
+
 module.exports.languages = {
 	"vi": {
-		"sendSuccess": "ÄÃ£ gá»­i thÃ¡nh chá»‰ tá»›i %1 nhÃ³m",
-		"sendFail": "KhÃ´ng thá»ƒ gá»­i thÃ¡nh chá»‰ tá»›i %1 nhÃ³m"
+		"sendSuccess": "✅ Đã gửi thông báo đến %1 nhóm!",
+		"sendFail": "❌ Gửi thất bại đến %1 nhóm"
 	},
 	"en": {
-		"sendSuccess": "𝑴𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒂 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒐 %1 𝒕𝒂 𝒕𝒉𝒓𝒆𝒂𝒅 𝒆!",
-		"sendFail": "[!] %1 𝒕𝒂 𝒕𝒉𝒓𝒆𝒂𝒅 𝒆 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"
+		"sendSuccess": "✅ | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆 𝒔𝒆𝒏𝒕 𝒕𝒐 %1 𝒕𝒉𝒓𝒆𝒂𝒅𝒔!",
+		"sendFail": "❌ | 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒔𝒆𝒏𝒅 𝒊𝒏 %1 𝒕𝒉𝒓𝒆𝒂𝒅𝒔"
 	}
-}
- 
+};
+
 module.exports.run = async ({ api, event, args, getText, Users }) => {
-  const name = await Users.getNameUser(event.senderID)
-const moment = require("moment-timezone");
-      var gio = moment.tz("Asia/Kolkata").format("DD/MM/YYYY || HH:mm:s");  
-if (event.type == "message_reply") {
-const request = global.nodemodule["request"];
-const fs = require('fs')
-const axios = require('axios')
-			var getURL = await request.get(event.messageReply.attachments[0].url);
- 
-					var pathname = getURL.uri.pathname;
-var ext = pathname.substring(pathname.lastIndexOf(".") + 1);
- 
-					var path = __dirname + `/cache/snoti`+`.${ext}`;
- 
- 
-var abc = event.messageReply.attachments[0].url;
-    let getdata = (await axios.get(`${abc}`, { responseType: 'arraybuffer' })).data;
- 
-  fs.writeFileSync(path, Buffer.from(getdata, 'utf-8'));
- 
- 
-	var allThread = global.data.allThreadID || [];
-	var count = 1,
-		cantSend = [];
-	for (const idThread of allThread) {
-		if (isNaN(parseInt(idThread)) || idThread == event.threadID) ""
-		else {
-			api.sendMessage({body: `` + args.join(` `) + `\n\n𝑨𝒅𝒎𝒊𝒏 𝒕𝒉𝒆𝒌𝒆: ${name}`,attachment: fs.createReadStream(path) }, idThread, (error, info) => {
-				if (error) cantSend.push(idThread);
+	const { threadID, messageReply, type } = event;
+	const fs = require("fs");
+	const axios = require("axios");
+	const url = require("url");
+	const moment = require("moment-timezone");
+	
+	try {
+		const name = await Users.getNameUser(event.senderID);
+		const time = moment.tz("Asia/Kolkata").format("📅 DD/MM/YYYY ⏰ HH:mm:s");
+		
+		// Handle message reply with attachment
+		if (type === "message_reply" && messageReply.attachments?.length > 0) {
+			const attachment = messageReply.attachments[0];
+			const parsedUrl = url.parse(attachment.url);
+			const ext = parsedUrl.pathname.split('.').pop();
+			const filePath = __dirname + `/cache/sendnoti.${ext}`;
+			
+			const response = await axios.get(attachment.url, { 
+				responseType: 'arraybuffer' 
 			});
-			count++;
+			fs.writeFileSync(filePath, Buffer.from(response.data, 'binary'));
+			
+			await sendGlobalMessage({
+				api,
+				event,
+				message: args.join(" "),
+				name,
+				time,
+				attachment: fs.createReadStream(filePath)
+			});
+			
+			fs.unlinkSync(filePath);
+			return;
+		}
+		
+		// Handle text-only message
+		await sendGlobalMessage({
+			api,
+			event,
+			message: args.join(" "),
+			name,
+			time
+		});
+		
+	} catch (error) {
+		console.error("❌ | 𝑬𝒓𝒓𝒐𝒓:", error);
+		api.sendMessage("⚠️ | 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒔𝒆𝒏𝒅𝒊𝒏𝒈 𝒏𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏𝒔", threadID);
+	}
+};
+
+async function sendGlobalMessage({ api, event, message, name, time, attachment = null }) {
+	const allThreads = global.data.allThreadID || [];
+	const failedThreads = [];
+	let successCount = 0;
+	
+	for (const thread of allThreads) {
+		if (isNaN(thread) || thread == event.threadID) continue;
+		
+		try {
+			const msgBody = `📢 𝗡𝗼𝘁𝗶𝗰𝗲 𝗳𝗿𝗼𝗺 𝗮𝗱𝗺𝗶𝗻 📢\n━━━━━━━━━━━━━━━━━━\n${message || ""}\n\n👤 𝗔𝗱𝗺𝗶𝗻: ${name}\n${time}`;
+			
+			await api.sendMessage(
+				attachment ? 
+				{ body: msgBody, attachment } : 
+				msgBody,
+				thread
+			);
+			
+			successCount++;
 			await new Promise(resolve => setTimeout(resolve, 500));
+		} catch (error) {
+			failedThreads.push(thread);
 		}
 	}
-	return api.sendMessage(getText("sendSuccess", count), event.threadID, () => (cantSend.length > 0 ) ? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID) : "", event.messageID);
- 
-}
-else {
-	var allThread = global.data.allThreadID || [];
-	var count = 1,
-		cantSend = [];
-	for (const idThread of allThread) {
-		if (isNaN(parseInt(idThread)) || idThread == event.threadID) ""
-		else {
-			api.sendMessage(`` + args.join(` `) + `\n\n𝑨𝒅𝒎𝒊𝒏 𝒕𝒉𝒆𝒌𝒆: ${name}`, idThread, (error, info) => {
-				if (error) cantSend.push(idThread);
-			});
-			count++;
-			await new Promise(resolve => setTimeout(resolve, 500));
-		}
-	}
-	return api.sendMessage(getText("sendSuccess", count), event.threadID, () => (cantSend.length > 0 ) ? api.sendMessage(getText("sendFail", cantSend.length), event.threadID, event.messageID) : "", event.messageID); }
+	
+	const resultMessage = `✅ | 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝘀𝗲𝗻𝘁 𝘁𝗼:\n${successCount} 𝗴𝗿𝗼𝘂𝗽𝘀`;
+	const failMessage = failedThreads.length > 0 ? 
+		`\n❌ | 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗴𝗿𝗼𝘂𝗽𝘀:\n${failedThreads.length}` : "";
+	
+	api.sendMessage(resultMessage + failMessage, event.threadID, event.messageID);
 }
