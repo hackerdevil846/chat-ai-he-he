@@ -5,7 +5,7 @@ module.exports.config = {
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑷𝒖𝒕𝒉𝒖𝒍 𝒌𝒉𝒂𝒍𝒆𝒓 𝒎𝒐𝒏𝒅𝒐𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒍𝒆𝒌𝒉𝒂",
     commandCategory: "monoronjon",
-    usages: "[text | text]",
+    usages: "[text1 | text2]",
     cooldowns: 0,
     dependencies: {
         "fs-extra": "",
@@ -13,25 +13,39 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async ({ api, event, args }) => {  
+module.exports.run = async function({ api, event, args }) {
     const fs = global.nodemodule["fs-extra"];
     const request = global.nodemodule["request"];
-    const { threadID, messageID, senderID } = event;
+    const { threadID, messageID } = event;
     
-    let text = args.join(" ");
-    if (!text.includes(" | ")) {
-        return api.sendMessage(`𝑩𝒂𝒃𝒖𝒋𝒂𝒏, 𝒕𝒐𝒎𝒂𝒌𝒆 𝒅𝒖𝒊𝒕𝒊 𝒕𝒆𝒙𝒕 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆 "𝒕𝒆𝒙𝒕𝟏 | 𝒕𝒆𝒙𝒕𝟐" 𝒆𝒊𝒗𝒂𝒃𝒆 𝒍𝒊𝒌𝒉𝒐\n𝑬𝒋𝒆𝒎𝒐𝒏: pooh 𝑨𝒔𝒊𝒇 | 𝑴𝒂𝒉𝒎𝒖𝒅`, event.threadID, event.messageID);
+    const inputText = args.join(" ");
+    
+    if (!inputText.includes(" | ")) {
+        return api.sendMessage(`🌸 𝑩𝒂𝒃𝒖𝒋𝒂𝒏, 𝒕𝒐𝒎𝒂𝒌𝒆 𝒅𝒖𝒊𝒕𝒊 𝒕𝒆𝒙𝒕 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆:\n"${this.config.name} 𝒕𝒆𝒙𝒕𝟏 | 𝒕𝒆𝒙𝒕𝟐"\n\n✨ 𝑬𝒋𝒆𝒎𝒐𝒏: ${this.config.name} 𝑨𝒔𝒊𝒇 | 𝑴𝒂𝒉𝒎𝒖𝒅`, threadID, messageID);
     }
 
-    const text1 = text.substr(0, text.indexOf(' | ')); 
-    const text2 = text.split(" | ").pop();
-    
-    var callback = () => api.sendMessage({
-        body: `𝑬𝒊 𝒏𝒊𝒆𝒓 𝒑𝒖𝒕𝒉𝒖𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒏𝒊𝒚𝒆 👇`,
-        attachment: fs.createReadStream(__dirname + "/cache/pooh.png")
-    }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/pooh.png"), event.messageID);
-    
-    return request(encodeURI(`https://api.popcat.xyz/pooh?text1=${text1}&text2=${text2}`))
-        .pipe(fs.createWriteStream(__dirname + '/cache/pooh.png'))
-        .on('close', () => callback());
+    const [text1, text2] = inputText.split(" | ").map(text => text.trim());
+
+    const generateImage = () => {
+        return new Promise((resolve, reject) => {
+            const imagePath = __dirname + '/cache/pooh.png';
+            request(encodeURI(`https://api.popcat.xyz/pooh?text1=${text1}&text2=${text2}`))
+                .pipe(fs.createWriteStream(imagePath))
+                .on('close', () => resolve(imagePath))
+                .on('error', reject);
+        });
+    };
+
+    try {
+        const imagePath = await generateImage();
+        
+        return api.sendMessage({
+            body: `✨ 𝑬𝒊 𝒏𝒊𝒆𝒓 𝒑𝒖𝒕𝒉𝒖𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒏𝒊𝒚𝒆 👇`,
+            attachment: fs.createReadStream(imagePath)
+        }, threadID, () => fs.unlinkSync(imagePath), messageID);
+        
+    } catch (error) {
+        console.error(error);
+        return api.sendMessage("😿 𝑩𝒂𝒃𝒖𝒋𝒂𝒏, 𝒑𝒖𝒕𝒉𝒖𝒍𝒍𝒆𝒓 𝒄𝒉𝒊𝒕𝒓𝒂 𝒃𝒂𝒏𝒂𝒏𝒐 𝒉𝒐𝒍𝒐 𝒋𝒂𝒎𝒆𝒍𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!", threadID, messageID);
+    }
 };
