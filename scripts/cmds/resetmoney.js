@@ -1,25 +1,64 @@
+const { createCanvas, loadImage } = require("canvas");
+
 module.exports.config = {
     name: "resetmoney",
     version: "1.0.0",
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑮𝒓𝒖𝒑𝒆𝒓 𝒔𝒐𝒃𝒂𝒊𝒆𝒓 𝒕𝒂𝒌𝒂 𝒔𝒖𝒏𝒚𝒂𝒌𝒆 𝒔𝒆𝒕 𝒌𝒐𝒓𝒂 𝒉𝒐𝒃𝒆",
+    description: "💸 Gruper sobaier taka shunyo kore dey! Stylish canvas output 🎨",
     commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
-    usages: "[𝒄𝒄], [𝒅𝒆𝒍], [𝒂𝒍𝒍]",
-    cooldowns: 5
+    usages: "[cc], [del], [all]",
+    cooldowns: 5,
+    dependencies: {
+        "canvas": ""
+    }
 };
 
 module.exports.run = async ({ api, event, Currencies }) => {
-    const data = await api.getThreadInfo(event.threadID);
+    const { threadID, senderID } = event;
+    const data = await api.getThreadInfo(threadID);
+
+    let resetCount = 0;
+
     for (const user of data.userInfo) {
-        var currenciesData = await Currencies.getData(user.id)
-        if (currenciesData != false) {
-            var money = currenciesData.money;
-            if (typeof money != "undefined") {
-                money -= money;
-                await Currencies.setData(user.id, { money });
-            }
+        const currenciesData = await Currencies.getData(user.id);
+        if (currenciesData != false && typeof currenciesData.money !== "undefined") {
+            await Currencies.setData(user.id, { money: 0 });
+            resetCount++;
         }
     }
-    return api.sendMessage("𝑮𝒓𝒖𝒑𝒆𝒓 𝒔𝒐𝒃 𝒎𝒆𝒎𝒃𝒆𝒓𝒅𝒆𝒓 𝒆𝒓 𝒕𝒂𝒌𝒂 𝒔𝒖𝒏𝒚𝒂𝒌𝒆 𝒔𝒆𝒕 𝒉𝒐𝒍𝒆𝒄𝒉𝒆! (0)", event.threadID);
-}
+
+    // 🎨 Create Canvas
+    const canvas = createCanvas(800, 250);
+    const ctx = canvas.getContext("2d");
+
+    // Background
+    ctx.fillStyle = "#1E1E2F";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Gradient text
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+    gradient.addColorStop(0, "#FF5F6D");
+    gradient.addColorStop(1, "#FFC371");
+    ctx.fillStyle = gradient;
+
+    ctx.font = "bold 40px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("💰 Reset Successful 💰", canvas.width / 2, 80);
+
+    ctx.font = "28px Arial";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(`Total members reset: ${resetCount}`, canvas.width / 2, 150);
+
+    ctx.font = "24px Arial";
+    ctx.fillStyle = "#FFD700";
+    ctx.fillText("All balances are now 0 🤑", canvas.width / 2, 200);
+
+    // Send Canvas as image
+    const imageBuffer = canvas.toBuffer();
+
+    return api.sendMessage({
+        body: `✅ Sob memberder taka successfully reset kora hoyeche!`,
+        attachment: imageBuffer
+    }, threadID);
+};
