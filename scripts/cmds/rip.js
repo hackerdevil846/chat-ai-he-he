@@ -2,46 +2,47 @@ const DIG = require("discord-image-generation");
 const fs = require("fs-extra");
 const path = require("path");
 
-module.exports = {
-  config: {
-    name: "rip",
-    version: "2.0",
-    author: "✨Asif Mahmud✨",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Generate RIP image for tagged user",
-    longDescription: "Creates a RIP tombstone image with the mentioned user's profile picture.",
-    category: "fun",
-    guide: {
-      en: "{pn} [@mention someone]"
-    }
-  },
+module.exports.config = {
+	name: "rip",
+	version: "2.0",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🪦 Create RIP tombstone with user's avatar",
+	commandCategory: "fun",
+	usages: "[@mention]",
+	cooldowns: 5,
+	dependencies: {
+		"discord-image-generation": "",
+		"fs-extra": ""
+	}
+};
 
-  onStart: async function ({ event, message, usersData }) {
-    try {
-      const mentionID = Object.keys(event.mentions)[0] || event.senderID;
+module.exports.run = async function ({ api, event, args, usersData }) {
+	try {
+		const { threadID, messageID, senderID, mentions } = event;
+		const mentionID = Object.keys(mentions)[0] || senderID;
+		const targetName = mentions[mentionID] || "you";
 
-      const avatarURL = await usersData.getAvatarUrl(mentionID);
-      if (!avatarURL) {
-        return message.reply("❌ Couldn't fetch avatar. Please try again.");
-      }
+		const avatarURL = await usersData.getAvatarUrl(mentionID);
+		if (!avatarURL) {
+			return api.sendMessage("❌ | Failed to fetch profile picture!", threadID, messageID);
+		}
 
-      const img = await new DIG.Rip().getImage(avatarURL);
-      const tmpPath = path.join(__dirname, "tmp");
-      const filePath = path.join(tmpPath, `${mentionID}_rip.png`);
+		const imgBuffer = await new DIG.Rip().getImage(avatarURL);
+		const tmpDir = path.join(__dirname, "tmp");
+		const filePath = path.join(tmpDir, `${mentionID}_rip.png`);
 
-      await fs.ensureDir(tmpPath);
-      fs.writeFileSync(filePath, Buffer.from(img));
+		await fs.ensureDir(tmpDir);
+		await fs.writeFile(filePath, imgBuffer);
 
-      await message.reply({
-        body: `🪦 RIP ${event.mentions[mentionID] || "you"}...`,
-        attachment: fs.createReadStream(filePath)
-      });
-
-      fs.unlink(filePath); // Clean up temp file
-    } catch (err) {
-      console.error("[rip error]", err);
-      return message.reply("⚠️ Something went wrong. Please try again later.");
-    }
-  }
+		api.sendMessage({
+			body: `🪦 Rest in peace ${targetName}...\n\n✨ Created by ${this.config.author}`,
+			attachment: fs.createReadStream(filePath)
+		}, threadID, () => fs.unlinkSync(filePath), messageID);
+		
+	} catch (err) {
+		console.error("[RIP Command Error]", err);
+		return api.sendMessage("⚠️ | Failed to generate image! Please try again later.", threadID, messageID);
+	}
 };
