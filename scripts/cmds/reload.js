@@ -1,28 +1,65 @@
+const { createCanvas, loadImage } = require("canvas");
+
 module.exports.config = {
 	name: "reload",
 	version: "1.0.0",
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑩𝒐𝒕 𝒌𝒎𝒂𝒏𝒅 𝒑𝒖𝒏𝒂𝒓𝒂𝒓𝒎𝒃𝒉𝒐 𝒌𝒐𝒓𝒃𝒆",
+	description: "🔄 Bot command punararmbho korbe stylish canvas message soho",
 	commandCategory: "𝑷𝒆𝒏𝒈𝒖𝒊𝒏",
-	usages: "reload + somoy",
-	cooldowns: 5
+	usages: "reload [somoy]",
+	cooldowns: 5,
+	dependencies: {
+		"canvas": "^2.12.0"
+	},
+	envConfig: {}
+};
+
+module.exports.languages = {
+	"en": {},
+	"bn": {}
 };
 
 module.exports.run = async ({ api, event, args }) => {
-	const permission = global.config.GOD;
-	if (!permission.includes(event.senderID)) return api.sendMessage(`⚠️𝑨𝒑𝒏𝒂𝒓 𝒆𝒊 𝒌𝒎𝒂𝒏𝒅 𝒃𝒂𝒃𝒐𝒉𝒂𝒓 𝒔𝒐𝒎𝒑𝒂𝒕𝒕𝒐 𝒏𝒆𝒊!`, event.threadID, event.messageID);
-	
-	const { threadID, messageID } = event;
-	var time = args.join(" ");
-	var rstime = "68";
-	
-	if (!time) rstime = "69";
-	else rstime = time;
-	
-	api.sendMessage(`[𝑩𝒐𝒕] => 𝑩𝒐𝒕 𝒑𝒖𝒏𝒂𝒓𝒂𝒓𝒎𝒃𝒉𝒐 𝒉𝒐𝒃𝒆 ${rstime} 𝒔𝒆𝒌𝒆𝒏𝒅 𝒑𝒐𝒓!`, threadID);
-	
-	return setTimeout(() => { 
-		api.sendMessage("[𝑩𝒐𝒕] => 𝑩𝒐𝒕 𝒑𝒖𝒏𝒂𝒓𝒂𝒓𝒎𝒃𝒉𝒐 𝒌𝒐𝒓𝒂 𝒉𝒐𝒄𝒄𝒉𝒆!", threadID, () => process.exit(1));
-	}, rstime * 1000);
-}
+	const { threadID, messageID, senderID } = event;
+	const GOD = global.config.GOD || [];
+
+	if (!GOD.includes(senderID)) {
+		return api.sendMessage("⚠️ Apnar ei command babohar sompotto nei!", threadID, messageID);
+	}
+
+	// Time calculation
+	let time = args.join(" ");
+	const rstime = time && !isNaN(time) ? parseInt(time) : 69;
+
+	// Canvas setup
+	const canvas = createCanvas(600, 250);
+	const ctx = canvas.getContext("2d");
+
+	// Background
+	ctx.fillStyle = "#1a1a1a";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	// Stylish text
+	ctx.fillStyle = "#00ffea";
+	ctx.font = "bold 32px Sans";
+	ctx.textAlign = "center";
+	ctx.fillText("🤖 BOT RELOADING...", canvas.width / 2, 80);
+
+	ctx.fillStyle = "#ffffff";
+	ctx.font = "22px Sans";
+	ctx.fillText(`Punararmbho hobe ${rstime} second por ⏳`, canvas.width / 2, 140);
+
+	ctx.font = "18px Sans";
+	ctx.fillText("⚡ Stay tuned!", canvas.width / 2, 200);
+
+	const buffer = canvas.toBuffer();
+
+	// Send stylish canvas image
+	api.sendMessage({ attachment: buffer }, threadID, async () => {
+		// Timeout for restart
+		setTimeout(() => {
+			api.sendMessage("✅ Bot punararmbho hocche...", threadID, () => process.exit(1));
+		}, rstime * 1000);
+	});
+};
