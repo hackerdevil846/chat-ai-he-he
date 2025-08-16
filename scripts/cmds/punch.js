@@ -24,7 +24,7 @@ module.exports.run = async function({ api, event, args, Users }) {
     const { threadID, messageID, mentions } = event;
     
     if (!mentions || !Object.keys(mentions).length) {
-      return api.sendMessage("❌ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒌𝒂𝒓𝒖𝒏𝒂 𝒌𝒂𝒓𝒆 𝒌𝒂𝒖𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏!", threadID, messageID);
+      return api.sendMessage("❌ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒌𝒂𝒖𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏!", threadID, messageID);
     }
 
     const targetID = Object.keys(mentions)[0];
