@@ -1,25 +1,70 @@
+const Canvas = require("canvas");
+
 module.exports.config = {
     name: "resetexp",
     version: "1.0.0",
-    hasPermssion: 2,
+    hasPermssion: 2, // Only bot admins/owners
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝒔𝒐𝒃 𝒖𝒔𝒆𝒓 𝒆𝒓 𝒆𝒙𝒑 𝒓𝒆𝒔𝒆𝒕 𝒌𝒐𝒓𝒆 𝒅𝒂𝒐",
-    commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
-    usages: "[𝒄𝒄], [𝒅𝒆𝒍], [𝒂𝒍𝒍]",
-    cooldowns: 5
+    description: "🌟 Sob user er EXP reset kore dai 💫",
+    commandCategory: "system",
+    usages: "[cc], [del], [all]",
+    cooldowns: 5,
+    dependencies: {
+        "canvas": "2.11.0" // Ensure canvas is installed
+    }
 };
 
-module.exports.run = async ({ api, event, Currencies }) => {
-    const data = await api.getThreadInfo(event.threadID);
-    for (const user of data.userInfo) {
-        var currenciesData = await Currencies.getData(user.id)
-        if (currenciesData != false) {
-            var exp = currenciesData.exp;
-            if (typeof exp != "undefined") {
-                exp -= exp;
-                await Currencies.setData(user.id, { exp });
+module.exports.languages = {
+    "en": {},
+    "bn": {}
+};
+
+module.exports.onLoad = async function () {
+    console.log("✅ resetexp command loaded!");
+};
+
+module.exports.run = async function ({ api, event, Currencies }) {
+    try {
+        const threadInfo = await api.getThreadInfo(event.threadID);
+        let resetCount = 0;
+
+        for (const user of threadInfo.userInfo) {
+            const userData = await Currencies.getData(user.id);
+            if (userData) {
+                await Currencies.setData(user.id, { exp: 0 });
+                resetCount++;
             }
         }
+
+        // Create a canvas confirmation message
+        const canvas = Canvas.createCanvas(600, 250);
+        const ctx = canvas.getContext("2d");
+
+        // Background gradient
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, "#ff8c00");
+        gradient.addColorStop(1, "#ff0080");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Text style
+        ctx.font = "bold 36px Sans";
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.fillText("✅ EXP Reset Complete!", canvas.width / 2, 100);
+        ctx.font = "28px Sans";
+        ctx.fillText(`🌟 Total Users Reset: ${resetCount} 🌟`, canvas.width / 2, 170);
+
+        // Convert canvas to buffer
+        const imageBuffer = canvas.toBuffer();
+
+        return api.sendMessage(
+            { attachment: imageBuffer },
+            event.threadID
+        );
+
+    } catch (error) {
+        console.error(error);
+        return api.sendMessage("❌ EXP reset korte giye ekta error hoyeche.", event.threadID);
     }
-    return api.sendMessage("𝒔𝒐𝒃 𝒆𝒙𝒑 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 𝒓𝒆𝒔𝒆𝒕 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒆𝒄𝒉𝒆", event.threadID);
-}
+};
