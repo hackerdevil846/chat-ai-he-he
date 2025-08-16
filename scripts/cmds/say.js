@@ -1,28 +1,64 @@
+const { createReadStream, unlinkSync } = require("fs-extra");
+const { resolve } = require("path");
+
 module.exports.config = {
-	name: "say",
-	version: "2.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑩𝒐𝒕 𝒕𝒆𝒙𝒕 𝒕𝒂 𝒃𝒐𝒍𝒃𝒆 𝑮𝒐𝒐𝒈𝒍𝒆 𝑻𝑻𝑺 𝒅𝒊𝒚𝒆 (𝑯𝒊𝒏𝒅𝒊, 𝑯𝒊𝒏𝒈𝒍𝒊𝒔𝒉, 𝑬𝒏𝒈𝒍𝒊𝒔𝒉)",
-	commandCategory: "media",
-	usages: "[hi/en/auto] [𝑻𝒆𝒙𝒕]",
-	cooldowns: 5,
+	name: "say", // Command name
+	version: "2.0.0", // Version
+	hasPermssion: 0, // Permission: 0 = All
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
+	description: "🎤 Bot text ta bolbe Google TTS diye (Hindi, Hinglish, English)", // Description
+	commandCategory: "media", // Category
+	usages: "[bn/en/auto] [Text]", // Usage
+	cooldowns: 5, // Cooldown time (seconds)
 	dependencies: {
 		"path": "",
 		"fs-extra": ""
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
-	const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
-	const { resolve } = global.nodemodule["path"];
-	try {
-		if (!args[0]) return api.sendMessage("❌ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒕𝒆𝒙𝒕 𝒅𝒆𝒏\n𝑼𝒅𝒂𝒉𝒂𝒓𝒏𝒂: +say auto ami tomake bhalobashi", event.threadID, event.messageID);
+module.exports.languages = {
+	"en": {
+		missingText: "❌ Please provide some text.\nExample: say auto I love you",
+		error: "🚫 An error occurred while speaking. Please try again."
+	},
+	"bn": {
+		missingText: "❌ Doya kore text den\nUdaharon: +say auto ami tomake bhalobashi",
+		error: "🚫 Bolar somoy error hoyeche. Abar chesta korun"
+	}
+};
 
+module.exports.onLoad = function () {
+	// Runs when command is loaded
+};
+
+module.exports.handleEvent = function () {
+	// For global events if needed
+};
+
+module.exports.handleReply = function () {
+	// For handling replies if needed
+};
+
+module.exports.handleReaction = function () {
+	// For handling reactions if needed
+};
+
+module.exports.run = async function({ api, event, args }) {
+	try {
+		// Check if text is given
+		if (!args[0]) {
+			return api.sendMessage(
+				global.utils.getText(module.exports.languages, "bn", "missingText"),
+				event.threadID,
+				event.messageID
+			);
+		}
+
+		// If reply used, take that, otherwise take args
 		const content = (event.type === "message_reply") ? event.messageReply.body : args.join(" ");
 		let lang = "auto", msg = content;
 
-		// Check prefix lang
+		// Language detect
 		const firstWord = args[0].toLowerCase();
 		const supportedLangs = ["hi", "en", "ja", "ru", "tl"];
 		if (supportedLangs.includes(firstWord)) {
@@ -30,20 +66,33 @@ module.exports.run = async function({ api, event, args }) {
 			msg = args.slice(1).join(" ");
 		}
 
-		// Auto detect for Hinglish/Hindi
+		// Auto detect for Hindi/Hinglish
 		if (lang === "auto") {
-			const hindiPattern = /[क-हाि-ॣ़ा़ेैोौंःँ]/; // Hindi Unicode range
+			const hindiPattern = /[क-हाि-ॣ़ा़ेैोौंःँ]/; // Hindi range
 			lang = hindiPattern.test(msg) ? "hi" : "hi"; // Force Hindi for Hinglish too
 		}
 
+		// File path
 		const filePath = resolve(__dirname, "cache", `${event.threadID}_${event.senderID}.mp3`);
 		const ttsURL = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(msg)}&tl=${lang}&client=tw-ob`;
 
+		// Download audio file
 		await global.utils.downloadFile(ttsURL, filePath);
-		return api.sendMessage({ attachment: createReadStream(filePath) }, event.threadID, () => unlinkSync(filePath), event.messageID);
-		
+
+		// Send audio file
+		return api.sendMessage(
+			{ body: `🗣️ 𝗦𝗔𝗬 [${lang.toUpperCase()}]\n━━━━━━━━━━━━━━━\n${msg}`, attachment: createReadStream(filePath) },
+			event.threadID,
+			() => unlinkSync(filePath),
+			event.messageID
+		);
+
 	} catch (err) {
 		console.error("[ SAY ERROR ]", err);
-		return api.sendMessage("🚫 𝑩𝒐𝒍𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒚𝒆𝒄𝒉𝒆. 𝑨𝒃𝒂𝒓 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
+		return api.sendMessage(
+			global.utils.getText(module.exports.languages, "bn", "error"),
+			event.threadID,
+			event.messageID
+		);
 	}
 };
