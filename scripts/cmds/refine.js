@@ -2,192 +2,204 @@ const axios = require('axios');
 const FormData = require('form-data');
 const fs = require('fs-extra');
 const path = require('path');
+const { createCanvas, loadImage } = require('canvas');
 
 module.exports.config = {
-  name: "refine",
-  version: "1.3.0",
-  hasPermission: 0,
-  credits: "Asif",
-  countDown: 15,
-  description: "Enhance and transform images using AI technology",
-  category: "image",
-  usages: "[prompt]",
-  dependencies: {
-    "axios": "",
-    "form-data": "",
-    "fs-extra": ""
-  }
+	name: "refine",
+	version: "1.5.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "✨ Enhance and transform images using AI technology",
+	commandCategory: "image",
+	usages: "[prompt]",
+	cooldowns: 15,
+	dependencies: {
+		"axios": "",
+		"form-data": "",
+		"fs-extra": "",
+		"canvas": ""
+	},
+	envConfig: {}
 };
 
-// Add empty onStart to satisfy the loader
-module.exports.onStart = async function() {};
+// Cache setup and management
+module.exports.onLoad = function() {
+	const cacheDir = path.join(__dirname, 'cache', 'refine');
+	if (!fs.existsSync(cacheDir)) {
+		fs.mkdirSync(cacheDir, { recursive: true });
+	}
 
-// Cache directory setup
-const cacheDir = path.join(__dirname, 'cache', 'refine');
-if (!fs.existsSync(cacheDir)) {
-  fs.mkdirSync(cacheDir, { recursive: true });
-}
+	// Hourly cache cleaning
+	setInterval(() => {
+		try {
+			const files = fs.readdirSync(cacheDir);
+			const now = Date.now();
+			
+			files.forEach(file => {
+				const filePath = path.join(cacheDir, file);
+				const stats = fs.statSync(filePath);
+				
+				if (now - stats.mtimeMs > 3600000) { 
+					fs.unlinkSync(filePath);
+				}
+			});
+			console.log('✨ Refine cache cleaned successfully');
+		} catch (cleanError) {
+			console.error('Refine cache cleanup error:', cleanError);
+		}
+	}, 3600000);
+};
 
 module.exports.run = async function({ api, event, args }) {
-  try {
-    const { threadID, messageID } = event;
-    
-    // Check if we have an image to process
-    const imageAttachment = event.messageReply?.attachments?.[0] || 
-                           event.attachments?.[0];
-    
-    if (!imageAttachment || !['photo', 'image'].includes(imageAttachment.type)) {
-      return api.sendMessage(
-        "🖼️ Please reply to an image or send an image with this command to use the refinement feature.\n\n" +
-        "Example:\n" +
-        "  • Reply to an image: refine make this look professional\n" +
-        "  • Send with image: refine turn this into anime style [attach image]",
-        threadID, 
-        messageID
-      );
-    }
+	try {
+		const { threadID, messageID } = event;
+		const imageAttachment = event.messageReply?.attachments?.[0] || event.attachments?.[0];
 
-    // Get user prompt or use default
-    const userPrompt = args.join(" ") || "Enhance this image with creative details";
-    
-    // Show processing message
-    const processingMsg = await api.sendMessage(
-      "✨ Your image is being refined by AI...\n━━━━━━━━━━━━━━\n" +
-      "⏳ Processing: This may take 15-60 seconds\n" +
-      `📝 Prompt: "${userPrompt}"`,
-      threadID
-    );
+		if (!imageAttachment || !['photo', 'image'].includes(imageAttachment.type)) {
+			return api.sendMessage(
+				"🖼️ Please reply to an image or send an image with this command\n\n" +
+				"✨ Usage Examples:\n" +
+				"• Reply to image: refine professional headshot\n" +
+				"• Send with image: refine anime style [attach image]",
+				threadID, 
+				messageID
+			);
+		}
 
-    // Process the image
-    const result = await this.processImage(imageAttachment.url, userPrompt);
-    
-    // Handle result
-    if (result.success && result.type === 'image') {
-      // Unsend processing message
-      api.unsendMessage(processingMsg.messageID);
-      
-      // Send the refined image
-      await api.sendMessage({
-        body: "✅ Image Refinement Complete!\n━━━━━━━━━━━━━━\n" + 
-              `📝 Prompt: "${userPrompt}"\n\n` +
-              "💡 Tips for better results:\n" +
-              "  • Be specific about what you want\n" +
-              "  • Include style references (e.g., 'anime style')\n" +
-              "  • Mention desired elements (e.g., 'add mountains in background')",
-        attachment: fs.createReadStream(result.path)
-      }, threadID, () => {
-        // Cleanup generated image
-        try {
-          if (fs.existsSync(result.path)) {
-            fs.unlinkSync(result.path);
-          }
-        } catch (cleanupErr) {
-          console.error("Cleanup error:", cleanupErr);
-        }
-      }, messageID);
-    } else {
-      // Send error message
-      const errorBody = "❌ Image processing failed\n━━━━━━━━━━━━━━\n" + 
-                       `🔍 Reason: ${result.message || 'Unknown error'}\n\n` +
-                       "💡 Try these solutions:\n" +
-                       "  • Use a different prompt\n" +
-                       "  • Try a different image\n" +
-                       "  • Wait a few minutes and try again";
-                       
-      await api.sendMessage(errorBody, threadID, messageID);
-      api.unsendMessage(processingMsg.messageID);
-    }
-  } catch (error) {
-    console.error("Refine command error:", error);
-    return api.sendMessage(
-      "❌ An unexpected error occurred while processing your image. Please try again later.", 
-      event.threadID, 
-      event.messageID
-    );
-  }
+		const userPrompt = args.join(" ") || "Enhance this image with creative details";
+		const processingMsg = await api.sendMessage(
+			`✨ Refining your image...\n━━━━━━━━━━━━━━\n` +
+			`🔮 Prompt: "${userPrompt}"\n` +
+			`⏳ Estimated: 15-60 seconds`,
+			threadID
+		);
+
+		const result = await processImage(imageAttachment.url, userPrompt);
+		
+		if (result.success && result.type === 'image') {
+			api.unsendMessage(processingMsg.messageID);
+			
+			// Create stylish canvas frame
+			const styledImage = await createStyledCanvas(result.path);
+			
+			await api.sendMessage({
+				body: `✨ Refinement Complete!\n━━━━━━━━━━━━━━\n` + 
+					`🔮 Prompt: "${userPrompt}"\n\n` +
+					`💡 Tips for better results:\n` +
+					"• Be specific about desired changes\n" +
+					"• Mention art styles (anime, oil painting)\n" +
+					"• Describe background/foreground elements",
+				attachment: fs.createReadStream(styledImage)
+			}, threadID, () => {
+				[result.path, styledImage].forEach(file => {
+					if (fs.existsSync(file)) fs.unlinkSync(file);
+				});
+			}, messageID);
+		} else {
+			const errorBody = `❌ Refinement Failed\n━━━━━━━━━━━━━━\n` + 
+							`🔧 Reason: ${result.message || 'API error'}\n\n` +
+							`🛠️ Solutions:\n` +
+							"• Try a different prompt\n" +
+							"• Use higher quality images\n" +
+							"• Wait before retrying";
+							
+			api.sendMessage(errorBody, threadID, messageID);
+			api.unsendMessage(processingMsg.messageID);
+		}
+	} catch (error) {
+		console.error("Refine command error:", error);
+		api.sendMessage(
+			"⚠️ An unexpected error occurred. Please try again later", 
+			event.threadID, 
+			event.messageID
+		);
+	}
 };
 
-module.exports.processImage = async function(imageUrl, prompt) {
-  try {
-    const form = new FormData();
-    form.append('url', imageUrl);
-    form.append('prompt', prompt);
-    
-    const response = await axios.post('https://smfahim.xyz/gedit', form, {
-      headers: form.getHeaders(),
-      responseType: 'stream',
-      timeout: 90000 // 90 seconds timeout
-    });
+async function processImage(imageUrl, prompt) {
+	try {
+		const API_KEY = 'd7843d40-7604-11f0-bf3f-4f562e7a2c44';
+		const requestData = {
+			url: imageUrl,
+			enhancements: ["denoise", "deblur", "light"],
+			width: 2000
+		};
 
-    // Create output path
-    const outputPath = path.join(cacheDir, `refined_${Date.now()}.png`);
-    const writer = fs.createWriteStream(outputPath);
-    
-    response.data.pipe(writer);
-    
-    return new Promise((resolve, reject) => {
-      writer.on('finish', () => resolve({
-        success: true,
-        type: 'image',
-        path: outputPath
-      }));
-      
-      writer.on('error', (error) => reject({
-        success: false,
-        type: 'error',
-        message: 'Failed to save image: ' + error.message
-      }));
-    });
-    
-  } catch (error) {
-    let errorMessage = 'API request failed';
-    
-    if (error.response) {
-      // Try to get error details from API response
-      try {
-        const errorData = error.response.data;
-        if (typeof errorData === 'object' && errorData.error) {
-          errorMessage = errorData.error;
-        } else if (typeof errorData === 'string') {
-          // Try to extract error message from HTML
-          const match = errorData.match(/<pre>(.*?)<\/pre>/s);
-          errorMessage = match ? match[1] : 'API returned an error';
-        } else {
-          errorMessage = `API responded with status ${error.response.status}`;
-        }
-      } catch (parseError) {
-        errorMessage = `API responded with status ${error.response.status}`;
-      }
-    } else if (error.request) {
-      errorMessage = 'No response received from API server';
-    } else {
-      errorMessage = error.message;
-    }
-    
-    return {
-      success: false,
-      type: 'error',
-      message: errorMessage
-    };
-  }
-};
+		const response = await axios.post('https://deep-image.ai/rest_api/process_result', {
+			parameters: JSON.stringify(requestData)
+		}, {
+			headers: { 'x-api-key': API_KEY },
+			timeout: 90000
+		});
 
-// Clean cache every hour
-setInterval(() => {
-  try {
-    const files = fs.readdirSync(cacheDir);
-    const now = Date.now();
-    
-    files.forEach(file => {
-      const filePath = path.join(cacheDir, file);
-      const stats = fs.statSync(filePath);
-      
-      if (now - stats.mtimeMs > 3600000) { // 1 hour
-        fs.unlinkSync(filePath);
-      }
-    });
-    console.log('Refine cache cleaned successfully');
-  } catch (cleanError) {
-    console.error('Refine cache cleanup error:', cleanError);
-  }
-}, 3600000); // Run every hour
+		if (response.data?.url) {
+			const imageResponse = await axios.get(response.data.url, {
+				responseType: 'stream',
+				timeout: 30000
+			});
+
+			const outputPath = path.join(__dirname, 'cache', 'refine', `refined_${Date.now()}.png`);
+			const writer = fs.createWriteStream(outputPath);
+			imageResponse.data.pipe(writer);
+			
+			return new Promise((resolve) => {
+				writer.on('finish', () => resolve({
+					success: true,
+					type: 'image',
+					path: outputPath
+				}));
+				writer.on('error', () => resolve({
+					success: false,
+					message: 'Failed to save image'
+				}));
+			});
+		} else {
+			throw new Error('No processed image URL');
+		}
+	} catch (error) {
+		return {
+			success: false,
+			message: error.response?.data?.error || error.message
+		};
+	}
+}
+
+async function createStyledCanvas(imagePath) {
+	try {
+		const img = await loadImage(imagePath);
+		const canvas = createCanvas(img.width + 40, img.height + 120);
+		const ctx = canvas.getContext('2d');
+		
+		// Create stylish background
+		ctx.fillStyle = '#2c2c54';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		
+		// Add image with border
+		ctx.strokeStyle = '#f7f1e3';
+		ctx.lineWidth = 10;
+		ctx.strokeRect(15, 15, img.width, img.height);
+		ctx.drawImage(img, 20, 20, img.width, img.height);
+		
+		// Add footer text
+		ctx.fillStyle = '#f7f1e3';
+		ctx.font = 'bold 24px Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText('✨ AI-ENHANCED IMAGE ✨', canvas.width/2, img.height + 80);
+		
+		// Add watermark
+		ctx.font = 'italic 16px Arial';
+		ctx.fillText('Processed by Refine AI', canvas.width/2, img.height + 110);
+		
+		// Save to cache
+		const outputPath = path.join(__dirname, 'cache', 'refine', `styled_${Date.now()}.png`);
+		const out = fs.createWriteStream(outputPath);
+		const stream = canvas.createPNGStream();
+		stream.pipe(out);
+		
+		return new Promise((resolve) => {
+			out.on('finish', () => resolve(outputPath));
+		});
+	} catch {
+		return imagePath; // Fallback to original if canvas fails
+	}
+}
