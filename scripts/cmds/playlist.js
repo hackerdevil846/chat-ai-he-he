@@ -1,24 +1,26 @@
-const http = global.nodemodule["https"];
+const http = require('https');
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs');
 
 module.exports.config = {
   name: "playlist",
-  version: "1.0.0",
+  version: "2.0.0",
   hasPermssion: 0,
-  credits: "Asif",
-  description: "Get YouTube playlist information",
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Get YouTube playlist information with visual display",
   category: "Media",
   usages: "[playlist ID]",
-  cooldowns: 10,
-  dependencies: {}
+  cooldowns: 15,
+  dependencies: {
+    "canvas": ""
+  },
+  envConfig: {}
 };
 
 module.exports.run = async function({ api, event, args }) {
   const { threadID, messageID } = event;
-  
-  // Set default playlist ID if not provided
   const playlistId = args[0] || 'PLL8jFEKG82Z79hz1lbhWtUioO9fhVKUAr';
-
-  // Validate playlist ID format
+  
   if (!/^[a-zA-Z0-9_-]{34}$/.test(playlistId)) {
     return api.sendMessage(
       "❌ Invalid playlist ID format. Please provide a valid YouTube playlist ID.",
@@ -35,11 +37,10 @@ module.exports.run = async function({ api, event, args }) {
       'x-rapidapi-key': '78186a3f74msh516a9d9dd0f051cp19fea6jsnac2a9d4351fb',
       'x-rapidapi-host': 'youtube-music-api-yt.p.rapidapi.com'
     },
-    timeout: 15000 // 15 seconds timeout
+    timeout: 15000
   };
 
   try {
-    // Send processing message
     const processingMsg = await api.sendMessage(
       `⌛ Fetching YouTube playlist data for ID: ${playlistId}...`,
       threadID
@@ -48,33 +49,20 @@ module.exports.run = async function({ api, event, args }) {
     const playlistData = await new Promise((resolve, reject) => {
       const request = http.request(options, (response) => {
         let data = '';
-        
-        response.on('data', (chunk) => {
-          data += chunk;
-        });
-
+        response.on('data', (chunk) => data += chunk);
         response.on('end', () => {
-          try {
-            resolve(JSON.parse(data));
-          } catch (e) {
-            reject(new Error('Failed to parse API response'));
-          }
+          try { resolve(JSON.parse(data)); } 
+          catch (e) { reject(new Error('Failed to parse API response')); }
         });
       });
-
-      request.on('error', (error) => {
-        reject(error);
-      });
-
+      request.on('error', reject);
       request.on('timeout', () => {
         request.destroy();
         reject(new Error('Request timed out'));
       });
-
       request.end();
     });
 
-    // Check for API errors
     if (playlistData.status === false || !playlistData.data) {
       return api.sendMessage(
         `❌ API Error: ${playlistData.message || 'No playlist data found'}`,
@@ -84,33 +72,106 @@ module.exports.run = async function({ api, event, args }) {
     }
 
     const playlist = playlistData.data;
-    const videos = playlist.videos.slice(0, 10); // Get first 10 videos
-
-    // Format response message
-    let message = `🎵 𝗬𝗼𝘂𝗧𝘂𝗯𝗲 𝗣𝗹𝗮𝘆𝗹𝗶𝘀𝘁 𝗜𝗻𝗳𝗼\n\n`;
-    message += `📛 𝗧𝗶𝘁𝗹𝗲: ${playlist.title}\n`;
-    message += `👤 𝗔𝘂𝘁𝗵𝗼𝗿: ${playlist.author}\n`;
-    message += `🎬 𝗧𝗼𝘁𝗮𝗹 𝗩𝗶𝗱𝗲𝗼𝘀: ${playlist.videoCount}\n\n`;
-    message += '🎧 𝗧𝗼𝗽 𝟭𝟬 𝗩𝗶𝗱𝗲𝗼𝘀:\n';
-
-    videos.forEach((video, index) => {
-      message += `\n${index + 1}. ${video.title}\n`;
-      message += `   ⏱️ 𝗗𝘂𝗿𝗮𝘁𝗶𝗼𝗻: ${video.duration}\n`;
-      message += `   👀 𝗩𝗶𝗲𝘄𝘀: ${video.views}\n`;
-      message += `   🔗 𝗟𝗶𝗻𝗸: https://youtu.be/${video.videoId}\n`;
-    });
-
-    message += `\n🔗 𝗙𝘂𝗹𝗹 𝗣𝗹𝗮𝘆𝗹𝗶𝘀𝘁 𝗟𝗶𝗻𝗸: https://www.youtube.com/playlist?list=${playlistId}`;
-
-    // Send final message
-    await api.sendMessage(message, threadID);
+    const videos = playlist.videos.slice(0, 10);
     
-    // Delete processing message
+    // Create stylish canvas image
+    const canvasWidth = 1000;
+    const canvasHeight = 600;
+    const canvas = createCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext('2d');
+    
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
+    gradient.addColorStop(0, '#8A2BE2');
+    gradient.addColorStop(1, '#1E90FF');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    
+    // Decorative elements
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    for (let i = 0; i < 20; i++) {
+      const radius = Math.random() * 50 + 10;
+      const x = Math.random() * canvasWidth;
+      const y = Math.random() * canvasHeight;
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Playlist title
+    ctx.font = 'bold 42px "Segoe UI"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎵 YouTube Playlist Info', canvasWidth / 2, 60);
+    
+    // Playlist details box
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.roundRect(100, 100, 800, 150, 20);
+    ctx.fill();
+    
+    // Playlist info text
+    ctx.font = 'bold 30px "Segoe UI"';
+    ctx.fillStyle = '#FFD700';
+    ctx.textAlign = 'left';
+    ctx.fillText(`📛 ${truncate(playlist.title, 30)}`, 130, 150);
+    
+    ctx.font = '24px "Segoe UI"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText(`👤 Author: ${playlist.author}`, 130, 190);
+    ctx.fillText(`🎬 Videos: ${playlist.videoCount}`, 130, 230);
+    
+    // Videos header
+    ctx.font = 'bold 30px "Segoe UI"';
+    ctx.fillStyle = '#FFD700';
+    ctx.textAlign = 'center';
+    ctx.fillText('🎧 Top Videos', canvasWidth / 2, 300);
+    
+    // Video list
+    ctx.font = '20px "Segoe UI"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'left';
+    
+    const startY = 350;
+    const lineHeight = 30;
+    const maxVideos = Math.min(videos.length, 8);
+    
+    for (let i = 0; i < maxVideos; i++) {
+      const video = videos[i];
+      ctx.fillText(`▶️ ${i + 1}. ${truncate(video.title, 40)}`, 150, startY + i * lineHeight);
+      ctx.fillText(`⏱️ ${video.duration}`, 750, startY + i * lineHeight);
+    }
+    
+    // Footer
+    ctx.font = '20px "Segoe UI"';
+    ctx.fillStyle = '#7CFC00';
+    ctx.textAlign = 'center';
+    ctx.fillText(`🔗 Full Playlist: youtube.com/playlist?list=${playlistId}`, canvasWidth / 2, 570);
+    
+    // Watermark
+    ctx.font = '16px "Segoe UI"';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillText('Powered by GoatBot • Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅', canvasWidth / 2, 595);
+    
+    // Save image
+    const buffer = canvas.toBuffer('image/png');
+    const path = __dirname + `/cache/playlist_${threadID}.png`;
+    fs.writeFileSync(path, buffer);
+    
+    // Send result
+    const msgBody = `🎶 Successfully retrieved playlist!\n` +
+                   `📛 Title: ${playlist.title}\n` +
+                   `👤 Author: ${playlist.author}\n` +
+                   `🎬 Total Videos: ${playlist.videoCount}`;
+    
+    api.sendMessage({
+      body: msgBody,
+      attachment: fs.createReadStream(path)
+    }, threadID, () => fs.unlinkSync(path));
+    
     api.unsendMessage(processingMsg.messageID);
 
   } catch (error) {
     console.error('Playlist Error:', error);
-    
     let errorMessage = "❌ ";
     if (error.message.includes('timed out')) {
       errorMessage += "Request timed out. Please try again later.";
@@ -119,7 +180,25 @@ module.exports.run = async function({ api, event, args }) {
     } else {
       errorMessage += `Error: ${error.message || 'Unknown error'}`;
     }
-    
     api.sendMessage(errorMessage, threadID, messageID);
   }
+};
+
+// Helper functions
+function truncate(str, maxLength) {
+  return str.length > maxLength ? str.substring(0, maxLength) + '...' : str;
+}
+
+// Add rounded rectangle function to Canvas
+CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
+  if (width < 2 * radius) radius = width / 2;
+  if (height < 2 * radius) radius = height / 2;
+  this.beginPath();
+  this.moveTo(x + radius, y);
+  this.arcTo(x + width, y, x + width, y + height, radius);
+  this.arcTo(x + width, y + height, x, y + height, radius);
+  this.arcTo(x, y + height, x, y, radius);
+  this.arcTo(x, y, x + width, y, radius);
+  this.closePath();
+  return this;
 };
