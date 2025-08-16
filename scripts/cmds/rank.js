@@ -1,7 +1,7 @@
 const Canvas = require("canvas");
 const { uploadZippyshare } = global.utils;
 
-const defaultFontName = "BeVietnamPro-SemiBold";
+const defaultFontName = "Be VietnamPro-SemiBold";
 const defaultPathFontName = `${__dirname}/assets/font/BeVietnamPro-SemiBold.ttf`;
 const { randomString } = global.utils;
 const percentage = total => total / 100;
@@ -18,59 +18,58 @@ const expToLevel = (exp, deltaNextLevel = deltaNext) => Math.floor((1 + Math.sqr
 const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(level, 2) - level) * deltaNextLevel) / 2);
 global.client.makeRankCard = makeRankCard;
 
-module.exports = {
-	config: {
-		name: "rank",
-		version: "1.7",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "Xem level của bạn hoặc người được tag. Có thể tag nhiều người",
-			en: "View your level or the level of the tagged person. You can tag many people"
-		},
-		category: "rank",
-		guide: {
-			vi: "   {pn} [để trống | @tags]",
-			en: "   {pn} [empty | @tags]"
-		},
-		envConfig: {
-			deltaNext: 5
-		}
+module.exports.config = {
+	name: "rank",
+	version: "1.7",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: {
+		vi: "Xem level của bạn hoặc người được tag. Có thể tag nhiều người",
+		en: "View your level or the level of the tagged person. You can tag many people"
 	},
-
-	onStart: async function ({ message, event, usersData, threadsData, commandName, envCommands, api }) {
-		deltaNext = envCommands[commandName].deltaNext;
-		let targetUsers;
-		const arrayMentions = Object.keys(event.mentions);
-
-		if (arrayMentions.length == 0)
-			targetUsers = [event.senderID];
-		else
-			targetUsers = arrayMentions;
-
-		const rankCards = await Promise.all(targetUsers.map(async userID => {
-			const rankCard = await makeRankCard(userID, usersData, threadsData, event.threadID, deltaNext, api);
-			rankCard.path = `${randomString(10)}.png`;
-			return rankCard;
-		}));
-
-		return message.reply({
-			attachment: rankCards
-		});
+	commandCategory: "rank",
+	usages: "[empty | @tags]",
+	cooldowns: 5,
+	envConfig: {
+		deltaNext: 5
 	},
-
-	onChat: async function ({ usersData, event }) {
-		let { exp } = await usersData.get(event.senderID);
-		if (isNaN(exp) || typeof exp != "number")
-			exp = 0;
-		try {
-			await usersData.set(event.senderID, {
-				exp: exp + 1
-			});
-		}
-		catch (e) { }
+	dependencies: {
+		"canvas": ""
 	}
+};
+
+module.exports.run = async function ({ api, event, Users, Threads, args, permssion }) {
+	deltaNext = global.config.rank.deltaNext;
+	let targetUsers;
+	const arrayMentions = Object.keys(event.mentions);
+
+	if (arrayMentions.length == 0)
+		targetUsers = [event.senderID];
+	else
+		targetUsers = arrayMentions;
+
+	const rankCards = await Promise.all(targetUsers.map(async userID => {
+		const rankCard = await makeRankCard(userID, Users, Threads, event.threadID, deltaNext, api);
+		rankCard.path = `${randomString(10)}.png`;
+		return rankCard;
+	}));
+
+	return api.sendMessage({
+		body: "🔰 𝗥𝗔𝗡𝗞 𝗖𝗔𝗥𝗗 🔰\n\n🌟 Here is your stylish rank card! 🚀\n✨ Level up and shine brighter! 💎",
+		attachment: rankCards
+	}, event.threadID, event.messageID);
+};
+
+module.exports.handleEvent = async function ({ Users, event }) {
+	let { exp } = await Users.getData(event.senderID);
+	if (isNaN(exp) || typeof exp != "number")
+		exp = 0;
+	try {
+		await Users.setData(event.senderID, {
+			exp: exp + 1
+		});
+	}
+	catch (e) { }
 };
 
 const defaultDesignCard = {
@@ -244,7 +243,7 @@ class RankCard {
 	}
 
 	/**
-	 * @param {size} size
+	 * @param {number} size
 	 * @description increase the size of all the text by {size} units
 	 * @returns {RankCard}
 	 * @example
