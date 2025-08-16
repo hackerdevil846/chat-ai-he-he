@@ -4,19 +4,19 @@ module.exports = {
   config: {
     name: "pickuplines",
     aliases: ["pickupline"],
-    version: "1.1",
-    author: "✨Asif Mahmud✨",
+    version: "1.2",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 5,
     role: 0,
+    category: "fun",
     shortDescription: {
-      en: "Get random pickup lines",
-      bn: "Random pick-up line paw jabe"
+      en: "Get random flirty pickup lines",
+      bn: "র‍্যান্ডম ফ্লার্টি পিক-আপ লাইন"
     },
     longDescription: {
-      en: "Get random pickup lines to flirt smartly!",
-      bn: "Majedaar pick-up line paw jabe bondhu der ke hasanor jonno."
+      en: "Discover charming pickup lines to impress someone special!",
+      bn: "কাউকে ইম্প্রেস করার জন্য সুন্দর পিক-আপ লাইন খুঁজে নিন!"
     },
-    category: "fun",
     guide: {
       en: "{p}pickuplines",
       bn: "{p}pickuplines"
@@ -26,16 +26,21 @@ module.exports = {
   onStart: async function ({ api, event }) {
     try {
       const response = await axios.get("https://api.popcat.xyz/pickuplines");
-      const pickupline = response.data.pickupline || "Sorry, kono pick-up line paoa jai nai.";
+      const pickupline = response.data.pickupline || "Couldn't fetch a line. Try again later 💔";
 
-      const message = `💘 Pick-Up Line for You:
-
-❝ ${pickupline} ❞`;
-      return api.sendMessage(message, event.threadID, event.messageID);
+      const formattedLine = `💘 | 𝗣𝗜𝗖𝗞-𝗨𝗣 𝗟𝗜𝗡𝗘 𝗙𝗢𝗥 𝗬𝗢𝗨\n\n✨ ❝ ${pickupline} ❞ ✨`;
+      
+      return api.sendMessage({
+        body: formattedLine,
+        mentions: [{
+          tag: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+          id: event.senderID
+        }]
+      }, event.threadID, event.messageID);
     } catch (error) {
       console.error("[PickupLine Error]", error.message);
       return api.sendMessage(
-        "❌ Sorry! API theke data ana jai nai. Please try again later.",
+        "🌸 | 𝙰𝙿𝙸 𝙴𝚁𝚁𝙾𝚁! 𝚃𝚛𝚢 𝚊𝚐𝚊𝚒𝚗 𝚕𝚊𝚝𝚎𝚛.",
         event.threadID,
         event.messageID
       );
