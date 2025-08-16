@@ -3,7 +3,7 @@ module.exports.config = {
   aliases: ["18+"],
   version: "2.0",
   author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  hasPermssion: 2,
+  hasPermssion: 0,
   description: "NSFW photo command (authorized users only)",
   commandCategory: "nsfw",
   usages: "{pn}",
