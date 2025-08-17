@@ -6,53 +6,52 @@ module.exports = {
     name: "npx",
     version: "1.0.1",
     prefix: false,
-    permission: 0,  // Fixed typo: permssion -> permission
-    credits: "asif",
-    description: "Fun",
+    permission: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "💖 𝙍𝙚𝙖𝙘𝙩𝙨 𝙬𝙞𝙩𝙝 𝙖 𝙨𝙥𝙚𝙘𝙞𝙖𝙡 𝙫𝙞𝙙𝙚𝙤 𝙛𝙤𝙧 𝙚𝙢𝙤𝙟𝙞 𝙩𝙧𝙞𝙜𝙜𝙚𝙧𝙨 💖",
     category: "no prefix",
-    usages: "😒",
+    usages: "😍 | 🤩 | 🥰",
     cooldowns: 5,
+    dependencies: {
+      "request": ""
+    }
   },
-  onStart: function({ nayan }) {
-    // Empty implementation to satisfy the command loader
-  },
-  handleEvent: async function({ api, event, client, __GLOBAL }) {
-    var { threadID, messageID } = event;
-    const content = event.body ? event.body : '';
-    const body = content.toLowerCase();
-    const NAYAN = ['https://i.imgur.com/LLucP15.mp4', 'https://i.imgur.com/DEBRSER.mp4'];
-    var rndm = NAYAN[Math.floor(Math.random() * NAYAN.length)];
 
-    const media = await new Promise((resolve, reject) => {
-      request.get(
-        `${rndm}`,
-        { encoding: null },
-        (error, response, body) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(body);
-          }
-        }
-      );
-    });
-    if (
-      body.indexOf("🥰") == 0 ||
-      body.indexOf("🤩") == 0 ||
-      body.indexOf("😍") == 0 ||
-      body.indexOf(" ") == 0 ||
-      body.indexOf(" ") == 0 ||
-      body.indexOf(" ") == 0 ||
-      body.indexOf(" ") == 0 ||
-      body.indexOf(" ") == 0 ||
-      body.indexOf(" ") == 0
-    ) {
-      var msg = {
-        body: "🖤🥀",
-        attachment: media,
-      };
-      api.sendMessage(msg, threadID, messageID);
-      api.setMessageReaction("🖤", event.messageID, (err) => {}, true);
+  handleEvent: async function({ api, event }) {
+    const { threadID, messageID, body } = event;
+    const content = body ? body.toLowerCase() : '';
+    
+    if (!content) return;
+    
+    const triggerEmojis = ["🥰", "🤩", "😍", " "];
+    const shouldReact = triggerEmojis.some(emoji => content.startsWith(emoji));
+    
+    if (shouldReact) {
+      try {
+        const NAYAN = [
+          "https://i.imgur.com/LLucP15.mp4",
+          "https://i.imgur.com/DEBRSER.mp4"
+        ];
+        const rndm = NAYAN[Math.floor(Math.random() * NAYAN.length)];
+        
+        const media = await new Promise((resolve, reject) => {
+          request.get(
+            { url: rndm, encoding: null },
+            (error, response, body) => {
+              error ? reject(error) : resolve(body);
+            }
+          );
+        });
+
+        api.sendMessage({
+          body: "🖤🥀",
+          attachment: media
+        }, threadID, messageID);
+        
+        api.setMessageReaction("🖤", messageID, (err) => {}, true);
+      } catch (error) {
+        console.error("✨ 𝙀𝙧𝙧𝙤𝙧:", error);
+      }
     }
   }
 };
