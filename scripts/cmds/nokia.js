@@ -1,50 +1,61 @@
 const axios = require("axios");
 
-module.exports = {
-  config: {
-    name: "nokia",
-    aliases: ["nokia"],
-    version: "2.0",
-    author: "✨Asif Mahmud✨",
-    shortDescription: "Edit user's avatar in nokia meme style",
-    longDescription: "Send a funny meme image using Popcat API with mentioned/replied user's avatar in Nokia format.",
-    category: "fun",
-    guide: "{pn} @mention or reply to someone's message"
-  },
+module.exports.config = {
+	name: "nokia",
+	aliases: ["nokiameme"],
+	version: "2.0",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "📱 Create Nokia meme with user's avatar",
+	commandCategory: "fun",
+	usages: "[mention/reply]",
+	cooldowns: 10,
+	dependencies: {
+		"axios": ""
+	},
+	envConfig: {}
+};
 
-  async onStart({ api, event, usersData }) {
-    try {
-      const mention = Object.keys(event.mentions);
-      let targetID = null;
+module.exports.languages = {
+	"en": {
+		"missingTarget": "⚠️ Please tag or reply to someone to create Nokia meme!",
+		"apiError": "❌ Error generating meme. API might be down or invalid response.",
+		"success": "📱 Nokia Filter Activated! Bitch I'm stylish 😂"
+	}
+};
 
-      if (mention.length > 0) {
-        // Mentioned user
-        targetID = mention[0];
-      } else if (event.messageReply) {
-        // Replied user
-        targetID = event.messageReply.senderID;
-      } else {
-        return api.sendMessage("⚠️ Tag ba reply na dile nokia banano jabena!", event.threadID, event.messageID);
-      }
+module.exports.run = async function({ api, event, args, models, Users }) {
+	try {
+		const { threadID, messageID, messageReply, mentions } = event;
+		let targetID;
 
-      const imageLink = await usersData.getAvatarUrl(targetID);
+		// Determine target user
+		if (Object.keys(mentions).length > 0) {
+			targetID = Object.keys(mentions)[0];
+		} else if (messageReply) {
+			targetID = messageReply.senderID;
+		} else {
+			return api.sendMessage(this.languages.en.missingTarget, threadID, messageID);
+		}
 
-      const gifURL = `https://api.popcat.xyz/nokia?image=${encodeURIComponent(imageLink)}`;
+		// Get avatar URL
+		const avatarUrl = await Users.getAvatarUrl(targetID);
+		if (!avatarUrl) throw new Error("Failed to get avatar URL");
 
-      // Check API if working
-      const check = await axios.get(gifURL, { responseType: 'stream' });
-      if (!check || !check.data) throw new Error("API failed or returned no data");
+		// Generate meme
+		const memeUrl = `https://api.popcat.xyz/nokia?image=${encodeURIComponent(avatarUrl)}`;
+		const response = await axios.get(memeUrl, { responseType: 'stream' });
+		
+		if (!response || !response.data) throw new Error(this.languages.en.apiError);
 
-      const message = {
-        body: "📱 Bitch I'm stylish — Nokia Filter Activated 😂",
-        attachment: check.data
-      };
+		return api.sendMessage({
+			body: this.languages.en.success,
+			attachment: response.data
+		}, threadID, messageID);
 
-      api.sendMessage(message, event.threadID, event.messageID);
-
-    } catch (err) {
-      console.error("Nokia command error:", err.message);
-      api.sendMessage("❌ Error occurred. API might be down or you didn't reply/tag properly.", event.threadID, event.messageID);
-    }
-  }
+	} catch (error) {
+		console.error("Nokia Command Error:", error);
+		return api.sendMessage(this.languages.en.apiError, event.threadID, event.messageID);
+	}
 };
