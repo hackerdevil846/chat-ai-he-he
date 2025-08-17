@@ -7,7 +7,7 @@ const cp = require("child_process");
 
 module.exports = {
   config: {
-    name: "sing",
+    name: "music-play",
     version: "1.0.4",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
