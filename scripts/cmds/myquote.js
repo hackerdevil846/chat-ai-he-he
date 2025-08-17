@@ -2,36 +2,42 @@ const axios = require('axios');
 const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 
-module.exports = {
-  config: {
-    name: "myquote",
-    version: "2.0",
-    author: "✨Asif Mahmud✨",
-    countDown: 5,
-    role: 0,
-    shortDescription: "quote img",
-    longDescription: "Create your quoted image with stylish backgrounds",
-    category: "fun",
-  },
+module.exports.config = {
+  name: "myquote",
+  version: "2.0",
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  hasPermssion: 0,
+  description: "✨ Create stylish quote images with beautiful backgrounds",
+  commandCategory: "fun",
+  usages: "[quote text] = [author name]",
+  cooldowns: 5,
+  dependencies: {
+    "axios": "",
+    "canvas": ""
+  }
+};
 
-  onStart: async function ({ api, event, args }) {
-    const { threadID, messageID } = event;
-    const input = args.join(' ').split('=');
-
-    if (input.length !== 2) {
-      api.sendMessage('📝 Use command like this:\nMyQuote [quote] = [author name]', threadID, messageID);
-      return;
+module.exports.run = async function ({ api, event, args }) {
+  const { threadID, messageID } = event;
+  
+  try {
+    if (!args.length) {
+      return api.sendMessage("📝 𝗨𝘀𝗮𝗴𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦 𝘵𝘦𝘹𝘵] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘦]\n\n✨ 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘓𝘪𝘧𝘦 𝘪𝘴 𝘢 𝘫𝘰𝘶𝘳𝘯𝘦𝘺 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
     }
 
-    const [quoteText, authorName] = input.map(i => i.trim());
+    const input = args.join(' ').split('=');
+    if (input.length < 2) {
+      return api.sendMessage("❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗳𝗼𝗿𝗺𝗮𝘁!\n\n✨ 𝗣𝗹𝗲𝗮𝘀𝗲 𝘂𝘀𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘦]\n\n🌠 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘋𝘳𝘦𝘢𝘮 𝘣𝘪𝘨 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
+    }
+
+    const quoteText = input.slice(0, -1).join('=').trim();
+    const authorName = input[input.length - 1].trim();
 
     if (!quoteText || !authorName) {
-      api.sendMessage('❌ Quote or author missing! Example:\nMyQuote Life is short = Mr.Smokey', threadID, messageID);
-      return;
+      return api.sendMessage("⚠️ 𝗠𝗶𝘀𝘀𝗶𝗻𝗴 𝗱𝗮𝗮𝗮𝘁𝗮!\n\n✨ 𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗯𝗼𝘁𝗵 𝗾𝘂𝗼𝘁𝗲 𝗮𝗻𝗱 𝗮𝘂𝘁𝗵𝗼𝗿 𝗻𝗮𝗺𝗲\n\n🌠 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘛𝘩𝘦 𝘱𝘢𝘴𝘵 𝘪𝘴 𝘢 𝘭𝘦𝘴𝘴𝘰𝘯 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
     }
 
-    try {
-      const bgList = [
+    const bgList = [
         'https://i.postimg.cc/G3WNFpch/7b6eb20bccd6d9d97027e0e0650e350e.jpg',
         'https://i.postimg.cc/kMQNHMQ5/87ee51adca4b4c74b5d97089d67159d0.jpg',
         'https://i.postimg.cc/Kj01yWc0/a974ffafa41e455bcaea2299119dadfc.jpg',
@@ -74,53 +80,62 @@ module.exports = {
         'https://i.postimg.cc/JzQk453X/be21b223a65c71bcd7fea98edb632697.jpg'
       ];
 
-      const bgURL = bgList[Math.floor(Math.random() * bgList.length)];
-      const bgImage = await loadImage(bgURL);
+    const bgURL = bgList[Math.floor(Math.random() * bgList.length)];
+    const response = await axios.get(bgURL, { responseType: 'arraybuffer' });
+    const bgImg = Buffer.from(response.data, 'binary');
+    
+    const bgImage = await loadImage(bgImg);
+    const canvas = createCanvas(bgImage.width, bgImage.height);
+    const ctx = canvas.getContext('2d');
+    
+    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+    ctx.font = 'bold 32px "Arial"';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 8;
+    ctx.textAlign = 'center';
+    
+    const maxWidth = canvas.width * 0.8;
+    const lineHeight = 42;
+    const margin = 50;
+    let lines = [];
+    let currentLine = '';
 
-      const canvas = createCanvas(bgImage.width, bgImage.height);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-
-      ctx.font = 'bold 30px Sans-serif';
-      ctx.fillStyle = 'black';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      const words = quoteText.split(' ');
-      const maxWidth = 360;
-      const lineHeight = 40;
-      const lines = [];
-      let line = '';
-
-      for (let word of words) {
-        const testLine = line + word + ' ';
-        const width = ctx.measureText(testLine).width;
-        if (width > maxWidth) {
-          lines.push(line.trim());
-          line = word + ' ';
-        } else {
-          line = testLine;
-        }
+    quoteText.split(' ').forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const { width } = ctx.measureText(testLine);
+      
+      if (width > maxWidth && currentLine) {
+        lines.push(currentLine);
+        currentLine = word;
+      } else {
+        currentLine = testLine;
       }
-      lines.push(line.trim());
-
-      const startY = canvas.height / 2 - (lines.length * lineHeight) / 2;
-      lines.forEach((l, i) => ctx.fillText(l, canvas.width / 2, startY + i * lineHeight));
-
-      ctx.font = 'italic 25px Serif';
-      ctx.fillText(`- ${authorName}`, canvas.width / 2, canvas.height - 60);
-
-      const outputPath = 'temp_quote.jpg';
-      fs.writeFileSync(outputPath, canvas.toBuffer());
-
+    });
+    lines.push(currentLine);
+    
+    const textY = canvas.height / 2 - (lines.length * lineHeight) / 2;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, canvas.width / 2, textY + (i * lineHeight));
+    });
+    
+    ctx.font = 'italic 28px "Georgia"';
+    ctx.fillText(`— ${authorName}`, canvas.width / 2, textY + lines.length * lineHeight + 40);
+    
+    const outputPath = `${__dirname}/cache/quote_${event.senderID}.jpg`;
+    const out = fs.createWriteStream(outputPath);
+    const stream = canvas.createJPEGStream({ quality: 0.95 });
+    
+    stream.pipe(out);
+    out.on('finish', () => {
       api.sendMessage({
-        body: '✅ 𝗤𝘂𝗼𝘁𝗲 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱! ✨',
+        body: "✨ 𝗤𝘂𝗼𝘁𝗲 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆!",
         attachment: fs.createReadStream(outputPath)
-      }, threadID, () => fs.unlinkSync(outputPath));
-
-    } catch (err) {
-      console.error('Image gen error:', err);
-      api.sendMessage('❌ Error occurred while generating image.', threadID, messageID);
-    }
+      }, threadID, () => fs.unlinkSync(outputPath), messageID);
+    });
+    
+  } catch (error) {
+    console.error(error);
+    api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗴𝗲𝗻𝗲𝗿𝗮𝘁𝗶𝗻𝗴 𝗾𝘂𝗼𝘁𝗲 𝗶𝗺𝗮𝗴𝗲. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿.", threadID, messageID);
   }
 };
