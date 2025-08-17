@@ -1,124 +1,142 @@
 module.exports.config = {
 	name: "outbox",
-	version: "1.0.7",
+	version: "1.0.8",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝒃𝒆𝒍𝒂 𝒎𝒂𝒕𝒆 𝒃𝒐𝒕 𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒃𝒆",
-	commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
-    dependencies: {
-        "moment-timezone": ""
-    },
-	cooldowns: 5
+	description: "নির্দিষ্ট সময়ে বটকে কোনো গ্রুপ থেকে বের করে দেয়।",
+	commandCategory: "system",
+	usages: "[]",
+	cooldowns: 5,
+	dependencies: {
+		"moment-timezone": ""
+	}
 };
 
+// Helper function to format the timestamp
 module.exports.convertTime = (timestamp, separator) => {
-    var pad = function(input) {return input < 10 ? "0" + input : input;};
-    var date = timestamp ? new Date(timestamp * 1000) : new Date();
-    return [
-        pad(date.getHours()),
-        pad(date.getMinutes()),
-        pad(date.getSeconds())
-    ].join(typeof separator !== 'undefined' ?  separator : ':' );
-}
+	const pad = (input) => (input < 10 ? "0" + input : input);
+	const date = timestamp ? new Date(timestamp * 1000) : new Date();
+	return [
+		pad(date.getHours()),
+		pad(date.getMinutes()),
+		pad(date.getSeconds())
+	].join(typeof separator !== 'undefined' ? separator : ':');
+};
 
-module.exports.handleSchedule = async ({ api, schedule }) => {
-    try {
-        await api.removeUserFromGroup(api.getCurrentUserID(), schedule.target);
-        return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒍𝒂 𝒊𝒅: ${schedule.target}`, __GLOBAL.settings.ADMINBOT[0], (error, info) => {
-            if (error) require(process.cwd() + "/utils/log")(`𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒍𝒂 𝒊𝒅: ${schedule.target}`, "[ 𝒐𝒖𝒕𝒃𝒐𝒙 ]");
-        });
-    }
-    catch {
-        return api.sendMessage(`𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒕𝒆 𝒑𝒂𝒓𝒂𝒏𝒊 𝒊𝒅: ${schedule.target}!`, __GLOBAL.settings.ADMINBOT[0], (error, info) => {
-            if (error) require(process.cwd() + "/utils/log")(`𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒕𝒆 𝒑𝒂𝒓𝒂𝒏𝒊 𝒊𝒅: ${schedule.target}!`, "error");
-        });
-    }
-} 
+// This function runs when a scheduled task is triggered
+module.exports.handleSchedule = async function({ api, schedule }) {
+	try {
+		// Attempt to remove the bot from the target group
+		await api.removeUserFromGroup(api.getCurrentUserID(), schedule.target);
+		// Notify the admin of the successful departure
+		api.sendMessage(`✅ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nসফলভাবে গ্রুপ থেকে বের হয়েছি।\n🆔 গ্রুপ আইডি: ${schedule.target}`, global.config.ADMINBOT[0]);
+	} catch (e) {
+		console.error(`[OUTBOX ERROR] Failed to leave group ${schedule.target}: ${e}`);
+		// Notify the admin if the bot fails to leave the group
+		api.sendMessage(`❌ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nগ্রুপ থেকে বের হতে পারিনি।\n🆔 গ্রুপ আইডি: ${schedule.target}!`, global.config.ADMINBOT[0]);
+	}
+};
 
-module.exports.handleReply = ({ event, api, handleReply }) => {
-    const moment = global.nodemodule["moment-timezone"];
-    
-    if (handleReply.author != event.senderID) return;
+// This function handles replies for the interactive setup
+module.exports.handleReply = async function({ api, event, handleReply }) {
+	const moment = global.nodemodule["moment-timezone"];
 
-    switch (handleReply.type) {
-        case "inputThreadID": {
-            if (isNaN(event.body)) return api.sendMessage("[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒈𝒓𝒖𝒑 𝒊𝒅 𝒔𝒐𝒕𝒉𝒊𝒌 𝒏𝒐𝒚!", event.threadID, event.messageID);
-            api.unsendMessage(handleReply.messageID);
-            return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒃𝒆𝒍𝒂 𝒅𝒆𝒌𝒂𝒏 𝒑𝒍𝒆𝒂𝒔𝒆 (𝒇𝒐𝒓𝒎𝒂𝒕: 𝑯𝑯:𝒎𝒎):`, event.threadID, (error, info) => {
-                global.client.handleReply.push({
-                    type: "inputTime",
-                    name: this.config.name,
-                    author: event.senderID,
-                    messageID: info.messageID,
-                    target: event.body
-                })
-            })
-        }
+	// Ensure the reply is from the original command user
+	if (handleReply.author != event.senderID) return;
 
-        case "inputTime": {
-            const time = moment().tz("Asia/Dhaka");
-            const regex = /([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9])$/;
+	switch (handleReply.type) {
+		case "inputThreadID": {
+			if (isNaN(event.body)) {
+				return api.sendMessage("❌ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nদয়া করে একটি সঠিক গ্রুপ আইডি দিন।", event.threadID, event.messageID);
+			}
+			api.unsendMessage(handleReply.messageID);
+			return api.sendMessage("⏰ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nএখন দয়া করে সময় সেট করুন।\nফরম্যাট: (HH:mm)", event.threadID, (err, info) => {
+				global.client.handleReply.push({
+					type: "inputTime",
+					name: this.config.name,
+					author: event.senderID,
+					messageID: info.messageID,
+					target: event.body
+				});
+			});
+		}
 
-            if (!regex.test(event.body)) return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒔𝒐𝒕𝒉𝒊𝒌 𝒇𝒐𝒓𝒎𝒂𝒕 𝒏𝒐𝒚!`, event.threadID, event.messageID);
-            const timeSplited = event.body.split(":"),
-                    hour = timeSplited[0],
-                    minute = timeSplited[1];
-                
-            if (hour > time.hours()) time.add(1, "days");
+		case "inputTime": {
+			const time = moment().tz("Asia/Dhaka");
+			const regex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
-            time.set({ hour, minute });
+			if (!regex.test(event.body)) {
+				return api.sendMessage("❌ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nসময়ের ফরম্যাটটি ভুল। দয়া করে (HH:mm) ফরম্যাট ব্যবহার করুন।", event.threadID, event.messageID);
+			}
+			const [hour, minute] = event.body.split(":");
 
-            api.unsendMessage(handleReply.messageID);
-            return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒘𝒂𝒓 𝒌𝒂𝒓𝒐𝒏 𝒍𝒊𝒌𝒉𝒖𝒏:`, event.threadID, (error, info) => {
-                global.client.handleReply.push({
-                    type: "inputReason",
-                    name: this.config.name,
-                    author: event.senderID,
-                    messageID: info.messageID,
-                    target: handleReply.target,
-                    timeTarget: time.unix()
-                })
-            })
-        }
+			// If the specified time is in the past for today, schedule it for the next day
+			if (hour > time.hours() || (hour == time.hours() && minute > time.minutes())) {
+				time.set({ hour, minute, second: 0 });
+			} else {
+				time.add(1, "days").set({ hour, minute, second: 0 });
+			}
 
-        case "inputReason": {
-            api.unsendMessage(handleReply.messageID);
-            return api.sendMessage(
-                "=== 𝑶𝒖𝒕𝑩𝒐𝒙 ===" +
-                "\n\n» 𝒈𝒓𝒖𝒑 𝒊𝒅: " + handleReply.target +
-                "\n» 𝒃𝒆𝒍𝒂: " + this.convertTime(handleReply.timeTarget) +
-                "\n» 𝒌𝒂𝒓𝒐𝒏: " + event.body,
-                event.threadID, (error, info) => {
-                    return api.sendMessage(
-                        `[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒃𝒆𝒍𝒂 ${this.convertTime(handleReply.timeTarget)} 𝒆𝒊 𝒈𝒓𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒉𝒐𝒃𝒐\n» 𝒌𝒂𝒓𝒐𝒏: ${event.body}`, 
-                        handleReply.target, 
-                        (error, info) => {
-                            if (error) return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒈𝒓𝒖𝒑 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂`, event.threadID);
-                            else {
-                                global.client.handleSchedule.push({
-                                    commandName: this.config.name, 
-                                    timestamp: handleReply.timeTarget, 
-                                    target: handleReply.target, 
-                                    reason: event.body,
-                                    event
-                                });
-                                return api.sendMessage(`✅ 𝒃𝒆𝒍𝒂 𝒔𝒆𝒕 𝒉𝒐𝒍𝒂 𝒈𝒆𝒄𝒉𝒆!`, event.threadID);
-                            }
-                        }
-                    )
-                }
-            )
-        }
-    }
-}
+			api.unsendMessage(handleReply.messageID);
+			return api.sendMessage("📝 | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nগ্রুপ থেকে বের হওয়ার একটি কারণ লিখুন।", event.threadID, (err, info) => {
+				global.client.handleReply.push({
+					type: "inputReason",
+					name: this.config.name,
+					author: event.senderID,
+					messageID: info.messageID,
+					target: handleReply.target,
+					timeTarget: time.unix()
+				});
+			});
+		}
 
-module.exports.run = ({  event, api }) => {
-    return api.sendMessage(`[𝒐𝒖𝒕𝒃𝒐𝒙] 𝒈𝒓𝒖𝒑 𝒊𝒅 𝒅𝒆𝒌𝒂𝒏:`, event.threadID, (error, info) => {
-        global.client.handleReply.push({
-            type: "inputThreadID",
-            name: this.config.name,
-            author: event.senderID,
-            messageID: info.messageID
-        })
-    })
-}
+		case "inputReason": {
+			const reason = event.body || "কোনো কারণ উল্লেখ করা হয়নি।";
+			api.unsendMessage(handleReply.messageID);
+
+			// Send a confirmation message to the admin
+			api.sendMessage(
+				`🗓️ === [ 𝑶𝒖𝒕𝑩𝒐𝒙 𝑺𝒆𝒕 ] === 🗓️\n\n` +
+				`🆔 গ্রুপ আইডি: ${handleReply.target}\n` +
+				`⏰ সময়: ${this.convertTime(handleReply.timeTarget)}\n` +
+				`📝 কারণ: ${reason}`,
+				event.threadID,
+				(err, info) => {
+					// Send a notification to the target group
+					api.sendMessage(
+						`🔔 | [ 𝑶𝒖𝒕𝒃𝒐𝒙 𝑵𝒐𝒕𝒊𝒄𝒆 ] | 🔔\n\nএই বটটি ${this.convertTime(handleReply.timeTarget)} সময়ে এই গ্রুপ থেকে স্বয়ংক্রিয়ভাবে বের হয়ে যাবে।\n\n📝 কারণ: ${reason}\n\nএটি অ্যাডমিনের নির্দেশে করা হচ্ছে।`,
+						handleReply.target,
+						(error) => {
+							if (error) {
+								return api.sendMessage(`❌ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nএই আইডি (${handleReply.target}) সহ গ্রুপটি খুঁজে পাওয়া যায়নি অথবা বট সেই গ্রুপে নেই।`, event.threadID);
+							} else {
+								// Push the task to the schedule handler
+								global.client.handleSchedule.push({
+									commandName: this.config.name,
+									timestamp: handleReply.timeTarget,
+									target: handleReply.target,
+									reason: reason,
+									event
+								});
+								return api.sendMessage(`✅ | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nসময় সফলভাবে সেট করা হয়েছে। বট নির্দিষ্ট সময়ে গ্রুপ থেকে বের হয়ে যাবে।`, event.threadID);
+							}
+						}
+					);
+				}
+			);
+			break;
+		}
+	}
+};
+
+// This is the main function that runs when the command is called
+module.exports.run = function({ api, event }) {
+	return api.sendMessage("🆔 | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nআপনি কোন গ্রুপ থেকে বটকে বের করতে চান তার আইডি দিন।", event.threadID, (err, info) => {
+		global.client.handleReply.push({
+			type: "inputThreadID",
+			name: this.config.name,
+			author: event.senderID,
+			messageID: info.messageID
+		});
+	});
+};
