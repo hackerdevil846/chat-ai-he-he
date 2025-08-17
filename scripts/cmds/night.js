@@ -1,33 +1,70 @@
 const fs = require("fs");
+const moment = require("moment-timezone");
+
 module.exports.config = {
-	name: "𝑵𝒊𝒈𝒉𝒕",
-    version: "1.0.1",
+	name: "night", // Command name in Bengali-styled font
+	version: "1.0.2",
 	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
-	description: "𝑮𝒐𝒐𝒅 𝒏𝒊𝒈𝒉𝒕 𝒘𝒊𝒔𝒉𝒆𝒓 𝒂𝒖𝒕𝒐-𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆",
-	commandCategory: "𝒏𝒐 𝒑𝒓𝒆𝒇𝒊𝒙",
-	usages: "𝑵𝒊𝒈𝒉𝒕",
-    cooldowns: 5, 
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Bengali-styled font
+	description: "✨ 𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄 𝑮𝒐𝒐𝒅 𝑵𝒊𝒈𝒉𝒕 𝑾𝒊𝒔𝒉𝒆𝒓 ✨",
+	commandCategory: "𝑵𝒐 𝑷𝒓𝒆𝒇𝒊𝒙", // Bengali-styled font
+	usages: "𝑵𝒐𝒏𝒆 (𝑨𝒖𝒕𝒐-𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆)", // Bengali-styled font
+	cooldowns: 3,
+	dependencies: {
+		"moment-timezone": ""
+	},
+	envConfig: {
+		timezone: "Asia/Dhaka"
+	}
 };
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-	var { threadID, messageID } = event;
+module.exports.handleEvent = async function({ api, event, __GLOBAL }) {
+	const { threadID, messageID, body } = event;
 	const triggers = [
 		"Good night", "good night", "Gud night", "Gud nini",
 		"Shuvo ratri", "shuvo ratri", "Shubho ratri", "shubho ratri",
-		"Ratri shuvo", "ratri shuvo", "Bhalo ratri", "bhalo ratri"
+		"Ratri shuvo", "ratri shuvo", "Bhalo ratri", "bhalo ratri",
+		"শুভ রাত্রি", "শুভ রাত", "গুড নাইট", "গুড নাইট"
 	];
 	
-	if (triggers.some(trigger => event.body.toLowerCase().includes(trigger.toLowerCase()))) {
-		var msg = {
-				body: "𝑺𝒉𝒖𝒗𝒐 𝒓𝒂𝒕𝒓𝒊 🌉✨ 𝑩𝒊𝒅𝒂 𝒏𝒆𝒊 💫🥀 𝑺𝒉𝒖𝒏𝒅𝒐𝒓 𝒔𝒉𝒐𝒑𝒏𝒐 😴",
-				attachment: fs.createReadStream(__dirname + `/cache/night.jpg`)
-			}
+	// Check if any trigger exists in the message
+	const triggerFound = triggers.some(trigger => 
+		body.toLowerCase().includes(trigger.toLowerCase())
+	);
+	
+	if (triggerFound) {
+		const now = moment().tz(__GLOBAL.timezone || "Asia/Dhaka");
+		const hour = now.hour();
+		
+		// Only respond between 6PM to 5AM
+		if (hour >= 18 || hour < 5) {
+			const msg = {
+				body: `🌙✨ 𝑺𝒉𝒖𝒗𝒐 𝒓𝒂𝒕𝒓𝒊 ${getRandomEmoji()} 𝑩𝒊𝒅𝒂 𝒏𝒆𝒊 💫\n\n"${getRandomQuote()}"`,
+				attachment: fs.createReadStream(__dirname + "/cache/night.jpg")
+			};
+			
 			api.sendMessage(msg, threadID, messageID);
-    	api.setMessageReaction("😴", event.messageID, (err) => {}, true);
+			api.setMessageReaction("😴", messageID, (err) => {}, true);
+		}
 	}
+};
+
+// Helper functions
+function getRandomEmoji() {
+	const emojis = ["💤", "🌌", "🌠", "🛌", "🪔", "🌉", "🌃", "😴", "✨"];
+	return emojis[Math.floor(Math.random() * emojis.length)];
 }
 
-module.exports.run = function({ api, event, client, __GLOBAL }) {
-  // No additional code needed here
+function getRandomQuote() {
+	const quotes = [
+		"ঘুমন্ত রাতের স্বপ্নগুলো তোমার জন্য হোক সুখময়",
+		"চাঁদ-তারা যেন তোমার জন্য রূপকথা বুনে",
+		"সারাদিনের ক্লান্তি যেন রাতের বেলায় দূর হয়",
+		"প্রতিটি রাত তোমার জীবনে বয়ে আনুক শান্তির পরশ",
+		"স্বপ্নিল রাতের পরশে ঘুম হোক শান্তির",
+		"রাতের আঁধারে ডানা মেলুক সুখের স্বপ্ন",
+		"তোমার প্রতিটি রাত হোক শুভ আর সুন্দর",
+		"নিশীথের তারা যেন তোমার জন্য আশীর্বাদ বয়ে আনে"
+	];
+	return quotes[Math.floor(Math.random() * quotes.length)];
 }
