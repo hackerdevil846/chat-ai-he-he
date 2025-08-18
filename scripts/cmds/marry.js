@@ -1,11 +1,20 @@
 module.exports.config = {
     name: "marry",
-    version: "2.0.0",
+    version: "3.0.1",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑩𝒊𝒚𝒆 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-    commandCategory: "𝑩𝒂𝒍𝒐𝒃𝒂𝒔𝒂",
-    usages: "[𝒕𝒂𝒈]",
+    description: {
+        en: "💍 Propose to someone with a marriage certificate",
+        bn: "💍 কারো সাথে বিয়ের প্রস্তাব পাঠান"
+    },
+    commandCategory: {
+        en: "Romance",
+        bn: "রোমান্স"
+    },
+    usages: {
+        en: "[@mention]",
+        bn: "[@মেনশন]"
+    },
     cooldowns: 5,
     dependencies: {
         "axios": "",
@@ -15,66 +24,80 @@ module.exports.config = {
     }
 };
 
-module.exports.onLoad = async() => {
+module.exports.onLoad = async function() {
     const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'marrywi.png');
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/4ATHG80.png", path);
-}
+    const { existsSync, mkdirSync, copyFileSync } = global.nodemodule["fs-extra"];
+    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
+    
+    if (!existsSync(dirMaterial)) 
+        mkdirSync(dirMaterial, { recursive: true });
+    
+    const path = resolve(dirMaterial, 'marry_bg.png');
+    if (!existsSync(path)) {
+        // use local uploaded image instead of dead Imgur link
+        copyFileSync(__dirname + "/marrywi.png", path);
+    }
+};
 
-async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"]; 
-    const jimp = global.nodemodule["jimp"];
-    const __root = path.resolve(__dirname, "cache", "canvas");
+module.exports.run = async function({ event, api, args, Users }) {
+    try {
+        const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+        const { resolve } = global.nodemodule["path"];
+        const axios = global.nodemodule["axios"];
+        const jimp = global.nodemodule["jimp"];
+        const { threadID, messageID, senderID } = event;
 
-    let batgiam_img = await jimp.read(__root + "/marrywi.png");
-    let pathImg = __root + `/batman${one}_${two}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
-    
-    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-    
-    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-    
-    let circleOne = await jimp.read(await circle(avatarOne));
-    let circleTwo = await jimp.read(await circle(avatarTwo));
-    batgiam_img.resize(432, 280).composite(circleOne.resize(60, 60), 200, 23).composite(circleTwo.resize(60, 60), 136, 40);
-    
-    let raw = await batgiam_img.getBufferAsync("image/png");
-    
-    fs.writeFileSync(pathImg, raw);
-    fs.unlinkSync(avatarOne);
-    fs.unlinkSync(avatarTwo);
-    
-    return pathImg;
-}
-async function circle(image) {
-    const jimp = require("jimp");
-    image = await jimp.read(image);
-    image.circle();
-    return await image.getBufferAsync("image/png");
-}
+        // Function to create circular profile images
+        const circle = async (imageBuffer) => {
+            const image = await jimp.read(imageBuffer);
+            image.circle();
+            return await image.getBufferAsync("image/png");
+        };
 
-module.exports.run = async function ({ event, api, args }) {    
-    const fs = global.nodemodule["fs-extra"];
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
-    
-    if (!mention[0]) 
-        return api.sendMessage("𝑬𝒌𝒋𝒐𝒏𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏 💍", threadID, messageID);
-    
-    const one = senderID, two = mention[0];
-    return makeImage({ one, two }).then(path => 
-        api.sendMessage({ 
-            body: "💝 𝑨𝒎𝒂𝒌𝒆 𝒆𝒌𝒕𝒖 𝒔𝒖𝒋𝒐𝒈 𝒅𝒂𝒐 𝒂𝒎𝒂𝒓 𝒋𝒊𝒃𝒐𝒏𝒆𝒓 𝒔𝒆𝒔𝒆 𝒕𝒉𝒂𝒌𝒕𝒆 𝒕𝒖𝒎𝒊 𝒔𝒂𝒕𝒉𝒆 𝒕𝒉𝒂𝒌𝒕𝒆 𝒄𝒉𝒂𝒊 💞",
-            attachment: fs.createReadStream(path) 
-        }, threadID, () => fs.unlinkSync(path), messageID)
-    );
-}
+        // Process mentions
+        const mention = Object.keys(event.mentions);
+        if (!mention[0]) 
+            return api.sendMessage("🌸 প্রিয়জনের ট্যাগ দিন 💍", threadID, messageID);
+
+        const targetID = mention[0];
+        const bgPath = resolve(__dirname, 'cache', 'canvas', 'marry_bg.png');
+        const outputPath = resolve(__dirname, 'cache', 'canvas', `marry_${senderID}_${targetID}.png`);
+        
+        // Get names for certificate
+        const senderName = await Users.getNameUser(senderID);
+        const targetName = await Users.getNameUser(targetID);
+
+        // Download profile pictures
+        const [avatar1, avatar2] = await Promise.all([
+            axios.get(`https://graph.facebook.com/${senderID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
+                { responseType: 'arraybuffer' }),
+            axios.get(`https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
+                { responseType: 'arraybuffer' })
+        ]);
+
+        // Process images
+        const bgImage = await jimp.read(bgPath);
+        const [circularAvatar1, circularAvatar2] = await Promise.all([
+            circle(avatar1.data),
+            circle(avatar2.data)
+        ]);
+        
+        // Composite images
+        bgImage
+            .resize(432, 280)
+            .composite(await jimp.read(circularAvatar1).then(img => img.resize(60, 60)), 200, 23)
+            .composite(await jimp.read(circularAvatar2).then(img => img.resize(60, 60)), 136, 40);
+        
+        // Save and send
+        await bgImage.writeAsync(outputPath);
+        
+        return api.sendMessage({
+            body: `💞 ${senderName} - ${targetName} এর বিবাহ সনদপত্র\n\n"আমার জীবনের প্রতিটি মুহূর্ত তোমার সাথে কাটাতে চাই 💍"`,
+            attachment: createReadStream(outputPath)
+        }, threadID, () => unlinkSync(outputPath), messageID);
+
+    } catch (error) {
+        console.error('Marry command error:', error);
+        return api.sendMessage("❌ প্রেমের প্রস্তাব পাঠাতে সমস্যা হয়েছে! পরে আবার চেষ্টা করুন", event.threadID, event.messageID);
+    }
+};
