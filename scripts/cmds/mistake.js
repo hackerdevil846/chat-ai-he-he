@@ -1,58 +1,68 @@
-const axios = require("axios");
-const jimp = require("jimp");
-const fs = require("fs-extra");
+const jimp = require('jimp');
+const fs = require('fs-extra');
 
 module.exports = {
   config: {
     name: "mistake",
     aliases: ["mistake"],
-    version: "2.0",
-    author: "Asif Mahmud",
-    countDown: 2,
+    version: "3.0",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    countDown: 15,
     role: 0,
-    shortDescription: "tag kore bolen kar jonmo chilo bhul",
-    longDescription: "Tag someone and show them as a mistake meme",
+    shortDescription: "Tag someone and show them as a mistake meme",
+    longDescription: "Create a funny meme showing tagged person as life's biggest mistake",
     category: "fun",
     guide: "{pn} @mention"
   },
 
-  onStart: async function ({ message, event, args }) {
+  onStart: async function ({ event, message, usersData, args }) {
     const mention = Object.keys(event.mentions);
-
-    if (mention.length === 0) {
-      return message.reply("📌 Tag na dile kivabe jani ke bhul chilo? Tag ekjon ke!");
+    if (!mention[0]) {
+      return message.reply("❓ | Please tag someone to reveal life's biggest mistake!");
     }
 
-    const targetUID = mention[0];
     try {
-      const imagePath = await createMistakeMeme(targetUID);
+      const targetUserID = mention[0];
+      const avatarURL = `https://graph.facebook.com/${targetUserID}/picture?width=512&height=512`;
+      const baseImage = "https://i.postimg.cc/2ST7x1Dw/received-6010166635719509.jpg";
+
+      const processingMsg = await message.reply("🔄 | Creating the masterpiece of regrets...");
+
+      const outputPath = await createMistakeMeme(avatarURL, baseImage);
+      
       await message.reply({
-        body: "😔 The Biggest Mistake on Earth...",
-        attachment: fs.createReadStream(imagePath)
+        body: "💔 | The Biggest Mistake of My Life...",
+        attachment: fs.createReadStream(outputPath)
       });
-      fs.unlinkSync(imagePath);
-    } catch (err) {
-      console.error("Error generating meme:", err);
-      message.reply("❌ Problem hoise bhai, abar try koro.");
+      
+      fs.unlinkSync(outputPath);
+      message.unsend(processingMsg.messageID);
+      
+    } catch (error) {
+      console.error(error);
+      message.reply("❌ | An error occurred while creating your regret masterpiece. Please try again later.");
     }
   }
 };
 
-async function createMistakeMeme(uid) {
-  const avatarUrl = `https://graph.facebook.com/${uid}/picture?width=512&height=512`;
-  const baseImageUrl = "https://i.postimg.cc/2ST7x1Dw/received-6010166635719509.jpg";
+async function createMistakeMeme(avatarURL, baseURL) {
+  try {
+    const [avatar, base] = await Promise.all([
+      jimp.read(avatarURL),
+      jimp.read(baseURL)
+    ]);
 
-  const [avatar, baseImage] = await Promise.all([
-    jimp.read(avatarUrl),
-    jimp.read(baseImageUrl)
-  ]);
+    base.resize(512, 512);
+    avatar.resize(220, 203);
+    base.composite(avatar, 145, 305);
 
-  baseImage.resize(512, 512);
-  avatar.resize(220, 203);
-  baseImage.composite(avatar, 145, 305);
-
-  const outputPath = __dirname + "/cache/mistake_output.png";
-  await fs.ensureDir(__dirname + "/cache");
-  await baseImage.writeAsync(outputPath);
-  return outputPath;
+    const outputPath = `${__dirname}/tmp/mistake_${Date.now()}.png`;
+    await base.writeAsync(outputPath);
+    
+    return outputPath;
+    
+  } catch (error) {
+    console.error("Image processing error:", error);
+    throw new Error("Failed to create the meme");
+  }
 }
