@@ -1,10 +1,10 @@
 module.exports.config = {
   name: "mix",
-  version: "1.0.1",
+  version: "1.0.2",
   hasPermssion: 0,
-  credits: "Asif",
-  description: "Combine two emojis into a single image",
-  category: "image",
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "✨ Combine two emojis into a single image",
+  commandCategory: "image",
   usages: "[emoji1] [emoji2]",
   cooldowns: 5,
   dependencies: {
@@ -13,19 +13,14 @@ module.exports.config = {
   }
 };
 
-module.exports.onStart = async function() {
-  // Initialization if needed
-};
-
 module.exports.run = async function({ api, event, args }) {
   const fs = global.nodemodule["fs-extra"];
   const request = global.nodemodule["request"];
   const { threadID, messageID } = event;
-  const config = this.config;
 
-  if (args.length < 2) {
+  if (!args[0] || !args[1]) {
     return api.sendMessage(
-      `❌ Invalid usage! Format: ${global.config.PREFIX}${config.name} ${config.usages}\nExample: ${global.config.PREFIX}mix 😂 🥰`,
+      `🌸 𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 � 𝗲𝗺𝗼𝗷𝗶𝘀 𝘁𝗼 𝗰𝗼𝗺𝗯𝗶𝗻𝗲!\n━━━━━━━━━━━━━━━━━━\n💡 𝗨𝘀𝗮𝗴𝗲: ${global.config.PREFIX}${this.config.name} ${this.config.usages}\n📌 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: ${global.config.PREFIX}mix 😂 🥰`,
       threadID,
       messageID
     );
@@ -35,36 +30,42 @@ module.exports.run = async function({ api, event, args }) {
   const emoji2 = encodeURIComponent(args[1]);
   const savePath = __dirname + `/cache/mix_${emoji1}_${emoji2}.png`;
 
-  try {
-    const mixUrl = `https://www.api.vyturex.com/emojimix?emoji1=${emoji1}&emoji2=${emoji2}`;
+  const primaryApiUrl = `https://www.api.vyturex.com/emojimix?emoji1=${emoji1}&emoji2=${emoji2}`;
+  const backupApiUrl = `https://emojik.vercel.app/s/${emoji1}_${emoji2}?size=128`;
 
-    request(mixUrl)
+  const tryFetch = (url, isRetry = false) => {
+    return request(url)
+      .on('error', () => {
+        if (!isRetry) {
+          tryFetch(backupApiUrl, true);
+        } else {
+          api.sendMessage(
+            `❌ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗰𝗼𝗺𝗯𝗶𝗻𝗲 "${args[0]}" 𝗮𝗻𝗱 "${args[1]}"!\n━━━━━━━━━━━━━━━━━━\n💠 𝗧𝗿𝘆 𝘂𝘀𝗶𝗻𝗴 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗲𝗺𝗼𝗷𝗶𝘀 𝗼𝗿 𝗰𝗵𝗲𝗰𝗸 𝗮𝗽𝗶 𝘀𝘁𝗮𝘁𝘂𝘀!`,
+            threadID,
+            messageID
+          );
+        }
+      })
       .pipe(fs.createWriteStream(savePath))
-      .on("close", () => {
+      .on('close', () => {
         api.sendMessage(
-          { 
-            body: `✅ Mixed ${args[0]} + ${args[1]}:`,
+          {
+            body: `✨ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗰𝗼𝗺𝗯𝗶𝗻𝗲𝗱:\n━━━━━━━━━━━━━━━━━━\n${args[0]} + ${args[1]} = 🎉`,
             attachment: fs.createReadStream(savePath)
           },
           threadID,
           () => fs.unlinkSync(savePath),
           messageID
         );
-      })
-      .on("error", (err) => {
-        console.error("Emoji mix error:", err);
-        api.sendMessage(
-          `❌ Couldn't combine ${args[0]} and ${args[1]}. Try different emojis!`,
-          threadID,
-          messageID
-        );
-        if (fs.existsSync(savePath)) fs.unlinkSync(savePath);
       });
+  };
 
+  try {
+    tryFetch(primaryApiUrl);
   } catch (error) {
-    console.error("Unexpected error:", error);
+    console.error(error);
     api.sendMessage(
-      "⚠️ An error occurred while processing your request. Please try again later.",
+      "⚠️ 𝗔𝗻 𝘂𝗻𝗲𝘅𝗽𝗲𝗰𝘁𝗲𝗱 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿!",
       threadID,
       messageID
     );
