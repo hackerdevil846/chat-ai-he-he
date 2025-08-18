@@ -3,29 +3,39 @@ module.exports.config = {
   version: "1.0.1", 
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝒎𝒊𝒏𝒊𝒐𝒏𝒆𝒓 𝒃𝒉𝒂𝒔𝒉𝒂𝒚 𝒌𝒐𝒕𝒉𝒂 𝒃𝒐𝒍𝒐",
-  commandCategory: "𝑾𝒐𝒓𝒅𝒔",
-  cooldowns: 1,
+  description: "🍌 𝒎𝒊𝒏𝒊𝒐𝒏𝒆𝒓 𝒃𝒉𝒂𝒔𝒉𝒂𝒚 𝒌𝒐𝒕𝒉𝒂 𝒃𝒐𝒍𝒐!",
+  commandCategory: "🎮 Fun",
+  usages: "[text]",
+  cooldowns: 5,
   dependencies: {
-    "request": "",
+    "axios": "",
     "fs-extra": "",
-    "axios": ""
+    "request": ""
   }
 };
 
-module.exports.run = async function({ api, event, args, client, Users, Threads, __GLOBAL, Currencies }) {
+module.exports.run = async function({ api, event, args }) {
+  const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
   const request = global.nodemodule["request"];
-  const fs = global.nodemodule["fs-extra"];
   
-  var link = ["https://i.imgur.com/IIv809H.jpeg"];
-  
-  var callback = () => api.sendMessage({
-    body: `𝒎𝒖𝒂𝒌 𝒎𝒖𝒂𝒌 𝒎𝒖𝒂𝒌... 😘`,
-    attachment: fs.createReadStream(__dirname + "/cache/ken.jpg")
-  }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/ken.jpg")); 
-  
-  return request(encodeURI(link[Math.floor(Math.random() * link.length)]))
-    .pipe(fs.createWriteStream(__dirname + "/cache/ken.jpg"))
-    .on("close", () => callback());
+  try {
+    const minionImages = [
+      "https://i.imgur.com/IIv809H.jpeg"
+    ];
+    
+    const randomImage = minionImages[Math.floor(Math.random() * minionImages.length)];
+    
+    const callback = () => api.sendMessage({
+      body: `🍌 𝒎𝒖𝒂𝒌 𝒎𝒖𝒂𝒌 𝒎𝒖𝒂𝒌... 😘\n\n"𝑴𝒊𝒏𝒊𝒐𝒏 𝑳𝒂𝒏𝒈𝒖𝒂𝒈𝒆 𝑨𝒄𝒕𝒊𝒗𝒂𝒕𝒆𝒅!"`,
+      attachment: createReadStream(__dirname + "/cache/minion.jpg")
+    }, event.threadID, () => unlinkSync(__dirname + "/cache/minion.jpg"));
+    
+    request(encodeURI(randomImage))
+      .pipe(createWriteStream(__dirname + "/cache/minion.jpg"))
+      .on("close", callback);
+    
+  } catch (error) {
+    api.sendMessage(`❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝑴𝒊𝒏𝒊𝒐𝒏 𝑳𝒂𝒏𝒈𝒖𝒂𝒈𝒆:\n${error.message}`, event.threadID);
+  }
 };
