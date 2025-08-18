@@ -3,49 +3,52 @@ const jimp = require("jimp");
 const fs = require("fs-extra");
 const path = require("path");
 
-module.exports = {
-  config: {
-    name: "marry2",
-    aliases: ["marry2"],
-    version: "2.0",
-    author: "Asif Mahmud",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Biye image generate kore",
-    longDescription: "Apnar bhalobasha ke tag korlei biye-r cute photo paben!",
-    category: "love",
-    guide: {
-      vi: "{pn} @tag",
-      en: "{pn} @tag"
-    }
+module.exports.config = {
+  name: "marry2",
+  aliases: ["marry2"],
+  version: "2.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "💍 Generate marriage proposal images",
+  longDescription: "Tag your loved one to create beautiful marriage proposal images 💖",
+  commandCategory: "love",
+  usages: "{pn} @mention",
+  cooldowns: 5,
+  dependencies: {
+    "axios": "",
+    "jimp": "",
+    "fs-extra": ""
   },
+  envConfig: {}
+};
 
-  onStart: async function ({ message, event }) {
-    try {
-      const mention = Object.keys(event.mentions);
-      if (mention.length === 0) return message.reply("⚠️ Please mention someone to generate the marriage image.");
-
-      const one = mention.length === 1 ? event.senderID : mention[1];
-      const two = mention[0];
-
-      const outputPath = await generateImage(one, two);
-
-      await message.reply({
-        body: "💖 One day with you for sure...",
-        attachment: fs.createReadStream(outputPath)
-      }, () => fs.unlinkSync(outputPath));
-
-    } catch (error) {
-      console.error("❌ Error generating marriage image:", error);
-      message.reply("❌ Sorry! Biye image banate problem hoise. Try again later.");
+module.exports.run = async function ({ message, event }) {
+  try {
+    const mention = Object.keys(event.mentions);
+    if (mention.length === 0) {
+      return message.reply("💌 Please mention someone to generate the marriage image! 💝");
     }
+
+    const one = mention.length === 1 ? event.senderID : mention[1];
+    const two = mention[0];
+
+    const outputPath = await generateImage(one, two);
+
+    await message.reply({
+      body: "💖 One day with you for sure... 💑\n\n- Created by 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+      attachment: fs.createReadStream(outputPath)
+    }, () => fs.unlinkSync(outputPath));
+
+  } catch (error) {
+    console.error("❌ Error:", error);
+    message.reply("😢 Sorry! Couldn't create the marriage image. Please try again later!");
   }
 };
 
 async function generateImage(uid1, uid2) {
   const cachePath = path.join(__dirname, "cache");
   const outputFile = path.join(cachePath, "marry2.png");
-
+  
   await fs.ensureDir(cachePath);
 
   const fbToken = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
