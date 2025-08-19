@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports.config = {
 	name: "markcmt",
 	version: "1.0.1",
@@ -8,14 +10,33 @@ module.exports.config = {
 	usages: "𝒎𝒂𝒓𝒌𝒄𝒎𝒕 [𝒕𝒆𝒙𝒕]",
 	cooldowns: 10,
 	dependencies: {
-		"canvas":"",
-		 "axios":"",
-		 "fs-extra":""
+		"canvas": "",
+		"axios": "",
+		"fs-extra": ""
 	}
 };
 
+module.exports.languages = {
+	"en": {
+		"ERR_TEXT": "Please enter the comment text.",
+		"SUCCESS": "Mark Zuckenberg's fake comment 📝"
+	},
+	"bn": {
+		"ERR_TEXT": "𝑩𝒐𝒂𝒓𝒅 এ 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 লিখতে enter করুন।",
+		"SUCCESS": "𝑴𝒂𝒓𝒌 𝒁𝒖𝒄𝒌𝒆𝒓𝒃𝒆𝒓𝒈-এর কমেন্ট 📝"
+	}
+};
+
+module.exports.onLoad = function () {
+	const fs = global.nodemodule["fs-extra"];
+	const cacheDir = path.join(__dirname, "cache");
+	if (!fs.existsSync(cacheDir)) fs.ensureDirSync(cacheDir);
+};
+
+// Wrap text helper (returns array of lines)
 module.exports.wrapText = (ctx, text, maxWidth) => {
 	return new Promise(resolve => {
+		if (!text) return resolve([]);
 		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
 		if (ctx.measureText('W').width > maxWidth) return resolve(null);
 		const words = text.split(' ');
@@ -37,47 +58,85 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
 				lines.push(line.trim());
 				line = '';
 			}
-			if (words.length === 0) lines.push(line.trim());
+			if (words.length === 0 && line.length > 0) lines.push(line.trim());
 		}
 		return resolve(lines);
 	});
-} 
+};
 
-module.exports.run = async function({ api, event, args }) {
-	let { senderID, threadID, messageID } = event;
-	const { loadImage, createCanvas } = require("canvas");
+module.exports.run = async function ({ api, event, args }) {
 	const fs = global.nodemodule["fs-extra"];
 	const axios = global.nodemodule["axios"];
-	let pathImg = __dirname + '/cache/markcmt.png';
-	var text = args.join(" ");
-	
-	if (!text) return api.sendMessage("𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
-	
-	let getPorn = (await axios.get(`https://i.postimg.cc/m2BW6tLy/test1.png`, { responseType: 'arraybuffer' })).data;
-	fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
-	
-	let baseImage = await loadImage(pathImg);
-	let canvas = createCanvas(baseImage.width, baseImage.height);
-	let ctx = canvas.getContext("2d");
-	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-	ctx.font = "400 13px Roboto";
-	ctx.fillStyle = "#000000";
-	ctx.textAlign = "start";
-	
-	let fontSize = 20;
-	while (ctx.measureText(text).width > 2000) {
-		fontSize--;
-		ctx.font = `400 ${fontSize}px Roboto, Regular`;
+	const { loadImage, createCanvas } = global.nodemodule["canvas"];
+
+	const { threadID, messageID } = event;
+	const text = args.join(" ").trim();
+	const lang = "bn"; // default to Bangla messages; change to "en" if you prefer English strings
+
+	if (!text) {
+		return api.sendMessage(this.languages[lang].ERR_TEXT, threadID, messageID);
 	}
-	
-	const lines = await this.wrapText(ctx, text, 350);
-	ctx.fillText(lines.join('\n'), 55, 60); // comment
-	
-	const imageBuffer = canvas.toBuffer();
-	fs.writeFileSync(pathImg, imageBuffer);
-	
-	return api.sendMessage({ 
-		body: "𝑴𝒂𝒓𝒌 𝒁𝒖𝒄𝒌𝒆𝒓𝒃𝒆𝒓𝒈 𝒆𝒓 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 📝",
-		attachment: fs.createReadStream(pathImg) 
-	}, threadID, () => fs.unlinkSync(pathImg), messageID);        
-}
+
+	try {
+		// ensure cache folder
+		const cacheDir = path.join(__dirname, "cache");
+		if (!fs.existsSync(cacheDir)) fs.ensureDirSync(cacheDir);
+
+		const pathImg = path.join(cacheDir, "markcmt.png");
+
+		// download base image (DO NOT CHANGE LINK)
+		const res = await axios.get("https://i.postimg.cc/m2BW6tLy/test1.png", { responseType: "arraybuffer" });
+		const imageBuffer = Buffer.from(res.data, "binary");
+		fs.writeFileSync(pathImg, imageBuffer);
+
+		// load and draw
+		const baseImage = await loadImage(pathImg);
+		const canvas = createCanvas(baseImage.width, baseImage.height);
+		const ctx = canvas.getContext("2d");
+		ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+		// setup font & style (use system-safe font for compatibility)
+		let fontSize = 20;
+		ctx.textBaseline = "top";
+		ctx.textAlign = "start";
+		ctx.fillStyle = "#000000";
+		ctx.font = `${fontSize}px Arial`;
+
+		// reduce font until it fits width threshold
+		const maxTextWidth = 350;
+		while (ctx.measureText(text).width > maxTextWidth && fontSize > 8) {
+			fontSize--;
+			ctx.font = `${fontSize}px Arial`;
+		}
+
+		// wrap text into lines
+		const lines = await this.wrapText(ctx, text, maxTextWidth);
+
+		// draw each line (multi-line support)
+		const startX = 55;
+		let startY = 60;
+		const lineHeight = Math.round(fontSize * 1.25);
+
+		for (let i = 0; i < lines.length; i++) {
+			ctx.fillText(lines[i], startX, startY + i * lineHeight);
+		}
+
+		// write out final image
+		const finalBuffer = canvas.toBuffer();
+		fs.writeFileSync(pathImg, finalBuffer);
+
+		// send message with image and cleanup
+		return api.sendMessage({
+			body: this.languages[lang].SUCCESS + " ✨\n\n© 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+			attachment: fs.createReadStream(pathImg)
+		}, threadID, (err) => {
+			// remove temp file
+			try { if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg); } catch(e) { /* ignore */ }
+			if (err) console.error(err);
+		}, messageID);
+
+	} catch (error) {
+		console.error("markcmt error:", error);
+		return api.sendMessage("⚠️ এরর হয়েছে — আবার চেষ্টা করুন। (Error occurred, please try again.)", threadID, messageID);
+	}
+};
