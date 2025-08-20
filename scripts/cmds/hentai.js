@@ -3,25 +3,27 @@ module.exports = {
 		name: "hvd",
 		aliases: ["hvdo"],
 		version: "1.0",
-		author: "Asif",
+		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		countDown: 60,
 		role: 0,
-		shortDescription: "get hentai video",
-		longDescription: "it will send hentai  video",
+		shortDescription: "Get hentai video 🎬",
+		longDescription: "Sends random hentai video from curated collection 🌙",
 		category: "𝟭𝟴+",
-		guide: "{p}{n}hvdo",
+		guide: "{p}{n}",
+		envConfig: {
+			// No environment config required
+		}
 	},
 
 	sentVideos: [],
 
 	onStart: async function ({ api, event, message }) {
 		const senderID = event.senderID;
-
 		const loadingMessage = await message.reply({
-			body: "Loading random fuÇk v1d30... Please wait! upto 5min 🤡",
+			body: "🔞 | Loading random adult video...\n⏳ | Please wait up to 5 minutes"
 		});
 
-		const link = [
+		const videoLinks = [
 				"https://drive.google.com/uc?export=download&id=1ywjcqK_AkWyxnRXjoB0JKLdChZsR69cK",
 				"https://drive.google.com/uc?export=download&id=1xyC3bJWlmZVMoWJHYRLdX_dNibPVBDIV",
 				"https://drive.google.com/uc?export=download&id=1whpsUv4Xzt3bp-QSlx03cLdwW2UsnEt2",
@@ -140,30 +142,26 @@ module.exports = {
 				"https://drive.google.com/uc?export=download&id=1-prVKuEIlMFsOxeDLZ3_y8A7HEUNmq6l",
 				"https://drive.google.com/uc?export=download&id=1-oJvKu5Pv4xvGoA3Snk2H8WHNbr7sD2R",
 				"https://drive.google.com/uc?export=download&id=1-7rYID9JMd38eg5NplPVFbD7jTE8NDyf",
+];
 
-
-		];
-
-		const availableVideos = link.filter(video => !this.sentVideos.includes(video));
-
+		const availableVideos = videoLinks.filter(video => !this.sentVideos.includes(video));
+		
 		if (availableVideos.length === 0) {
 			this.sentVideos = [];
 		}
 
-		const randomIndex = Math.floor(Math.random() * availableVideos.length);
-		const randomVideo = availableVideos[randomIndex];
-
+		const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
 		this.sentVideos.push(randomVideo);
 
-		if (senderID !== null) {
-			message.reply({
-				body: 'make sure to watch full video🥵',
-				attachment: await global.utils.getStreamFromURL(randomVideo),
+		try {
+			await message.reply({
+				body: "🎬 | Here's your adult video\n⚠️ | Make sure to watch full video",
+				attachment: await global.utils.getStreamFromURL(randomVideo)
 			});
-
-			setTimeout(() => {
-				api.unsendMessage(loadingMessage.messageID);
-			}, 5000);
+		} catch (error) {
+			await message.reply("❌ | Error sending video. Please try again later.");
+		} finally {
+			api.unsendMessage(loadingMessage.messageID);
 		}
-	},
+	}
 };
