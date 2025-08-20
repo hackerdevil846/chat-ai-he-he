@@ -1,98 +1,97 @@
 const fs = require("fs-extra");
 const path = require("path");
 
-const OWNER_UID = "61571630409265"; // Your UID
-
-const NICKNAME_LOCK_FILE = path.join(__dirname, "../data/locked_nicknames.json");
-
-function loadLockedNicknames() {
-    try {
-        if (fs.existsSync(NICKNAME_LOCK_FILE)) {
-            return JSON.parse(fs.readFileSync(NICKNAME_LOCK_FILE, "utf8"));
-        }
-    } catch (error) {
-        console.error("𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓:", error);
-    }
-    return {};
-}
-
-function saveLockedNicknames(data) {
-    try {
-        fs.ensureFileSync(NICKNAME_LOCK_FILE);
-        fs.writeFileSync(NICKNAME_LOCK_FILE, JSON.stringify(data, null, 2), "utf8");
-    } catch (error) {
-        console.error("𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒔𝒂𝒗𝒆 𝒆𝒓𝒓𝒐𝒓:", error);
-    }
-}
-
 module.exports.config = {
     name: "locknick",
     version: "2.3.0",
-    hasPermssion: 0,
+    hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒔𝒐𝒃𝒂𝒊𝒆𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝒂𝒕𝒉𝒂𝒃𝒂 𝒖𝒏𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "𝑮𝒓𝒐𝒖𝒑",
-    usages: "𝒍𝒐𝒄𝒌𝒏𝒊𝒄𝒌 [𝒐𝒏/𝒐𝒇𝒇]",
+    description: "🔒 𝐋𝐨𝐜𝐤/𝐮𝐧𝐥𝐨𝐜𝐤 𝐠𝐫𝐨𝐮𝐩 𝐦𝐞𝐦𝐛𝐞𝐫𝐬' 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬",
+    commandCategory: "𝐆𝐫𝐨𝐮𝐩",
+    usages: "locknick [on/off]",
     cooldowns: 5
 };
 
+const OWNER_UID = "61571630409265";
+const NICKNAME_LOCK_FILE = path.join(__dirname, "../data/locked_nicknames.json");
+
 module.exports.run = async function ({ api, event, args }) {
     const { threadID, senderID } = event;
-    const subcmd = args[0] ? args[0].toLowerCase() : "";
-    
-    let lockedNicknames = loadLockedNicknames();
 
-    // Owner permission check
+    // Load locked nicknames data
+    const loadData = () => {
+        try {
+            return fs.existsSync(NICKNAME_LOCK_FILE) 
+                ? JSON.parse(fs.readFileSync(NICKNAME_LOCK_FILE, "utf8")) 
+                : {};
+        } catch (error) {
+            console.error("🔴 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐞𝐫𝐫𝐨𝐫:", error);
+            return {};
+        }
+    };
+
+    // Save locked nicknames data
+    const saveData = (data) => {
+        try {
+            fs.ensureFileSync(NICKNAME_LOCK_FILE);
+            fs.writeFileSync(NICKNAME_LOCK_FILE, JSON.stringify(data, null, 4));
+            return true;
+        } catch (error) {
+            console.error("🔴 𝐒𝐚𝐯𝐢𝐧𝐠 𝐞𝐫𝐫𝐨𝐫:", error);
+            return false;
+        }
+    };
+
+    // Permission check
     if (senderID !== OWNER_UID) {
-        return api.sendMessage("⛔ 𝑺𝒊𝒓𝒇 𝒎𝒂𝒍𝒊𝒌 𝒆𝒊 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒖𝒔𝒆 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒃𝒆!", threadID);
+        return api.sendMessage("⛔️ 𝐎𝐧𝐥𝐲 𝐛𝐨𝐭 𝐨𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝!", threadID);
     }
 
-    switch (subcmd) {
-        case "on": {
-            if (lockedNicknames[threadID]) {
-                return api.sendMessage("🔒 𝑨𝒊 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒂𝒈𝒆𝒓 𝒆𝒊 𝒍𝒐𝒄𝒌 𝒂𝒄𝒉𝒆!", threadID);
+    const action = args[0]?.toLowerCase();
+    const lockedData = loadData();
+
+    switch (action) {
+        case "on":
+            if (lockedData[threadID]) {
+                return api.sendMessage("🔐 𝐀𝐥𝐫𝐞𝐚𝐝𝐲 𝐥𝐨𝐜𝐤𝐞𝐝 𝐢𝐧 𝐭𝐡𝐢𝐬 𝐠𝐫𝐨𝐮𝐩!", threadID);
             }
 
             try {
                 const threadInfo = await api.getThreadInfo(threadID);
-                if (!threadInfo || !threadInfo.userInfo) {
-                    return api.sendMessage("𝑮𝒓𝒐𝒖𝒑 𝒊𝒏𝒇𝒐 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆 𝒏𝒂 😢", threadID);
-                }
-
-                const currentNicks = {};
-                for (const user of threadInfo.userInfo) {
+                const nicknamesMap = {};
+                
+                threadInfo.userInfo.forEach(user => {
                     if (user.id !== api.getCurrentUserID()) {
-                        currentNicks[user.id] = user.nickname || "";
+                        nicknamesMap[user.id] = user.nickname || "";
                     }
+                });
+
+                lockedData[threadID] = nicknamesMap;
+                if (saveData(lockedData)) {
+                    api.sendMessage("✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐥𝐨𝐜𝐤𝐞𝐝 𝐚𝐥𝐥 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬!", threadID);
+                } else {
+                    api.sendMessage("🔴 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐬𝐚𝐯𝐞 𝐥𝐨𝐜𝐤 𝐝𝐚𝐭𝐚!", threadID);
                 }
-
-                lockedNicknames[threadID] = currentNicks;
-                saveLockedNicknames(lockedNicknames);
-
-                return api.sendMessage("🔒 𝑨𝒊 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒔𝒐𝒃𝒂𝒊𝒆𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐 ✅", threadID);
-
             } catch (error) {
-                console.error("𝑳𝒐𝒄𝒌𝒏𝒊𝒄𝒌 𝒆𝒓𝒓𝒐𝒓:", error);
-                return api.sendMessage("𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢", threadID);
+                console.error(error);
+                api.sendMessage("🔴 𝐄𝐫𝐫𝐨𝐫 𝐟𝐞𝐭𝐜𝐡𝐢𝐧𝐠 𝐠𝐫𝐨𝐮𝐩 𝐢𝐧𝐟𝐨!", threadID);
             }
-        }
+            break;
 
-        case "off": {
-            if (!lockedNicknames[threadID]) {
-                return api.sendMessage("⚠️ 𝑨𝒊 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝒏𝒆𝒊!", threadID);
+        case "off":
+            if (!lockedData[threadID]) {
+                return api.sendMessage("🔓 𝐍𝐨 𝐥𝐨𝐜𝐤𝐞𝐝 𝐝𝐚𝐭𝐚 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 𝐭𝐡𝐢𝐬 𝐠𝐫𝐨𝐮𝐩!", threadID);
             }
 
-            try {
-                delete lockedNicknames[threadID];
-                saveLockedNicknames(lockedNicknames);
-                return api.sendMessage("✅ 𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝒖𝒏𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐", threadID);
-            } catch (error) {
-                console.error("𝑼𝒏𝒍𝒐𝒄𝒌𝒏𝒊𝒄𝒌 𝒆𝒓𝒓𝒐𝒓:", error);
-                return api.sendMessage("𝑼𝒏𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢", threadID);
+            delete lockedData[threadID];
+            if (saveData(lockedData)) {
+                api.sendMessage("✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐮𝐧𝐥𝐨𝐜𝐤𝐞𝐝 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬!", threadID);
+            } else {
+                api.sendMessage("🔴 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐬𝐚𝐯𝐞 𝐮𝐧𝐥𝐨𝐜𝐤 𝐝𝐚𝐭𝐚!", threadID);
             }
-        }
+            break;
 
         default:
-            return api.sendMessage("❌ 𝑽𝒖𝒍 𝒍𝒆𝒌𝒉𝒆𝒏: 𝒍𝒐𝒄𝒌𝒏𝒊𝒄𝒌 𝒐𝒏/𝒐𝒇𝒇", threadID);
+            api.sendMessage("🔧 𝐔𝐬𝐚𝐠𝐞: locknick [on/off]\n✦ 𝐨𝐧: 𝐋𝐨𝐜𝐤 𝐜𝐮𝐫𝐫𝐞𝐧𝐭 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬\n✦ 𝐨𝐟𝐟: 𝐔𝐧𝐥𝐨𝐜𝐤 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬", threadID);
     }
 };
