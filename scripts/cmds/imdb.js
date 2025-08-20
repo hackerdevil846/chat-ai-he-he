@@ -5,71 +5,84 @@ const path = require("path");
 module.exports.config = {
     name: "imdb",
     version: "1.0.6",
-    hasPermission: 0,
+    hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑰𝑴𝑫𝑩 𝒕𝒉𝒆𝒌𝒆 𝒎𝒐𝒗𝒊𝒆 𝒃𝒂 𝒔𝒆𝒓𝒊𝒆𝒔 𝒆𝒓 𝒅𝒆𝒕𝒂𝒊𝒍𝒔 𝒋𝒂𝒏𝒖𝒏",
-    commandCategory: "𝒔𝒆𝒂𝒓𝒄𝒉",
-    usages: "[𝒎𝒐𝒗𝒊𝒆/𝒔𝒆𝒓𝒊𝒆𝒔 𝒏𝒂𝒎]",
-    cooldowns: 3
+    description: "Get movie/series details from IMDB",
+    commandCategory: "media",
+    usages: "[movie/series name]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": "",
+        "fs": "",
+        "path": ""
+    }
 };
 
-module.exports.run = async ({ event, args, api }) => {
-    if (!args.length) {
-        return api.sendMessage("❗ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒕𝒊 𝒎𝒐𝒗𝒊𝒆 𝒃𝒂 𝒔𝒆𝒓𝒊𝒆𝒔 𝒆𝒓 𝒏𝒂𝒎 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏!", event.threadID, event.messageID);
-    }
-
-    const query = args.join(" ");
-    const apiKey = "8f50e26e"; // Your IMDb API Key
-    const url = `http://www.omdbapi.com/?t=${encodeURIComponent(query)}&apikey=${apiKey}`;
-
+module.exports.run = async function({ api, event, args }) {
     try {
+        if (!args.length) {
+            return api.sendMessage("🎬 | Please provide a movie/series name!\nUsage: imdb <movie/series name>", event.threadID, event.messageID);
+        }
+
+        const query = args.join(" ");
+        const apiKey = "8f50e26e";
+        const url = `http://www.omdbapi.com/?t=${encodeURIComponent(query)}&apikey=${apiKey}`;
+
         const response = await axios.get(url);
         const data = response.data;
 
         if (data.Response === "False") {
-            return api.sendMessage(`❌ 𝑰𝑴𝑫𝑩 𝒕𝒆 *${query}* 𝒆𝒓 𝒌𝒐𝒏𝒐 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒑𝒂𝒘𝒂 𝒋𝒂𝒊𝒏𝒊 𝒏𝒂𝒊`, event.threadID, event.messageID);
+            return api.sendMessage(`❌ | No results found for "${query}"\nPlease check the title and try again!`, event.threadID, event.messageID);
         }
 
-        // Send movie info
-        const message = `🎬 *${data.Title}* (${data.Year})\n⭐ 𝑰𝑴𝑫𝑩 𝑹𝒂𝒕𝒊𝒏𝒈: ${data.imdbRating}/10\n🎭 𝑮𝒆𝒏𝒓𝒆: ${data.Genre}\n🎬 𝑫𝒊𝒓𝒆𝒄𝒕𝒐𝒓: ${data.Director}\n📜 𝑷𝒍𝒐𝒕: ${data.Plot}\n🌍 𝑪𝒐𝒖𝒏𝒕𝒓𝒚: ${data.Country}\n\n🔗 𝑰𝑴𝑫𝑩: https://www.imdb.com/title/${data.imdbID}/`;
+        const message = `
+🎬 𝗧𝗜𝗧𝗟𝗘: ${data.Title} (${data.Year})
+⭐ 𝗥𝗔𝗧𝗜𝗡𝗚: ${data.imdbRating}/10
+🎭 𝗚𝗘𝗡𝗥𝗘: ${data.Genre}
+📅 𝗥𝗘𝗟𝗘𝗔𝗦𝗘𝗗: ${data.Released}
+⏰ 𝗥𝗨𝗡𝗧𝗜𝗠𝗘: ${data.Runtime}
+🎙️ 𝗟𝗔𝗡𝗚𝗨𝗔𝗚𝗘: ${data.Language}
+🎬 𝗗𝗜𝗥𝗘𝗖𝗧𝗢𝗥: ${data.Director}
+📝 𝗪𝗥𝗜𝗧𝗘𝗥: ${data.Writer}
+👨‍👩‍👧‍👦 𝗖𝗔𝗦𝗧: ${data.Actors}
+🏆 𝗔𝗪𝗔𝗥𝗗𝗦: ${data.Awards}
+🌍 𝗖𝗢𝗨𝗡𝗧𝗥𝗬: ${data.Country}
+
+📜 𝗣𝗟𝗢𝗧:
+${data.Plot}
+
+🔗 𝗜𝗠𝗗𝗕 𝗟𝗜𝗡𝗞: https://www.imdb.com/title/${data.imdbID}/
+        `.trim();
+
         api.sendMessage(message, event.threadID, event.messageID);
 
-        // Download and send poster if available
         if (data.Poster && data.Poster !== "N/A") {
             const cacheDir = path.join(__dirname, "cache");
-            if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir);
+            }
 
-            const filePath = path.join(cacheDir, `${data.Title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`);
-            const writer = fs.createWriteStream(filePath);
-            
+            const posterPath = path.join(cacheDir, `imdb_${data.imdbID}.jpg`);
+            const writer = fs.createWriteStream(posterPath);
             const imageResponse = await axios({
                 url: data.Poster,
-                method: "GET",
-                responseType: "stream"
+                method: 'GET',
+                responseType: 'stream'
             });
 
             imageResponse.data.pipe(writer);
 
-            writer.on("finish", () => {
-                api.sendMessage({ 
-                    body: "🎞 𝑴𝒐𝒗𝒊𝒆 𝑷𝒐𝒔𝒕𝒆𝒓:",
-                    attachment: fs.createReadStream(filePath) 
+            writer.on('finish', () => {
+                api.sendMessage({
+                    body: "📸 𝗣𝗢𝗦𝗧𝗘𝗥:",
+                    attachment: fs.createReadStream(posterPath)
                 }, event.threadID, () => {
-                    setTimeout(() => {
-                        fs.unlink(filePath, (err) => {
-                            if (err) console.error("❌ 𝑷𝒐𝒔𝒕𝒆𝒓 𝒅𝒆𝒍𝒆𝒕𝒆 𝒉𝒐𝒚𝒏𝒊:", err);
-                        });
-                    }, 5000);
+                    fs.unlinkSync(posterPath);
                 });
-            });
-
-            writer.on("error", (err) => {
-                console.error(err);
-                api.sendMessage("⚠️ 𝑷𝒐𝒔𝒕𝒆𝒓 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒄𝒄𝒉𝒆!", event.threadID, event.messageID);
             });
         }
     } catch (error) {
         console.error(error);
-        return api.sendMessage("⚠️ 𝑰𝑴𝑫𝑩 𝑨𝑷𝑰 𝒕𝒉𝒆𝒌𝒆 𝒅𝒂𝒕𝒂 𝒂𝒏𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒄𝒄𝒉𝒆! 𝑷𝒐𝒓𝒆 𝒂𝒃𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
+        api.sendMessage("❌ | An error occurred while fetching the data. Please try again later!", event.threadID, event.messageID);
     }
 };
