@@ -3,25 +3,19 @@ module.exports = {
     name: "lyricalvideo",
     aliases: ["lyricseditvibe", "lyricsvideo", "lyricaledit"],
     version: "2.0",
-    author: "Asif Mahmud",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 20,
     role: 0,
     shortDescription: "Get random lyrical video",
-    longDescription: "It sends you a random lyrical video from Lyrics Edit Vibe group",
+    longDescription: "Sends random lyrical videos from Lyrics Edit Vibe group collection",
     category: "music",
-    guide: "{pn} lyricalvideo",
+    guide: "{pn} lyricalvideo"
   },
 
-  sentVideos: [],
-
-  onStart: async function({ api, event, message }) {
+  onStart: async function ({ api, event, message }) {
     try {
-      const senderID = event.senderID;
+      const loadingMessage = await message.reply("🎵 | Loading random lyrical video... Please wait! ⏳");
 
-      // Loading message show করুন
-      const loadingMessage = await message.reply("Loading random lyrical video... Please wait! 🕐");
-
-      // সব ভিডিও লিঙ্ক এখানে (আপনার দেওয়া সব লিঙ্ক)
       const videoLinks = [
         "https://drive.google.com/uc?export=download&id=1xdoZpGGd1iC9zkTHojL-uh_Xu8pp8LwJ",
         "https://drive.google.com/uc?export=download&id=1RNZhamE4ArtjdsCvbeBWtIzhRYmMbG6z",
@@ -254,36 +248,47 @@ module.exports = {
         "https://drive.google.com/uc?export=download&id=1Bqic0ZpyK2Qcx-kGd5vPyb0_rDXk4Ui_"
       ];
 
-      // আগের পাঠানো ভিডিও বাদ দিয়ে নতুন ভিডিও পেতে filter করুন
-      let availableVideos = videoLinks.filter(link => !this.sentVideos.includes(link));
+      // Get sent videos from persistent storage
+      let sentVideos = await this.getData(event.threadID) || [];
+      
+      // Filter available videos
+      let availableVideos = videoLinks.filter(link => !sentVideos.includes(link));
 
-      // যদি সব ভিডিও পাঠানো হয়ে যায়, তাহলে sentVideos রিসেট করুন
       if (availableVideos.length === 0) {
-        this.sentVideos = [];
+        sentVideos = [];
         availableVideos = [...videoLinks];
       }
 
-      // র্যান্ডম ভিডিও সিলেক্ট করুন
       const randomIndex = Math.floor(Math.random() * availableVideos.length);
       const selectedVideo = availableVideos[randomIndex];
 
-      // পাঠানো ভিডিও লিস্টে যোগ করুন
-      this.sentVideos.push(selectedVideo);
+      // Update sent videos
+      sentVideos.push(selectedVideo);
+      await this.setData(event.threadID, sentVideos);
 
-      // ভিডিও পাঠান
+      // Send video
       await message.reply({
-        body: "Enjoy your lyrical video! 🤍",
+        body: "🎶 | Here's your lyrical video! Enjoy! 💖\n━━━━━━━━━━━━━━\n✨ | Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
         attachment: await global.utils.getStreamFromURL(selectedVideo)
       });
 
-      // লোডিং মেসেজ ৫ সেকেন্ড পর আনসেন্ড করুন
-      setTimeout(() => {
-        api.unsendMessage(loadingMessage.messageID);
-      }, 5000);
+      // Unsend loading message
+      await api.unsendMessage(loadingMessage.messageID);
 
     } catch (error) {
-      console.error("Error in lyricalvideo command:", error);
-      message.reply("Sorry, kono problem hoise video pathate. Please try again later! 🙏");
+      console.error("Error:", error);
+      message.reply("❌ | Sorry, couldn't send the video. Please try again later! 🙏");
     }
+  },
+
+  // Helper functions for persistent storage
+  getData: async function (threadID) {
+    // Implement your data retrieval logic here
+    return global.db ? global.db.get('lyricalVideos', threadID) : [];
+  },
+
+  setData: async function (threadID, data) {
+    // Implement your data storage logic here
+    if (global.db) await global.db.set('lyricalVideos', threadID, data);
   }
 };
