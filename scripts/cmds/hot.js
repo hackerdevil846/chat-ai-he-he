@@ -19,137 +19,138 @@ const videoLibrary = {
   fileExtensions: ['.mp4']
 };
 
-module.exports = {
-  config: {
-    name: "hot",
-    version: "1.0.1",
-    role: 0,
-    credits: "Asif",
-    description: "Get a random hot video",
-    category: "media",
-    usage: "hot",
-    example: "hot",
-    cooldown: 5
-  },
+module.exports.config = {
+  name: "hot",
+  version: "1.0.1",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Get a random hot video",
+  commandCategory: "media",
+  usages: "hot",
+  cooldowns: 5,
+  dependencies: {
+    "axios": "",
+    "fs-extra": ""
+  }
+};
 
-  onLoad: async function() {
-    try {
-      await fs.ensureDir(videoLibrary.cacheDir);
-      const files = await fs.readdir(videoLibrary.cacheDir);
-      if (files.length > 0) {
-        await this.cleanupCache();
-      }
-      console.log("Hot video cache initialized successfully");
-    } catch (error) {
-      console.error("Hot command initialization error:", error);
-    }
-  },
-
-  onStart: async function({ api, event }) {
-    const { threadID, messageID } = event;
-
-    try {
-      await api.sendMessage("⏳ Fetching a hot video for you...", threadID, messageID);
-
-      const availableVideos = await this.getAvailableVideos();
-      let videoPath;
-
-      if (availableVideos.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableVideos.length);
-        videoPath = path.join(videoLibrary.cacheDir, availableVideos[randomIndex]);
-      } else {
-        videoPath = await this.downloadNewVideo();
-      }
-
-      return api.sendMessage({
-        body: "🔥 Here's a hot video for you!",
-        attachment: fs.createReadStream(videoPath)
-      }, threadID, messageID);
-
-    } catch (error) {
-      console.error("Hot command error:", error);
-      return api.sendMessage("❌ Failed to get a hot video. Please try again later.", threadID, messageID);
-    }
-  },
-
-  getAvailableVideos: async function() {
-    try {
-      const files = await fs.readdir(videoLibrary.cacheDir);
-      return files.filter(file => {
-        const ext = path.extname(file).toLowerCase();
-        return videoLibrary.fileExtensions.includes(ext);
-      });
-    } catch (error) {
-      console.error("Error reading video cache:", error);
-      return [];
-    }
-  },
-
-  downloadNewVideo: async function() {
-    const randomLink = videoLibrary.videoLinks[
-      Math.floor(Math.random() * videoLibrary.videoLinks.length)
-    ];
-
-    const fileName = `hot_${Date.now()}.mp4`;
-    const filePath = path.join(videoLibrary.cacheDir, fileName);
-
-    try {
-      const response = await axios({
-        method: 'GET',
-        url: randomLink,
-        responseType: 'stream',
-        timeout: 60000
-      });
-
-      const writer = fs.createWriteStream(filePath);
-      response.data.pipe(writer);
-
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
-
+module.exports.onLoad = async function() {
+  try {
+    await fs.ensureDir(videoLibrary.cacheDir);
+    const files = await fs.readdir(videoLibrary.cacheDir);
+    if (files.length > 0) {
       await this.cleanupCache();
+    }
+    console.log("✨ Hot video cache initialized successfully");
+  } catch (error) {
+    console.error("❌ Hot command initialization error:", error);
+  }
+};
 
-      return filePath;
-    } catch (error) {
-      console.error("Video download failed:", error);
+module.exports.run = async function({ api, event }) {
+  const { threadID, messageID } = event;
 
-      if (await fs.pathExists(filePath)) {
-        try {
-          await fs.unlink(filePath);
-        } catch (cleanupErr) {
-          console.error("Cleanup error:", cleanupErr);
-        }
+  try {
+    await api.sendMessage("⏳ Fetching a hot video for you...", threadID, messageID);
+
+    const availableVideos = await this.getAvailableVideos();
+    let videoPath;
+
+    if (availableVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableVideos.length);
+      videoPath = path.join(videoLibrary.cacheDir, availableVideos[randomIndex]);
+    } else {
+      videoPath = await this.downloadNewVideo();
+    }
+
+    return api.sendMessage({
+      body: "🔥 Here's a hot video for you!",
+      attachment: fs.createReadStream(videoPath)
+    }, threadID, messageID);
+
+  } catch (error) {
+    console.error("❌ Hot command error:", error);
+    return api.sendMessage("❌ Failed to get a hot video. Please try again later.", threadID, messageID);
+  }
+};
+
+module.exports.getAvailableVideos = async function() {
+  try {
+    const files = await fs.readdir(videoLibrary.cacheDir);
+    return files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return videoLibrary.fileExtensions.includes(ext);
+    });
+  } catch (error) {
+    console.error("❌ Error reading video cache:", error);
+    return [];
+  }
+};
+
+module.exports.downloadNewVideo = async function() {
+  const randomLink = videoLibrary.videoLinks[
+    Math.floor(Math.random() * videoLibrary.videoLinks.length)
+  ];
+
+  const fileName = `hot_${Date.now()}.mp4`;
+  const filePath = path.join(videoLibrary.cacheDir, fileName);
+
+  try {
+    const response = await axios({
+      method: 'GET',
+      url: randomLink,
+      responseType: 'stream',
+      timeout: 60000
+    });
+
+    const writer = fs.createWriteStream(filePath);
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
+
+    await this.cleanupCache();
+
+    return filePath;
+  } catch (error) {
+    console.error("❌ Video download failed:", error);
+
+    if (await fs.pathExists(filePath)) {
+      try {
+        await fs.unlink(filePath);
+      } catch (cleanupErr) {
+        console.error("❌ Cleanup error:", cleanupErr);
       }
-
-      throw new Error("Failed to download video");
     }
-  },
 
-  cleanupCache: async function() {
-    try {
-      const files = await this.getAvailableVideos();
-      if (files.length <= videoLibrary.maxCacheSize) return;
+    throw new Error("Failed to download video");
+  }
+};
 
-      const fileStats = await Promise.all(
-        files.map(file => fs.stat(path.join(videoLibrary.cacheDir, file)))
-      );
+module.exports.cleanupCache = async function() {
+  try {
+    const files = await this.getAvailableVideos();
+    if (files.length <= videoLibrary.maxCacheSize) return;
 
-      const sortedFiles = files
-        .map((file, i) => ({ file, mtime: fileStats[i].mtimeMs }))
-        .sort((a, b) => a.mtime - b.mtime);
+    const fileStats = await Promise.all(
+      files.map(file => fs.stat(path.join(videoLibrary.cacheDir, file)))
+    );
 
-      const deleteCount = sortedFiles.length - videoLibrary.maxCacheSize;
-      const filesToDelete = sortedFiles.slice(0, deleteCount);
+    const sortedFiles = files
+      .map((file, i) => ({ file, mtime: fileStats[i].mtimeMs }))
+      .sort((a, b) => a.mtime - b.mtime);
 
-      await Promise.all(
-        filesToDelete.map(item => fs.unlink(path.join(videoLibrary.cacheDir, item.file)))
-      );
+    const deleteCount = sortedFiles.length - videoLibrary.maxCacheSize;
+    const filesToDelete = sortedFiles.slice(0, deleteCount);
 
-      console.log(`Cleaned up ${deleteCount} old video(s) from cache`);
-    } catch (error) {
-      console.error("Cache cleanup error:", error);
-    }
+    await Promise.all(
+      filesToDelete.map(item => fs.unlink(path.join(videoLibrary.cacheDir, item.file)))
+    );
+
+    console.log(`🗑️ Cleaned up ${deleteCount} old video(s) from cache`);
+  } catch (error) {
+    console.error("❌ Cache cleanup error:", error);
   }
 };
