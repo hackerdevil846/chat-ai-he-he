@@ -1,57 +1,102 @@
-const OWNER_UID = "61571630409265"; // Updated to your specified UID
-let lockedGroupNames = {};
+const OWNER_UID = "61571630409265";
 
 module.exports.config = {
-  name: "lockname",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒏𝒂𝒎 𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒖𝒏. 𝑵𝒂𝒎 𝒄𝒉𝒂𝒏𝒈𝒆 𝒌𝒐𝒓𝒍𝒆 𝒃𝒐𝒕 𝒑𝒖𝒏𝒂𝒓 𝒔𝒆𝒕 𝒌𝒐𝒓𝒆. 𝑶𝒘𝒏𝒆𝒓 𝒆𝒓 𝒋𝒐𝒏𝒏𝒐.",
-  commandCategory: "𝑮𝒓𝒐𝒖𝒑",
-  usages: "𝒍𝒐𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌/𝒖𝒏𝒍𝒐𝒄𝒌/𝒓𝒆𝒔𝒆𝒕",
-  cooldowns: 3
+	name: "lockname",
+	version: "1.0.1",
+	hasPermssion: 2,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🔒 𝐆𝐫𝐨𝐮𝐩 𝐍𝐚𝐦𝐞 𝐋𝐨𝐜𝐤 𝐒𝐲𝐬𝐭𝐞𝐦",
+	commandCategory: "group",
+	usages: "lockname [lock/unlock/reset] [name]",
+	cooldowns: 3,
+	envConfig: {
+		autoUnlock: false
+	}
 };
 
-module.exports.run = async ({ api, event, args }) => {
-  const { threadID, senderID } = event;
-  
-  // Check if user is the owner
-  if (senderID !== OWNER_UID) {
-    return api.sendMessage("⛔ 𝑺𝒊𝒓𝒇 𝒎𝒂𝒍𝒊𝒌 𝒆𝒊 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒄𝒉𝒂𝒍𝒂𝒕𝒆 𝒑𝒂𝒓𝒃𝒆!", threadID);
-  }
+const lockedGroups = new Map();
 
-  const subcmd = args[0]?.toLowerCase();
-  if (!subcmd) {
-    return api.sendMessage("⚠️ 𝑼𝒔𝒂𝒈𝒆: 𝒍𝒐𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌/𝒖𝒏𝒍𝒐𝒄𝒌/𝒓𝒆𝒔𝒆𝒕 <𝒏𝒂𝒎𝒆>", threadID);
-  }
+module.exports.onLoad = function() {
+    console.log('🔒 Lockname Module Loaded Successfully');
+}
 
-  switch (subcmd) {
-    case "lock": {
-      const name = args.slice(1).join(" ");
-      if (!name) return api.sendMessage("❗ 𝑵𝒂𝒎 𝒅𝒊𝒚𝒆𝒏 𝒏𝒂?\n𝑼𝒔𝒂𝒈𝒆: 𝒍𝒐𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌 𝑮𝒓𝒐𝒖𝒑 𝑵𝒂𝒎", threadID);
-      
-      lockedGroupNames[threadID] = name;
-      await api.setTitle(name, threadID);
-      return api.sendMessage(`🔒 𝑮𝒓𝒐𝒖𝒑 𝒏𝒂𝒎 𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐: ${name}`, threadID);
+module.exports.handleEvent = async function({ event, api }) {
+    if (event.type === "event" && event.logMessageType === "log:thread-name") {
+        const { threadID, logMessageData } = event;
+        if (lockedGroups.has(threadID)) {
+            const lockedName = lockedGroups.get(threadID);
+            if (logMessageData.name !== lockedName) {
+                await api.setTitle(lockedName, threadID);
+                api.sendMessage(
+                    `⚠️ 𝗡𝗮𝗺𝗲 𝗔𝘂𝘁𝗼-𝗥𝗲𝘀𝗲𝘁!\n𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐡𝐚𝐬 𝐛𝐞𝐞𝐧 𝐫𝐞𝐬𝐞𝐭 𝐭𝐨: ${lockedName}`,
+                    threadID
+                );
+            }
+        }
+    }
+}
+
+module.exports.run = async function({ api, event, args }) {
+    const { threadID, senderID } = event;
+    
+    if (senderID !== OWNER_UID) {
+        return api.sendMessage("⛔ 𝗔𝗰𝗰𝗲𝘀𝘀 𝗗𝗲𝗻𝗶𝗲𝗱!\n𝗢𝗻𝗹𝘆 𝗯𝗼𝘁 𝗼𝘄𝗻𝗲𝗿 𝗰𝗮𝗻 𝘂𝘀𝗲 𝘁𝗵𝗶𝘀 𝗰𝗼𝗺𝗺𝗮𝗻𝗱!", threadID);
     }
 
-    case "unlock": {
-      delete lockedGroupNames[threadID];
-      return api.sendMessage("🔓 𝑮𝒓𝒐𝒖𝒑 𝒏𝒂𝒎 𝒖𝒏𝒍𝒐𝒄𝒌 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐", threadID);
+    const action = args[0]?.toLowerCase();
+    const name = args.slice(1).join(" ");
+
+    if (!action) {
+        return api.sendMessage(
+            "🔧 𝗨𝘀𝗮𝗴𝗲 𝗚𝘂𝗶𝗱𝗲:\n" +
+            "• lockname lock [name]\n" +
+            "• lockname unlock\n" +
+            "• lockname reset",
+            threadID
+        );
     }
 
-    case "reset": {
-      if (!lockedGroupNames[threadID]) {
-        return api.sendMessage("⚠️ 𝑲𝒐𝒏𝒐 𝒏𝒂𝒎 𝒍𝒐𝒄𝒌 𝒏𝒂𝒊 𝒌𝒐𝒓𝒂", threadID);
-      }
-      
-      await api.setTitle(lockedGroupNames[threadID], threadID);
-      return api.sendMessage(`♻️ 𝑮𝒓𝒐𝒖𝒑 𝒏𝒂𝒎 𝒑𝒖𝒏𝒂𝒓 𝒔𝒆𝒕 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐: ${lockedGroupNames[threadID]}`, threadID);
-    }
+    switch (action) {
+        case "lock":
+            if (!name) return api.sendMessage("📛 𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗮 𝗴𝗿𝗼𝘂𝗽 𝗻𝗮𝗺𝗲 𝘁𝗼 𝗹𝗼𝗰𝗸!", threadID);
+            
+            lockedGroups.set(threadID, name);
+            await api.setTitle(name, threadID);
+            api.sendMessage(
+                `✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗟𝗼𝗰𝗸𝗲𝗱\n𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐥𝐨𝐜𝐤𝐞𝐝 𝐚𝐬: ${name}`,
+                threadID
+            );
+            break;
 
-    default:
-      return api.sendMessage("⚠️ 𝑼𝒔𝒂𝒈𝒆: 𝒍𝒐𝒄𝒌𝒏𝒂𝒎𝒆 𝒍𝒐𝒄𝒌/𝒖𝒏𝒍𝒐𝒄𝒌/𝒓𝒆𝒔𝒆𝒕 <𝒏𝒂𝒎𝒆>", threadID);
-  }
+        case "unlock":
+            if (!lockedGroups.has(threadID)) {
+                return api.sendMessage("🔓 𝗔𝗹𝗿𝗲𝗮𝗱𝘆 𝗨𝗻𝗹𝗼𝗰𝗸𝗲𝗱!\n𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐢𝐬 𝐧𝐨𝐭 𝐥𝐨𝐜𝐤𝐞𝐝.", threadID);
+            }
+            
+            lockedGroups.delete(threadID);
+            api.sendMessage(
+                "✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗨𝗻𝗹𝗼𝗰𝗸𝗲𝗱\n𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐥𝐨𝐜𝐤 𝐫𝐞𝐦𝐨𝐯𝐞𝐝.",
+                threadID
+            );
+            break;
+
+        case "reset":
+            if (!lockedGroups.has(threadID)) {
+                return api.sendMessage("⚠️ 𝗡𝗼 𝗟𝗼𝗰𝗸 𝗙𝗼𝘂𝗻𝗱!\n𝐍𝐨 𝐥𝐨𝐜𝐤𝐞𝐝 𝐧𝐚𝐦𝐞 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 𝐭𝐡𝐢𝐬 𝐠𝐫𝐨𝐮𝐩.", threadID);
+            }
+            
+            const lockedName = lockedGroups.get(threadID);
+            await api.setTitle(lockedName, threadID);
+            api.sendMessage(
+                `🔁 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗥𝗲𝘀𝗲𝘁\n𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐫𝐞𝐬𝐞𝐭 𝐭𝐨: ${lockedName}`,
+                threadID
+            );
+            break;
+
+        default:
+            api.sendMessage(
+                "❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗔𝗰𝘁𝗶𝗼𝗻!\n𝐔𝐬𝐞: lockname [lock/unlock/reset]",
+                threadID
+            );
+    }
 };
-
-module.exports.lockedNames = lockedGroupNames;
