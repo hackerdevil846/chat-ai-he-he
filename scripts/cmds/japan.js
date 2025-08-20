@@ -13,11 +13,37 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async ({ api, event }) => {
+module.exports.languages = {
+  "en": {
+    "loading": "📥 Downloading image...",
+    "sent": "🌸 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐 🌸",
+    "err": "⚠️ Image load problem! Please try again later 😢"
+  },
+  "bn": {
+    "loading": "📥 ইমেজ ডাউনলোড করা হচ্ছে...",
+    "sent": "🌸 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐 🌸",
+    "err": "⚠️ ইমেজ লোড করতে সমস্যা হচ্ছে! পরে আবার চেষ্টা করুন 😢"
+  }
+};
+
+module.exports.onLoad = function () {
+  const fs = global.nodemodule["fs-extra"];
+  const path = require("path");
+  const cacheDir = path.join(__dirname, "cache");
+  try {
+    if (!fs.existsSync(cacheDir)) fs.mkdirsSync(cacheDir);
+  } catch (e) {
+    // If creating cache fails, we can't do much; log error.
+    console.error("Failed to create cache directory:", e);
+  }
+};
+
+module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
   const axios = global.nodemodule["axios"];
   const fs = global.nodemodule["fs-extra"];
-  
-  // Updated with 10 high-quality cosplay image links
+  const path = require("path");
+
+  // Preserve original links exactly as provided (no changes)
   const links = [
 "https://i.imgur.com/fwUBSqv.jpg",
 "https://i.imgur.com/Yj6ZHiL.jpg",
@@ -205,26 +231,70 @@ module.exports.run = async ({ api, event }) => {
 "https://i.imgur.com/85pRryp.jpg",
 "https://i.imgur.com/FhC4jXa.jpg",
      ];
-  
+
+  // Choose a random link
+  const randomIndex = Math.floor(Math.random() * links.length);
+  const randomLink = links[randomIndex];
+
+  const outPath = path.join(__dirname, "cache", "cosplay.jpg");
+
   try {
-    // Select random image
-    const randomLink = links[Math.floor(Math.random() * links.length)];
-    
+    // Informational message (silent in chat clients that don't support edits; used for logging)
+    console.log(`Downloading image (${randomIndex + 1}/${links.length}): ${randomLink}`);
+
     // Download image
-    const response = await axios.get(randomLink, { responseType: 'arraybuffer' });
-    fs.writeFileSync(__dirname + "/cache/cosplay.jpg", Buffer.from(response.data, 'binary'));
-    
-    // Send message with beautiful formatting
+    const res = await axios.get(randomLink, { responseType: "arraybuffer", timeout: 20000 });
+
+    // Ensure cache directory exists
+    const cacheDir = path.join(__dirname, "cache");
+    if (!fs.existsSync(cacheDir)) fs.mkdirsSync(cacheDir);
+
+    // Write file
+    fs.writeFileSync(outPath, Buffer.from(res.data, "binary"));
+
+    // Prepare nicely formatted message body
+    const body = [
+      `🌸 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐 🌸`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `✨ 𝑻𝒐𝒕𝒂𝒍 𝒊𝒎𝒂𝒈𝒆𝒔: ${links.length}`,
+      `📍 𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅: #${randomIndex + 1}`,
+      `🔗 𝑺𝒐𝒖𝒓𝒄𝒆: Imgur`,
+      `━━━━━━━━━━━━━━━━━━━━`,
+      `💖 𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
+      `━━━━━━━━━━━━━━━━━━━━`
+    ].join("\n");
+
+    // Send message with attachment
     api.sendMessage({
-      body: `🌸 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐 🌸\n━━━━━━━━━━━━━━\n𝑻𝒐𝒕𝒂𝒍 𝒊𝒎𝒂𝒈𝒆𝒔: ${links.length}\n𝑺𝒆𝒍𝒆𝒄𝒕𝒆𝒅: #${links.indexOf(randomLink) + 1}`,
-      attachment: fs.createReadStream(__dirname + "/cache/cosplay.jpg")
-    }, event.threadID, () => {
-      // Clean up after sending
-      fs.unlinkSync(__dirname + "/cache/cosplay.jpg");
+      body: body,
+      attachment: fs.createReadStream(outPath)
+    }, event.threadID, (err, info) => {
+      // Callback after send
+      try {
+        if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+      } catch (e) {
+        console.error("Failed to clean up cache file:", e);
+      }
+
+      if (err) {
+        console.error("Send message error:", err);
+        api.sendMessage("⚠️ 𝑰𝒎𝒂𝒈𝒆 𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒄𝒄𝒉𝒆! 𝑷𝒖𝒏𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏 😢", event.threadID, event.messageID);
+      }
     }, event.messageID);
-    
+
   } catch (error) {
-    console.error(error);
-    api.sendMessage("⚠️ 𝑰𝒎𝒂𝒈𝒆 𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒄𝒄𝒉𝒆! 𝑷𝒖𝒏𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏 😢", event.threadID, event.messageID);
+    console.error("Error in japan command:", error);
+    // Attempt to remove file if it exists
+    try {
+      if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
+    } catch (e) {
+      console.error("Cleanup after error failed:", e);
+    }
+
+    // Send localized error message (use bn if thread language is bn; otherwise en)
+    const lang = (global && global.data && global.data.threadData && global.data.threadData[event.threadID] && global.data.threadData[event.threadID].language) ? global.data.threadData[event.threadID].language : "en";
+    const errMsg = (module.exports.languages[lang] && module.exports.languages[lang].err) ? module.exports.languages[lang].err : module.exports.languages["en"].err;
+
+    api.sendMessage(errMsg, event.threadID, event.messageID);
   }
 };
