@@ -2,30 +2,44 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
 
-module.exports = {
-  config: {
-    name: "hot2",
-    version: "1.0.0",
-    role: 0,
-    author: "Asif",
-    description: "Random Islamic video",
-    category: "islamic",
-    usage: "hot2",
-    example: "hot2",
-    cooldown: 2
-  },
+module.exports.config = {
+	name: "hot2", // Command name
+	version: "1.0.0", // Version
+	hasPermssion: 0, // 0 = everyone
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // <-- updated credits as requested
+	description: "Random Islamic video",
+	commandCategory: "islamic",
+	usages: "hot2",
+	cooldowns: 2,
+	dependencies: {
+		"axios": "",
+		"fs-extra": ""
+	},
+	envConfig: {}
+};
 
-  onStart: async function({ api, event }) {
-    const { threadID, messageID } = event;
-    const cacheDir = path.join(__dirname, 'cache');
-    
-    try {
-      // Create cache directory if needed
-      if (!fs.existsSync(cacheDir)) {
-        await fs.mkdirp(cacheDir);
-      }
+module.exports.languages = {
+	"en": {},
+	"bn": {}
+};
 
-      const islamicVideos = [
+// Ensure cache folder exists when the module loads
+module.exports.onLoad = async function () {
+	try {
+		const cacheDir = path.join(__dirname, "cache");
+		await fs.ensureDir(cacheDir);
+		console.log(`[hot2] cache dir ready: ${cacheDir}`);
+	} catch (err) {
+		console.error("[hot2] onLoad error:", err);
+	}
+};
+
+module.exports.run = async function ({ api, event }) {
+	const { threadID, messageID } = event;
+	const cacheDir = path.join(__dirname, "cache");
+
+	// List of video URLs - DO NOT CHANGE THESE LINKS (user requested)
+	const islamicVideos = [
         "https://i.imgur.com/bFd7QRW.mp4",
         "https://i.imgur.com/4uhuwAA.mp4",
         "https://i.imgur.com/vfYOmHS.mp4",
@@ -49,76 +63,115 @@ module.exports = {
         "https://i.imgur.com/FVtCcS4.mp4"
       ];
 
-      // Send inspirational message first
-      const islamicMessage = 
-        "🌿 Islamic Video 🌿\n\n" +
-        "💫 When darkness falls on the human heart,\n" +
-        "Only Allah's light shows the way.\n\n" +
-        "✨ We seek tawfiq to stay away from haram,\n" +
-        "May Allah grant us all a halal life.\n\n" +
-        "🌙 Whoever forgets Allah,\n" +
-        "Forgets themselves.\n\n" +
-        "🕋 Those who forget Allah in the name of love,\n" +
-        "Never find true peace.\n\n" +
-        "📖 Let's decorate life with the light of Quran,\n" +
-        "Find peace with Allah's mercy.\n\n" +
-        "🤲 Let us all return to the path of Allah,\n" +
-        "And attain His mercy and forgiveness.";
+	// Inspirational message (kept functionality & spirit)
+	const islamicMessage =
+		"🌿 Islamic Video 🌿\n\n" +
+		"💫 When darkness falls on the human heart,\n" +
+		"Only Allah's light shows the way.\n\n" +
+		"✨ We seek tawfiq to stay away from haram,\n" +
+		"May Allah grant us all a halal life.\n\n" +
+		"🌙 Whoever forgets Allah,\n" +
+		"Forgets themselves.\n\n" +
+		"🕋 Those who forget Allah in the name of love,\n" +
+		"Never find true peace.\n\n" +
+		"📖 Let's decorate life with the light of Quran,\n" +
+		"Find peace with Allah's mercy.\n\n" +
+		"🤲 Let us all return to the path of Allah,\n" +
+		"And attain His mercy and forgiveness.";
 
-      await api.sendMessage(islamicMessage, threadID, messageID);
+	// Ensure cache directory exists before downloading
+	try {
+		await fs.ensureDir(cacheDir);
+	} catch (err) {
+		console.error("[hot2] ensureDir error:", err);
+		// If cache dir cannot be prepared, still attempt to run but will throw later on write
+	}
 
-      // Download the video
-      await api.sendMessage("📥 Downloading Islamic video...", threadID, messageID);
-      
-      let videoSent = false;
-      let attempts = 0;
-      
-      while (attempts < 3 && !videoSent) {
-        try {
-          attempts++;
-          const randomIndex = Math.floor(Math.random() * islamicVideos.length);
-          const randomVideo = islamicVideos[randomIndex];
-          const videoPath = path.join(cacheDir, `islamic_video_${Date.now()}_${attempts}.mp4`);
-          
-          // Download video
-          const response = await axios({
-            method: 'GET',
-            url: randomVideo,
-            responseType: 'arraybuffer',
-            timeout: 30000
-          });
-          
-          // Save video to file
-          await fs.writeFile(videoPath, Buffer.from(response.data, 'binary'));
-          
-          // Check if file exists and has content
-          const stats = await fs.stat(videoPath);
-          if (stats.size > 0) {
-            // Send the video
-            await api.sendMessage({
-              body: "▬▬▬▬▬▬▬▬▬▬▬▬\n   Random Islamic Video\n▬▬▬▬▬▬▬▬▬▬▬▬",
-              attachment: fs.createReadStream(videoPath)
-            }, threadID);
-            
-            videoSent = true;
-          } else {
-            throw new Error("Downloaded empty file");
-          }
-          
-          // Clean up
-          await fs.unlink(videoPath);
-          
-        } catch (error) {
-          console.error(`Attempt ${attempts} failed:`, error.message);
-          if (attempts === 3) {
-            throw new Error("Failed after 3 attempts");
-          }
-        }
-      }
+	try {
+		// Send the inspirational message first
+		await api.sendMessage(islamicMessage, threadID, messageID);
 
-    } catch (error) {
-      console.error("Hot2 command error:", error);
-      return api.sendMessage("❌ Failed to process Islamic video. Please try again later.", threadID, messageID);
-    }
-  }
+		// Inform about download attempt
+		await api.sendMessage("📥 Downloading Islamic video... Please wait.", threadID, messageID);
+
+		let videoSent = false;
+		let attempts = 0;
+
+		while (attempts < 3 && !videoSent) {
+			attempts++;
+			const randomIndex = Math.floor(Math.random() * islamicVideos.length);
+			const randomVideo = islamicVideos[randomIndex];
+			const filename = `islamic_video_${Date.now()}_${attempts}.mp4`;
+			const videoPath = path.join(cacheDir, filename);
+
+			try {
+				// Download video as arraybuffer then write to disk
+				const response = await axios({
+					method: 'GET',
+					url: randomVideo,
+					responseType: 'arraybuffer',
+					timeout: 30000
+				});
+
+				// Save video to file
+				await fs.writeFile(videoPath, Buffer.from(response.data, 'binary'));
+
+				// Validate file
+				const stats = await fs.stat(videoPath);
+				if (!stats || stats.size <= 0) {
+					throw new Error("Downloaded file is empty");
+				}
+
+				// Send the video with a nice caption
+				const caption =
+					"▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+					"   Random Islamic Video\n" +
+					"▬▬▬▬▬▬▬▬▬▬▬▬\n\n" +
+					"🌟 May this reminder bring peace and guidance. 🤲";
+
+				await api.sendMessage(
+					{
+						body: caption,
+						attachment: fs.createReadStream(videoPath)
+					},
+					threadID,
+					messageID
+				);
+
+				videoSent = true;
+
+				// Clean up file after sending
+				try {
+					await fs.unlink(videoPath);
+				} catch (cleanupErr) {
+					// If cleanup fails, log but don't break flow
+					console.warn(`[hot2] cleanup failed for ${videoPath}:`, cleanupErr);
+				}
+
+			} catch (innerErr) {
+				console.error(`[hot2] Attempt ${attempts} failed for ${randomVideo}:`, innerErr && innerErr.message ? innerErr.message : innerErr);
+				// try next attempt unless this was the 3rd
+				if (attempts >= 3) {
+					// All attempts failed -> notify user
+					await api.sendMessage("❌ Sorry, I couldn't download a video right now. Please try again later.", threadID, messageID);
+				} else {
+					// Try again - optionally inform user (kept minimal to avoid spamming)
+					await api.sendMessage(`⚠️ Attempt ${attempts} failed, retrying...`, threadID, messageID);
+				}
+				// Ensure any partial file is removed
+				try {
+					if (await fs.pathExists(videoPath)) await fs.unlink(videoPath);
+				} catch (rmErr) {
+					console.warn(`[hot2] failed to remove partial file ${videoPath}:`, rmErr);
+				}
+			}
+		}
+	} catch (err) {
+		console.error("[hot2] command error:", err);
+		try {
+			return api.sendMessage("❌ Failed to process Islamic video. Please try again later.", threadID, messageID);
+		} catch (sendErr) {
+			console.error("[hot2] failed to send error message:", sendErr);
+		}
+	}
 };
