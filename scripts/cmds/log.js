@@ -1,29 +1,40 @@
+const { Threads } = global.controllers; // Assuming your GoatBot Threads controller is in global.controllers
+
 module.exports.config = {
   name: "log",
   version: "1.0.0",
-  hasPermssion: 0,
+  hasPermssion: 0, // 0 = all members
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑺𝒚𝒔𝒕𝒆𝒎 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒏",
-  commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+  commandCategory: "system",
   usages: "",
   cooldowns: 3,
-  denpendencies: {}
+  dependencies: {}
+};
+
+module.exports.languages = {
+  "en": {},
+  "bn": {}
+};
+
+module.exports.onLoad = async function () {
+  // Runs when the command is loaded
 };
 
 module.exports.run = async function ({ api, event, Threads }) {
   const { threadID, messageID } = event;
-  
+
   try {
     const dataThread = await Threads.getData(threadID);
     const data = dataThread.data;
-    
+
     const settings = {
-      log: data.log ?? '𝒕𝒓𝒖𝒆',
-      rankup: data.rankup ?? '𝒇𝒂𝒍𝒔𝒆',
-      resend: data.resend ?? '𝒇𝒂𝒍𝒔𝒆',
-      tagadmin: data.tagadmin ?? '𝒕𝒓𝒖𝒆',
-      guard: data.guard ?? '𝒕𝒓𝒖𝒆',
-      antiout: data.antiout ?? '𝒕𝒓𝒖𝒆'
+      log: data.log ?? 'true',
+      rankup: data.rankup ?? 'false',
+      resend: data.resend ?? 'false',
+      tagadmin: data.tagadmin ?? 'true',
+      guard: data.guard ?? 'true',
+      antiout: data.antiout ?? 'true'
     };
 
     const message = `
@@ -44,6 +55,10 @@ module.exports.run = async function ({ api, event, Threads }) {
     return api.sendMessage(message, threadID, messageID);
   } catch (error) {
     console.error('𝑳𝒐𝒈 𝒆𝒓𝒓𝒐𝒓:', error);
-    return api.sendMessage('⚠️ 𝑳𝒐𝒈 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊', threadID, messageID);
+    return api.sendMessage(
+      '⚠️ 𝑳𝒐𝒈 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊',
+      threadID,
+      messageID
+    );
   }
 };
