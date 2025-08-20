@@ -1,54 +1,57 @@
-const fs = require("fs");
-const request = require("request");
+const axios = require('axios');
+const request = require('request');
+const fs = require('fs');
 
 module.exports.config = {
-  name: "khaby",
-  version: "1.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "😂 Make a Khaby Lame meme with your text!",
-  commandCategory: "write",
-  usages: "[text1] | [text2]",
-  cooldowns: 5,
-  dependencies: {
-    "request": "",
-    "fs": ""
-  }
+	name: "khaby",
+	version: "1.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Changed credits as requested
+	description: "✨ Create Khaby Lame memes with custom text",
+	commandCategory: "🎭 fun",
+	usages: "[text1] | [text2]",
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"request": ""
+	},
+	envConfig: {}
 };
 
 module.exports.languages = {
-  "en": {
-    "errorFormat": "❌ Please enter the correct format like: !khaby Coke | Pepsi."
-  },
-  "bn": {
-    "errorFormat": "❌ সঠিক ফরম্যাট ব্যবহার করুন: !khaby Coke | Pepsi."
-  }
-};
+	"en": {
+		"missingInput": "❌ Please use the correct format: %1 <text1> | <text2>\nExample: %1 Can't believe | It's that easy"
+	}
+}
 
-module.exports.run = async function({ api, event, args, getText }) {
-  const { threadID, messageID } = event;
-  const text = args.join(" ");
+module.exports.run = async function ({ api, event, args, getText }) {
+	const { threadID, messageID } = event;
+	const content = args.join(" ");
 
-  if (!text) return api.sendMessage(getText("errorFormat"), threadID, messageID);
+	if (!content || !content.includes("|")) {
+		return api.sendMessage(getText("missingInput", this.config.name), threadID, messageID);
+	}
 
-  const text1 = text.split("|")[0]?.trim();
-  const text2 = text.split("|")[1]?.trim();
+	const [text1, text2] = content.split("|").map(text => text.trim());
+	
+	if (!text1 || !text2) {
+		return api.sendMessage(getText("missingInput", this.config.name), threadID, messageID);
+	}
 
-  if (!text1 || !text2) return api.sendMessage(getText("errorFormat"), threadID, messageID);
+	try {
+		const callback = () => {
+			api.sendMessage({
+				body: `✅ Here's your Khaby meme!`,
+				attachment: fs.createReadStream(__dirname + "/assets/khaby_meme.png")
+			}, threadID, () => fs.unlinkSync(__dirname + "/assets/khaby_meme.png"), messageID);
+		};
 
-  const pathToSave = __dirname + "/assets/any.png";
-  const memeURL = `https://api.memegen.link/images/khaby-lame/${encodeURIComponent(text1)}/${encodeURIComponent(text2)}.png`;
+		request(encodeURI(`https://api.memegen.link/images/khaby-lame/${text1}/${text2}.png`))
+			.pipe(fs.createWriteStream(__dirname + '/assets/khaby_meme.png'))
+			.on('close', callback);
 
-  const callback = () => {
-    api.sendMessage(
-      { body: `✨ Here's your Khaby Meme!`, attachment: fs.createReadStream(pathToSave) },
-      threadID,
-      () => fs.unlinkSync(pathToSave),
-      messageID
-    );
-  };
-
-  request(encodeURI(memeURL))
-    .pipe(fs.createWriteStream(pathToSave))
-    .on("close", () => callback());
+	} catch (error) {
+		console.error(error);
+		api.sendMessage("❌ Error generating meme. Please try again later.", threadID, messageID);
+	}
 };
