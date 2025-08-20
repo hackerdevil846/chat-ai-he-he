@@ -4,69 +4,102 @@ module.exports.config = {
   credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
   hasPermssion: 2,
   description: '𝑩𝒐𝒕 𝒋𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆 𝒂𝒄𝒉𝒆 𝒕𝒂𝒓 𝒍𝒊𝒔𝒕',
-  commandCategory: '𝑺𝒚𝒔𝒕𝒆𝒎',
+  commandCategory: 'system',
   usages: 'listbox',
-  cooldowns: 15
+  cooldowns: 15,
+  dependencies: {}
 };
 
-module.exports.handleReply = async function({ api, event, handleReply }) {
+module.exports.languages = {
+  "en": {
+    "": ""
+  }
+};
+
+module.exports.handleReply = async function({ api, event, handleReply, Threads }) {
   if (parseInt(event.senderID) !== parseInt(handleReply.author)) return;
+  
+  const args = event.body.split(" ");
+  const command = args[0].toLowerCase();
+  const groupIndex = parseInt(args[1]) - 1;
+  const groupId = handleReply.groupIds[groupIndex];
 
-  const arg = event.body.split(" ");
-  const idgr = handleReply.groupid[arg[1] - 1];
+  if (isNaN(groupIndex) || groupIndex < 0 || !handleReply.groupIds[groupIndex]) {
+    return api.sendMessage("❌ Invalid selection!", event.threadID, event.messageID);
+  }
 
-  switch (handleReply.type) {
-    case "reply":
-      if (arg[0].toLowerCase() === "ban") {
-        const data = (await Threads.getData(idgr)).data || {};
-        data.banned = 1;
-        await Threads.setData(idgr, { data });
-        global.data.threadBanned.set(parseInt(idgr), 1);
-        api.sendMessage(`[${idgr}] 𝑩𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆! ✅`, event.threadID, event.messageID);
-        break;
-      }
+  switch (command) {
+    case "ban":
+      const data = (await Threads.getData(groupId)).data || {};
+      data.banned = 1;
+      await Threads.setData(groupId, { data });
+      global.data.threadBanned.set(parseInt(groupId), 1);
+      api.sendMessage(`🔨 Successfully banned group:\n${handleReply.groupNames[groupIndex]}\n(ID: ${groupId})`, event.threadID);
+      break;
 
-      if (arg[0].toLowerCase() === "out") {
-        api.removeUserFromGroup(api.getCurrentUserID(), idgr);
-        const groupName = (await Threads.getData(idgr)).name;
-        api.sendMessage(`𝑬𝒊 𝒈𝒓𝒐𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒆𝒓 𝒉𝒐𝒚𝒆 𝒋𝒂𝒐𝒂:\n𝑰𝑫: ${idgr}\n𝑵𝒂𝒎: ${groupName}`, event.threadID, event.messageID);
-        break;
-      }
+    case "out":
+      api.removeUserFromGroup(api.getCurrentUserID(), groupId);
+      api.sendMessage(`👋 Left group successfully:\n${handleReply.groupNames[groupIndex]}\n(ID: ${groupId})`, event.threadID);
+      break;
+
+    default:
+      api.sendMessage("❌ Invalid command! Use 'ban' or 'out' followed by the number.", event.threadID);
   }
 };
 
 module.exports.run = async function({ api, event, Threads }) {
-  const inbox = await api.getThreadList(100, null, ['INBOX']);
-  const list = [...inbox].filter(group => group.isSubscribed && group.isGroup);
-  const listthread = [];
+  try {
+    const inbox = await api.getThreadList(100, null, ['INBOX']);
+    const list = inbox.filter(group => group.isSubscribed && group.isGroup);
+    const groupList = [];
 
-  for (const groupInfo of list) {
-    const data = await api.getThreadInfo(groupInfo.threadID);
-    listthread.push({
-      id: groupInfo.threadID,
-      name: groupInfo.name,
-      memberCount: data.userInfo.length,
+    for (const group of list) {
+      const data = await Threads.getData(group.threadID);
+      groupList.push({
+        id: group.threadID,
+        name: group.name || "Unnamed Group",
+        memberCount: data.participantIDs?.length || 0
+      });
+    }
+
+    const sortedList = groupList.sort((a, b) => b.memberCount - a.memberCount);
+    let msg = '╔═══════════════════════╗\n';
+    msg += '          🤖 𝐁𝐎𝐓 𝐆𝐑𝐎𝐔𝐏 𝐋𝐈𝐒𝐓 🤖\n';
+    msg += '╚═══════════════════════╝\n\n';
+    
+    const groupIds = [];
+    const groupNames = [];
+    
+    sortedList.forEach((group, index) => {
+      msg += `🔸 ${index + 1}. ${group.name}\n`;
+      msg += `   ├─ 📍 𝐈𝐃: ${group.id}\n`;
+      msg += `   └─ 👥 𝐌𝐞𝐦𝐛𝐞𝐫𝐬: ${group.memberCount}\n\n`;
+      groupIds.push(group.id);
+      groupNames.push(group.name);
     });
+
+    msg += '╔═══════════════════════╗\n';
+    msg += '          📝 𝐈𝐍𝐒𝐓𝐑𝐔𝐂𝐓𝐈𝐎𝐍𝐒 \n';
+    msg += '╚═══════════════════════╝\n\n';
+    msg += '• To 𝐛𝐚𝐧 a group: Reply "ban [number]"\n';
+    msg += '• To 𝐥𝐞𝐚𝐯𝐞 a group: Reply "out [number]"\n\n';
+    msg += '📌 Example:\n';
+    msg += '   ban 2 → Bans group #2\n';
+    msg += '   out 3 → Leaves group #3';
+
+    api.sendMessage(msg, event.threadID, (error, info) => {
+      if (!error) {
+        global.client.handleReply.push({
+          name: this.config.name,
+          messageID: info.messageID,
+          author: event.senderID,
+          groupIds: groupIds,
+          groupNames: groupNames
+        });
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    api.sendMessage("❌ An error occurred while fetching group list!", event.threadID);
   }
-
-  const sortedList = listthread.sort((a, b) => b.memberCount - a.memberCount);
-  let msg = '══════════════════\n📋 𝑩𝑶𝑻 𝑮𝑹𝑶𝑼𝑷 𝑳𝑰𝑺𝑻\n══════════════════\n\n';
-  const groupid = [];
-  
-  sortedList.forEach((group, i) => {
-    msg += `${i+1}. ${group.name}\n🧩 𝑮𝒓𝒐𝒖𝒑 𝑰𝑫: ${group.id}\n👥 𝑺𝒐𝒎𝒐𝒏𝒌𝒉𝒚𝒂: ${group.memberCount}\n\n`;
-    groupid.push(group.id);
-  });
-
-  msg += '══════════════════\n𝑲𝒐𝒏𝒐 𝒈𝒓𝒐𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒆𝒓 𝒉𝒐𝒘𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 "𝒐𝒖𝒕" 𝒍𝒆𝒌𝒉𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏\n𝑩𝒂𝒏 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 "𝒃𝒂𝒏" 𝒍𝒆𝒌𝒉𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏\n\n𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒃𝒂𝒏 2\n𝒂𝒕𝒉𝒂𝒃𝒂 𝒐𝒖𝒕 3';
-
-  api.sendMessage(msg, event.threadID, (e, data) => {
-    global.client.handleReply.push({
-      name: this.config.name,
-      author: event.senderID,
-      messageID: data.messageID,
-      groupid,
-      type: 'reply'
-    });
-  });
 };
