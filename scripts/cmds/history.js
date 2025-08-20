@@ -5,14 +5,14 @@ module.exports = {
     name: "history",
     aliases: ["historical"],
     version: "1.0",
-    author: "Asif Mahmud",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 8,
     role: 0,
-    shortDescription: "search and know about history",
-    longDescription: "Get short and reliable info about Bangladeshi history.",
+    shortDescription: "Search and know about Bangladeshi history",
+    longDescription: "Get short and reliable info about Bangladeshi historical events",
     category: "info",
     guide: {
-      en: "{pn}  bangladesh history"
+      en: "{pn} [query]"
     }
   },
 
@@ -20,26 +20,41 @@ module.exports = {
     const query = args.join(" ").trim().toLowerCase();
 
     if (!query) {
-      return api.sendMessage("Please provide a topic to search! \nExample: history bangladesh war", event.threadID, event.messageID);
+      return api.sendMessage("🔍 Please provide a historical topic to search!\nExample: history bangladesh", event.threadID, event.messageID);
     }
 
     if (query !== "bangladesh") {
-      return api.sendMessage(`Sorry, I only have information about Bangladeshi history for now.`, event.threadID, event.messageID);
+      return api.sendMessage(`❌ Sorry, I only have information about Bangladeshi history for now.`, event.threadID, event.messageID);
     }
 
-    // Provide static information about Bangladeshi history here   
     const message = 
-`**Ancient Period:**
-The region that is now Bangladesh was historically part of the larger region of Bengal. Bengal saw the rise of various civilizations and ruling empires over centuries, including the Maurya Dynasty starting in the 4th century BCE, the Gupta Empire from the 4th to 6th century CE, the Pala Empire from the 9th to 12th century CE,  and Muslim rulers like the Mughals in the 13th century CE.
+`🇧🇩 𝗕𝗔𝗡𝗚𝗟𝗔𝗗𝗘𝗦𝗛 𝗛𝗜𝗦𝗧𝗢𝗥𝗬 𝗢𝗩𝗘𝗥𝗩𝗜𝗘𝗪
 
-**Colonial Period:**  
-The British East India Company established control over Bengal following their victory at the Battle of Plassey in 1757. From 1757 to 1947, Bangladesh was part of Bengal Presidency with Dhaka serving as the capital. In 1905, the British partitioned Bengal into East and West Bengal provinces based largely on religious demographics.
+🏛️ 𝗔𝗻𝗰𝗶𝗲𝗻𝘁 𝗣𝗲𝗿𝗶𝗼𝗱:
+The region now known as Bangladesh was historically part of Bengal. Key civilizations included:
+• Maurya Dynasty (4th century BCE)
+• Gupta Empire (4th-6th century CE)
+• Pala Empire (9th-12th century CE)
+• Mughal Rule (13th century CE)
 
-**Pakistan Era:**
-In 1947, Pakistan gained independence from Britain after the end of British colonial rule. As part of the partition of British India, Bengal was divided along religious lines into East Bengal, which became East Pakistan, and West Bengal, which became a state of India. 
+🇬🇧 𝗖𝗼𝗹𝗼𝗻𝗶𝗮𝗹 𝗣𝗲𝗿𝗶𝗼𝗱:
+• British East India Company control after Battle of Plassey (1757)
+• Part of Bengal Presidency (1757-1947)
+• Bengal Partition (1905) into East/West provinces
 
-**Modern Bangladesh:**  
-In 1971, the Bangladesh Liberation War occurred, resulting in the independence of Bangladesh. Since then, Bangladesh has undergone a transition from military dictatorship to parliamentary democracy. Its economy, based largely on agriculture and garment manufacturing, has seen significant growth and development in recent decades.`;
+🇵🇰 𝗣𝗮𝗸𝗶𝘀𝘁𝗮𝗻 𝗘𝗿𝗮:
+• Partition of British India (1947)
+• East Bengal became East Pakistan
+• Religious division between East/West Bengal
+
+✨ 𝗠𝗼𝗱𝗲𝗿𝗻 𝗕𝗮𝗻𝗴𝗹𝗮𝗱𝗲𝘀𝗵:
+• Bangladesh Liberation War (1971)
+• Transition from military rule to democracy
+• Economic growth in agriculture and manufacturing
+
+━━━━━━━━━━━━━━━
+📜 Source: Verified Historical Records
+⭐ Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
 
     return api.sendMessage(message, event.threadID, event.messageID);
   }
