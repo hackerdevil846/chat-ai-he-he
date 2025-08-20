@@ -1,3 +1,8 @@
+const path = require("path");
+const axios = require("axios");
+const fs = require("fs-extra");
+const jimp = require("jimp");
+
 module.exports.config = {
     name: "love",
     version: "2.6.0",
@@ -15,69 +20,127 @@ module.exports.config = {
     }
 };
 
-module.exports.onLoad = async() => {
+module.exports.onLoad = async () => {
+    // ensure cache folder exists and love2.jpg is present
     const { resolve } = global.nodemodule["path"];
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'love2.jpg');
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/JTvb5yc.png", path);
-}
 
+    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
+    const templatePath = resolve(dirMaterial, 'love2.jpg');
+
+    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+
+    if (!existsSync(templatePath)) {
+        // file missing — warn but do not attempt to download (user said love2.jpg is valid locally)
+        console.warn("⚠️ Warning: cache/canvas/love2.jpg not found. Please add love2.jpg to cache/canvas/");
+    }
+};
+
+/**
+ * makeImage
+ * @param {Object} param0
+ * @param {string} param0.one - senderID
+ * @param {string} param0.two - targetID (mentioned user)
+ * @returns {string} - path to generated image
+ */
 async function makeImage({ one, two }) {
     const fs = global.nodemodule["fs-extra"];
     const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"]; 
+    const axios = global.nodemodule["axios"];
     const jimp = global.nodemodule["jimp"];
-    const __root = path.resolve(__dirname, "cache", "canvas");
 
-    let tromcho_img = await jimp.read(__root + "/love2.jpg");
-    let pathImg = __root + `/love2_${one}_${two}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
-    
-    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-    
-    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-    
-    let circleOne = await jimp.read(await circle(avatarOne));
-    let circleTwo = await jimp.read(await circle(avatarTwo));
-    tromcho_img.composite(circleOne.resize(270, 270), 800, 100).composite(circleTwo.resize(300, 300), 205, 300);
-    
-    let raw = await tromcho_img.getBufferAsync("image/png");
-    
-    fs.writeFileSync(pathImg, raw);
-    fs.unlinkSync(avatarOne);
-    fs.unlinkSync(avatarTwo);
-    
-    return pathImg;
+    const __root = path.resolve(__dirname, "cache", "canvas");
+    const templatePath = path.join(__root, "love2.jpg");
+
+    if (!fs.existsSync(templatePath)) throw new Error("Template love2.jpg not found in cache/canvas/");
+
+    const outputPath = path.join(__root, `love2_${one}_${two}.png`);
+    const avatarOnePath = path.join(__root, `avt_${one}.png`);
+    const avatarTwoPath = path.join(__root, `avt_${two}.png`);
+
+    // read template
+    let template = await jimp.read(templatePath);
+
+    // fetch avatars from Facebook graph
+    const fbTokenPart = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662"; // as original
+    const urlOne = `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=${fbTokenPart}`;
+    const urlTwo = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=${fbTokenPart}`;
+
+    // get avatar one
+    let avatarOneBuffer = (await axios.get(urlOne, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneBuffer, 'binary'));
+
+    // get avatar two
+    let avatarTwoBuffer = (await axios.get(urlTwo, { responseType: 'arraybuffer' })).data;
+    fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoBuffer, 'binary'));
+
+    // circle avatars
+    const circleOneBuf = await circle(avatarOnePath);
+    const circleTwoBuf = await circle(avatarTwoPath);
+
+    const circleOne = await jimp.read(circleOneBuf);
+    const circleTwo = await jimp.read(circleTwoBuf);
+
+    // composite onto template (positions & sizes kept as original)
+    template
+        .composite(circleOne.resize(270, 270), 800, 100)
+        .composite(circleTwo.resize(300, 300), 205, 300);
+
+    const raw = await template.getBufferAsync("image/png");
+    fs.writeFileSync(outputPath, raw);
+
+    // cleanup temp avatars
+    try { fs.unlinkSync(avatarOnePath); } catch (e) {}
+    try { fs.unlinkSync(avatarTwoPath); } catch (e) {}
+
+    return outputPath;
 }
-async function circle(image) {
+
+// helper to circle-crop image using jimp
+async function circle(imagePath) {
     const jimp = require("jimp");
-    image = await jimp.read(image);
+    let image = await jimp.read(imagePath);
     image.circle();
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.run = async function ({ event, api }) {
     const fs = global.nodemodule["fs-extra"];
     const { threadID, messageID, senderID } = event;
-    var mention = Object.keys(event.mentions)[0]
-    
-    if (!mention) return api.sendMessage("𝑬𝒌 𝒋𝒐𝒏 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒖𝒏 😊", threadID, messageID);
-    
-    let tag = event.mentions[mention].replace("@", "");
-    var one = senderID, two = mention;
-    
-    return makeImage({ one, two }).then(path => api.sendMessage({ 
-        body: `💖 ${tag} 𝒕𝒖𝒎𝒊 𝒌𝒆 𝒃𝒉𝒂𝒍𝒐𝒃𝒂𝒔𝒆 𝒆𝒌𝒕𝒖 𝒃𝒆𝒔𝒉𝒊 💕\n━━━━━━━━━━━━━━━━`,
-        mentions: [{
-          tag: tag,
-          id: mention
-        }],
-        attachment: fs.createReadStream(path) 
-    }, threadID, () => fs.unlinkSync(path), messageID));
-}
+
+    // check mentions exist
+    if (!event.mentions || Object.keys(event.mentions).length === 0) {
+        return api.sendMessage("⚠️ দয়া করে একজনকে tag করুন। 😊", threadID, messageID);
+    }
+
+    // get first mentioned user ID and display name
+    const mentionedIDs = Object.keys(event.mentions);
+    const targetID = mentionedIDs[0];
+    const displayNameRaw = event.mentions[targetID] || ""; // often of form "@Name"
+    const displayName = typeof displayNameRaw === "string" ? displayNameRaw.replace(/@/g, "") : displayNameRaw;
+
+    const one = senderID;
+    const two = targetID;
+
+    // ensure template exists before proceeding
+    const templatePath = path.resolve(__dirname, "cache", "canvas", "love2.jpg");
+    if (!fs.existsSync(templatePath)) {
+        return api.sendMessage("⚠️ Template love2.jpg পাওয়া যায়নি। অনুগ্রহ করে `cache/canvas/love2.jpg` আপলোড করুন।", threadID, messageID);
+    }
+
+    try {
+        const imagePath = await makeImage({ one, two });
+        return api.sendMessage({
+            body: `💖 ${displayName} তুমি কে ভালোবাসে একটু বেশি 💕\n━━━━━━━━━━━━━━━━`,
+            mentions: [{ tag: displayName, id: targetID }],
+            attachment: fs.createReadStream(imagePath)
+        }, threadID, (err, info) => {
+            // cleanup generated image
+            try { fs.unlinkSync(imagePath); } catch (e) {}
+            if (err) console.error(err);
+        }, messageID);
+    } catch (err) {
+        console.error(err);
+        return api.sendMessage("❌ কিছু সমস্যা হয়েছে image তৈরির সময়। আবার চেষ্টা করো।", threadID, messageID);
+    }
+};
