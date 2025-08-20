@@ -1,23 +1,30 @@
-module.exports = {
-  config: {
-    name: "hotvid",
-    version: "2.0.0",
-    author: "Asif",
-    countDown: 5,
-    role: 2, // Restricted to admin/owner only
-    shortDescription: "Random NSFW video",
-    longDescription: "Sends random adult videos from multiple sources",
-    category: "nsfw",
-    guide: {
-      en: "{pn}",
-      bn: "{pn}"
-    }
-  },
+module.exports.config = {
+  name: "hotvid",
+  version: "2.0.0",
+  hasPermssion: 2, // Only bot admins/owners
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "🔥 Random NSFW video from premium sources",
+  commandCategory: "nsfw",
+  usages: "[no options]",
+  cooldowns: 5,
+  dependencies: {},
+  envConfig: {}
+};
 
-  onStart: async function ({ message }) {
-    try {
-      // Premium video sources
-      const videoSources = [
+module.exports.languages = {
+  "en": {
+    replyText: "🔥 Enjoy this premium content!",
+    errorText: "❌ Sorry, couldn't load the content. Please try again later."
+  },
+  "bn": {
+    replyText: "🔥 এই প্রিমিয়াম কন্টেন্ট উপভোগ করুন!",
+    errorText: "❌ দুঃখিত, কন্টেন্ট লোড করা সম্ভব হয়নি। পরে আবার চেষ্টা করুন।"
+  }
+};
+
+module.exports.run = async function ({ message, args, api }) {
+  try {
+    const videoSources = [
         "https://i.imgur.com/FbnZI40.mp4",
         "https://i.imgur.com/E9gbTEZ.mp4",
         "https://i.imgur.com/17nXn9K.mp4",
@@ -45,19 +52,16 @@ module.exports = {
         "https://i.imgur.com/W3qK5bR.mp4"
       ];
 
-      // Select random video
-      const randomIndex = Math.floor(Math.random() * videoSources.length);
-      const videoUrl = videoSources[randomIndex];
+    const randomIndex = Math.floor(Math.random() * videoSources.length);
+    const videoUrl = videoSources[randomIndex];
 
-      // Send video
-      return message.reply({
-        body: "🔥 Enjoy this premium content!",
-        attachment: await global.utils.getStreamFromURL(videoUrl)
-      });
+    return message.reply({
+      body: message.language.replyText,
+      attachment: await global.utils.getStreamFromURL(videoUrl)
+    });
 
-    } catch (err) {
-      console.error("[HOTVID CMD ERROR]", err);
-      return message.reply("❌ Sorry, couldn't load the content. Please try again later.");
-    }
+  } catch (err) {
+    console.error("[HOTVID CMD ERROR]", err);
+    return message.reply(message.language.errorText);
   }
 };
