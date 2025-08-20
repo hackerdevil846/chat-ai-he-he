@@ -10,15 +10,29 @@ module.exports.config = {
   version: "2.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑨𝒑𝒏𝒂𝒓 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏",
-  commandCategory: "𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏",
-  usages: "𝒊𝒏𝒇𝒐𝒃𝒐𝒙",
+  description: "📊 View your group's information with beautiful graphics",
+  commandCategory: "group",
+  usages: "infobox",
   cooldowns: 10,
   dependencies: {
-    canvas: "",
-    axios: "",
+    "canvas": "",
+    "axios": "",
     "fs-extra": "",
+    "jimp": "",
+    "path": ""
   },
+  envConfig: {
+    // You can add API keys or other config here if needed
+  }
+};
+
+module.exports.languages = {
+  "en": {
+    "missingThreadInfo": "❌ Could not retrieve group information. Please try again later.",
+    "errorProcessing": "❌ An error occurred while processing the command.",
+    "successResult": "📊 %1 Group Information"
+  }
+  // Add other languages if needed
 };
 
 module.exports.circle = async (image) => {
@@ -28,149 +42,185 @@ module.exports.circle = async (image) => {
   return await image.getBufferAsync("image/png");
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
-  let { senderID, threadID, messageID } = event;
-  const { loadImage, createCanvas } = require("canvas");
-  const request = require('request');
+module.exports.run = async function ({ api, event, args, models, Users, Threads, Currencies }) {
+  const { loadImage, createCanvas, registerFont } = require("canvas");
   const fs = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
-  
-  // Define file paths
-  let pathImg = __dirname + `/cache/${senderID}123.png`;
-  let pathAva = __dirname + `/cache/avtuserthread.png`;
-  let pathAvata = __dirname + `/cache/avtuserrd.png`;
-  let pathAvata2 = __dirname + `/cache/avtuserrd2.png`;
-  let pathAvata3 = __dirname + `/cache/avtuserrd3.png`;
-  
-  // Get thread information
-  var threadInfo = await api.getThreadInfo(threadID);
-  let threadName = threadInfo.threadName;
-  
-  // Gender counts
-  var nameMen = [];
-  var gendernam = [];
-  var gendernu = [];
-  var nope = [];
-
-  for (let z in threadInfo.userInfo) {
-    var gioitinhone = threadInfo.userInfo[z].gender;
-    var nName = threadInfo.userInfo[z].name;
-
-    if (gioitinhone == 'MALE') {
-      gendernam.push(z + gioitinhone);
-    } else if (gioitinhone == 'FEMALE') {
-      gendernu.push(gioitinhone);
-    } else {
-      nope.push(nName);
-    }
-  }
-
-  var nam = gendernam.length;
-  var nu = gendernu.length;
-  
-  // Group statistics
-  let qtv = threadInfo.adminIDs.length;
-  let sl = threadInfo.messageCount;
-  let threadMem = threadInfo.participantIDs.length;
-  
   const path = global.nodemodule["path"];
-  const Canvas = global.nodemodule["canvas"];
-  const __root = path.resolve(__dirname, "cache");
   
-  // Random admin and members
-  var qtv2 = threadInfo.adminIDs;
-  var idad = qtv2[Math.floor(Math.random() * qtv)];
-  let idmem = threadInfo.participantIDs;
-  var idmemrd = idmem[Math.floor(Math.random() * threadMem)];
-  var idmemrd1 = idmem[Math.floor(Math.random() * threadMem)];
-  
-  // Download avatars
-  let getAvatarOne = (await axios.get(`https://graph.facebook.com/${idad.id}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  let getAvatarOne2 = (await axios.get(`https://graph.facebook.com/${idmemrd}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  let getAvatarOne3 = (await axios.get(`https://graph.facebook.com/${idmemrd1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  let Avatar = (await axios.get(encodeURI(`${threadInfo.imageSrc}`), { responseType: "arraybuffer" })).data;
-  let getWanted = (await axios.get(encodeURI(`https://i.imgur.com/hHKQMW8.jpg`), { responseType: "arraybuffer" })).data;
-  
-  // Save files
-  fs.writeFileSync(pathAva, Buffer.from(Avatar, "utf-8"));
-  fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
-  fs.writeFileSync(pathAvata2, Buffer.from(getAvatarOne2, 'utf-8'));
-  fs.writeFileSync(pathAvata3, Buffer.from(getAvatarOne3, 'utf-8'));
-  
-  // Process images
-  avatar = await this.circle(pathAva);
-  avataruser = await this.circle(pathAvata);
-  avataruser2 = await this.circle(pathAvata2);
-  avataruser3 = await this.circle(pathAvata3);
-  fs.writeFileSync(pathImg, Buffer.from(getWanted, "utf-8"));
+  try {
+    let { senderID, threadID, messageID, threadType } = event;
+    
+    // Check if it's a group chat
+    if (threadType !== "2") {
+      return api.sendMessage("❌ This command can only be used in group chats.", threadID, messageID);
+    }
 
-  // Download font if not exists
-  if(!fs.existsSync(__dirname+`${fonts}`)) { 
-    let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
-    fs.writeFileSync(__dirname+`${fonts}`, Buffer.from(getfont, "utf-8"));
-  };
+    // Define file paths
+    let pathImg = __dirname + `/cache/${senderID}_${threadID}_infobox.png`;
+    let pathAva = __dirname + `/cache/${senderID}_${threadID}_groupavt.png`;
+    let pathAvata = __dirname + `/cache/${senderID}_${threadID}_adminavt.png`;
+    let pathAvata2 = __dirname + `/cache/${senderID}_${threadID}_memavt1.png`;
+    let pathAvata3 = __dirname + `/cache/${senderID}_${threadID}_memavt2.png`;
 
-  // Load images
-  let baseImage = await loadImage(pathImg);
-  let baseAva = await loadImage(avatar);
-  let baseAvata = await loadImage(avataruser);
-  let baseAvata2 = await loadImage(avataruser2);
-  let baseAvata3 = await loadImage(avataruser3);
-  
-  // Create canvas
-  let canvas = createCanvas(baseImage.width, baseImage.height);
-  let ctx = canvas.getContext("2d");
-  let text = args.join(" ") || threadName;
-  let id = threadInfo.threadID;
-  
-  // Draw images
-  ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-  ctx.drawImage(baseAva, 80, 73, 285, 285);
-  ctx.drawImage(baseAvata, 450, 422, 43, 43);
-  ctx.drawImage(baseAvata2, 500, 422, 43, 43);
-  ctx.drawImage(baseAvata3, 550, 422, 43, 43);
-  
-  // Draw text with Mathematical Bold Italic styling
-  ctx.font = `700 ${fontsName}px Arial`;
-  ctx.fillStyle = `${colorName}`;
-  ctx.textAlign = "start";
-  ctx.fillText(text, 435, 125);
-  
-  // Register and use custom font
-  Canvas.registerFont(__dirname+`${fonts}`, { family: "Lobster" });
-  
-  // Draw group information
-  ctx.font = `${fontsInfo}px Lobster`;
-  ctx.fillStyle = "#00FF00";
-  ctx.fillText(`⊶ 𝑴𝒆𝒎𝒃𝒆𝒓𝒔: ${threadMem}`, 439, 199);
-  ctx.fillText(`⊶ 𝑨𝒅𝒎𝒊𝒏𝒔: ${qtv}`, 439, 243);
-  ctx.fillText(`⊶ 𝑴𝒂𝒍𝒆: ${nam}`, 439, 287);
-  ctx.fillText(`⊶ 𝑭𝒆𝒎𝒂𝒍𝒆: ${nu}`, 439, 331);
-  ctx.fillText(`⊶ 𝑴𝒆𝒔𝒔𝒂𝒈𝒆𝒔: ${sl}`, 439, 379);
-  
-  // Draw footer information
-  ctx.font = `${fontsOthers}px Lobster`;
-  ctx.fillText(`𝑮𝒓𝒐𝒖𝒑 𝑰𝑫: ${id}`, 18, 470);
-  ctx.fillText(`• 𝑨𝒓 𝒃𝒂𝒌𝒊 𝒂𝒄𝒉𝒆 ${parseInt(threadMem)-3} 𝒎𝒆𝒎𝒃𝒆𝒓𝒔...`, 607, 453);
-  
-  // Finalize and send image
-  ctx.beginPath();
-  const imageBuffer = canvas.toBuffer();
-  fs.writeFileSync(pathImg, imageBuffer);
-  
-  // Clean up temporary files
-  fs.removeSync(pathAva);
-  fs.removeSync(pathAvata);
-  fs.removeSync(pathAvata2);
-  fs.removeSync(pathAvata3);
-  
-  return api.sendMessage(
-    { 
-      body: `📊 ${threadName} 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏!`,
-      attachment: fs.createReadStream(pathImg) 
-    },
-    threadID,
-    () => fs.unlinkSync(pathImg),
-    messageID
-  );
+    // Get thread information
+    var threadInfo = await api.getThreadInfo(threadID);
+    if (!threadInfo) {
+      return api.sendMessage(this.languages.en.missingThreadInfo, threadID, messageID);
+    }
+    
+    let threadName = threadInfo.threadName || "Unnamed Group";
+
+    // Gender counts
+    var nam = 0, nu = 0;
+    for (let user of threadInfo.userInfo) {
+      if (user.gender === 'MALE') nam++;
+      else if (user.gender === 'FEMALE') nu++;
+    }
+
+    // Group statistics
+    let qtv = threadInfo.adminIDs.length;
+    let sl = threadInfo.messageCount || 0;
+    let threadMem = threadInfo.participantIDs.length;
+
+    // Random admin and members
+    var idad = threadInfo.adminIDs[Math.floor(Math.random() * qtv)]?.id;
+    var idmemrd = threadInfo.participantIDs[Math.floor(Math.random() * threadMem)];
+    var idmemrd1 = threadInfo.participantIDs[Math.floor(Math.random() * threadMem)];
+
+    // Download images
+    let avatarData = await Promise.allSettled([
+      axios.get(encodeURI(threadInfo.imageSrc || `https://graph.facebook.com/${threadID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`), { responseType: "arraybuffer" }),
+      idad ? axios.get(`https://graph.facebook.com/${idad}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' }) : Promise.resolve(null),
+      axios.get(`https://graph.facebook.com/${idmemrd}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' }),
+      axios.get(`https://graph.facebook.com/${idmemrd1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' }),
+      axios.get("https://i.imgur.com/hHKQMW8.jpg", { responseType: "arraybuffer" })
+    ]);
+
+    // Save files
+    fs.writeFileSync(pathAva, Buffer.from(avatarData[0].value?.data || avatarData[0].value));
+    if (avatarData[1].value) fs.writeFileSync(pathAvata, Buffer.from(avatarData[1].value.data));
+    fs.writeFileSync(pathAvata2, Buffer.from(avatarData[2].value.data));
+    fs.writeFileSync(pathAvata3, Buffer.from(avatarData[3].value.data));
+    fs.writeFileSync(pathImg, Buffer.from(avatarData[4].value.data));
+
+    // Download font if missing
+    if (!fs.existsSync(__dirname + fonts)) {
+      try {
+        let fontData = await axios.get(downfonts, { responseType: "arraybuffer" });
+        fs.writeFileSync(__dirname + fonts, Buffer.from(fontData.data));
+      } catch (fontError) {
+        console.error("Failed to download font:", fontError);
+      }
+    }
+
+    // Process images
+    let [avatar, avataruser, avataruser2, avataruser3] = await Promise.all([
+      this.circle(pathAva),
+      fs.existsSync(pathAvata) ? this.circle(pathAvata) : null,
+      this.circle(pathAvata2),
+      this.circle(pathAvata3)
+    ]);
+
+    // Load images
+    let imageLoaders = [
+      loadImage(pathImg),
+      loadImage(avatar),
+      avataruser ? loadImage(avataruser) : Promise.resolve(null),
+      loadImage(avataruser2),
+      loadImage(avataruser3)
+    ];
+    
+    let [baseImage, baseAva, baseAvata, baseAvata2, baseAvata3] = await Promise.all(imageLoaders);
+
+    // Create canvas
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+    
+    // Draw background
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    
+    // Draw group avatar
+    ctx.drawImage(baseAva, 80, 73, 285, 285);
+    
+    // Draw member avatars
+    if (baseAvata) ctx.drawImage(baseAvata, 450, 422, 43, 43);
+    ctx.drawImage(baseAvata2, baseAvata ? 500 : 450, 422, 43, 43);
+    ctx.drawImage(baseAvata3, baseAvata ? 550 : 500, 422, 43, 43);
+
+    // Register and use custom font
+    try {
+      registerFont(__dirname + fonts, { family: "Lobster" });
+    } catch (e) {
+      console.log("Using default font due to registration error:", e);
+    }
+
+    // Draw group name
+    ctx.font = `700 ${fontsName}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
+    ctx.fillStyle = colorName;
+    // Ensure text doesn't overflow
+    let displayName = threadName;
+    if (ctx.measureText(displayName).width > 300) {
+      while (ctx.measureText(displayName + "...").width > 300 && displayName.length > 10) {
+        displayName = displayName.substring(0, displayName.length - 1);
+      }
+      displayName += "...";
+    }
+    ctx.fillText(displayName, 435, 125);
+
+    // Draw group info
+    ctx.font = `${fontsInfo}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
+    ctx.fillStyle = "#00FF00";
+    
+    const infoData = [
+      { emoji: "👥", text: `Members: ${threadMem}` },
+      { emoji: "🛡️", text: `Admins: ${qtv}` },
+      { emoji: "♂️", text: `Male: ${nam}` },
+      { emoji: "♀️", text: `Female: ${nu}` },
+      { emoji: "💬", text: `Messages: ${sl}` }
+    ];
+
+    infoData.forEach((item, i) => {
+      ctx.fillText(`${item.emoji} ${item.text}`, 439, 199 + i * 44);
+    });
+
+    // Draw footer
+    ctx.font = `${fontsOthers}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(`🔖 Group ID: ${threadInfo.threadID}`, 18, 470);
+    ctx.fillText(`✨ And ${threadMem - 3} other members...`, 607, 453);
+
+    // Save and send
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
+
+    // Create info text
+    const infoText = `📊 ${threadName} Group Information!\n` +
+      `👥 Members: ${threadMem} | 🛡️ Admins: ${qtv}\n` +
+      `♂️ Male: ${nam} | ♀️ Female: ${nu}\n` +
+      `💬 Total Messages: ${sl}\n` +
+      `🔖 Group ID: ${threadInfo.threadID}`;
+
+    api.sendMessage({
+      body: infoText,
+      attachment: fs.createReadStream(pathImg)
+    }, threadID, (err) => {
+      if (err) console.error(err);
+      // Cleanup temporary files
+      const filesToDelete = [pathAva, pathAvata, pathAvata2, pathAvata3, pathImg];
+      filesToDelete.forEach(file => {
+        if (fs.existsSync(file)) {
+          try {
+            fs.unlinkSync(file);
+          } catch (e) {
+            console.error("Error deleting file:", e);
+          }
+        }
+      });
+    }, messageID);
+
+  } catch (error) {
+    console.error("Error in infobox command:", error);
+    api.sendMessage(this.languages.en.errorProcessing, event.threadID, event.messageID);
+  }
 };
