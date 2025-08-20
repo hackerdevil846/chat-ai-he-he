@@ -1,34 +1,38 @@
 const axios = require("axios");
 
-module.exports = {
-  config: {
-    name: "joke",
-    aliases: ["joke"],
-    version: "2.0",
-    author: "Asif Mahmud",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Get random jokes",
-    longDescription: {
-      en: "Get a random joke using a working API",
-      bn: "একটি র্যান্ডম মজার জোকস দেখাবে"
-    },
-    category: "fun",
-    guide: {
-      en: "{pn}",
-      bn: "{pn} - র‍্যান্ডম জোকস দেখাও"
-    },
-  },
+module.exports.config = {
+	name: "joke",
+	version: "2.0",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "Get random jokes from official API",
+	commandCategory: "fun",
+	usages: "",
+	cooldowns: 5,
+	dependencies: {
+		"axios": ""
+	},
+	envConfig: {}
+};
 
-  onStart: async function ({ api, event }) {
-    try {
-      const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
-      const { setup, punchline } = response.data;
-      const message = `😂 ${setup}\n👉 ${punchline}`;
-      return api.sendMessage(message, event.threadID);
-    } catch (error) {
-      console.error("❌ Joke API Error:", error.message);
-      return api.sendMessage("❌ মাফ করবেন, জোকস আনতে সমস্যা হচ্ছে। একটু পরে আবার চেষ্টা করুন।", event.threadID);
-    }
-  },
+module.exports.languages = {
+	"en": {
+		"error": "❌ Sorry, couldn't fetch jokes at the moment. Please try again later."
+	}
+}
+
+module.exports.run = async function ({ api, event, getText }) {
+	try {
+		const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
+		const { setup, punchline } = response.data;
+		
+		const message = `🤡 | ${setup}\n\n💥 | ${punchline}\n\n✨ Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
+		
+		return api.sendMessage(message, event.threadID, event.messageID);
+	} 
+	catch (error) {
+		console.error("Joke API Error:", error);
+		return api.sendMessage(getText("error"), event.threadID, event.messageID);
+	}
 };
