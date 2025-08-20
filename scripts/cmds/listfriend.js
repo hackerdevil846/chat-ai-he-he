@@ -1,96 +1,98 @@
 module.exports.config = {
-  name: "listfriend",
-  version: "1.0.0",
-  hasPermssion: 2,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑩𝒂𝒏𝒅𝒉𝒖𝒅𝒆𝒓 𝒅𝒆𝒓 𝒊𝒏𝒇𝒐 𝒅𝒆𝒌𝒉𝒂𝒓 𝒂𝒓 𝒓𝒆𝒑𝒍𝒚 𝒅𝒊𝒚𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-  commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
-  usages: "",
-  cooldowns: 5
+	name: "listfriend",
+	version: "1.0.0",
+	hasPermssion: 2,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "𝑩𝒂𝒏𝒅𝒉𝒖𝒅𝒆𝒓 𝒅𝒆𝒓 𝒊𝒏𝒇𝒐 𝒅𝒆𝒌𝒉𝒂𝒓 𝒂𝒓 𝒓𝒆𝒑𝒍𝒚 𝒅𝒊𝒚𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
+	commandCategory: "system",
+	usages: "[page]",
+	cooldowns: 5,
+	envConfig: {}
 };
 
-module.exports.handleReply = async function ({ api, args, Users, handleReply, event, Threads }) {
-  const { threadID, messageID } = event;
-  if (parseInt(event.senderID) !== parseInt(handleReply.author)) return;
-
-  switch (handleReply.type) {
-    case "reply":
-      {
-        var msg = "", name, urlUser, uidUser;
-        var arrnum = event.body.split(" ");
-        var nums = arrnum.map(n => parseInt(n));
-        for (let num of nums) {
-          name = handleReply.nameUser[num - 1];
-          urlUser = handleReply.urlUser[num - 1];
-          uidUser = handleReply.uidUser[num - 1];
-
-          api.unfriend(uidUser);
-          msg += '┣⊱ ' + name + '\n┗⊱ 𝑷𝒓𝒐𝒇𝒊𝒍𝒆𝑼𝒓𝒍: ' + urlUser + "\n\n";
-        }
-
-        api.sendMessage(`🗑️ 𝑫𝒆𝒍𝒆𝒕𝒆𝒅 𝑭𝒓𝒊𝒆𝒏𝒅𝒔 🗑️\n\n${msg}`, threadID, () =>
-          api.unsendMessage(handleReply.messageID));
-      }
-      break;
-  }
+module.exports.languages = {
+	"en": {
+		"listTitle": "🎭 𝗬𝗼𝘂𝗿 𝗙𝗿𝗶𝗲𝗻𝗱 𝗟𝗶𝘀𝘁: %1 𝗙𝗿𝗶𝗲𝗻𝗱𝘀  🎭",
+		"listFormat": "┏⊰ 𝗡𝗼.%1\n┣⊰ 𝗡𝗮𝗺𝗲: %2\n┣⊰ 𝗨𝗜𝗗: %3\n┣⊰ 𝗚𝗲𝗻𝗱𝗲𝗿: %4\n┣⊰ 𝗩𝗮𝗻𝗶𝘁𝘆: %5\n┗⊰ 𝗣𝗿𝗼𝗳𝗶𝗹𝗲: %6",
+		"pageInfo": "📄 𝗣𝗮𝗴𝗲 %1/%2",
+		"instructions": "🎭 𝗥𝗲𝗽𝗹𝘆 𝘄𝗶𝘁𝗵 𝗻𝘂𝗺𝗯𝗲𝗿𝘀 (𝟭-𝟭𝟬) 𝘁𝗼 𝗱𝗲𝗹𝗲𝘁𝗲 𝗳𝗿𝗶𝗲𝗻𝗱𝘀\n🔢 𝗠𝘂𝗹𝘁𝗶𝗽𝗹𝗲 𝗻𝘂𝗺𝗯𝗲𝗿𝘀 𝘀𝗲𝗽𝗮𝗿𝗮𝘁𝗲𝗱 𝗯𝘆 𝘀𝗽𝗮𝗰𝗲",
+		"deleteSuccess": "🗑️ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗙𝗿𝗶𝗲𝗻𝗱𝘀 🗑️\n\n%1"
+	}
 };
 
-module.exports.run = async function ({ event, api, args }) {
-  const { threadID, messageID, senderID } = event;
-  try {
-    var listFriend = [];
-    var dataFriend = await api.getFriendsList();
-    var countFr = dataFriend.length;
+module.exports.handleReply = async function({ api, event, handleReply, Users, Threads }) {
+	if (event.senderID != handleReply.author) return;
+	const { threadID, messageID } = event;
+	
+	const { listFriend, nameUser, urlUser, uidUser, messageID: replyID } = handleReply;
+	const numbers = event.body.split(" ").map(n => parseInt(n)).filter(n => !isNaN(n) && n > 0 && n <= listFriend.length);
+	
+	if (numbers.length === 0) return api.sendMessage("❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗻𝘂𝗺𝗯𝗲𝗿𝘀 𝗽𝗿𝗼𝘃𝗶𝗱𝗲𝗱", threadID, messageID);
+	
+	let deleteReport = "";
+	for (const num of numbers) {
+		const index = num - 1;
+		try {
+			await api.removeFriend(uidUser[index]);
+			deleteReport += `❌ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱: ${nameUser[index]}\n🔗 𝗟𝗶𝗻𝗸: ${urlUser[index]}\n\n`;
+		} catch (error) {
+			deleteReport += `⚠️ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗱𝗲𝗹𝗲𝘁𝗲: ${nameUser[index]}\n`;
+		}
+	}
+	
+	api.sendMessage(deleteReport, threadID, () => 
+		api.unsendMessage(replyID), messageID
+	);
+};
 
-    for (var friends of dataFriend) {
-      listFriend.push({
-        name: friends.fullName || "𝑪𝒉𝒆𝒍𝒆 𝒏𝒂𝒎",
-        uid: friends.userID,
-        gender: friends.gender,
-        vanity: friends.vanity,
-        profileUrl: friends.profileUrl
-      });
-    }
-    
-    var nameUser = [], urlUser = [], uidUser = [];
-    var page = 1;
-    page = parseInt(args[0]) || 1;
-    page < -1 ? page = 1 : "";
-    var limit = 10;
-    var numPage = Math.ceil(listFriend.length / limit);
-    
-    var msg = `🎭 𝑻𝒐𝒎𝒂𝒓 𝑩𝒂𝒏𝒅𝒉𝒖𝒅𝒆𝒓 𝑺𝒐𝒏𝒌𝒉𝒂: ${countFr} 🎭\n━━━━━━━━━━━━━━━━━━\n\n`;
-    
-    for (var i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
-      if (i >= listFriend.length) break;
-      let infoFriend = listFriend[i];
-      msg += `┏⊰ ${i + 1}. ${infoFriend.name}\n`;
-      msg += `┣⊰ 𝑰𝑫: ${infoFriend.uid}\n`;
-      msg += `┣⊰ 𝑳𝒊𝒏𝒈: ${infoFriend.gender}\n`;
-      msg += `┣⊰ 𝑽𝒂𝒏𝒊𝒕𝒚: ${infoFriend.vanity || '𝑵𝒂𝒊'}\n`;
-      msg += `┗⊰ 𝑷𝒓𝒐𝒇𝒊𝒍𝒆𝑼𝒓𝒍: ${infoFriend.profileUrl}\n\n`;
-      
-      nameUser.push(infoFriend.name);
-      urlUser.push(infoFriend.profileUrl);
-      uidUser.push(infoFriend.uid);
-    }
-    
-    msg += `✎﹏﹏﹏﹏﹏﹏﹏﹏﹏﹏\n📄 𝑷𝒂𝒈𝒆 ${page}/${numPage}\n\n`;
-    msg += '🎭 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒐 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 (1 𝒕𝒆 10 𝒆𝒓 𝒎𝒐𝒋𝒂𝒛𝒂), 𝒆𝒌𝒂𝒅𝒉𝒊𝒌 𝒏𝒖𝒎𝒃𝒆𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏, 𝒏𝒖𝒎𝒃𝒆𝒓 𝒈𝒖𝒍𝒊 𝒔𝒑𝒂𝒄𝒆 𝒅𝒊𝒚𝒆 𝒂𝒍𝒂𝒅𝒂 𝒌𝒐𝒓𝒖𝒏 𝒋𝒆 𝒃𝒂𝒏𝒅𝒉𝒖𝒅𝒆𝒓 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒕𝒆 𝒄𝒂𝒐!';
+module.exports.run = async function({ api, event, args, Users, Threads }) {
+	const { threadID, messageID, senderID } = event;
+	try {
+		const listFriend = (await api.getFriendsList()).map(friend => ({
+			name: friend.fullName || "❌ 𝗡𝗮𝗺𝗲 𝗡𝗼𝘁 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲",
+			uid: friend.userID,
+			gender: friend.gender == 1 ? "♀️ 𝗙𝗲𝗺𝗮𝗹𝗲" : "♂️ 𝗠𝗮𝗹𝗲",
+			vanity: friend.vanity || "❌ 𝗡𝗼 𝗩𝗮𝗻𝗶𝘁𝘆",
+			profileUrl: friend.profileUrl
+		}));
 
-    return api.sendMessage(msg, threadID, (e, data) =>
-      global.client.handleReply.push({
-        name: this.config.name,
-        author: event.senderID,
-        messageID: data.messageID,
-        nameUser,
-        urlUser,
-        uidUser,
-        type: 'reply'
-      })
-    );
-  }
-  catch (e) {
-    return console.log(e)
-  }
-}
+		const page = Math.max(parseInt(args[0]) || 1, 1);
+		const limit = 10;
+		const numPage = Math.ceil(listFriend.length / limit);
+		const startIdx = limit * (page - 1);
+		
+		let msg = `╔═══════╗\n`;
+		msg += `║ 𝗙𝗥𝗜𝗘𝗡𝗗 𝗟𝗜𝗦𝗧 ║\n`;
+		msg += `╚═══════╝\n`;
+		msg += `✦ 𝗧𝗼𝘁𝗮𝗹 𝗙𝗿𝗶𝗲𝗻𝗱𝘀: ${listFriend.length} ✦\n\n`;
+		
+		for (let i = startIdx; i < Math.min(startIdx + limit, listFriend.length); i++) {
+			const friend = listFriend[i];
+			msg += this.languages.en.listFormat
+				.replace("%1", i+1)
+				.replace("%2", friend.name)
+				.replace("%3", friend.uid)
+				.replace("%4", friend.gender)
+				.replace("%5", friend.vanity)
+				.replace("%6", friend.profileUrl) + "\n\n";
+		}
+		
+		msg += `✦ ${this.languages.en.pageInfo.replace("%1", page).replace("%2", numPage)} ✦\n`;
+		msg += `✦ ${this.languages.en.instructions} ✦`;
+
+		return api.sendMessage(msg, threadID, (err, info) => {
+			global.client.handleReply.push({
+				name: this.config.name,
+				messageID: info.messageID,
+				author: senderID,
+				listFriend,
+				nameUser: listFriend.map(f => f.name),
+				urlUser: listFriend.map(f => f.profileUrl),
+				uidUser: listFriend.map(f => f.uid)
+			});
+		}, messageID);
+	} catch (error) {
+		console.error(error);
+		return api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗳𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝗳𝗿𝗶𝗲𝗻𝗱 𝗹𝗶𝘀𝘁", threadID, messageID);
+	}
+};
