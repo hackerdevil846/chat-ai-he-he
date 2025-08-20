@@ -2,96 +2,117 @@ module.exports.config = {
     name: "kirajanu",
     version: "4.3.10",
     hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 (Fixed by Manus using DeepSeek AI API)",
-    description: "Chat with AI using DeepSeek AI API.",
-    commandCategory: "AI Chat",
-    usages: "[on | off | [your message]]",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "✨ AI-powered chatbot using DeepSeek API",
+    commandCategory: "🤖| AI Chat",
+    usages: "[on | off | your_message]",
     cooldowns: 5,
-    dependencies: { "axios": "" },
+    dependencies: { 
+        "axios": "" 
+    },
     envConfig: {
         DEEPSEEK_API_KEY: "sk-0c82a4df00704663a260cb3c71a4f718"
     }
 };
 
-async function deepseekChat(ask, apiKey) {
-    const axios = require("axios");
-    try {
-        const response = await axios.post(
-            "https://api.deepseek.com/chat/completions",
-            {
-                model: "deepseek-chat",
-                messages: [{ role: "user", content: ask }],
-                temperature: 0.7
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${apiKey}`
-                }
-            }
-        );
-
-        if (response.data?.choices?.[0]?.message?.content) {
-            return { error: false, answer: response.data.choices[0].message.content };
-        }
-        return { error: true, answer: "No answer received from DeepSeek AI." };
-    } catch (err) {
-        console.error("DeepSeek AI API Error:", err.response?.data || err.message);
-        return { error: true, answer: "Failed to connect to DeepSeek AI API or an error occurred." };
+module.exports.languages = {
+    "en": {
+        "onMessage": "🧠 | AI Chat has been turned ON for this conversation",
+        "offMessage": "⭕ | AI Chat has been turned OFF for this conversation",
+        "alreadyOn": "ℹ️ | AI is already active in this chat",
+        "alreadyOff": "ℹ️ | AI is not active in this chat",
+        "errorMessage": "❌ | API Error: Please contact the bot owner"
     }
-}
-
-module.exports.onLoad = async function () {
-    if (!global.simsimi) global.simsimi = new Map();
 };
 
-module.exports.handleEvent = async function ({ api, event }) {
+module.exports.onLoad = function() {
+    if (!global.kirajanu) global.kirajanu = new Map();
+    console.log("🤖 Kirajanu AI initialized");
+};
+
+module.exports.handleEvent = async function({ api, event }) {
     const { threadID, messageID, senderID, body } = event;
+    const { DEEPSEEK_API_KEY } = global.configModule.kirajanu;
 
-    if (global.simsimi.has(threadID)) {
-        if (!body || senderID === api.getCurrentUserID() || messageID === global.simsimi.get(threadID)) return;
+    if (global.kirajanu.has(threadID) && 
+        senderID != api.getCurrentUserID() && 
+        body && 
+        messageID != global.kirajanu.get(threadID)) {
+        
+        try {
+            const axios = require("axios");
+            const response = await axios.post(
+                "https://api.deepseek.com/chat/completions",
+                {
+                    model: "deepseek-chat",
+                    messages: [{ role: "user", content: body }],
+                    temperature: 0.7
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                    }
+                }
+            );
 
-        const apiKey = global.configModule.kirajanu.DEEPSEEK_API_KEY;
-        if (!apiKey) {
-            return api.sendMessage("Please set your DeepSeek AI API key in kirajanu's envConfig.", threadID, messageID);
+            if (response.data?.choices?.[0]?.message?.content) {
+                api.sendMessage(`🤖 ${response.data.choices[0].message.content}`, threadID, messageID);
+            }
+        } catch (error) {
+            api.sendMessage(this.languages.en.errorMessage, threadID, messageID);
         }
-
-        const result = await deepseekChat(body, apiKey);
-        api.sendMessage(result.answer, threadID, messageID);
     }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.run = async function({ api, event, args }) {
     const { threadID, messageID } = event;
-    const command = args[0];
+    const { DEEPSEEK_API_KEY } = global.configModule.kirajanu;
 
-    if (!command) {
-        return api.sendMessage("[ AI Chat ] - Please provide a message or use 'on'/'off'.", threadID, messageID);
+    if (!args[0]) {
+        return api.sendMessage("💡 | Usage: kirajanu [on/off/your_message]", threadID, messageID);
     }
 
-    switch (command.toLowerCase()) {
+    switch (args[0].toLowerCase()) {
         case "on":
-            if (global.simsimi.has(threadID)) {
-                return api.sendMessage("[ AI Chat ] - AI chat is already enabled in this chat.", threadID, messageID);
+            if (global.kirajanu.has(threadID)) {
+                return api.sendMessage(this.languages.en.alreadyOn, threadID, messageID);
             }
-            global.simsimi.set(threadID, messageID);
-            return api.sendMessage("[ AI Chat ] - AI chat has been turned on.", threadID, messageID);
+            global.kirajanu.set(threadID, true);
+            return api.sendMessage(this.languages.en.onMessage, threadID, messageID);
 
         case "off":
-            if (!global.simsimi.has(threadID)) {
-                return api.sendMessage("[ AI Chat ] - AI chat is already disabled.", threadID, messageID);
+            if (!global.kirajanu.has(threadID)) {
+                return api.sendMessage(this.languages.en.alreadyOff, threadID, messageID);
             }
-            global.simsimi.delete(threadID);
-            return api.sendMessage("[ AI Chat ] - AI chat has been turned off.", threadID, messageID);
+            global.kirajanu.delete(threadID);
+            return api.sendMessage(this.languages.en.offMessage, threadID, messageID);
 
         default:
-            const message = args.join(" ");
-            const apiKey = global.configModule.kirajanu.DEEPSEEK_API_KEY;
-            if (!apiKey) {
-                return api.sendMessage("Please set your DeepSeek AI API key in kirajanu's envConfig.", threadID, messageID);
-            }
+            try {
+                const axios = require("axios");
+                const prompt = args.join(" ");
+                
+                const response = await axios.post(
+                    "https://api.deepseek.com/chat/completions",
+                    {
+                        model: "deepseek-chat",
+                        messages: [{ role: "user", content: prompt }],
+                        temperature: 0.7
+                    },
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                        }
+                    }
+                );
 
-            const result = await deepseekChat(message, apiKey);
-            return api.sendMessage(result.answer, threadID, messageID);
+                if (response.data?.choices?.[0]?.message?.content) {
+                    api.sendMessage(`🤖 ${response.data.choices[0].message.content}`, threadID, messageID);
+                }
+            } catch (error) {
+                api.sendMessage(this.languages.en.errorMessage, threadID, messageID);
+            }
     }
 };
