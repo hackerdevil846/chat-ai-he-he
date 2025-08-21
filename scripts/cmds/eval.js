@@ -1,66 +1,67 @@
-const { removeHomeDir, log } = global.utils;
-
-module.exports = {
-	config: {
-		name: "eval",
-		version: "1.6",
-		author: "NTKhang",
-		countDown: 5,
-		role: 2,
-		description: {
-			vi: "Test code nhanh",
-			en: "Test code quickly"
-		},
-		category: "owner",
-		guide: {
-			vi: "{pn} <đoạn code cần test>",
-			en: "{pn} <code to test>"
-		}
+module.exports.config = {
+	name: "eval",
+	version: "1.6",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	countDown: 5,
+	role: 2,
+	description: {
+		en: "Test code quickly with beautiful output 📝"
 	},
+	category: "owner",
+	guide: {
+		en: "{pn} <code_to_test>"
+	}
+};
 
-	langs: {
-		vi: {
-			error: "❌ Đã có lỗi xảy ra:"
-		},
-		en: {
-			error: "❌ An error occurred:"
-		}
-	},
+module.exports.languages = {
+	"en": {
+		"error": "❌ An error occurred while executing the code:",
+		"success": "✨ Code executed successfully!"
+	}
+};
 
-	onStart: async function ({ api, args, message, event, threadsData, usersData, dashBoardData, globalData, threadModel, userModel, dashBoardModel, globalModel, role, commandName, getLang }) {
+module.exports.run = async function ({ api, event, args, threadsData, usersData, dashBoardData, globalData, threadModel, userModel, dashBoardModel, globalModel, role, getLang }) {
+	const { removeHomeDir, log } = global.utils;
+
+	try {
 		function output(msg) {
-			if (typeof msg == "number" || typeof msg == "boolean" || typeof msg == "function")
-				msg = msg.toString();
-			else if (msg instanceof Map) {
-				let text = `Map(${msg.size}) `;
-				text += JSON.stringify(mapToObj(msg), null, 2);
-				msg = text;
-			}
-			else if (typeof msg == "object")
-				msg = JSON.stringify(msg, null, 2);
-			else if (typeof msg == "undefined")
-				msg = "undefined";
-
-			message.reply(msg);
+			const formattedMsg = formatOutput(msg);
+			api.sendMessage(`📊 Output:\n${formattedMsg}`, event.threadID, event.messageID);
 		}
+
 		function out(msg) {
 			output(msg);
 		}
+
+		function formatOutput(msg) {
+			if (typeof msg === "number" || typeof msg === "boolean" || typeof msg === "function")
+				return `🔢 ${msg.toString()}`;
+			else if (msg instanceof Map) {
+				let text = `🗺️ Map(${msg.size}) `;
+				text += JSON.stringify(mapToObj(msg), null, 2);
+				return text;
+			}
+			else if (typeof msg === "object")
+				return `📦 ${JSON.stringify(msg, null, 2)}`;
+			else if (typeof msg === "undefined")
+				return "❓ undefined";
+			else
+				return `📝 ${msg}`;
+		}
+
 		function mapToObj(map) {
 			const obj = {};
-			map.forEach(function (v, k) {
-				obj[k] = v;
-			});
+			map.forEach((v, k) => obj[k] = v);
 			return obj;
 		}
-		const cmd = `
+
+		const evalCode = `
 		(async () => {
 			try {
 				${args.join(" ")}
-			}
-			catch(err) {
+			} catch(err) {
 				log.err("eval command", err);
-				message.send(
+				output(
 					"${getLang("error")}\\n" +
 					(err.stack ?
 						removeHomeDir(err.stack) :
@@ -69,6 +70,10 @@ module.exports = {
 				);
 			}
 		})()`;
-		eval(cmd);
+		
+		eval(evalCode);
+	} catch (error) {
+		log.error("Eval command error", error);
+		api.sendMessage(`❌ Error: ${error.message}`, event.threadID, event.messageID);
 	}
 };
