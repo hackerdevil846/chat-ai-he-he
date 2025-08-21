@@ -3,24 +3,33 @@ module.exports.config = {
 	version: "1.0.1",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑩𝒐𝒔𝒔 𝒌𝒆 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-	commandCategory: "𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
-	usages: "𝒅𝒐𝒈",
+	description: "🐶 𝑩𝒐𝒔𝒔 𝒌𝒆 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
+	commandCategory: "🖼️ 𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
+	usages: "🐾 𝒅𝒐𝒈",
 	cooldowns: 1,
+	dependencies: {
+		"axios": "",
+		"request": ""
+	}
 };
 
-module.exports.run = async ({ api, event }) => {
+module.exports.run = async function({ api, event }) {
 	const axios = require('axios');
 	const request = require('request');
 	const fs = require("fs");
 	
-	axios.get('https://nekos.life/api/v2/img/woof').then(res => {
-		let ext = res.data.url.substring(res.data.url.lastIndexOf(".") + 1);
-		let callback = function () {
+	try {
+		const response = await axios.get('https://nekos.life/api/v2/img/woof');
+		const ext = response.data.url.substring(response.data.url.lastIndexOf(".") + 1);
+		const path = __dirname + `/cache/dog.${ext}`;
+		
+		request(response.data.url).pipe(fs.createWriteStream(path)).on("close", () => {
 			api.sendMessage({
-				attachment: fs.createReadStream(__dirname + `/cache/dog.${ext}`)
-			}, event.threadID, () => fs.unlinkSync(__dirname + `/cache/dog.${ext}`), event.messageID);
-		};
-		request(res.data.url).pipe(fs.createWriteStream(__dirname + `/cache/dog.${ext}`)).on("close", callback);
-	});
-}
+				body: `🐕‍🦺 | 𝑫𝒐𝒈 𝑷𝒊𝒄 𝒇𝒐𝒓 𝒚𝒐𝒖 𝒃𝒐𝒔𝒔!`,
+				attachment: fs.createReadStream(path)
+			}, event.threadID, () => fs.unlinkSync(path), event.messageID);
+		});
+	} catch (error) {
+		api.sendMessage("❌ | 𝑬𝒓𝒓𝒐𝒓 𝒇𝒆𝒕𝒄𝒉𝒊𝒏𝒈 𝒅𝒐𝒈 𝒊𝒎𝒂𝒈𝒆!", event.threadID, event.messageID);
+	}
+};
