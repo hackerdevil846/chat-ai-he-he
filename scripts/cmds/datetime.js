@@ -1,39 +1,65 @@
 const moment = require('moment-timezone');
 
-module.exports = {
-  config: {
-    name: "datetime",
-    aliases: ["bdtime", "datetimebd"],
-    version: "1.0",
-    author: "𝐀𝐬𝐢𝐟 𝐌𝐚𝐡𝐦𝐮𝐝",
-    countDown: 1,
-    role: 0,
-    shortDescription: "🇧🇩 Show current date and time in Bangladesh",
-    longDescription: "Displays current date and time in Bangladesh (Gregorian).",
-    category: "utility",
-    guide: "{pn}datetime"
-  },
+module.exports.config = {
+	name: "datetime",
+	version: "2.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🇧🇩 Show beautiful Bangladesh date and time with additional information",
+	commandCategory: "utility",
+	usages: "[datetime | bdtime | timebd]",
+	cooldowns: 5,
+	dependencies: {
+		"moment-timezone": ""
+	},
+	envConfig: {
+		timezone: "Asia/Dhaka"
+	}
+};
 
-  onStart: async function ({ message }) {
-    try {
-      // Bangladesh time
-      const bdTime = moment.tz("Asia/Dhaka");
-      const bdDateTime = bdTime.format("dddd, DD MMMM YYYY");
-      const bdClock = bdTime.format("hh:mm:ss A");
+module.exports.run = async function ({ api, event, args }) {
+	try {
+		const bdTime = moment.tz("Asia/Dhaka");
+		const date = bdTime.format("DD MMMM YYYY");
+		const day = bdTime.format("dddd");
+		const time = bdTime.format("hh:mm:ss A");
+		const week = bdTime.week();
+		const dayOfYear = bdTime.dayOfYear();
+		const daysLeft = 365 - dayOfYear;
+		
+		const response = `✨ 𝗕𝗔𝗡𝗚𝗟𝗔𝗗𝗘𝗦𝗛 𝗧𝗜𝗠𝗘 𝗜𝗡𝗙𝗢 ✨
+		
+📅 𝗗𝗔𝗧𝗘: ${date}
+🗓️ 𝗗𝗔𝗬: ${day}
+⏰ 𝗧𝗜𝗠𝗘: ${time}
+		
+📊 𝗪𝗘𝗘𝗞 𝗡𝗨𝗠𝗕𝗘𝗥: ${week}
+🌤️ 𝗗𝗔𝗬 𝗢𝗙 𝗬𝗘𝗔𝗥: ${dayOfYear}
+⏳ 𝗗𝗔𝗬𝗦 𝗟𝗘𝗙𝗧: ${daysLeft}
+		
+🌏 𝗧𝗜𝗠𝗘𝗭𝗢𝗡𝗘: Asia/Dhaka (GMT+6)
+🔮 𝗣𝗢𝗪𝗘𝗥𝗘𝗗 𝗕𝗬: ${this.config.credits}
+		
+🇧🇩 𝗦𝗛𝗢𝗡𝗔𝗥 𝗕𝗔𝗡𝗚𝗟𝗔 𝗗𝗘𝗦𝗛 𝗧𝗜𝗠𝗘 🇧🇩`;
 
-      const msg = `🕒 *Bangladesh Time Info*
+		// You can add an optional image attachment here if you want
+		// const attachment = await global.utils.getStreamFromURL("image-url");
+		
+		return api.sendMessage({
+			body: response,
+			// attachment: attachment // uncomment if you want to send an image
+		}, event.threadID, event.messageID);
+	} 
+	catch (error) {
+		console.error("DateTime Error:", error);
+		return api.sendMessage("❌ | An error occurred while fetching time data. Please try again later.", event.threadID, event.messageID);
+	}
+};
 
-` +
-                  `🇧🇩 *Bangladesh*
-` +
-                  `   🗓️ *Date:* ${bdDateTime}
-` +
-                  `   🕘 *Time:* ${bdClock}`;
-
-      message.reply(msg);
-    } catch (err) {
-      console.error(err);
-      message.reply("❌ | Error fetching date & time data. Try again later.");
-    }
-  }
+module.exports.handleEvent = async function ({ event, api }) {
+	// Auto-response to keywords
+	const lowerBody = event.body.toLowerCase();
+	if (lowerBody.includes("time") && lowerBody.includes("bd")) {
+		this.run({ api, event, args: [] });
+	}
 };
