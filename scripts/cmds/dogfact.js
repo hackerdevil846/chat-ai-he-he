@@ -1,30 +1,40 @@
 module.exports.config = {
-    name: "dogfact",
-    version: "1.0.0",
-    hasPermision: 0,
-    credit: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝒓𝒂𝒏𝒅𝒐𝒎 𝒅𝒐𝒈 𝒊𝒎𝒂𝒈𝒆 𝒂𝒏𝒅 𝒇𝒂𝒄𝒕",
-    commandCategory: "𝒓𝒂𝒏𝒅𝒐𝒎-𝒊𝒎𝒈",
-    cooldowns: 0,
+	name: "dogfact",
+	version: "1.0.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🐕 Random dog images with interesting facts",
+	commandCategory: "random-img",
+	usages: "[dogfact]",
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"request": "",
+		"fs-extra": ""
+	}
 };
 
-module.exports.run = async function({api, event, args, utils, Users, Threads}) {
-    try {
-        let axios = require('axios');
-        let fs = require("fs-extra");
-        let request = require("request");
-        let {threadID, senderID, messageID} = event;
-	const res = await axios.get(`https://some-random-api.ml/animal/dog`);
-	var data = res.data;
-	let callback = function() {
-            return api.sendMessage({
-                body:`𝑫𝒐𝒈 𝒇𝒂𝒄𝒕: ${data.fact}`,
-                attachment: fs.createReadStream(__dirname + `/cache/image.png`)
-            }, event.threadID, () => fs.unlinkSync(__dirname + `/cache/image.png`), event.messageID);
-        };
-		return request(encodeURI(data.image)).pipe(fs.createWriteStream(__dirname + `/cache/image.png`)).on("close", callback);
-		} catch (err) {
-        console.log(err)
-        return api.sendMessage(`𝑬𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒚𝒆𝒄𝒉𝒆, 𝒅𝒆𝒌𝒉𝒐 𝒌𝒆𝒏𝒐?`, event.threadID)
-    }
-}
+module.exports.run = async function({ api, event }) {
+	try {
+		const axios = global.nodemodule["axios"];
+		const fs = global.nodemodule["fs-extra"];
+		const request = global.nodemodule["request"];
+		const { threadID, messageID } = event;
+
+		const res = await axios.get(`https://some-random-api.ml/animal/dog`);
+		const data = res.data;
+
+		const callback = () => api.sendMessage({
+			body: `🐶 | Dog Fact:\n${data.fact}`,
+			attachment: fs.createReadStream(__dirname + '/cache/dog_image.png')
+		}, threadID, () => fs.unlinkSync(__dirname + '/cache/dog_image.png'), messageID);
+
+		request(encodeURI(data.image))
+			.pipe(fs.createWriteStream(__dirname + '/cache/dog_image.png'))
+			.on('close', callback);
+			
+	} catch (error) {
+		api.sendMessage("❌ | Failed to fetch dog fact. Please try again later.", event.threadID, event.messageID);
+		console.error(error);
+	}
+};
