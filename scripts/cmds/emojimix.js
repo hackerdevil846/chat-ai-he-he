@@ -1,69 +1,76 @@
 const axios = require("axios");
 
-module.exports.config = {
-	name: "emojimix",
-	version: "1.4",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: {
-		en: "Mix 2 emoji together 🎭"
+module.exports = {
+	config: {
+		name: "emojimix",
+		version: "1.4",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",",
+		countDown: 5,
+		role: 0,
+		description: {
+			vi: "Mix 2 emoji lại với nhau",
+			en: "Mix 2 emoji together"
+		},
+		guide: {
+			vi: "   {pn} <emoji1> <emoji2>"
+				+ "\n   Ví dụ:  {pn} 🤣 🥰",
+			en: "   {pn} <emoji1> <emoji2>"
+				+ "\n   Example:  {pn} 🤣 🥰"
+		},
+		category: "fun"
 	},
-	commandCategory: "fun",
-	usages: "[emoji1] [emoji2]",
-	cooldowns: 5,
-	dependencies: {
-		"axios": ""
-	}
-};
 
-module.exports.languages = {
-	en: {
-		error: "❌ Sorry, emoji %1 and %2 can't be mixed!",
-		success: "✅ Successfully mixed %1 and %2! Generated %3 image(s)"
-	}
-};
+	langs: {
+		vi: {
+			error: "Rất tiếc, emoji %1 và %2 không mix được",
+			success: "Emoji %1 và %2 mix được %3 ảnh",
+			goat_error: "🐐 Oh no! It seems like the emojis %1 and %2 are not a match made in heaven. 💔 They can't be mixed. Please try different emojis!",
+			goat_success: "🎉 Success! Emojis %1 and %2 have been beautifully mixed! 🎨 You've got %3 amazing new emoji creations!"
+		},
+		en: {
+			error: "Sorry, emoji %1 and %2 can't mix",
+			success: "Emoji %1 and %2 mix %3 images",
+			goat_error: "🐐 Oh no! It seems like the emojis %1 and %2 are not a match made in heaven. 💔 They can't be mixed. Please try different emojis!",
+			goat_success: "🎉 Success! Emojis %1 and %2 have been beautifully mixed! 🎨 You've got %3 amazing new emoji creations!"
+		}
+	},
 
-module.exports.run = async function ({ api, event, args, getText }) {
-	const { readFileSync, createReadStream } = require("fs");
-	const { threadID, messageID } = event;
+	onStart: async function ({ message, args, getLang }) {
+		const readStream = [];
+		const emoji1 = args[0];
+		const emoji2 = args[1];
 
-	if (!args[0] || !args[1]) {
-		return api.sendMessage("✨ Usage: emojimix <emoji1> <emoji2>\nExample: emojimix 🤣 🥰", threadID, messageID);
-	}
+		if (!emoji1 || !emoji2)
+			return message.SyntaxError();
 
-	const emoji1 = args[0];
-	const emoji2 = args[1];
-	const readStream = [];
-
-	try {
 		const generate1 = await generateEmojimix(emoji1, emoji2);
 		const generate2 = await generateEmojimix(emoji2, emoji1);
 
-		if (generate1) readStream.push(generate1);
-		if (generate2) readStream.push(generate2);
+		if (generate1)
+			readStream.push(generate1);
+		if (generate2)
+			readStream.push(generate2);
 
-		if (readStream.length === 0) {
-			return api.sendMessage(getText("error", emoji1, emoji2), threadID, messageID);
-		}
+		if (readStream.length == 0)
+			return message.reply(getLang("goat_error", emoji1, emoji2));
 
-		const msg = getText("success", emoji1, emoji2, readStream.length);
-		api.sendMessage({
-			body: msg,
+		message.reply({
+			body: getLang("goat_success", emoji1, emoji2, readStream.length),
 			attachment: readStream
-		}, threadID, messageID);
-	} catch (error) {
-		api.sendMessage("❌ An error occurred while processing emojis!", threadID, messageID);
+		});
 	}
 };
 
+
+
 async function generateEmojimix(emoji1, emoji2) {
 	try {
-		const { data } = await axios.get(`https://emojik.vercel.app/s/${encodeURIComponent(emoji1)}_${encodeURIComponent(emoji2)}?size=128`, {
-			responseType: "stream"
-		});
-		data.path = `emojimix${Date.now()}.png`;
-		return data;
-	} catch (e) {
+const { data: response } = await axios.get(`https://emojik.vercel.app/s/${emoji1}_${emoji2}?size=128`, { responseType: "stream" });
+		response.path = `emojimix${Date.now()}.png`;
+		return response;
+	}
+		catch (e) {
 		return null;
 	}
 }
+
