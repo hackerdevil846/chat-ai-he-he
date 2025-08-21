@@ -4,13 +4,22 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒇𝒂𝒄𝒕𝒔 𝒋𝒂𝒏𝒂𝒏",
-	commandCategory: "𝑭𝒖𝒏",
-	cooldowns: 5
+	commandCategory: "fun",
+	usages: "[blank]",
+	cooldowns: 5,
+	dependencies: {
+		"axios": ""
+	}
 };
 
-module.exports.run = async ({ api, event, args }) => {
-	const axios = global.nodemodule["axios"];
-	const res = await axios.get(`https://api.popcat.xyz/fact`);
-	const fact = res.data.fact;
-	return api.sendMessage(`𝑻𝒖𝒎𝒊 𝒋𝒂𝒏𝒐? ✨\n\n${fact}`, event.threadID, event.messageID);
-}
+module.exports.run = async function({ api, event, args }) {
+	const axios = require("axios");
+	try {
+		const response = await axios.get('https://api.popcat.xyz/fact');
+		const fact = response.data.fact;
+		api.sendMessage(`🔮 | 𝐑𝐚𝐧𝐝𝐨𝐦 𝐅𝐚𝐜𝐭 𝐅𝐨𝐫 𝐘𝐨𝐮\n\n✨ | 𝐅𝐚𝐜𝐭: ${fact}\n\n💫 | 𝐂𝐫𝐞𝐚𝐭𝐨𝐫: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`, event.threadID, event.messageID);
+	} catch (error) {
+		console.error(error);
+		api.sendMessage("❌ | 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐟𝐚𝐜𝐭. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.", event.threadID);
+	}
+};
