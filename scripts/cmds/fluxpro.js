@@ -3,18 +3,31 @@ const fs = require("fs-extra");
 const axios = require("axios");
 
 module.exports.config = {
-  name: "fluxpro",
-  version: "2.1",
-  hasPermssion: 0,
-  credits: "Asif Mahmud",
-  description: "Generate high-quality images with Flux.1 Pro",
-  commandCategory: "IMAGE GENERATOR",
-  premium: true,
+  name: "fluxpro", // Command name
+  version: "2.1", // Module version
+  hasPermssion: 0, // 0 = all users can use
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
+  description: "🎨 Generate high-quality images using Flux.1 Pro AI",
+  commandCategory: "IMAGE GENERATOR", // Category
   usages: "[prompt] --style [style_id] --size [dimensions]",
-  cooldowns: 20,
+  cooldowns: 20, // 20s cooldown
   dependencies: {
     axios: "",
     "fs-extra": ""
+  }
+};
+
+module.exports.languages = {
+  "en": {
+    missingPrompt: "🔍 Please provide a prompt for image generation\n💡 Example: .fluxpro futuristic cityscape --style 7 --size 1024x768",
+    generating: (prompt) => `🖌️ Generating your image for:\n✨ "${prompt}" ...\n\n⏳ Please wait...`,
+    success: (prompt, styleId, size, time) =>
+      `✅ Flux.1 Pro Image Generated Successfully!\n\n` +
+      `🎨 Prompt: ${prompt}\n` +
+      `🎭 Style: ${styleId}\n` +
+      `📐 Size: ${size}\n` +
+      `⏱️ Time Taken: ${time}s\n\n✨ Enjoy your masterpiece!`,
+    failed: "❌ Image generation failed."
   }
 };
 
@@ -24,7 +37,7 @@ module.exports.run = async function ({ api, event, args }) {
 
   if (!args.length)
     return api.sendMessage(
-      '🔍 Please provide a prompt for image generation\nExample: .fluxpro futuristic cityscape --style 7 --size 1024x768',
+      module.exports.languages.en.missingPrompt,
       threadID,
       messageID
     );
@@ -34,6 +47,7 @@ module.exports.run = async function ({ api, event, args }) {
   let styleId = 4;
   let size = "1024x1024";
 
+  // Function to extract flags (--style, --size)
   function extractFlag(input, flag) {
     const regex = new RegExp(`--${flag}\\s+(\\S+)`);
     const match = input.match(regex);
@@ -44,16 +58,19 @@ module.exports.run = async function ({ api, event, args }) {
     return { input, value: null };
   }
 
+  // Extract style
   let res = extractFlag(fullInput, "style");
   fullInput = res.input;
   if (res.value && !isNaN(res.value)) styleId = parseInt(res.value);
 
+  // Extract size
   res = extractFlag(fullInput, "size");
   fullInput = res.input;
   if (res.value) size = res.value;
 
   const prompt = fullInput;
 
+  // Size map conversion
   const sizeMap = {
     "1024x1024": "1-1",
     "1024x768": "4-3",
@@ -64,14 +81,16 @@ module.exports.run = async function ({ api, event, args }) {
   const apiSize = sizeMap[size] || "1-1";
 
   try {
+    // Send processing message
     const processingMsg = await api.sendMessage(
-      `🖌️ Generating your "${prompt}" image with Flux.1 Pro...`,
+      module.exports.languages.en.generating(prompt),
       threadID,
       messageID
     );
 
     api.setMessageReaction("⏳", messageID, () => {}, true);
 
+    // Request payload
     const postData = JSON.stringify({
       prompt: prompt,
       style_id: styleId,
@@ -93,6 +112,7 @@ module.exports.run = async function ({ api, event, args }) {
 
     const startTime = Date.now();
 
+    // Get image URL
     const imageUrl = await new Promise((resolve, reject) => {
       const req = https.request(options, (res) => {
         let data = "";
@@ -120,6 +140,7 @@ module.exports.run = async function ({ api, event, args }) {
       req.end();
     });
 
+    // Download image
     const imageResponse = await axios.get(imageUrl, {
       responseType: "arraybuffer",
       timeout: 60000
@@ -129,9 +150,10 @@ module.exports.run = async function ({ api, event, args }) {
 
     const generationTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
+    // Send final result
     await api.sendMessage(
       {
-        body: `🎨 Flux.1 Pro Generated\n\nPrompt: ${prompt}\nStyle: ${styleId}\nSize: ${size}\nTime: ${generationTime}s`,
+        body: module.exports.languages.en.success(prompt, styleId, size, generationTime),
         attachment: fs.createReadStream(tempPath)
       },
       threadID,
@@ -140,15 +162,16 @@ module.exports.run = async function ({ api, event, args }) {
 
     api.unsendMessage(processingMsg.messageID);
     api.setMessageReaction("✅", messageID, () => {}, true);
+
     fs.unlinkSync(tempPath);
   } catch (err) {
     console.error("FluxPro Error:", err);
 
-    let errorMessage = "❌ Image generation failed. ";
+    let errorMessage = module.exports.languages.en.failed + " ";
     if (err.message.includes("timed out"))
-      errorMessage += "The request timed out. Try a simpler prompt.";
+      errorMessage += "⏱️ Request timed out. Try a simpler prompt.";
     else if (err.message.includes("image URL"))
-      errorMessage += "API didn't return a valid image.";
+      errorMessage += "⚠️ API didn't return a valid image.";
     else errorMessage += `Error: ${err.message || "Unknown error"}`;
 
     api.sendMessage(errorMessage, threadID, messageID);
