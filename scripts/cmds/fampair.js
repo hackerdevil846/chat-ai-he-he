@@ -1,102 +1,129 @@
+const fs = global.nodemodule["fs-extra"];
+const path = global.nodemodule["path"];
+const axios = global.nodemodule["axios"];
+const jimp = global.nodemodule["jimp"];
+
 module.exports.config = {
 	name: "fampair",
 	version: "1.0.1",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑻𝒉𝒊𝒔 𝒊𝒔 𝒂 𝒇𝒂𝒎𝒊𝒍𝒚 𝒑𝒂𝒊𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒇𝒐𝒓 𝒃𝒐𝒚𝒔",
-	commandCategory: "𝒍𝒐𝒗𝒆",
+	description: "👨‍👩‍👧‍👦 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐟𝐨𝐫 𝐁𝐨𝐲𝐬",
+	commandCategory: "💞 𝗟𝗢𝗩𝗘",
+	usages: "[@tag]",
 	cooldowns: 5,
 	dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-}
+		"axios": "",
+		"fs-extra": "",
+		"jimp": ""
+	}
+};
 
-module.exports.onLoad = async() => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'araa2.jpg');
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://imgur.com/D35mTwa.jpg", path);
+module.exports.onLoad = async () => {
+	const { existsSync, mkdirSync } = fs;
+	const { downloadFile } = global.utils;
+	const dirMaterial = path.resolve(__dirname, "cache", "canvas");
+	
+	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+	
+	const bgPath = path.resolve(dirMaterial, "araa2.jpg");
+	if (!existsSync(bgPath)) {
+		await downloadFile("https://imgur.com/D35mTwa.jpg", bgPath);
+	}
+};
+
+async function circle(image) {
+	const img = await jimp.read(image);
+	img.circle();
+	return await img.getBufferAsync("image/png");
 }
 
 async function makeImage({ one, two, three }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"]; 
-    const jimp = global.nodemodule["jimp"];
-    const __root = path.resolve(__dirname, "cache", "canvas");
-
-    let pairing_img = await jimp.read(__root + "/araa2.jpg");
-    let pathImg = __root + `/araa_${one}_${two}_${three}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
-    let avatarThree = __root + `/avt_${three}.png`;
-    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-  let getAvatarThree = (await axios.get(`https://graph.facebook.com/${three}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarThree, Buffer.from(getAvatarThree, 'utf-8'));  
-    let circleOne = await jimp.read(await circle(avatarOne));
-    let circleTwo = await jimp.read(await circle(avatarTwo));
-  let circleThree = await jimp.read(await circle(avatarThree));
-    pairing_img.composite(circleOne.resize(65, 65), 135, 260).composite(circleTwo.resize(65, 65), 230, 210).composite(circleThree.resize(60, 60), 193, 370);
-    
-    let raw = await pairing_img.getBufferAsync("image/png");
-    
-    fs.writeFileSync(pathImg, raw);
-    fs.unlinkSync(avatarOne);
-    fs.unlinkSync(avatarTwo);
-    fs.unlinkSync(avatarThree);
-    return pathImg;
-}
-
-async function circle(image) {
-    const jimp = require("jimp");
-    image = await jimp.read(image);
-    image.circle();
-    return await image.getBufferAsync("image/png");
+	const __root = path.resolve(__dirname, "cache", "canvas");
+	const pairingImg = await jimp.read(path.resolve(__root, "araa2.jpg"));
+	const pathImg = path.resolve(__root, `araa_${one}_${two}_${three}.png`);
+	
+	// Download and process avatars
+	const avatarPaths = [];
+	const users = [one, two, three];
+	
+	for (let i = 0; i < users.length; i++) {
+		const avatarPath = path.resolve(__root, `avt_${users[i]}.png`);
+		const avatarUrl = `https://graph.facebook.com/${users[i]}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+		const avatarData = (await axios.get(avatarUrl, { responseType: 'arraybuffer' })).data;
+		
+		fs.writeFileSync(avatarPath, Buffer.from(avatarData, 'utf-8'));
+		avatarPaths.push(avatarPath);
+	}
+	
+	// Create circular avatars
+	const circleOne = await jimp.read(await circle(avatarPaths[0]));
+	const circleTwo = await jimp.read(await circle(avatarPaths[1]));
+	const circleThree = await jimp.read(await circle(avatarPaths[2]));
+	
+	// Composite avatars onto background
+	pairingImg.composite(circleOne.resize(65, 65), 135, 260)
+			  .composite(circleTwo.resize(65, 65), 230, 210)
+			  .composite(circleThree.resize(60, 60), 193, 370);
+	
+	// Save final image
+	const raw = await pairingImg.getBufferAsync("image/png");
+	fs.writeFileSync(pathImg, raw);
+	
+	// Cleanup temporary avatar files
+	avatarPaths.forEach(path => fs.existsSync(path) && fs.unlinkSync(path));
+	
+	return pathImg;
 }
 
 module.exports.run = async function({ api, event, args, Users }) {
-  const fs = require("fs-extra");
-  const axios = require("axios");
-  const { threadID, messageID, senderID } = event;
-  
-  if (!args[0]) {
-    var tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
-    var tle = tl[Math.floor(Math.random() * tl.length)];
-    var info = await api.getUserInfo(event.senderID);
-    var nameSender = info[event.senderID].name;
-    var arraytag = [];
-    arraytag.push({id: event.senderID, tag: nameSender});
-    
-    let loz = await api.getThreadInfo(event.threadID);
-    var emoji = loz.participantIDs;
-    var e = emoji[Math.floor(Math.random() * emoji.length)];
-    var r = emoji[Math.floor(Math.random() * emoji.length)];
-    
-    // Ensure different participants
-    while (r === e || r === senderID || e === senderID) {
-      r = emoji[Math.floor(Math.random() * emoji.length)];
-      e = emoji[Math.floor(Math.random() * emoji.length)];
-    }
-    
-    var name1 = (await Users.getData(e)).name
-    var name2 = (await Users.getData(r)).name
-    var one = senderID, two = e, three = r;
-    
-    return makeImage({ one, two, three }).then(path => api.sendMessage({ 
-      body: `𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 ${nameSender} 𝒕𝒖𝒎𝒊 𝒔𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 ${name1} 𝒂𝒓 ${name2} 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒇𝒂𝒎𝒊𝒍𝒚 𝒑𝒂𝒊𝒓 𝒉𝒐𝒍𝒐\n𝑻𝒐𝒎𝒂𝒅𝒆𝒓 𝒔𝒂𝒎𝒂𝒏𝒏𝒋𝒐𝒔𝒚𝒂 ${tle}%`,
-      mentions: [
-        { tag: nameSender, id: senderID },
-        { tag: name1, id: e },
-        { tag: name2, id: r }
-      ], 
-      attachment: fs.createReadStream(path) 
-    }, threadID, () => fs.unlinkSync(path), messageID));
-  }
-}
+	try {
+		const { threadID, messageID, senderID } = event;
+		const tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
+		const tle = tl[Math.floor(Math.random() * tl.length)];
+		
+		const info = await api.getUserInfo(senderID);
+		const nameSender = info[senderID].name;
+		
+		const threadInfo = await api.getThreadInfo(threadID);
+		const participantIDs = threadInfo.participantIDs.filter(id => id !== senderID);
+		
+		if (participantIDs.length < 2) {
+			return api.sendMessage("👥 | 𝐆𝐫𝐨𝐮𝐩 𝐦𝐮𝐬𝐭 𝐡𝐚𝐯𝐞 𝐚𝐭 𝐥𝐞𝐚𝐬𝐭 𝟐 𝐨𝐭𝐡𝐞𝐫 𝐦𝐞𝐦𝐛𝐞𝐫𝐬 𝐭𝐨 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝!", threadID, messageID);
+		}
+		
+		// Select two random participants
+		const firstIndex = Math.floor(Math.random() * participantIDs.length);
+		let secondIndex;
+		
+		do {
+			secondIndex = Math.floor(Math.random() * participantIDs.length);
+		} while (secondIndex === firstIndex);
+		
+		const e = participantIDs[firstIndex];
+		const r = participantIDs[secondIndex];
+		
+		const name1 = (await Users.getData(e)).name;
+		const name2 = (await Users.getData(r)).name;
+		
+		api.sendMessage("🔄 | 𝐂𝐫𝐞𝐚𝐭𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐟𝐚𝐦𝐢𝐥𝐲 𝐩𝐚𝐢𝐫 𝐢𝐦𝐚𝐠𝐞...", threadID, messageID);
+		
+		const imagePath = await makeImage({ one: senderID, two: e, three: r });
+		
+		return api.sendMessage({ 
+			body: `👨‍👩‍👧‍👦 | 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐑𝐞𝐬𝐮𝐥𝐭\n\n✦ 𝐀𝐛𝐡𝐢𝐧𝐚𝐧𝐝𝐚𝐧 ${nameSender} 𝐭𝐮𝐦𝐢 𝐬𝐚𝐩𝐡𝐚𝐥𝐛𝐡𝐚𝐛𝐞 ${name1} 𝐚𝐫 ${name2} 𝐞𝐫 𝐬𝐚𝐭𝐡𝐞 𝐟𝐚𝐦𝐢𝐥𝐲 𝐩𝐚𝐢𝐫 𝐡𝐨𝐥𝐨\n🌸 𝐓𝐨𝐦𝐚𝐝𝐞𝐫 𝐬𝐚𝐦𝐚𝐧𝐧𝐣𝐨𝐬𝐲𝐚: ${tle}`,
+			mentions: [
+				{ tag: nameSender, id: senderID },
+				{ tag: name1, id: e },
+				{ tag: name2, id: r }
+			], 
+			attachment: fs.createReadStream(imagePath) 
+		}, threadID, () => {
+			fs.unlinkSync(imagePath);
+		}, messageID);
+		
+	} catch (error) {
+		console.error(error);
+		api.sendMessage("❌ | 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐭𝐡𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝", threadID, messageID);
+	}
+};
