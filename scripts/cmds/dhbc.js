@@ -1,75 +1,78 @@
 const axios = require("axios");
 const { getStreamFromURL } = global.utils;
 
-module.exports = {
-	config: {
-		name: "dhbc",
-		version: "1.3",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "chơi game đuổi hình bắt chữ",
-			en: "play game catch the word"
-		},
-		category: "game",
-		guide: {
-			en: "{pn}"
-		},
-		envConfig: {
-			reward: 1000
-		}
+module.exports.config = {
+	name: "dhbc",
+	version: "1.3",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	countDown: 5,
+	role: 0,
+	description: {
+		en: "🎮 Play game catch the word from images"
 	},
-
-	langs: {
-		vi: {
-			reply: "Hãy reply tin nhắn này với câu trả lời\n%1",
-			isSong: "Đây là tên bài hát của ca sĩ %1",
-			notPlayer: "⚠️ Bạn không phải là người chơi của câu hỏi này",
-			correct: "🎉 Chúc mừng bạn đã trả lời đúng và nhận được %1$",
-			wrong: "⚠️ Bạn đã trả lời sai"
-		},
-		en: {
-			reply: "Please reply this message with the answer\n%1",
-			isSong: "This is the name of the song of the singer %1",
-			notPlayer: "⚠️ You are not the player of this question",
-			correct: "🎉 Congratulations you have answered correctly and received %1$",
-			wrong: "⚠️ You have answered incorrectly"
-		}
+	category: "game",
+	guide: {
+		en: "{pn}"
 	},
+	envConfig: {
+		reward: 1000
+	}
+};
 
-	onStart: async function ({ message, event, commandName, getLang }) {
-		const datagame = (await axios.get("https://goatbotserver.onrender.com/api/duoihinhbatchu")).data;
-		const { wordcomplete, casi, image1, image2 } = datagame.data;
+module.exports.languages = {
+	en: {
+		reply: "🖼️ | Please reply to this message with your answer!\n%1",
+		isSong: "🎵 | This is a song title from singer: %1",
+		notPlayer: "⚠️ | You are not the player of this question!",
+		correct: "🎉 | Congratulations! You answered correctly and received %1$",
+		wrong: "❌ | Incorrect answer! Please try again."
+	}
+};
 
-		message.reply({
-			body: getLang("reply", wordcomplete.replace(/\S/g, "█ ")) + (casi ? getLang("isSong", casi) : ''),
-			attachment: [
-				await getStreamFromURL(image1),
-				await getStreamFromURL(image2)
-			]
-		}, (err, info) => {
+module.exports.run = async function ({ api, event, getLang }) {
+	try {
+		const imageUrl = "https://picsum.photos/1280/720"; // Random image from Lorem Picsum
+		const wordData = (await axios.get("https://random-word-api.herokuapp.com/word")).data;
+		const wordcomplete = wordData[0]; // The API returns an array, take the first word
+
+		const bodyMsg = getLang("reply", wordcomplete.replace(/\S/g, "█ "));
+
+		const attachments = [
+			await getStreamFromURL(imageUrl)
+		];
+
+		api.sendMessage({
+			body: bodyMsg,
+			attachment: attachments
+		}, event.threadID, (err, info) => {
+			if (err) return console.error(err);
 			global.GoatBot.onReply.set(info.messageID, {
-				commandName,
+				commandName: this.config.name,
 				messageID: info.messageID,
 				author: event.senderID,
 				wordcomplete
 			});
 		});
-	},
+	} catch (error) {
+		console.error(error);
+		api.sendMessage("❌ | An error occurred while starting the game!", event.threadID);
+	}
+};
 
-	onReply: async ({ message, Reply, event, getLang, usersData, envCommands, commandName }) => {
-		const { author, wordcomplete, messageID } = Reply;
-		if (event.senderID != author)
-			return message.reply(getLang("notPlayer"));
+module.exports.handleReply = async function ({ api, event, handleReply, getLang, Currencies }) {
+	const { author, wordcomplete, messageID } = handleReply;
+	
+	if (event.senderID !== author) {
+		return api.sendMessage(getLang("notPlayer"), event.threadID);
+	}
 
-		if (formatText(event.body) == formatText(wordcomplete)) {
-			global.GoatBot.onReply.delete(messageID);
-			await usersData.addMoney(event.senderID, envCommands[commandName].reward);
-			message.reply(getLang("correct", envCommands[commandName].reward));
-		}
-		else
-			message.reply(getLang("wrong"));
+	if (formatText(event.body) === formatText(wordcomplete)) {
+		global.GoatBot.onReply.delete(messageID);
+		const reward = this.config.envConfig.reward;
+		await Currencies.increaseMoney(event.senderID, reward);
+		api.sendMessage(getLang("correct", reward), event.threadID);
+	} else {
+		api.sendMessage(getLang("wrong"), event.threadID);
 	}
 };
 
@@ -79,3 +82,4 @@ function formatText(text) {
 		.replace(/[\u0300-\u036f]/g, "")
 		.replace(/[đ|Đ]/g, (x) => x == "đ" ? "d" : "D");
 }
+
