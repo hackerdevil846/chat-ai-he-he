@@ -2,6 +2,8 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const Canvas = require("canvas");
 const fs = require("fs-extra");
+const path = require("path");
+
 const langsSupported = [
 	'sq', 'ar', 'az', 'bn', 'bs', 'bg', 'my', 'zh-hans',
 	'zh-hant', 'hr', 'cs', 'da', 'nl', 'en', 'et', 'fil',
@@ -11,192 +13,329 @@ const langsSupported = [
 	'th', 'tr', 'uk', 'vi'
 ];
 
-module.exports = {
-	config: {
-		name: "emojimean",
-		alias: ["em", "emojimeaning", "emojimean"],
-		version: "1.4",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "Tìm nghĩa của emoji",
-			en: "Find the meaning of emoji"
-		},
-		category: "wiki",
-		guide: {
-			vi: "   {pn} <emoji>: Tìm nghĩa của emoji",
-			en: "   {pn} <emoji>: Find the meaning of emoji"
-		}
+module.exports.config = {
+	name: "emojimean",
+	version: "1.4",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "Find the meaning of an emoji 📌",
+	commandCategory: "wiki",
+	usages: "[emoji]",
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"cheerio": "",
+		"canvas": "",
+		"fs-extra": ""
 	},
+	envConfig: {}
+};
 
-	langs: {
-		vi: {
-			missingEmoji: "⚠️ Bạn chưa nhập emoji",
-			meaningOfEmoji: "📌 Ý nghĩa của emoji %1:\n\n📄 Nghĩa đầu tiên: %2\n\n📑 Nghĩa khác: %3%4\n\n📄 Shortcode: %5\n\n©️ Nguồn: %6\n\n📺 Dưới đây là hình ảnh hiện thị của emoji trên một số nền tảng:",
-			meaningOfWikipedia: "\n\n📝 Reaction tin nhắn này để xem nghĩa \"%1\" từ Wikipedia",
-			meanOfWikipedia: "📑 Nghĩa của \"%1\" trên Wikipedia:\n%2",
-			manyRequest: "⚠️ Hiện tại bot đã gửi quá nhiều yêu cầu, vui lòng thử lại sau",
-			notHave: "Không có"
-		},
-		en: {
-			missingEmoji: "⚠️ You have not entered an emoji",
-			meaningOfEmoji: "📌 Meaning of emoji %1:\n\n📄 First meaning: %2\n\n📑 More meaning: %3%4\n\n📄 Shortcode: %5\n\n©️ Source: %6\n\n📺 Below are images of the emoji displayed on some platforms:",
-			meaningOfWikipedia: "\n\n📝 React to this message to see the meaning \"%1\" from Wikipedia",
-			meanOfWikipedia: "📑 Meaning of \"%1\" on Wikipedia:\n%2",
-			manyRequest: "⚠️ The bot has sent too many requests, please try again later",
-			notHave: "Not have"
-		}
+module.exports.languages = {
+	vi: {
+		missingEmoji: "⚠️ Bạn chưa nhập emoji",
+		meaningOfEmoji: "📌 Ý nghĩa của emoji %1:\n\n📄 Nghĩa đầu tiên: %2\n\n📑 Nghĩa khác: %3%4\n\n📄 Shortcode: %5\n\n©️ Nguồn: %6\n\n📺 Dưới đây là hình ảnh hiển thị của emoji trên một số nền tảng:",
+		meaningOfWikipedia: "\n\n📝 Reaction tin nhắn này để xem nghĩa \"%1\" từ Wikipedia",
+		meanOfWikipedia: "📑 Nghĩa của \"%1\" trên Wikipedia:\n%2",
+		manyRequest: "⚠️ Hiện tại bot đã gửi quá nhiều yêu cầu, vui lòng thử lại sau",
+		notHave: "Không có"
 	},
-
-	onStart: async function ({ args, message, event, threadsData, getLang, commandName }) {
-		const emoji = args[0];
-		if (!emoji)
-			return message.reply(getLang("missingEmoji"));
-		const threadData = await threadsData.get(event.threadID);
-		let myLang = threadData.data.lang ? threadData.data.lang : global.GoatBot.config.language;
-		myLang = langsSupported.includes(myLang) ? myLang : "en";
-
-		let getMeaning;
-		try {
-			getMeaning = await getEmojiMeaning(emoji, myLang);
-		}
-		catch (e) {
-			if (e.response && e.response.status == 429) {
-				let tryNumber = 0;
-				while (tryNumber < 3) {
-					try {
-						getMeaning = await getEmojiMeaning(emoji, myLang);
-						break;
-					}
-					catch (e) {
-						tryNumber++;
-					}
-				}
-				if (tryNumber == 3)
-					return message.reply(getLang("manyRequest"));
-			}
-		}
-
-		const {
-			meaning,
-			moreMeaning,
-			wikiText,
-			meaningOfWikipedia,
-			shortcode,
-			source
-		} = getMeaning;
-		let images = getMeaning.images;
-
-		const sizeImage = 190;
-		const imageInRow = 5;
-		const paddingOfTable = 20;
-		const marginImageAndText = 10;
-		const marginImage = 20;
-		const marginText = 2;
-		const fontSize = 30;
-		const addWidthImage = 150;
-
-		const font = `${fontSize}px Arial`;
-		const _canvas = Canvas.createCanvas(0, 0);
-		const _ctx = _canvas.getContext("2d");
-
-		const widthOfOneImage = sizeImage + marginImage * 2 + addWidthImage;
-		for (const item of images) {
-			const text = wrapped(item.platform, widthOfOneImage, font, _ctx);
-			item.text = text;
-		}
-
-		const maxRowText = Math.max(...images.map(item => item.text.length));
-		const heightForText = maxRowText * fontSize + marginText * 2 + fontSize;
-
-		const heightOfOneImage = sizeImage + marginImageAndText + heightForText + marginImage + marginText;
-
-		const witdhTable = paddingOfTable + imageInRow * widthOfOneImage + paddingOfTable;
-		const heightTable = paddingOfTable + Math.ceil(images.length / imageInRow) * heightOfOneImage + paddingOfTable;
-
-		const canvas = Canvas.createCanvas(witdhTable, heightTable);
-		const ctx = canvas.getContext("2d");
-		ctx.font = font;
-		ctx.fillStyle = "#303342";
-		ctx.fillRect(0, 0, witdhTable, heightTable);
-
-		images = await Promise.all(images.map(async (el) => {
-			let imageLoaded;
-			const url = `https://www.emojiall.com/${el.url}`;
-			try {
-				imageLoaded = await Canvas.loadImage(url);
-				// https://www.emojiall.com/en/svg-to-png/openmoji-black/640/1F97A.png
-				// https://www.emojiall.com/images/svg/openmoji-black/1F97A.svg
-			}
-			catch (e) {
-				try {
-					const splitUrl = url.split("/");
-					imageLoaded = await Canvas.loadImage(`https://www.emojiall.com/images/svg/${splitUrl[splitUrl.length - 2]}/${splitUrl[splitUrl.length - 1].replace(".png", ".svg")}`);
-				}
-				catch (e) {
-					imageLoaded = null;
-				}
-			}
-			return {
-				...el,
-				imageLoaded
-			};
-		}));
-		images = images.filter(item => item.imageLoaded);
-
-		let xStart = paddingOfTable + marginImage;
-		let yStart = paddingOfTable + marginImage;
-
-		ctx.fillStyle = "white";
-		ctx.textAlign = "center";
-
-		images.forEach(async (el) => {
-			const image = el.imageLoaded;
-			ctx.fillStyle = "#2c2f3b";
-			drawSquareRounded(ctx, xStart - marginImage + marginImage / 2, yStart - marginImage + marginImage / 2, widthOfOneImage - marginImage, heightOfOneImage - marginImage, 30);
-			drawLineSquareRounded(ctx, xStart - marginImage + marginImage / 2, yStart - marginImage + marginImage / 2, widthOfOneImage - marginImage, heightOfOneImage - marginImage, 30, "#3f4257", 5);
-
-			ctx.drawImage(image, xStart + addWidthImage / 2, yStart, sizeImage, sizeImage);
-
-			ctx.fillStyle = "white";
-			const texts = wrapped(el.platform, widthOfOneImage, ctx.font, ctx);
-			for (let i = 0; i < texts.length; i++)
-				ctx.fillText(texts[i], xStart + sizeImage / 2 + addWidthImage / 2, yStart + sizeImage + marginImageAndText + 2 + fontSize * (i + 1));
-
-			xStart += sizeImage + marginImage * 2 + addWidthImage;
-			if (xStart >= witdhTable - paddingOfTable) {
-				xStart = paddingOfTable + marginImage;
-				yStart += heightOfOneImage;
-			}
-		});
-
-		const buffer = canvas.toBuffer("image/png");
-		const pahtSave = `${__dirname}/tmp/${Date.now()}.png`;
-		fs.writeFileSync(pahtSave, buffer);
-
-		return message.reply({
-			body: getLang("meaningOfEmoji", emoji, meaning, moreMeaning, wikiText ? getLang("meaningOfWikipedia", wikiText) : "", shortcode || getLang("notHave"), source),
-			attachment: fs.createReadStream(pahtSave)
-		}, (err, info) => {
-			fs.unlinkSync(pahtSave);
-			if (wikiText)
-				global.GoatBot.onReaction.set(info.messageID, {
-					commandName,
-					author: event.senderID,
-					messageID: info.messageID,
-					emoji,
-					meaningOfWikipedia
-				});
-		});
-	},
-
-	onReaction: async ({ event, Reaction, message, getLang }) => {
-		if (Reaction.author != event.userID)
-			return;
-		return message.reply(getLang("meanOfWikipedia", Reaction.emoji, Reaction.meaningOfWikipedia));
+	en: {
+		missingEmoji: "⚠️ You have not entered an emoji",
+		meaningOfEmoji: "📌 Meaning of emoji %1:\n\n📄 First meaning: %2\n\n📑 More meaning: %3%4\n\n📄 Shortcode: %5\n\n©️ Source: %6\n\n📺 Below are images of the emoji displayed on some platforms:",
+		meaningOfWikipedia: "\n\n📝 React to this message to see the meaning \"%1\" from Wikipedia",
+		meanOfWikipedia: "📑 Meaning of \"%1\" on Wikipedia:\n%2",
+		manyRequest: "⚠️ The bot has sent too many requests, please try again later",
+		notHave: "Not have"
 	}
 };
+
+/**
+ * Ensure tmp folder exists when the module loads.
+ */
+module.exports.onLoad = function () {
+	try {
+		const tmpDir = path.join(__dirname, "tmp");
+		fs.ensureDirSync(tmpDir);
+	} catch (e) {
+		console.error("Failed to ensure tmp folder for emojimean:", e);
+	}
+};
+
+/**
+ * Helper: safe getLang function (tries to use provided getLang, otherwise falls back to internal languages).
+ */
+function makeGetLang(providedGetLang, threadDataLang) {
+	if (typeof providedGetLang === "function") return providedGetLang;
+	return function (key, ...args) {
+		const langCode = langsSupported.includes(threadDataLang) ? threadDataLang : "en";
+		let template = (module.exports.languages[langCode] && module.exports.languages[langCode][key]) || (module.exports.languages["en"] && module.exports.languages["en"][key]) || key;
+		// simple placeholder replacement %1, %2...:
+		args.forEach((v, i) => {
+			template = template.replace(new RegExp(`%${i + 1}`, "g"), v == null ? "" : v);
+		});
+		return template;
+	};
+}
+
+/**
+ * MAIN run function. Flexible parameters to support different GoatBot variants.
+ * Accepts an object which may contain:
+ *  - api, event, args, message, threadsData, Threads, getLang, commandName
+ */
+module.exports.run = async function (params) {
+	// Flexible extraction
+	const api = params.api;
+	const event = params.event || {};
+	const args = params.args || [];
+	const commandName = params.commandName || (module.exports.config && module.exports.config.name);
+	// threads data helper (some frameworks pass 'threadsData', others pass 'Threads')
+	const threadsDataWrapper = params.threadsData || params.Threads || null;
+	// message helper (if framework gives message object with reply)
+	let message = params.message || null;
+
+	// Create a fallback message object if we have api & event
+	if (!message && api && event && event.threadID && event.messageID) {
+		message = {
+			reply: (body, callback) => {
+				// if body is an object (with attachment), pass directly. Otherwise wrap.
+				if (typeof body === "object" && body !== null && (body.body || body.attachment)) {
+					api.sendMessage(body, event.threadID, (err, info) => {
+						if (typeof callback === "function") callback(err, info);
+					});
+				} else {
+					api.sendMessage(body, event.threadID, (err, info) => {
+						if (typeof callback === "function") callback(err, info);
+					}, event.messageID || undefined);
+				}
+			}
+		};
+	}
+
+	// get thread language
+	let threadLang = null;
+	try {
+		if (threadsDataWrapper && typeof threadsDataWrapper.get === "function") {
+			const tdata = await threadsDataWrapper.get(event.threadID);
+			threadLang = (tdata && tdata.data && tdata.data.lang) || null;
+		} else if (params.threadData && params.threadData.lang) {
+			threadLang = params.threadData.lang;
+		}
+	} catch (e) {
+		// ignore and fallback to default
+	}
+
+	const getLang = makeGetLang(params.getLang, threadLang || (global && global.GoatBot && global.GoatBot.config && global.GoatBot.config.language) || "en");
+
+	const emoji = args[0];
+	if (!emoji) {
+		return message.reply(getLang("missingEmoji"));
+	}
+
+	// call the same logic as original, with retry on 429
+	let getMeaning;
+	try {
+		getMeaning = await getEmojiMeaning(emoji, threadLang || (global && global.GoatBot && global.GoatBot.config && global.GoatBot.config.language) || "en");
+	} catch (e) {
+		if (e.response && e.response.status == 429) {
+			let tryNumber = 0;
+			while (tryNumber < 3) {
+				try {
+					getMeaning = await getEmojiMeaning(emoji, threadLang || (global && global.GoatBot && global.GoatBot.config && global.GoatBot.config.language) || "en");
+					break;
+				} catch (err) {
+					tryNumber++;
+				}
+			}
+			if (tryNumber == 3)
+				return message.reply(getLang("manyRequest"));
+		} else {
+			// Unexpected error — pass helpful message
+			console.error("getEmojiMeaning error:", e);
+			return message.reply("❌ Error fetching emoji data. Please try again later.");
+		}
+	}
+
+	const {
+		meaning,
+		moreMeaning,
+		wikiText,
+		meaningOfWikipedia,
+		shortcode,
+		source
+	} = getMeaning;
+	let images = getMeaning.images;
+
+	// Canvas layout constants (kept same as original)
+	const sizeImage = 190;
+	const imageInRow = 5;
+	const paddingOfTable = 20;
+	const marginImageAndText = 10;
+	const marginImage = 20;
+	const marginText = 2;
+	const fontSize = 30;
+	const addWidthImage = 150;
+
+	const font = `${fontSize}px Arial`;
+	const _canvas = Canvas.createCanvas(0, 0);
+	const _ctx = _canvas.getContext("2d");
+
+	const widthOfOneImage = sizeImage + marginImage * 2 + addWidthImage;
+	for (const item of images) {
+		const text = wrapped(item.platform, widthOfOneImage, font, _ctx);
+		item.text = text;
+	}
+
+	const maxRowText = Math.max(...images.map(item => item.text.length || 0));
+	const heightForText = maxRowText * fontSize + marginText * 2 + fontSize;
+
+	const heightOfOneImage = sizeImage + marginImageAndText + heightForText + marginImage + marginText;
+
+	const witdhTable = paddingOfTable + imageInRow * widthOfOneImage + paddingOfTable;
+	const heightTable = paddingOfTable + Math.ceil(images.length / imageInRow) * heightOfOneImage + paddingOfTable;
+
+	const canvas = Canvas.createCanvas(witdhTable, heightTable);
+	const ctx = canvas.getContext("2d");
+	ctx.font = font;
+	ctx.fillStyle = "#303342";
+	ctx.fillRect(0, 0, witdhTable, heightTable);
+
+	// Load images (preserve original urls/paths)
+	images = await Promise.all(images.map(async (el) => {
+		let imageLoaded;
+		const url = `https://www.emojiall.com/${el.url}`;
+		try {
+			imageLoaded = await Canvas.loadImage(url);
+		} catch (e) {
+			try {
+				const splitUrl = url.split("/");
+				imageLoaded = await Canvas.loadImage(`https://www.emojiall.com/images/svg/${splitUrl[splitUrl.length - 2]}/${splitUrl[splitUrl.length - 1].replace(".png", ".svg")}`);
+			} catch (e) {
+				imageLoaded = null;
+			}
+		}
+		return {
+			...el,
+			imageLoaded
+		};
+	}));
+
+	images = images.filter(item => item.imageLoaded);
+
+	let xStart = paddingOfTable + marginImage;
+	let yStart = paddingOfTable + marginImage;
+
+	ctx.fillStyle = "white";
+	ctx.textAlign = "center";
+
+	// draw each image card
+	for (const el of images) {
+		const image = el.imageLoaded;
+
+		// background rounded card
+		ctx.fillStyle = "#2c2f3b";
+		drawSquareRounded(ctx, xStart - marginImage + marginImage / 2, yStart - marginImage + marginImage / 2, widthOfOneImage - marginImage, heightOfOneImage - marginImage, 30);
+		// border
+		drawLineSquareRounded(ctx, xStart - marginImage + marginImage / 2, yStart - marginImage + marginImage / 2, widthOfOneImage - marginImage, heightOfOneImage - marginImage, 30, "#3f4257", 5);
+
+		ctx.drawImage(image, xStart + addWidthImage / 2, yStart, sizeImage, sizeImage);
+
+		ctx.fillStyle = "white";
+		const texts = wrapped(el.platform, widthOfOneImage, ctx.font, ctx);
+		for (let i = 0; i < texts.length; i++) {
+			ctx.fillText(texts[i], xStart + sizeImage / 2 + addWidthImage / 2, yStart + sizeImage + marginImageAndText + 2 + fontSize * (i + 1));
+		}
+
+		xStart += sizeImage + marginImage * 2 + addWidthImage;
+		if (xStart >= witdhTable - paddingOfTable) {
+			xStart = paddingOfTable + marginImage;
+			yStart += heightOfOneImage;
+		}
+	}
+
+	// Save canvas to tmp file
+	const buffer = canvas.toBuffer("image/png");
+	const pahtSave = `${__dirname}/tmp/${Date.now()}.png`;
+	fs.writeFileSync(pahtSave, buffer);
+
+	// Compose message body (use getLang for localization)
+	const body = getLang("meaningOfEmoji", emoji, meaning, moreMeaning || getLang("notHave"), wikiText ? getLang("meaningOfWikipedia", wikiText) : "", shortcode || getLang("notHave"), source);
+
+	// Send the message with attachment and set reaction handler for Wikipedia meaning (if any)
+	return message.reply({
+		body,
+		attachment: fs.createReadStream(pahtSave)
+	}, (err, info) => {
+		// cleanup file
+		try {
+			fs.unlinkSync(pahtSave);
+		} catch (e) { /* ignore */ }
+
+		// set reaction hook so reacting shows Wikipedia text if available
+		if (!err && info && info.messageID && wikiText) {
+			// Ensure global reaction map exists
+			if (!global.GoatBot) global.GoatBot = {};
+			if (!global.GoatBot.onReaction) global.GoatBot.onReaction = new Map();
+
+			global.GoatBot.onReaction.set(info.messageID, {
+				commandName,
+				author: event.senderID || event.userID,
+				messageID: info.messageID,
+				emoji,
+				meaningOfWikipedia
+			});
+		}
+	});
+};
+
+/**
+ * Reaction handler: when a user reacts to the bot message we previously stored in global.GoatBot.onReaction
+ * This function tries to be flexible with input params from different GoatBot variants.
+ *
+ * Example frameworks may call this handler with:
+ *  module.exports.handleReaction = async ({ event, api, getLang, handleReaction, Reaction, message })
+ *
+ * We'll attempt to read relevant values from params (or fallback to global.GoatBot.onReaction map).
+ */
+module.exports.handleReaction = async function (params) {
+	const event = params.event || {};
+	const api = params.api || null;
+	const Reaction = params.Reaction || null; // sometimes frameworks pass this pre-built
+	const message = params.message || null;
+	const getLangParam = params.getLang || null;
+
+	// Try to find our stored reaction data
+	let stored;
+	try {
+		if (Reaction) {
+			stored = Reaction;
+		} else if (global && global.GoatBot && global.GoatBot.onReaction) {
+			stored = global.GoatBot.onReaction.get(event.messageID);
+		}
+	} catch (e) {
+		stored = null;
+	}
+
+	if (!stored) return;
+
+	// Ensure only the original author can trigger Wikipedia reply (this mirrors original behavior)
+	if (stored.author && stored.author != (event.userID || event.senderID)) return;
+
+	// send the wikipedia meaning
+	const getLang = makeGetLang(getLangParam, null);
+	const replyText = getLang("meanOfWikipedia", stored.emoji, stored.meaningOfWikipedia || getLang("notHave"));
+
+	// Use message.reply if available, otherwise api.sendMessage
+	if (message && typeof message.reply === "function") {
+		return message.reply(replyText);
+	} else if (api && event && event.threadID) {
+		return api.sendMessage(replyText, event.threadID);
+	}
+};
+
+/* -----------------------------
+   Helper functions (kept & slightly hardened from original)
+   ----------------------------- */
 
 async function getEmojiMeaning(emoji, lang) {
 	const url = `https://www.emojiall.com/${lang}/emoji/${encodeURI(emoji)}`;
@@ -250,31 +389,33 @@ async function getEmojiMeaning(emoji, lang) {
 }
 
 function wrapped(text, max, font, ctx) {
-	const words = text.split(" ");
+	const words = (text || "").split(" ");
 	const lines = [];
 	let line = "";
-	ctx.font = font;
+	try {
+		ctx.font = font;
+	} catch (e) {
+		// ctx may sometimes be a font string in previous calls; ignore if setting fails
+	}
 	for (let i = 0; i < words.length; i++) {
 		const testLine = line + words[i] + " ";
 		const metrics = ctx.measureText(testLine);
 		const testWidth = metrics.width;
 		if (testWidth > max && i > 0) {
-			lines.push(line);
+			lines.push(line.trim());
 			line = words[i] + " ";
 		} else {
 			line = testLine;
 		}
 	}
-	lines.push(line);
+	if (line) lines.push(line.trim());
 	return lines;
 }
 
 function drawSquareRounded(ctx, x, y, w, h, r, color) {
 	ctx.save();
-	if (w < 2 * r)
-		r = w / 2;
-	if (h < 2 * r)
-		r = h / 2;
+	if (w < 2 * r) r = w / 2;
+	if (h < 2 * r) r = h / 2;
 	ctx.beginPath();
 	ctx.moveTo(x + r, y);
 	ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -282,18 +423,16 @@ function drawSquareRounded(ctx, x, y, w, h, r, color) {
 	ctx.arcTo(x, y + h, x, y, r);
 	ctx.arcTo(x, y, x + w, y, r);
 	ctx.closePath();
-	ctx.fillStyle = color;
+	if (color) ctx.fillStyle = color;
 	ctx.fill();
 	ctx.restore();
 }
 
 function drawLineSquareRounded(ctx, x, y, w, h, r, color, lineWidth) {
 	ctx.save();
-	if (w < 2 * r)
-		r = w / 2;
-	if (h < 2 * r)
-		r = h / 2;
-	ctx.lineWidth = lineWidth;
+	if (w < 2 * r) r = w / 2;
+	if (h < 2 * r) r = h / 2;
+	ctx.lineWidth = lineWidth || 1;
 	ctx.beginPath();
 	ctx.moveTo(x + r, y);
 	ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -301,7 +440,7 @@ function drawLineSquareRounded(ctx, x, y, w, h, r, color, lineWidth) {
 	ctx.arcTo(x, y + h, x, y, r);
 	ctx.arcTo(x, y, x + w, y, r);
 	ctx.closePath();
-	ctx.strokeStyle = color;
+	if (color) ctx.strokeStyle = color;
 	ctx.stroke();
 	ctx.restore();
 }
