@@ -8,20 +8,20 @@ module.exports.config = {
   usages: "𝒈𝒊𝒓𝒍",
   cooldowns: 5,
   dependencies: {
-    "request":"",
-    "fs-extra":"",
-    "axios":""
+    "request": "",
+    "fs-extra": "",
+    "axios": ""
   }
 };
 
-module.exports.run = async({api, event, args, Users, Threads, Currencies}) => {
+module.exports.run = async ({ api, event, args, Users, Threads, Currencies }) => {
   const axios = global.nodemodule["axios"];
   const request = global.nodemodule["request"];
   const fs = global.nodemodule["fs-extra"];
   
   // Premium collection of beautiful girl images
   var link = [
-	 "https://i.imgur.com/uBVzoLu.jpg",
+"https://i.imgur.com/uBVzoLu.jpg",
 "https://i.imgur.com/2SKrp2u.jpg",
 "https://i.imgur.com/eQScoB2.jpg",
 "https://i.imgur.com/sPTDj7J.jpg",
@@ -11488,11 +11488,11 @@ module.exports.run = async({api, event, args, Users, Threads, Currencies}) => {
   var data = await Currencies.getData(event.senderID);
   var money = data.money;
   
-  if(money < 200) {
+  if (money < 200) {
     return api.sendMessage("𝑨𝒑𝒏𝒂𝒓 200$ 𝒅𝒐𝒓𝒌𝒂𝒓 𝒇𝒐𝒕𝒐 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒆! 💸", event.threadID, event.messageID);
-  }
-  else {
-    Currencies.setData(event.senderID, {money: money - 200});
+  } else {
+    // Deduct money first
+    await Currencies.decreaseMoney(event.senderID, 200);
     
     const randomIndex = Math.floor(Math.random() * link.length);
     const imageUrl = link[randomIndex];
