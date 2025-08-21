@@ -2,57 +2,61 @@ module.exports.config = {
     name: "dot",
     version: "1.0.0",
     hasPermssion: 2,
-    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "War In Chatbox",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "💫 War In Chatbox Animation",
     commandCategory: "wargroup",
-    usages: "[fyt]",
+    usages: "[mention]",
     cooldowns: 7,
     dependencies: {
         "fs-extra": "",
         "axios": ""
     }
-}
+};
 
-module.exports.run = async function({ api, args, Users, event}) {
- var mention = Object.keys(event.mentions)[0];
-    
- let name =  event.mentions[mention];
-    var arraytag = [];
-        arraytag.push({id: mention});
-    var a = function (a) { api.sendMessage(a, event.threadID); }
-a(".");
-setTimeout(() => {a({body: "." })}, 1000);
-setTimeout(() => {a({body: "."})}, 2000);
-setTimeout(() => {a({body: "#" })}, 3000);
-setTimeout(() => {a({body: "/" })}, 4000);
-setTimeout(() => {a({body: "/" })}, 5000);
-setTimeout(() => {a({body: "/" })}, 6000);
-setTimeout(() => {a({body: "#" })}, 7000);
-setTimeout(() => {a({body: "." })}, 8000);
-setTimeout(() => {a({body: "." })}, 9000);
-setTimeout(() => {a({body: "😘" })}, 10000);
-setTimeout(() => {a({body: "." })}, 12000);
-setTimeout(() => {a({body: "." })}, 14000);
-setTimeout(() => {a({body: "." })}, 16000);
-setTimeout(() => {a({body: "." })}, 18000);
-setTimeout(() => {a({body: "." })}, 20000);
-setTimeout(() => {a({body: "." })}, 22000);
-setTimeout(() => {a({body: "." })}, 25000);
-setTimeout(() => {a({body: "." })} , 27000);
-setTimeout(() => {a({body: "." })} , 30000);
-setTimeout(() => {a({body: "." })} , 34000);
-setTimeout(() => {a({body: "." })} , 36000);
-setTimeout(() => {a({body: "." })} , 38000);
-setTimeout(() => {a({body: "." })} , 40000);
-setTimeout(() => {a({body: "." })} , 43000);
-setTimeout(() => {a({body: "." })} , 46000);
-setTimeout(() => {a({body: "." })} , 48000);
-setTimeout(() => {a({body: "." })} , 49900);
-setTimeout(() => {a({body: "." })} , 50500);
-setTimeout(() => {a({body: "." })} , 51000);
+module.exports.run = async function({ api, event }) {
+    try {
+        const a = (message) => api.sendMessage(message, event.threadID);
+        
+        // ✨ Animation sequence
+        const animation = [
+            { delay: 1000, text: "." },
+            { delay: 2000, text: "." },
+            { delay: 3000, text: "#" },
+            { delay: 4000, text: "/" },
+            { delay: 5000, text: "/" },
+            { delay: 6000, text: "/" },
+            { delay: 7000, text: "#" },
+            { delay: 8000, text: "." },
+            { delay: 9000, text: "." },
+            { delay: 10000, text: "😘" },
+            { delay: 12000, text: "." },
+            { delay: 14000, text: "." },
+            { delay: 16000, text: "." },
+            { delay: 18000, text: "." },
+            { delay: 20000, text: "." },
+            { delay: 22000, text: "." },
+            { delay: 25000, text: "." },
+            { delay: 27000, text: "." },
+            { delay: 30000, text: "." },
+            { delay: 34000, text: "." },
+            { delay: 36000, text: "." },
+            { delay: 38000, text: "." },
+            { delay: 40000, text: "." },
+            { delay: 43000, text: "." },
+            { delay: 46000, text: "." },
+            { delay: 48000, text: "." },
+            { delay: 49900, text: "." },
+            { delay: 50500, text: "." },
+            { delay: 51000, text: "." }
+        ];
 
+        // 🚀 Execute animation
+        animation.forEach(({ delay, text }) => {
+            setTimeout(() => a(text), delay);
+        });
 
-
-
-  
-  }
+    } catch (error) {
+        console.error("✨ Error in dot command:", error);
+        api.sendMessage("❌ An error occurred while executing the animation.", event.threadID);
+    }
+};
