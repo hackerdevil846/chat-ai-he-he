@@ -1,26 +1,41 @@
 module.exports.config = {
-  name: "girl2",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒔𝒖𝒏𝒅𝒂𝒓 𝒎𝒆𝒚𝒆𝒓 𝒅𝒆𝒓 𝒇𝒐𝒕𝒐",
-  commandCategory: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝒎𝒂𝒈𝒆",
-  usages: "𝒈𝒊𝒓𝒍2",
-  cooldowns: 5,
-  dependencies: {
-    "request":"",
-    "fs-extra":"",
-    "axios":""
-  }
+	name: "girl2", // Command name
+	version: "1.0.0", 
+	hasPermssion: 0, // 0 = everyone
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🌸 Random সুন্দর মেয়ের ছবি দেখাবে",
+	commandCategory: "random-img", 
+	usages: "girl2", 
+	cooldowns: 5, 
+	dependencies: {
+		"request": "",
+		"fs-extra": "",
+		"axios": ""
+	}
 };
 
-module.exports.run = async({api, event, args, Currencies}) => {
-const axios = global.nodemodule["axios"];
-const request = global.nodemodule["request"];
-const fs = global.nodemodule["fs-extra"];
+module.exports.languages = {
+	"bn": {
+		notEnoughMoney: "⚠️ আপনার কাছে অন্তত 200$ থাকতে হবে এই ছবি দেখার জন্য! 💸",
+		success: "🌸 সুন্দর মেয়ের ছবি 🌸\n📸 মোট ছবি সংখ্যা: %1\n💸 -200$ খরচ হয়েছে!"
+	},
+	"en": {
+		notEnoughMoney: "⚠️ You need at least 200$ to view this picture! 💸",
+		success: "🌸 Beautiful Girl Photo 🌸\n📸 Total photos: %1\n💸 -200$ has been deducted!"
+	}
+};
 
-// Premium collection of beautiful girl images
-var link = [
+module.exports.onLoad = function () {
+	// Runs when the command is loaded
+};
+
+module.exports.run = async function({ api, event, args, Currencies, getText }) {
+	const axios = global.nodemodule["axios"];
+	const request = global.nodemodule["request"];
+	const fs = global.nodemodule["fs-extra"];
+
+	// Premium collection of beautiful girl images
+	var link = [
 "https://i.imgur.com/FNRRTy7.jpg",
 "https://i.imgur.com/GDEBTl2.jpg",
 "https://i.imgur.com/dOZwgSd.jpg",
@@ -23307,28 +23322,34 @@ var link = [
 "https://i.imgur.com/5Sy0mk1.jpg",
   ];
 
-var data = await Currencies.getData(event.senderID);
-var money = data.money;
+	// Get user balance
+	var data = await Currencies.getData(event.senderID);
+	var money = data.money;
 
-if(money < 200) {
-  return api.sendMessage("𝑨𝒑𝒏𝒂𝒓 200$ 𝒅𝒐𝒓𝒌𝒂𝒓 𝒇𝒐𝒕𝒐 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒆! 💸", event.threadID, event.messageID);
-}
-else {
-  Currencies.setData(event.senderID, {money: money - 200});
-  
-  const randomImage = link[Math.floor(Math.random() * link.length)];
-  
-  const callback = () => {
-    api.sendMessage({
-      body: `🌸 𝑺𝒖𝒏𝒅𝒂𝒓 𝒎𝒆𝒚𝒆𝒓 𝒅𝒆𝒓 𝒇𝒐𝒕𝒐 🌸\n📸 𝑭𝒐𝒕𝒐𝒓 𝒔𝒂𝒏𝒌𝒉𝒚𝒂: ${link.length}\n💸 -200$ 𝒌𝒉𝒂𝒓𝒄𝒉 𝒉𝒐𝒍𝒐!`,
-      attachment: fs.createReadStream(__dirname + "/cache/girl2.jpg")
-    }, event.threadID, () => {
-      fs.unlinkSync(__dirname + "/cache/girl2.jpg");
-    }, event.messageID);
-  };
-  
-  return request(encodeURI(randomImage))
-    .pipe(fs.createWriteStream(__dirname + "/cache/girl2.jpg"))
-    .on("close", callback);
-}
+	// Check balance
+	if (money < 200) {
+		return api.sendMessage(getText("notEnoughMoney"), event.threadID, event.messageID);
+	}
+	else {
+		// Deduct money
+		await Currencies.setData(event.senderID, { money: money - 200 });
+
+		// Pick random image
+		const randomImage = link[Math.floor(Math.random() * link.length)];
+
+		// Callback after download
+		const callback = () => {
+			api.sendMessage({
+				body: getText("success", link.length),
+				attachment: fs.createReadStream(__dirname + "/cache/girl2.jpg")
+			}, event.threadID, () => {
+				fs.unlinkSync(__dirname + "/cache/girl2.jpg");
+			}, event.messageID);
+		};
+
+		// Download image
+		return request(encodeURI(randomImage))
+			.pipe(fs.createWriteStream(__dirname + "/cache/girl2.jpg"))
+			.on("close", callback);
+	}
 };
