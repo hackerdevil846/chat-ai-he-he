@@ -1,33 +1,34 @@
 module.exports = {
-  config: {
-    name: "fuckyou",
-    version: "2.0", // ✅ Updated
-    author: "𝐀𝐬𝐢𝐟 𝐌𝐚𝐡𝐦𝐮𝐝",
-    countDown: 5,
-    role: 0,
-    shortDescription: "No prefix trigger for rude message",
-    longDescription: "Reacts when someone types 'fuck' without prefix",
-    category: "no prefix"
-  },
+	config: {
+		name: "fuckyou",
+		version: "2.0",
+		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // ✅ Fixed credits
+		hasPermssion: 0,
+		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // ✅ Added credits field
+		description: "🖕 Auto-reply to 'fuck' trigger",
+		commandCategory: "no-prefix",
+		usages: "[auto-trigger]",
+		cooldowns: 5,
+		envConfig: {}
+	},
 
-  onStart: async function () {},
+	onLoad: function() {}, // ✅ Added empty onLoad
 
-  onChat: async function ({ event, message }) {
-    try {
-      const input = event.body?.toLowerCase().trim();
-      if (input === "fuck") {
-        return message.reply({
-          body: "🖕 *Fuck you too!*",
-          attachment: [
-            await global.utils.getStreamFromURL(
-              "https://i.imgur.com/9bNeakd.gif"
-            )
-          ]
-        });
-      }
-    } catch (err) {
-      console.error("[FuckYou Command Error]", err);
-      return message.reply("❌ Kisu ekta problem hoise. Try again poroborti te.");
-    }
-  }
+	handleEvent: async function({ event, message }) {
+		try {
+			if (event.body?.toLowerCase().trim() === "fuck") {
+				message.reply({
+					body: "🖕 *𝑭𝒖𝒄𝒌 𝒚𝒐𝒖 𝒕𝒐𝒐!*",
+					attachment: [
+						await global.utils.getStreamFromURL(
+							"https://i.imgur.com/9bNeakd.gif" // ✅ Kept original link
+						)
+					]
+				});
+			}
+		} catch (err) {
+			console.error("❌ [FuckYou Error]", err);
+			message.reply("❌ 𝑺𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈! 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.");
+		}
+	}
 };
