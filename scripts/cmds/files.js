@@ -3,94 +3,127 @@ module.exports.config = {
     version: "1.0.1",
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒇𝒊𝒍𝒆 𝒃𝒂 𝒇𝒐𝒍𝒅𝒆𝒓 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-    commandCategory: "𝑨𝒅𝒎𝒊𝒏",
-    usages: "\n𝒇𝒊𝒍𝒆 𝒔𝒕𝒂𝒓𝒕 <𝒕𝒆𝒙𝒕>\n𝒇𝒊𝒍𝒆 𝒆𝒙𝒕 <𝒕𝒆𝒙𝒕>\n𝒇𝒊𝒍𝒆 <𝒕𝒆𝒙𝒕>\n𝒇𝒊𝒍𝒆 [𝒍𝒆𝒂𝒗𝒆 𝒃𝒍𝒂𝒏𝒌]\n𝒇𝒊𝒍𝒆 𝒉𝒆𝒍𝒑\n𝑵𝒐𝒕𝒆: <𝒕𝒆𝒙𝒕> 𝒂𝒑𝒏𝒊 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒂𝒓 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓",
+    description: "🛠️ Manage command folder files and directories",
+    commandCategory: "𝗔𝗗𝗠𝗜𝗡",
+    usages: "[start/ext/help] [text]",
     cooldowns: 5
 };
 
-module.exports.handleReply = ({ api, event, args, handleReply }) => {
-    if(event.senderID != handleReply.author) return; 
-    const fs = require("fs-extra");
-    var arrnum = event.body.split(" ");
-    var msg = "";
-    var nums = arrnum.map(n => parseInt(n));
+module.exports.languages = {
+    "en": {
+        "missingFile": "❌ No files found in commands folder",
+        "noMatchStart": "❌ No files starting with '%1'",
+        "noMatchExt": "❌ No files with extension '%1'",
+        "noMatchText": "❌ No files containing '%1'",
+        "deleteSuccess": "✅ Successfully deleted:\n%1",
+        "helpMessage": `📖 𝗙𝗜𝗟𝗘 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗚𝗨𝗜𝗗𝗘:
 
-    for(let num of nums) {
-        var target = handleReply.files[num-1];
-        var fileOrdir = fs.statSync(__dirname+'/'+target);
-        if(fileOrdir.isDirectory() == true) {
-            var typef = "[𝑭𝒐𝒍𝒅𝒆𝒓🗂️]";
-            fs.rmdirSync(__dirname+'/'+target, {recursive: true});
-        }
-        else if(fileOrdir.isFile() == true) {
-            var typef = "[𝑭𝒊𝒍𝒆📄]";
-            fs.unlinkSync(__dirname+"/"+target);
-        }
-        msg += typef+' '+handleReply.files[num-1]+"\n";
+• 🔹 𝗨𝘀𝗮𝗴𝗲: file start <text>
+• 📝 𝗗𝗲𝘀𝗰: Delete files starting with specific text
+• ✨ 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: file start rank
+
+• 🔹 𝗨𝘀𝗮𝗴𝗲: file ext <extension>
+• 📝 𝗗𝗲𝘀𝗰: Delete files with specific extension
+• ✨ 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: file ext .js
+
+• 🔹 𝗨𝘀𝗮𝗴𝗲: file <text>
+• 📝 𝗗𝗲𝘀𝗰: Delete files containing text
+• ✨ 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: file config
+
+• 🔹 𝗨𝘀𝗮𝗴𝗲: file help
+• 📝 𝗗𝗲𝘀𝗰: Show this help menu`
     }
-    api.sendMessage("⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒅𝒆𝒍𝒆𝒕𝒆𝒅 𝒇𝒊𝒍𝒆𝒃𝒂 𝒇𝒐𝒍𝒅𝒆𝒓:\n\n"+msg, event.threadID, event.messageID);
-}
+};
+
+module.exports.handleReply = async function({ api, event, handleReply }) {
+    const fs = require("fs-extra");
+    if (event.senderID != handleReply.author) return;
+    
+    const nums = event.body.split(" ").map(n => parseInt(n)).filter(n => !isNaN(n));
+    let deletedItems = [];
+
+    for (const num of nums) {
+        if (num > handleReply.files.length || num < 1) continue;
+        
+        const target = handleReply.files[num-1];
+        const path = __dirname + '/' + target;
+        
+        try {
+            const stats = fs.statSync(path);
+            if (stats.isDirectory()) {
+                fs.rmdirSync(path, { recursive: true });
+                deletedItems.push(`🗂️  ${target}`);
+            } else if (stats.isFile()) {
+                fs.unlinkSync(path);
+                deletedItems.push(`📄  ${target}`);
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+        }
+    }
+
+    if (deletedItems.length > 0) {
+        api.sendMessage(`✅ 𝗗𝗲𝗹𝗲𝘁𝗲𝗱 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆:\n${deletedItems.join('\n')}`, event.threadID);
+    } else {
+        api.sendMessage("❌ No valid files/folders selected", event.threadID);
+    }
+};
 
 module.exports.run = async function({ api, event, args }) {
     const fs = require("fs-extra");
-    var files = fs.readdirSync(__dirname+"/") || [];
-    var msg = "", i = 1;
+    let files = fs.readdirSync(__dirname + "/");
+    let message = "";
+    let filteredFiles = [];
 
-    if(args[0] == 'help') {
-        var helpMsg = `
-⚙️ 𝑯𝒐𝒘 𝒕𝒐 𝒖𝒔𝒆:
-•𝒌𝒆𝒚: 𝒔𝒕𝒂𝒓𝒕 <𝒕𝒆𝒙𝒕>
-•𝒆𝒇𝒇𝒆𝒄𝒕: 𝑺𝒑𝒆𝒄𝒊𝒇𝒊𝒄 𝒔𝒕𝒂𝒓𝒕𝒊𝒏𝒈 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝒅𝒊𝒚𝒆 𝒇𝒊𝒍𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓
-•𝒖𝒅𝒂𝒉𝒂𝒓𝒐𝒏: 𝒇𝒊𝒍𝒆 𝒔𝒕𝒂𝒓𝒕 𝒓𝒂𝒏𝒌
-•𝒌𝒆𝒚: 𝒆𝒙𝒕 <𝒕𝒆𝒙𝒕>
-•𝒆𝒇𝒇𝒆𝒄𝒕: 𝑺𝒑𝒆𝒄𝒊𝒇𝒊𝒄 𝒆𝒙𝒕𝒆𝒏𝒔𝒊𝒐𝒏 𝒅𝒊𝒚𝒆 𝒇𝒊𝒍𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓
-•𝒌𝒆𝒚: 𝒍𝒆𝒂𝒗𝒆 𝒃𝒍𝒂𝒏𝒌
-•𝒆𝒇𝒇𝒆𝒄𝒕: 𝑺𝒐𝒃 𝒇𝒊𝒍𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓
-•𝒌𝒆𝒚: 𝒉𝒆𝒍𝒑
-•𝒆𝒇𝒇𝒆𝒄𝒕: 𝑯𝒆𝒍𝒑 𝒎𝒆𝒏𝒖 𝒅𝒆𝒌𝒉𝒂𝒓`;
-        
-        return api.sendMessage(helpMsg, event.threadID, event.messageID);
+    if (args[0] === "help") {
+        return api.sendMessage(this.languages.en.helpMessage, event.threadID);
     }
-    else if(args[0] == "start" && args[1]) {
-        var word = args.slice(1).join(" ");
-        var files = files.filter(file => file.startsWith(word));
-        
-        if(files.length == 0) return api.sendMessage(`⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒌𝒐𝒏𝒐 𝒇𝒊𝒍𝒆 𝒏𝒂𝒊 𝒋𝒆𝒈𝒖𝒍𝒐 𝒔𝒖𝒓𝒖 𝒉𝒐𝒚: ${word}`, event.threadID, event.messageID);
-        var key = `⚡️${files.length} 𝒕𝒂 𝒇𝒊𝒍𝒆 𝒑𝒂𝒘𝒂 𝒈𝒆𝒄𝒉𝒆 𝒚𝒆𝒈𝒖𝒍𝒐 𝒔𝒖𝒓𝒖 𝒉𝒐𝒚: ${word}`;
+
+    if (args[0] === "start" && args[1]) {
+        const prefix = args.slice(1).join(" ");
+        filteredFiles = files.filter(file => file.startsWith(prefix));
+        if (filteredFiles.length === 0) {
+            return api.sendMessage(this.languages.en.noMatchStart.replace("%1", prefix), event.threadID);
+        }
+        message = `📁 𝗙𝗶𝗹𝗲𝘀 𝘀𝘁𝗮𝗿𝘁𝗶𝗻𝗴 𝘄𝗶𝘁𝗵 "${prefix}":\n\n`;
+    } 
+    else if (args[0] === "ext" && args[1]) {
+        const extension = args[1];
+        filteredFiles = files.filter(file => file.endsWith(extension));
+        if (filteredFiles.length === 0) {
+            return api.sendMessage(this.languages.en.noMatchExt.replace("%1", extension), event.threadID);
+        }
+        message = `📁 𝗙𝗶𝗹𝗲𝘀 𝘄𝗶𝘁𝗵 𝗲𝘅𝘁𝗲𝗻𝘀𝗶𝗼𝗻 "${extension}":\n\n`;
     }
-    else if(args[0] == "ext" && args[1]) {
-        var ext = args[1];
-        var files = files.filter(file => file.endsWith(ext));
-        
-        if(files.length == 0) return api.sendMessage(`⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒌𝒐𝒏𝒐 𝒇𝒊𝒍𝒆 𝒏𝒂𝒊 𝒋𝒆𝒈𝒖𝒍𝒐 𝒔𝒆𝒔 𝒉𝒐𝒚: ${ext}`, event.threadID, event.messageID);
-        var key = `⚡️${files.length} 𝒕𝒂 𝒇𝒊𝒍𝒆 𝒑𝒂𝒘𝒂 𝒈𝒆𝒄𝒉𝒆 𝒚𝒆𝒈𝒖𝒍𝒐 𝒔𝒆𝒔 𝒉𝒐𝒚: ${ext}`;
-    }
-    else if (!args[0]) {
-        if(files.length == 0) return api.sendMessage("⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒌𝒐𝒏𝒐 𝒇𝒊𝒍𝒆 𝒃𝒂 𝒇𝒐𝒍𝒅𝒆𝒓 𝒏𝒂𝒊", event.threadID, event.messageID);
-        var key = "⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒔𝒐𝒃 𝒇𝒊𝒍𝒆:";
+    else if (args.length === 0) {
+        filteredFiles = files;
+        if (filteredFiles.length === 0) {
+            return api.sendMessage(this.languages.en.missingFile, event.threadID);
+        }
+        message = "📁 𝗔𝗹𝗹 𝗰𝗼𝗺𝗺𝗮𝗻𝗱 𝗳𝗶𝗹𝗲𝘀:\n\n";
     }
     else {
-        var word = args.slice(0).join(" ");
-        var files = files.filter(file => file.includes(word));
-        if(files.length == 0) return api.sendMessage(`⚡️𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒌𝒐𝒏𝒐 𝒇𝒊𝒍𝒆 𝒏𝒂𝒊 𝒏𝒂𝒎 𝒆𝒓 𝒎𝒐𝒅𝒅𝒉𝒆 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆: ${word}`, event.threadID, event.messageID);
-        var key = `⚡️${files.length} 𝒕𝒂 𝒇𝒊𝒍𝒆 𝒑𝒂𝒘𝒂 𝒈𝒆𝒄𝒉𝒆 𝒏𝒂𝒎 𝒆𝒓 𝒎𝒐𝒅𝒅𝒉𝒆 𝒑𝒂𝒘𝒂 𝒋𝒂𝒄𝒄𝒉𝒆: ${word}`;
+        const searchText = args.join(" ");
+        filteredFiles = files.filter(file => file.includes(searchText));
+        if (filteredFiles.length === 0) {
+            return api.sendMessage(this.languages.en.noMatchText.replace("%1", searchText), event.threadID);
+        }
+        message = `📁 𝗙𝗶𝗹𝗲𝘀 𝗰𝗼𝗻𝘁𝗮𝗶𝗻𝗶𝗻𝗴 "${searchText}":\n\n`;
     }
 
-    files.forEach(file => {
-        var fileOrdir = fs.statSync(__dirname+'/'+file);
-        if(fileOrdir.isDirectory() == true) var typef = "[𝑭𝒐𝒍𝒅𝒆𝒓🗂️]";
-        if(fileOrdir.isFile() == true) var typef = "[𝑭𝒊𝒍𝒆📄]";
-        msg += (i++)+'. '+typef+' '+file+'\n';
+    filteredFiles.forEach((file, index) => {
+        const isDir = fs.statSync(__dirname + '/' + file).isDirectory();
+        message += `${index+1}. ${isDir ? '🗂️' : '📄'} ${file}\n`;
     });
-    
-    api.sendMessage(`⚡️𝑵𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒔𝒆𝒍𝒆𝒄𝒕𝒆𝒅 𝒇𝒊𝒍𝒆 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒖𝒏, 𝒆𝒌𝒂𝒅𝒉𝒊𝒌 𝒆𝒌𝒂𝒅𝒉𝒊𝒌 𝒏𝒖𝒎𝒃𝒆𝒓 𝒔𝒑𝒂𝒄𝒆 𝒅𝒊𝒚𝒆 𝒂𝒍𝒂𝒅𝒂 𝒌𝒐𝒓𝒖𝒏\n${key}\n\n`+msg, 
-    event.threadID, (e, info) => {
+
+    message += "\n💡 𝗥𝗲𝗽𝗹𝘆 𝘄𝗶𝘁𝗵 𝗻𝘂𝗺𝗯𝗲𝗿𝘀 𝘁𝗼 𝗱𝗲𝗹𝗲𝘁𝗲 (𝗲𝘅: 𝟭 𝟯 𝟱)";
+
+    api.sendMessage(message, event.threadID, (err, info) => {
         global.client.handleReply.push({
             name: this.config.name,
             messageID: info.messageID,
             author: event.senderID,
-            files
-        })
+            files: filteredFiles
+        });
     });
-}
+};
