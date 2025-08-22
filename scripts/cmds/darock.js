@@ -1,39 +1,44 @@
 const fs = require("fs");
+const path = require("path");
+
 module.exports.config = {
 	name: "vineboom",
-    version: "1.1.0",
+	version: "1.1.1",
 	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
-	description: "𝑽𝒊𝒏𝒆 𝑩𝒐𝒐𝒎 𝒔𝒐𝒖𝒏𝒅 𝒆𝒇𝒇𝒆𝒄𝒕",
-	commandCategory: "𝑵𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒏𝒆𝒆𝒅𝒆𝒅",
-	usages: "𝒗𝒊𝒏𝒆𝒃𝒐𝒐𝒎",
-    cooldowns: 3, 
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🔊 𝑽𝒊𝒏𝒆 𝑩𝒐𝒐𝒎 𝒔𝒐𝒖𝒏𝒅 𝒆𝒇𝒇𝒆𝒄𝒕",
+	commandCategory: "noprefix",
+	usages: "[trigger_words]",
+	cooldowns: 3,
+	envConfig: {
+		audioPath: path.join(__dirname, 'noprefix/vineboom.gif')
+	}
 };
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-	var { threadID, messageID } = event;
-  	const botID = api.getCurrentUserID();
-  	const triggerWords = [
-    	"vineboom", "Vineboom", "vine boom", "Vine boom",
-    	"therock", "Therock", "the rock", "The Rock",
-    	"darock", "Darock", "dwaynejohnson", "Dwaynejohnson"
-  	];
-  
-	if (triggerWords.some(word => event.body.toLowerCase().includes(word.toLowerCase())) {
-    	if (event.senderID === botID) return;
-    	
-    	const msg = {
-        	body: "🤨",
-        	attachment: fs.createReadStream(__dirname + '/noprefix/vineboom.gif')
-      	};
-      	
-    	api.sendMessage(msg, threadID, messageID);
-    	api.setMessageReaction("🤨", event.messageID, (err) => {
-        	if (err) console.error("𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒔𝒆𝒕 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏", err);
-      	}, true);
+module.exports.handleEvent = function({ api, event }) {
+	const { threadID, messageID, senderID } = event;
+	const botID = api.getCurrentUserID();
+	
+	if (senderID === botID) return;
+	
+	const triggerWords = [
+		"vineboom", "vine boom", "therock", 
+		"the rock", "darock", "dwaynejohnson"
+	];
+	
+	if (triggerWords.some(word => 
+		event.body?.toLowerCase().includes(word.toLowerCase())
+	)) {
+		const msg = {
+			body: "🤨",
+			attachment: fs.createReadStream(this.config.envConfig.audioPath)
+		};
+		
+		api.sendMessage(msg, threadID, messageID);
+		api.setMessageReaction("🤨", messageID, (err) => {}, true);
 	}
-}
+};
 
-module.exports.run = function({ api, event, client, __GLOBAL }) {
-  // 𝑬𝒎𝒑𝒕𝒚 𝒊𝒎𝒑𝒍𝒆𝒎𝒆𝒏𝒕𝒂𝒕𝒊𝒐𝒏 𝒂𝒔 𝒑𝒆𝒓 𝒐𝒓𝒊𝒈𝒊𝒏𝒂𝒍
-}
+module.exports.run = function({ api, event }) {
+	api.sendMessage("✨ 𝑻𝒉𝒊𝒔 𝒊𝒔 𝒂𝒏 𝒂𝒖𝒕𝒐-𝒕𝒓𝒊𝒈𝒈𝒆𝒓𝒆𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅\n\n𝑱𝒖𝒔𝒕 𝒕𝒚𝒑𝒆: '𝒗𝒊𝒏𝒆𝒃𝒐𝒐𝒎' 𝒐𝒓 '𝒕𝒉𝒆 𝒓𝒐𝒄𝒌' 𝒊𝒏 𝒄𝒉𝒂𝒕!", event.threadID);
+};
