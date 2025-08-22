@@ -17,9 +17,30 @@ module.exports.config = {
     canvas: "",
     axios: "",
     "fs-extra": "",
+    jimp: ""
   },
 };
 
+module.exports.languages = {
+  "en": {
+    "success": "✅ Your info card is ready!"
+  },
+  "bn": {
+    "success": "✅ তোমার ইনফো কার্ড তৈরি হয়ে গেছে!"
+  }
+};
+
+module.exports.onLoad = function () {
+  // ensure cache dir exists
+  const fs = global.nodemodule["fs-extra"];
+  try {
+    fs.ensureDirSync(__dirname + "/cache");
+  } catch (e) { /* ignore */ }
+}
+
+/**
+ * Create circular avatar buffer using jimp
+ */
 module.exports.circle = async (image) => {
   const jimp = global.nodemodule["jimp"];
   image = await jimp.read(image);
@@ -27,6 +48,9 @@ module.exports.circle = async (image) => {
   return await image.getBufferAsync("image/png");
 }
 
+/**
+ * Convert ASCII chars to Mathematical Bold Italic equivalents where mapped
+ */
 function toMathBoldItalic(text) {
   const map = {
     'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴',
@@ -36,116 +60,142 @@ function toMathBoldItalic(text) {
     '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗',
     ' ': ' ', ':': ':', '>': '>', '-': '-', '_': '_', '/': '/', '.': '.', '(': '(', ')': ')', '[': '[', ']': ']', '{': '{', '}': '}'
   };
-  return text.split('').map(char => map[char] || char).join('');
+  return String(text).split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function ({ api, event, args, Users }) {
-  if ((this.config.credits) != "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") { 
-    return api.sendMessage(`⚠️ 𝑪𝒓𝒆𝒅𝒊𝒕 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒂𝒏 𝒌𝒂𝒋 𝒌𝒐𝒓𝒃𝒆 𝒏𝒂!`, event.threadID, event.messageID)
+module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
+  // prevent credit tampering
+  if ((this.config.credits) != "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
+    return api.sendMessage(`⚠️ ক্রেডিট পাল্টানো যাবে না!`, event.threadID, event.messageID);
   }
-  
-  let { senderID, threadID, messageID } = event;
-  const { loadImage, createCanvas } = require("canvas");
-  const request = require('request');
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
+
+  const { senderID, threadID, messageID } = event;
   const Canvas = global.nodemodule["canvas"];
+  const { loadImage, createCanvas } = Canvas;
+  const axios = global.nodemodule["axios"];
+  const fs = global.nodemodule["fs-extra"];
+
+  // prepare paths (keep exact as requested)
   let pathImg = __dirname + `/cache/${senderID}123${threadID}.png`;
   let pathAvata = __dirname + `/cache/avtuserrd.png`;
-  
-  if(event.type == "message_reply") { 
-    uid = event.messageReply.senderID 
-  } else { 
-    uid = event.senderID; 
+
+  // determine uid (reply or sender)
+  let uid;
+  if (event.type == "message_reply" && event.messageReply && event.messageReply.senderID) {
+    uid = event.messageReply.senderID;
+  } else {
+    uid = event.senderID;
   }
-  
-  const res = await api.getUserInfoV2(uid); 
-  let getAvatarOne = (await axios.get(`https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  let bg = (
-    await axios.get(encodeURI(`https://i.imgur.com/C8yIgMZ.png`), {
-      responseType: "arraybuffer",
-    })
-  ).data;
-  
-  fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
-  avataruser = await this.circle(pathAvata);
-  fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
 
-  if(!fs.existsSync(__dirname+`${fonts}`)) { 
-    let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
-    fs.writeFileSync(__dirname+`${fonts}`, Buffer.from(getfont, "utf-8"));
-  };
+  try {
+    // fetch user info (v2)
+    const res = await api.getUserInfoV2(uid);
 
-  let baseImage = await loadImage(pathImg);
-  let baseAvata = await loadImage(avataruser);
-  let canvas = createCanvas(baseImage.width, baseImage.height);
-  let ctx = canvas.getContext("2d");
-  ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-  ctx.drawImage(baseAvata, 610, 83, 255, 255);
-  
-  // Convert text to Mathematical Bold Italic
-  const notFoundText = toMathBoldItalic("𝑷𝒂𝒘𝒂 𝒋𝒂𝒚𝒏𝒊");
-  const maleText = toMathBoldItalic("𝑷𝒖𝒓𝒖𝒔𝒉");
-  const femaleText = toMathBoldItalic("𝑴𝒐𝒉𝒊𝒍𝒂");
-  const secretText = toMathBoldItalic("𝑮𝒐𝒑𝒐𝒏 𝒓𝒂𝒌𝒉𝒔𝒆");
-  const unknownText = toMathBoldItalic("𝑱𝒂𝒏𝒆𝒏 𝒏𝒂");
-  
-  if (!res.location || res.location === "Không Có Dữ Liệu") res.location = notFoundText;
-  if (!res.birthday || res.birthday === "Không Có Dữ Liệu") res.birthday = notFoundText;
-  if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệu") res.relationship_status = notFoundText;
-  if (!res.follow || res.follow === "Không Có Dữ Liệu") res.follow = notFoundText;
+    // fetch avatar (keep access token and graph link unchanged)
+    const getAvatarOne = (await axios.get(`https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
 
-  var gender = res.gender == 'male' ? maleText : 
-               res.gender == 'female' ? femaleText : 
-               secretText;
-               
-  var birthday = res.birthday ? toMathBoldItalic(res.birthday) : unknownText;
-  var love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : unknownText;
-  var location = res.location ? toMathBoldItalic(res.location) : unknownText;
-  const nameText = toMathBoldItalic(res.name);
-  const uidText = toMathBoldItalic(uid.toString());
-  const linkText = toMathBoldItalic(res.link);
+    // background image (unchanged)
+    const bg = (await axios.get(encodeURI(`https://i.imgur.com/C8yIgMZ.png`), { responseType: "arraybuffer" })).data;
 
-  Canvas.registerFont(__dirname+`${fonts}`, {
-    family: "Play-Bold"
-  });
-  
-  // Create labels in Mathematical Bold Italic
-  const nameLabel = toMathBoldItalic("» 𝑵𝒂𝒎:");
-  const genderLabel = toMathBoldItalic("» 𝑳𝒊𝒏𝒈𝒈𝒐:");
-  const followLabel = toMathBoldItalic("» 𝑭𝒐𝒍𝒐𝒘𝒆𝒓𝒔:");
-  const loveLabel = toMathBoldItalic("» 𝑹𝒆𝒍𝒂𝒕𝒊𝒐𝒏𝒔𝒉𝒊𝒑:");
-  const bdayLabel = toMathBoldItalic("» 𝑱𝒐𝒏𝒎𝒐𝒅𝒊𝒏:");
-  const locationLabel = toMathBoldItalic("» 𝑱𝒂𝒈𝒂:");
+    // write fetched files to cache
+    fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
+    fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
 
-  ctx.font = `${fontsInfo}px Play-Bold`;
-  ctx.fillStyle = "#000000";
-  ctx.textAlign = "start";
-  
-  // Draw text with labels and values
-  ctx.fillText(`${nameLabel} ${nameText}`, 111, 160);
-  ctx.fillText(`${genderLabel} ${gender}`, 111, 200);
-  ctx.fillText(`${followLabel} ${res.follow}`, 111, 240);
-  ctx.fillText(`${loveLabel} ${love}`, 111, 280);
-  ctx.fillText(`${bdayLabel} ${birthday}`, 111, 320);
-  ctx.fillText(`${locationLabel} ${location}`, 111, 360);
-  ctx.fillText(uidText, 1010, 466);
-  
-  ctx.font = `${fontsLink}px Play-Bold`;
-  ctx.fillText(linkText, 145, 47);
-  
-  ctx.beginPath();
-  const imageBuffer = canvas.toBuffer();
-  fs.writeFileSync(pathImg, imageBuffer);
-  fs.removeSync(pathAvata);
-  
-  return api.sendMessage(
-    { 
-      body: toMathBoldItalic("✅ 𝑨𝒑𝒏𝒂𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒑𝒓𝒐𝒔𝒕𝒖𝒕 𝒉𝒐𝒚𝒆𝒄𝒉𝒆!"),
-      attachment: fs.createReadStream(pathImg) 
-    },
-    threadID,
-    () => fs.unlinkSync(pathImg),
-    messageID
-  );
+    // make circular avatar
+    const avataruser = await this.circle(pathAvata);
+
+    // ensure font exists, download if missing (link unchanged)
+    if (!fs.existsSync(__dirname + `${fonts}`)) {
+      let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
+      fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont, "utf-8"));
+    }
+
+    // load images into canvas
+    let baseImage = await loadImage(pathImg);
+    let baseAvata = await loadImage(avataruser);
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+
+    // draw background and avatar
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseAvata, 610, 83, 255, 255);
+
+    // Convert text to Mathematical Bold Italic (labels & fallbacks)
+    const notFoundText = toMathBoldItalic("𝑷𝒂𝒘𝒂 𝒋𝒂𝒚𝒏𝒊");
+    const maleText = toMathBoldItalic("𝑷𝒖𝒓𝒖𝒔𝒉");
+    const femaleText = toMathBoldItalic("𝑴𝒐𝒉𝒊𝒍𝒂");
+    const secretText = toMathBoldItalic("𝑮𝒐𝒑𝒐𝒏 𝒓𝒂𝒌𝒉𝒔𝒆");
+    const unknownText = toMathBoldItalic("𝑱𝒂𝒏𝒆𝒏 𝒏𝒂");
+
+    // normalize fields (keep original checks for 'Không Có Dữ Liệu')
+    if (!res.location || res.location === "Không Có Dữ Liệu") res.location = notFoundText;
+    if (!res.birthday || res.birthday === "Không Có Dữ Liệu") res.birthday = notFoundText;
+    if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệ
+
+u") res.relationship_status = notFoundText;
+    if (!res.follow || res.follow === "Không Có Dữ Liệu") res.follow = notFoundText;
+
+    // assign converted values
+    var gender = res.gender == 'male' ? maleText : res.gender == 'female' ? femaleText : secretText;
+    var birthday = res.birthday ? toMathBoldItalic(res.birthday) : unknownText;
+    var love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : unknownText;
+    var location = res.location ? toMathBoldItalic(res.location) : unknownText;
+    const nameText = toMathBoldItalic(res.name || notFoundText);
+    const uidText = toMathBoldItalic(uid.toString());
+    const linkText = toMathBoldItalic(res.link || notFoundText);
+
+    // register font (exact path preserved)
+    try {
+      Canvas.registerFont(__dirname + `${fonts}`, { family: "Play-Bold" });
+    } catch (e) { /* ignore if already registered */ }
+
+    // labels in Mathematical Bold Italic
+    const nameLabel = toMathBoldItalic("» 𝑵𝒂𝒎:");
+    const genderLabel = toMathBoldItalic("» 𝑳𝒊𝒏𝒈𝒈𝒐:");
+    const followLabel = toMathBoldItalic("» 𝑭𝒐𝒍𝒐𝒘𝒆𝒓𝒔:");
+    const loveLabel = toMathBoldItalic("» 𝑹𝒆𝒍𝒂𝒕𝒊𝒐𝒏𝒔𝒉𝒊𝒑:");
+    const bdayLabel = toMathBoldItalic("» 𝑱𝒐𝒏𝒎𝒐𝒅𝒊𝒏:");
+    const locationLabel = toMathBoldItalic("» 𝑱𝒂𝒈𝒂:");
+
+    // draw text
+    ctx.font = `${fontsInfo}px Play-Bold`;
+    ctx.fillStyle = colorName || "#000000";
+    ctx.textAlign = "start";
+
+    ctx.fillText(`${nameLabel} ${nameText}`, 111, 160);
+    ctx.fillText(`${genderLabel} ${gender}`, 111, 200);
+    ctx.fillText(`${followLabel} ${res.follow}`, 111, 240);
+    ctx.fillText(`${loveLabel} ${love}`, 111, 280);
+    ctx.fillText(`${bdayLabel} ${birthday}`, 111, 320);
+    ctx.fillText(`${locationLabel} ${location}`, 111, 360);
+    ctx.fillText(uidText, 1010, 466);
+
+    ctx.font = `${fontsLink}px Play-Bold`;
+    ctx.fillText(linkText, 145, 47);
+
+    // finalize image
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
+    fs.removeSync(pathAvata);
+
+    // send message with emoji-rich body (message converted to math bold italic)
+    const doneMessage = toMathBoldItalic("✅ 𝑨𝒑𝒏𝒂𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒑𝒓𝒐𝒔𝒕𝒖𝒕 𝒉𝒐𝒚𝒆𝒄𝒉𝒆! 🎉✨");
+
+    return api.sendMessage(
+      {
+        body: doneMessage,
+        attachment: fs.createReadStream(pathImg)
+      },
+      threadID,
+      () => {
+        try { fs.unlinkSync(pathImg); } catch (e) { /* ignore */ }
+      },
+      messageID
+    );
+
+  } catch (error) {
+    // graceful error message with emoji
+    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error.message || error}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
+    return api.sendMessage(errText, threadID, messageID);
+  }
 };
