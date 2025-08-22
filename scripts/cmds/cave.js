@@ -1,13 +1,16 @@
+const fs = require("fs");
+
 module.exports.config = {
-	name: "cave",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑺𝒆𝒍𝒍 𝒚𝒐𝒖𝒓 𝒐𝒘𝒏 𝒄𝒂𝒑𝒊𝒕𝒂𝒍",
-	commandCategory: "𝑴𝒂𝒌𝒆 𝒎𝒐𝒏𝒆𝒚",
+    name: "cave",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "💰 Sell your own capital and earn rewards!",
+    commandCategory: "Economy",
+    usages: "",
     cooldowns: 5,
     envConfig: {
-        cooldownTime: 1000000
+        cooldownTime: 1000000 // Cooldown in ms
     }
 };
 
@@ -26,51 +29,47 @@ function toMathBoldItalic(text) {
 }
 
 module.exports.languages = {
-    "vi": {
-        "cooldown": toMathBoldItalic("Apni aaj kaj korechen, shramer khata theke bachte paren pratyagamne esho: %1 minute(s) %2 second(s) 🛏"),
-        "rewarded": toMathBoldItalic("Apni kaj ta korechen: Cave ar peyechen: %2$ 💸"),
+    "en": {
+        "cooldown": toMathBoldItalic("⏳ You have already worked today. Try again in: %1 minute(s) %2 second(s) 🛏"),
+        "rewarded": toMathBoldItalic("💸 You worked at %1 and earned: %2$"),
         "job1": toMathBoldItalic("Cave"),
     },
-    "en": {
-        "cooldown": toMathBoldItalic("Apni aaj kaj korechen, shramer khata theke bachte paren pratyagamne esho: %1 minute(s) %2 second(s) 🛏"),
-        "rewarded": toMathBoldItalic("Apni kaj ta korechen: Cave ar peyechen: %2$ 💸"),
+    "vi": {
+        "cooldown": toMathBoldItalic("⏳ Apni aaj kaj korechen, abar kach korte parben: %1 minute(s) %2 second(s) 🛏"),
+        "rewarded": toMathBoldItalic("💸 Apni kaj ta korechen: %1 ar peyechen: %2$"),
         "job1": toMathBoldItalic("Cave"),
     }
-}
+};
 
-module.exports.run = async ({ event, api, Currencies, getText }) => {
+module.exports.run = async ({ api, event, Currencies, getText }) => {
     const { threadID, messageID, senderID } = event;
-    
     const cooldown = global.configModule[this.config.name].cooldownTime;
-    let data = (await Currencies.getData(senderID)).data || {};
-    if (typeof data !== "undefined" && cooldown - (Date.now() - data.workTime) > 0) {
-        var time = cooldown - (Date.now() - data.workTime),
-            minutes = Math.floor(time / 20000),
-            seconds = ((time % 20000) / 500).toFixed(0);
-        
+
+    let userData = (await Currencies.getData(senderID)).data || {};
+    if (userData.workTime && cooldown - (Date.now() - userData.workTime) > 0) {
+        let time = cooldown - (Date.now() - userData.workTime);
+        let minutes = Math.floor(time / 60000);
+        let seconds = Math.floor((time % 60000) / 1000);
+
         return api.sendMessage(
-            getText("cooldown", 
-                toMathBoldItalic(minutes.toString()), 
-                toMathBoldItalic((seconds < 10 ? "0" + seconds : seconds).toString())
-            ), 
-            threadID, 
+            getText("cooldown", toMathBoldItalic(minutes.toString()), toMathBoldItalic((seconds < 10 ? "0" + seconds : seconds).toString())),
+            threadID,
+            messageID
+        );
+    } else {
+        const job = getText("job1");
+        const amount = Math.floor(Math.random() * 10000);
+        const amountText = toMathBoldItalic(amount.toString());
+
+        return api.sendMessage(
+            getText("rewarded", job, amountText),
+            threadID,
+            async () => {
+                await Currencies.increaseMoney(senderID, amount);
+                userData.workTime = Date.now();
+                await Currencies.setData(senderID, { data: userData });
+            },
             messageID
         );
     }
-    else {
-        const job = [getText("job1")];
-        const amount = Math.floor(Math.random() * 10000);
-        const amountText = toMathBoldItalic(amount.toString());
-        
-        return api.sendMessage(
-            getText("rewarded", job[Math.floor(Math.random() * job.length)], amountText), 
-            threadID, 
-            async () => {
-                await Currencies.increaseMoney(senderID, parseInt(amount));
-                data.workTime = Date.now();
-                await Currencies.setData(senderID, { data });
-            }, 
-            messageID
-        );
-    }     
 };
