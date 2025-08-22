@@ -1,215 +1,231 @@
 module.exports.config = {
-  name: "callad",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑨𝒅𝒎𝒊𝒏 𝒌𝒆 𝒃𝒐𝒕 𝒆𝒓 𝒃𝒖𝒈 𝒓𝒆𝒑𝒐𝒓𝒕 𝒌𝒐𝒓𝒖𝒏 𝒃𝒂 𝒄𝒐𝒎𝒎𝒆𝒏𝒕",
-  commandCategory: "Admin",
-  usages: "[msg]",
-  cooldowns: 5,
+	name: "callad",
+	version: "2.0.0",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "🛠️ 𝑨𝒅𝒎𝒊𝒏 𝒌𝒆 𝒃𝒐𝒕 𝒆𝒓 𝒃𝒖𝒈 𝒓𝒆𝒑𝒐𝒓𝒕 𝒌𝒐𝒓𝒖𝒏 𝒃𝒂 𝒄𝒐𝒎𝒎𝒆𝒏𝒕",
+	commandCategory: "🍀 𝑮𝒓𝒐𝒖𝒑 𝑼𝒕𝒊𝒍𝒊𝒕𝒚",
+	usages: "[💬 𝑴𝒆𝒔𝒔𝒂𝒈𝒆]",
+	cooldowns: 5,
+	dependencies: {
+		"fs-extra": "",
+		"axios": "",
+		"moment-timezone": "",
+		"form-data": ""
+	},
+	envConfig: {
+		maxFileSize: 50 // MB
+	}
 };
 
-module.exports.handleReply = async function({ api, args, event, handleReply, Users }) {
-  try {
-    var name = (await Users.getData(event.senderID)).name;
-    var s = [];
-    var l = [];
-    const fs = require('fs-extra');
-    const { join } = require('path');
-    const axios = require('axios');
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    var charactersLength = characters.length || 20;
-    if (event.attachments.length != 0) {
-      for (var p of event.attachments) {
-        var result = '';
-        for (var i = 0; i < charactersLength; i++) result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        if (p.type == 'photo') {
-          var e = 'jpg';
-        }
-        if (p.type == 'video') {
-          var e = 'mp4';
-        }
-        if (p.type == 'audio') {
-          var e = 'mp3';
-        }
-        if (p.type == 'animated_image') {
-          var e = 'gif';
-        }
-        var o = join(__dirname, 'cache', `${result}.${e}`);
-        let m = (await axios.get(encodeURI(p.url), { responseType: "arraybuffer" })).data;
-        fs.writeFileSync(o, Buffer.from(m, "utf-8"));
-        s.push(o);
-        l.push(fs.createReadStream(o));
-      }
-    };
-    switch (handleReply.type) {
-      case "reply": {
-        var idad = global.config.ADMINBOT;
-        if (s.length == 0) {
-          for (let ad of idad) {
-            api.sendMessage({
-              body: "[📲] 𝑭𝒆𝒆𝒅𝒃𝒂𝒄𝒌 𝒇𝒓𝒐𝒎 " + name + " :\n[💬] 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: " + (event.body) || "𝑲𝒐𝒏𝒐 𝒓𝒆𝒑𝒍𝒚 𝒏𝒂𝒊", mentions: [{
-                id: event.senderID,
-                tag: name
-              }]
-            }, ad, (e, data) => global.client.handleReply.push({
-              name: this.config.name,
-              messageID: data.messageID,
-              messID: event.messageID,
-              author: event.senderID,
-              id: event.threadID,
-              type: "calladmin"
-            }));
-          }
-        }
-        else {
-          for (let ad of idad) {
-            api.sendMessage({
-              body: "[📲] 𝑭𝒆𝒆𝒅𝒃𝒂𝒄𝒌 𝒇𝒓𝒐𝒎 " + name + ":\n" + (event.body) || "𝑭𝒊𝒍𝒆 𝒏𝒊𝒚𝒆 𝒌𝒐𝒏𝒐 𝒓𝒆𝒑𝒍𝒚 𝒏𝒂𝒊 ❤️", attachment: l, mentions: [{
-                id: event.senderID,
-                tag: name
-              }]
-            }, ad, (e, data) => global.client.handleReply.push({
-              name: this.config.name,
-              messageID: data.messageID,
-              messID: event.messageID,
-              author: event.senderID,
-              id: event.threadID,
-              type: "calladmin"
-            }));
-            for (var b of s) {
-              fs.unlinkSync(b);
-            }
-          }
-        }
-        break;
-      }
-      case "calladmin": {
-        if (s.length == 0) {
-          api.sendMessage({ body: `[📌] 𝑨𝒅𝒎𝒊𝒏 ${name} 𝒆𝒓 𝒇𝒆𝒆𝒅𝒃𝒂𝒄𝒌:\n\n[💬] 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: ${(event.body) || "𝑲𝒐𝒏𝒐 𝒓𝒆𝒑𝒍𝒚 𝒏𝒂𝒊 🌸"}\n\n» 𝑨𝒑𝒏𝒊 𝒓𝒆𝒑𝒐𝒓𝒕 𝒄𝒐𝒏𝒕𝒊𝒏𝒖𝒆 𝒌𝒐𝒓𝒕𝒆 𝒄𝒉𝒂𝒊𝒍𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏`, mentions: [{ tag: name, id: event.senderID }] }, handleReply.id, (e, data) => global.client.handleReply.push({
-            name: this.config.name,
-            author: event.senderID,
-            messageID: data.messageID,
-            type: "reply"
-          }), handleReply.messID);
-        }
-        else {
-          api.sendMessage({ body: `[📌] 𝑨𝒅𝒎𝒊𝒏 ${name} 𝒆𝒓 𝒇𝒆𝒆𝒅𝒃𝒂𝒄𝒌:\n\n[💬] 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: ${(event.body) || "𝑭𝒊𝒍𝒆 𝒏𝒊𝒚𝒆 𝒌𝒐𝒏𝒐 𝒓𝒆𝒑𝒍𝒚 𝒏𝒂𝒊 🌸"}\n[📎] 𝑨𝒅𝒎𝒊𝒏 𝒆𝒓 𝒇𝒊𝒍𝒆\n\n» 𝑨𝒑𝒏𝒊 𝒓𝒆𝒑𝒐𝒓𝒕 𝒄𝒐𝒏𝒕𝒊𝒏𝒖𝒆 𝒌𝒐𝒓𝒕𝒆 𝒄𝒉𝒂𝒊𝒍𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏`, attachment: l, mentions: [{ tag: name, id: event.senderID }] }, handleReply.id, (e, data) => global.client.handleReply.push({
-            name: this.config.name,
-            author: event.senderID,
-            messageID: data.messageID,
-            type: "reply"
-          }), handleReply.messID);
-          for (var b of s) {
-            fs.unlinkSync(b);
-          }
-        }
-        break;
-      }
-    }
-  }
-  catch (ex) {
-    console.log(ex);
-  }
+module.exports.languages = {
+	"en": {
+		"missingMessage": "📝 | Please provide a message to report",
+		"reportSent": "✅ | Your report has been sent to %1 admin(s)",
+		"errorOccurred": "❌ | An error occurred while processing your request",
+		"adminNotification": "📢 | 𝑵𝑬𝑾 𝑹𝑬𝑷𝑶𝑹𝑻",
+		"userFeedback": "📩 | 𝑭𝒆𝒆𝒅𝒃𝒂𝒄𝒌 𝒇𝒓𝒐𝒎 %1",
+		"adminResponse": "📌 | 𝑨𝒅𝒎𝒊𝒏 %1'𝒔 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆"
+	}
+}
+
+module.exports.onLoad = function() {
+	console.log('🔄 | CallAd command loaded successfully');
+}
+
+module.exports.handleReply = async function({ api, event, handleReply, Users }) {
+	try {
+		const { getTime, createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+		const axios = global.nodemodule["axios"];
+		const { join } = global.nodemodule["path"];
+		const formData = global.nodemodule["form-data"];
+		
+		const name = (await Users.getData(event.senderID)).name || "User";
+		const attachments = [];
+		const tempFiles = [];
+
+		// Process attachments
+		if (event.attachments.length > 0) {
+			for (const attachment of event.attachments) {
+				const randomString = Math.random().toString(36).substring(2, 15);
+				let extension = "txt";
+				
+				switch (attachment.type) {
+					case 'photo': extension = 'jpg'; break;
+					case 'video': extension = 'mp4'; break;
+					case 'audio': extension = 'mp3'; break;
+					case 'animated_image': extension = 'gif'; break;
+				}
+
+				const filePath = join(__dirname, 'cache', `${randomString}.${extension}`);
+				const fileData = (await axios.get(encodeURI(attachment.url), { 
+					responseType: "arraybuffer" 
+				})).data;
+				
+				getTime(filePath, Buffer.from(fileData, "utf-8"));
+				tempFiles.push(filePath);
+				attachments.push(createReadStream(filePath));
+			}
+		}
+
+		switch (handleReply.type) {
+			case "reply": {
+				const adminIDs = global.config.ADMINBOT;
+				const messageContent = event.body || this.languages.en.noMessage;
+				
+				for (const adminID of adminIDs) {
+					const messageData = {
+						body: `📩 | ${this.languages.en.userFeedback.replace('%1', name)}\n┏━━━━━━━━━━━━━━━━━━\n┣➤ 💬 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: ${messageContent}\n┗━━━━━━━━━━━━━━━━━━`,
+						mentions: [{ id: event.senderID, tag: name }],
+						attachment: attachments.length > 0 ? attachments : undefined
+					};
+
+					api.sendMessage(messageData, adminID, (error, info) => {
+						if (!error) {
+							global.client.handleReply.push({
+								name: this.config.name,
+								messageID: info.messageID,
+								messID: event.messageID,
+								author: event.senderID,
+								id: event.threadID,
+								type: "calladmin"
+							});
+						}
+					});
+				}
+				break;
+			}
+
+			case "calladmin": {
+				const messageContent = event.body || this.languages.en.noMessage;
+				const messageData = {
+					body: `📌 | ${this.languages.en.adminResponse.replace('%1', name)}\n┏━━━━━━━━━━━━━━━━━━\n┣➤ 💬 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: ${messageContent}\n┗━━━━━━━━━━━━━━━━━━\n\n🔁 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒄𝒐𝒏𝒕𝒊𝒏𝒖𝒆 𝒄𝒐𝒏𝒗𝒆𝒓𝒔𝒂𝒕𝒊𝒐𝒏`,
+					mentions: [{ tag: name, id: event.senderID }],
+					attachment: attachments.length > 0 ? attachments : undefined
+				};
+
+				api.sendMessage(messageData, handleReply.id, (error, info) => {
+					if (!error) {
+						global.client.handleReply.push({
+							name: this.config.name,
+							author: event.senderID,
+							messageID: info.messageID,
+							type: "reply"
+						});
+					}
+				}, handleReply.messID);
+				break;
+			}
+		}
+
+		// Clean up temporary files
+		tempFiles.forEach(file => {
+			try {
+				unlinkSync(file);
+			} catch (e) {
+				console.error("Error deleting file:", e);
+			}
+		});
+
+	} catch (error) {
+		console.error("❌ | Error in handleReply:", error);
+	}
 };
 
-module.exports.run = async function({ api, event, Threads, args, Users }) {
-  try {
-    var s = [];
-    var l = [];
-    const fs = require('fs-extra');
-    const { join } = require('path');
-    const axios = require('axios');
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-    var charactersLength = characters.length || 20;
-    if (event.messageReply) {
-    if (event.messageReply.attachments.length != 0) {
-      for (var p of event.messageReply.attachments) {
-        var result = '';
-        for (var i = 0; i < charactersLength; i++) result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        if (p.type == 'photo') {
-          var e = 'jpg';
-        }
-        if (p.type == 'video') {
-          var e = 'mp4';
-        }
-        if (p.type == 'audio') {
-          var e = 'mp3';
-        }
-        if (p.type == 'animated_image') {
-          var e = 'gif';
-        }
-        var o = join(__dirname, 'cache', `${result}.${e}`);
-        let m = (await axios.get(encodeURI(p.url), { responseType: "arraybuffer" })).data;
-        fs.writeFileSync(o, Buffer.from(m, "utf-8"));
-        s.push(o);
-        l.push(fs.createReadStream(o));
-      }
-    }
-  }
-    if (!args[0] && event.messageReply.attachments.length == 0)
-      return api.sendMessage(`𝑨𝒑𝒏𝒊 𝒌𝒊 𝒓𝒆𝒑𝒐𝒓𝒕 𝒌𝒐𝒓𝒃𝒆𝒏 𝒔𝒆𝒕𝒂 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒊 𝒏𝒂𝒊 📋`,
-        event.threadID,
-        event.messageID
-      );
+module.exports.run = async function({ api, event, args, Threads, Users }) {
+	try {
+		const { getTime, createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+		const axios = global.nodemodule["axios"];
+		const moment = global.nodemodule["moment-timezone"];
+		const { join } = global.nodemodule["path"];
+		
+		// Check if user provided a message or attachment
+		if (args.length === 0 && !event.messageReply) {
+			return api.sendMessage(this.languages.en.missingMessage, event.threadID, event.messageID);
+		}
 
-    var name = (await Users.getData(event.senderID)).name;
-    var idbox = event.threadID;
+		const attachments = [];
+		const tempFiles = [];
 
-    var datathread = (await Threads.getData(event.threadID)).threadInfo;
-    var namethread = datathread.threadName;
-    var uid = event.senderID;
+		// Process replied message attachments
+		if (event.messageReply && event.messageReply.attachments) {
+			for (const attachment of event.messageReply.attachments) {
+				const randomString = Math.random().toString(36).substring(2, 15);
+				let extension = "txt";
+				
+				switch (attachment.type) {
+					case 'photo': extension = 'jpg'; break;
+					case 'video': extension = 'mp4'; break;
+					case 'audio': extension = 'mp3'; break;
+					case 'animated_image': extension = 'gif'; break;
+				}
 
-    const moment = require("moment-timezone");
-    var gio = moment.tz("Asia/Manila").format("HH:mm:ss D/MM/YYYY");
-    var soad = global.config.ADMINBOT.length;
-    api.sendMessage(`[🤖] 𝑩𝒐𝒕 𝒂𝒑𝒏𝒂𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 ${soad} 𝒋𝒐𝒏 𝒂𝒅𝒎𝒊𝒏 𝒌𝒆 𝒑𝒂𝒕𝒉𝒊𝒚𝒆𝒄𝒉𝒆 🍄\n[⏰] 𝑺𝒐𝒎𝒐𝒚: ${gio}`,
-      event.threadID,
-      () => {
-        var idad = global.config.ADMINBOT;
-        if (s.length == 0) {
-          for (let ad of idad) {
-            api.sendMessage({ body: `📱[ 𝑪𝑨𝑳𝑳 𝑨𝑫𝑴𝑰𝑵 ]📱\n\n\n[👤] 𝑹𝒆𝒑𝒐𝒓𝒕 𝒇𝒓𝒐𝒎: ${name}\n[❗] 𝑼𝒔𝒆𝒓 𝑰𝑫: ${uid}\n[🗣️] 𝑩𝒐𝒙: ${namethread}\n[🔰] 𝑩𝒐𝒙 𝑰𝑫: ${idbox}\n\n[💌] 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${args.join(
-              " "
-            )}\n[⏰] 𝑺𝒐𝒎𝒐𝒚: ${gio}`, mentions: [{ id: event.senderID, tag: name }] },
-              ad, (error, info) =>
-              global.client.handleReply.push({
-                name: this.config.name,
-                messageID: info.messageID,
-                author: event.senderID,
-                messID: event.messageID,
-                id: idbox,
-                type: "calladmin"
-              })
-            );
-          }
-        }
-        else {
-          for (let ad of idad) {
-            api.sendMessage({
-              body: `📱[ 𝑪𝑨𝑳𝑳 𝑨𝑫𝑴𝑰𝑵 ]📱\n\n\n[👤] 𝑹𝒆𝒑𝒐𝒓𝒕 𝒇𝒓𝒐𝒎: ${name}\n[❗] 𝑼𝒔𝒆𝒓 𝑰𝑫: ${uid}\n[🗣️] 𝑩𝒐𝒙: ${namethread}\n[🔰] 𝑩𝒐𝒙 𝑰𝑫: ${idbox}\n\n[💌] 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${(args.join(
-                " "
-              )) || "𝑭𝒊𝒍𝒆 𝒏𝒊𝒚𝒆 𝒌𝒐𝒏𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒏𝒂𝒊"}\n[⏰] 𝑺𝒐𝒎𝒐𝒚: ${gio}\n[📎] 𝑨𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕`, attachment: l, mentions: [{ id: event.senderID, tag: name }]
-            },
-              ad, (error, info) =>
-              global.client.handleReply.push({
-                name: this.config.name,
-                messageID: info.messageID,
-                author: event.senderID,
-                messID: event.messageID,
-                id: idbox,
-                type: "calladmin"
-              })
-            );
-          }
-          for (var b of s) {
-            fs.unlinkSync(b);
-          }
-        }
-      }
-      , event.messageID);
-  }
-  catch (ex) {
-    console.log(ex);
-  }
+				const filePath = join(__dirname, 'cache', `${randomString}.${extension}`);
+				const fileData = (await axios.get(encodeURI(attachment.url), { 
+					responseType: "arraybuffer" 
+				})).data;
+				
+				getTime(filePath, Buffer.from(fileData, "utf-8"));
+				tempFiles.push(filePath);
+				attachments.push(createReadStream(filePath));
+			}
+		}
+
+		const name = (await Users.getData(event.senderID)).name || "User";
+		const threadData = (await Threads.getData(event.threadID)).threadInfo;
+		const threadName = threadData.threadName;
+		const userID = event.senderID;
+		const threadID = event.threadID;
+		const timestamp = moment.tz("Asia/Dhaka").format("HH:mm:ss DD/MM/YYYY");
+		const adminCount = global.config.ADMINBOT.length;
+
+		// Send confirmation to user
+		api.sendMessage(
+			`✅ | ${this.languages.en.reportSent.replace('%1', adminCount)}\n⏰ | 𝑻𝒊𝒎𝒆: ${timestamp}`, 
+			event.threadID, 
+			event.messageID
+		);
+
+		// Prepare and send message to admins
+		const messageContent = args.join(" ") || (attachments.length > 0 ? 
+			"📎 𝑨𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕 𝒘𝒊𝒕𝒉𝒐𝒖𝒕 𝒕𝒆𝒙𝒕" : "🌸 𝑲𝒐𝒏𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒏𝒂𝒊");
+
+		for (const adminID of global.config.ADMINBOT) {
+			const messageData = {
+				body: `📢 | ${this.languages.en.adminNotification}\n┏━━━━━━━━━━━━━━━━━━\n┣➤ 👤 𝑼𝒔𝒆𝒓: ${name}\n┣➤ 🆔 𝑼𝑰𝑫: ${userID}\n┣➤ 💬 𝑩𝒐𝒙: ${threadName}\n┣➤ 🆔 𝑩𝒐𝒙 𝑰𝑫: ${threadID}\n┣➤ 📝 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${messageContent}\n┣➤ ⏰ 𝑻𝒊𝒎𝒆: ${timestamp}\n┗━━━━━━━━━━━━━━━━━━`,
+				mentions: [{ id: event.senderID, tag: name }],
+				attachment: attachments.length > 0 ? attachments : undefined
+			};
+
+			api.sendMessage(messageData, adminID, (error, info) => {
+				if (!error) {
+					global.client.handleReply.push({
+						name: this.config.name,
+						messageID: info.messageID,
+						author: event.senderID,
+						messID: event.messageID,
+						id: threadID,
+						type: "calladmin"
+					});
+				}
+			});
+		}
+
+		// Clean up temporary files
+		tempFiles.forEach(file => {
+			try {
+				unlinkSync(file);
+			} catch (e) {
+				console.error("Error deleting file:", e);
+			}
+		});
+
+	} catch (error) {
+		console.error("❌ | Error in run:", error);
+		api.sendMessage(
+			this.languages.en.errorOccurred, 
+			event.threadID, 
+			event.messageID
+		);
+	}
 };
