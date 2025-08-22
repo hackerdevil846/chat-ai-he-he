@@ -1,73 +1,91 @@
 const DIG = require("discord-image-generation");
 const fs = require("fs-extra");
-const { mergeImages, loadImage, Canvas } = require("canvas-wrapper");
+const { Canvas, loadImage } = require("canvas-wrapper");
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "clown",
     version: "1.0",
-    author: "asif",
-    countDown: 1,
-    role: 0,
-    shortDescription: "",
-    longDescription: "",
-    category: "meme",
-    guide: "{pn}",
-    envConfig: {
-      deltaNext: 5,
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "🎪 Add some clown vibes to yourself or a friend!",
+    commandCategory: "edit-img",
+    usages: "[reply/tag someone]",
+    cooldowns: 5,
+    dependencies: {
+        "discord-image-generation": "latest",
+        "canvas-wrapper": "latest",
+        "fs-extra": "latest"
     },
-  },
+    envConfig: {
+        deltaNext: 5
+    }
+};
 
-  langs: {
+module.exports.languages = {
     vi: {
-      noTag: "Bạn phải tag người bạn muốn tát",
+        noTag: "Bạn phải tag người bạn muốn tát"
     },
     en: {
-      noTag: "You must tag the person you want to",
-    },
-  },
-
-  onStart: async function ({ event, message, usersData, args, getLang }) {
-    let mention = Object.keys(event.mentions);
-    let uid;
-
-    if (event.type == "message_reply") {
-      uid = event.messageReply.senderID;
-    } else {
-      if (mention[0]) {
-        uid = mention[0];
-      } else {
-        uid = event.senderID;
-      }
+        noTag: "You must tag the person you want to clownify!"
     }
+};
 
-    let url = await usersData.getAvatarUrl(uid);
-    let baseImage = await new DIG.Triggered().getImage(url);
-    const clownImage = await loadImage("./clownImage.jpg");
+module.exports.run = async function({ api, event, args, Users }) {
+    try {
+        const mentions = Object.keys(event.mentions);
+        let uid;
 
-    const canvas = new Canvas(baseImage.width, baseImage.height);
-    const ctx = canvas.getContext("2d");
+        // Determine target user
+        if (event.type === "message_reply") {
+            uid = event.messageReply.senderID;
+        } else {
+            uid = mentions[0] || event.senderID;
+        }
 
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(clownImage, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+        // Get avatar URL
+        const avatarUrl = await Users.getAvatarUrl(uid);
 
-    const clownBuffer = canvas.toBuffer();
-    const pathSave = `${__dirname}/tmp/clown.png`;
+        // Generate triggered/clowned base image
+        const triggeredImage = await new DIG.Triggered().getImage(avatarUrl);
 
-    fs.writeFileSync(pathSave, clownBuffer);
+        // Load canvas and clown overlay
+        const clownOverlay = await loadImage("./clownImage.jpg");
+        const canvas = new Canvas(triggeredImage.width, triggeredImage.height);
+        const ctx = canvas.getContext("2d");
 
-    let body;
-    if (mention[0]) {
-      body = `{userName} added some clownish vibes!`;
-    } else {
-      body = "You're the clown, looking at yourself!\nReply or mention someone else";
+        // Draw base and overlay with style
+        ctx.drawImage(triggeredImage, 0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 0.7; // transparency for effect
+        ctx.drawImage(clownOverlay, 0, 0, canvas.width, canvas.height);
+
+        // Optional: Add emoji/text overlay
+        ctx.globalAlpha = 1;
+        ctx.font = "60px Comic Sans MS";
+        ctx.fillStyle = "#FF0000";
+        ctx.fillText("🤡 Clown Time!", 50, 100);
+
+        // Save image
+        const buffer = canvas.toBuffer();
+        const pathSave = `${__dirname}/tmp/clown.png`;
+        fs.writeFileSync(pathSave, buffer);
+
+        // Create message body
+        let body = mentions[0]
+            ? `🤡 ${event.senderName} added some clownish vibes to someone!`
+            : `🤡 You're the clown! Look at yourself!\nReply or tag someone else.`;
+
+        // Send reply
+        api.sendMessage(
+            {
+                body,
+                attachment: fs.createReadStream(pathSave)
+            },
+            event.threadID,
+            () => fs.unlinkSync(pathSave)
+        );
+
+    } catch (err) {
+        console.error("Error in clown command:", err);
+        api.sendMessage("⚠️ Something went wrong while clownifying.", event.threadID);
     }
-    message.reply(
-      {
-        body: body.replace("{userName}", event.senderName),
-        attachment: fs.createReadStream(pathSave),
-      },
-      () => fs.unlinkSync(pathSave)
-    );
-  },
 };
