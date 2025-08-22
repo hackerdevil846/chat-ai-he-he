@@ -1,70 +1,71 @@
 module.exports.config = {
-	name: "checktt",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "interactive check",
-	commandCategory: "Utilities",
-	usages: "checktt",
-	cooldowns: 5,
-	dependencies: {
-		"fs-extra": ""
-	}
-}
-
-const path = __dirname + '/count-by-thread/';
+    name: "checktt",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "Interactive message counter & rank checker",
+    commandCategory: "Utilities",
+    usages: "[all/rank/@mention]",
+    cooldowns: 5,
+    dependencies: {
+        "fs-extra": ""
+    }
+};
 
 module.exports.onLoad = () => {
-    const fs = require('fs');
+    const fs = require("fs");
+    const path = __dirname + '/count-by-thread/';
     if (!fs.existsSync(path) || !fs.statSync(path).isDirectory()) {
         fs.mkdirSync(path, { recursive: true });
     }
-}
+};
 
-module.exports.handleEvent = function ({ event }) {
-    const { messageID, threadID, senderID } = event;
-    if (!global.data.allThreadID.some(tid => tid == threadID)) return;
-    const fs = global.nodemodule['fs'];
-    const threadPath = path + threadID + '.json';
+module.exports.handleEvent = async function ({ event }) {
+    const fs = require("fs");
+    const path = __dirname + '/count-by-thread/';
+    const { threadID, senderID } = event;
+
+    if (!global.data.allThreadID.includes(threadID)) return;
+
+    const threadPath = path + threadID + ".json";
     if (!fs.existsSync(threadPath) || fs.statSync(threadPath).isDirectory()) {
         fs.writeFileSync(threadPath, JSON.stringify({}, null, 4));
     }
-    const getThreadJSON = JSON.parse(fs.readFileSync(threadPath)) || {};
-    if (!getThreadJSON.hasOwnProperty(senderID)) {
-        getThreadJSON[senderID] = 0;
-    }
-    getThreadJSON[senderID]++;
-    fs.writeFileSync(threadPath, JSON.stringify(getThreadJSON, null, 4));
-}
+
+    const threadData = JSON.parse(fs.readFileSync(threadPath)) || {};
+    if (!threadData[senderID]) threadData[senderID] = 0;
+    threadData[senderID]++;
+    fs.writeFileSync(threadPath, JSON.stringify(threadData, null, 4));
+};
 
 const rankNames = {
-    "Copper I": "𝑪𝒐𝒑𝒑𝒆𝒓 𝑰",
-    "Copper II": "𝑪𝒐𝒑𝒑𝒆𝒓 𝑰𝑰",
-    "Copper III": "𝑪𝒐𝒑𝒑𝒆𝒓 𝑰𝑰𝑰",
-    "Silver I": "𝑺𝒊𝒍𝒗𝒆𝒓 𝑰",
-    "Silver II": "𝑺𝒊𝒍𝒗𝒆𝒓 𝑰𝑰",
-    "Silver III": "𝑺𝒊𝒍𝒗𝒆𝒓 𝑰𝑰𝑰",
-    "Gold I": "𝑮𝒐𝒍𝒅 𝑰",
-    "Gold II": "𝑮𝒐𝒍𝒅 𝑰𝑰",
-    "Gold III": "𝑮𝒐𝒍𝒅 𝑰𝑰𝑰",
-    "Gold IV": "𝑮𝒐𝒍𝒅 𝑰𝑽",
-    "Platinum I": "𝑷𝒍𝒂𝒕𝒊𝒏𝒖𝒎 𝑰",
-    "Platinum II": "𝑷𝒍𝒂𝒕𝒊𝒏𝒖𝒎 𝑰𝑰",
-    "Platinum III": "𝑷𝒍𝒂𝒕𝒊𝒏𝒖𝒎 𝑰𝑰𝑰",
-    "Platinum IV": "𝑷𝒍𝒂𝒕𝒊𝒏𝒖𝒎 𝑰𝑽",
-    "Diamond I": "𝑫𝒊𝒂𝒎𝒐𝒏𝒅 𝑰",
-    "Diamond II": "𝑫𝒊𝒂𝒎𝒐𝒏𝒅 𝑰𝑰",
-    "Diamond III": "𝑫𝒊𝒂𝒎𝒐𝒏𝒅 𝑰𝑰𝑰",
-    "Diamond IV": "𝑫𝒊𝒂𝒎𝒐𝒏𝒅 𝑰𝑽",
-    "Diamond V": "𝑫𝒊𝒂𝒎𝒐𝒏𝒅 𝑽",
-    "Elite I": "𝑬𝒍𝒊𝒕𝒆 𝑰",
-    "Elite II": "𝑬𝒍𝒊𝒕𝒆 𝑰𝑰",
-    "Elite III": "𝑬𝒍𝒊𝒕𝒆 𝑰𝑰𝑰",
-    "Elite IV": "𝑬𝒍𝒊𝒕𝒆 𝑰𝑽",
-    "Elite V": "𝑬𝒍𝒊𝒕𝒆 𝑽",
-    "Master": "𝑴𝒂𝒔𝒕𝒆𝒓",
-    "War Generals": "𝑾𝒂𝒓 𝑮𝒆𝒏𝒆𝒓𝒂𝒍𝒔"
-}
+    "Copper I": "🟫 Copper I",
+    "Copper II": "🟫 Copper II",
+    "Copper III": "🟫 Copper III",
+    "Silver I": "⚪ Silver I",
+    "Silver II": "⚪ Silver II",
+    "Silver III": "⚪ Silver III",
+    "Gold I": "🟡 Gold I",
+    "Gold II": "🟡 Gold II",
+    "Gold III": "🟡 Gold III",
+    "Gold IV": "🟡 Gold IV",
+    "Platinum I": "🔵 Platinum I",
+    "Platinum II": "🔵 Platinum II",
+    "Platinum III": "🔵 Platinum III",
+    "Platinum IV": "🔵 Platinum IV",
+    "Diamond I": "💎 Diamond I",
+    "Diamond II": "💎 Diamond II",
+    "Diamond III": "💎 Diamond III",
+    "Diamond IV": "💎 Diamond IV",
+    "Diamond V": "💎 Diamond V",
+    "Elite I": "🏅 Elite I",
+    "Elite II": "🏅 Elite II",
+    "Elite III": "🏅 Elite III",
+    "Elite IV": "🏅 Elite IV",
+    "Elite V": "🏅 Elite V",
+    "Master": "🏆 Master",
+    "War Generals": "⚔️ War Generals"
+};
 
 const getRankName = count => {
     return count > 50000 ? rankNames["War Generals"]
@@ -92,56 +93,60 @@ const getRankName = count => {
         : count > 900 ? rankNames["Silver I"]
         : count > 500 ? rankNames["Copper III"]
         : count > 100 ? rankNames["Copper II"]
-        : rankNames["Copper I"]
-}
+        : rankNames["Copper I"];
+};
 
 module.exports.run = async function ({ api, event, args, Users }) {
-    const fs = global.nodemodule['fs'];
+    const fs = require("fs");
+    const path = __dirname + '/count-by-thread/';
     const { messageID, threadID, senderID, mentions } = event;
-    const threadPath = path + threadID + '.json';
+
+    const threadPath = path + threadID + ".json";
     if (!fs.existsSync(threadPath) || fs.statSync(threadPath).isDirectory()) {
         fs.writeFileSync(threadPath, JSON.stringify({}, null, 4));
     }
-    const query = args[0] ? args[0].toLowerCase() : '';
-    const getThreadJSON = JSON.parse(fs.readFileSync(threadPath)) || {};
-    if (!getThreadJSON.hasOwnProperty(senderID)) {
-        getThreadJSON[senderID] = 1;
-    }
-    var storage = [],
-        msg = '';
-    if (query == 'all') {
+
+    const query = args[0] ? args[0].toLowerCase() : "";
+    const threadData = JSON.parse(fs.readFileSync(threadPath)) || {};
+
+    if (!threadData[senderID]) threadData[senderID] = 1;
+
+    if (query === "all") {
         const allThread = await api.getThreadInfo(threadID) || { participantIDs: [] };
-        for (id of allThread.participantIDs) {
-            if (!getThreadJSON.hasOwnProperty(id)) {
-                getThreadJSON[id] = 0;
-            }
+        for (const id of allThread.participantIDs) {
+            if (!threadData[id]) threadData[id] = 0;
         }
     }
-    for (const id in getThreadJSON) {
+
+    const storage = [];
+    for (const id in threadData) {
         const name = await Users.getNameUser(id);
-        storage.push({ id, name, count: getThreadJSON[id] });
+        storage.push({ id, name, count: threadData[id] });
     }
-    storage.sort((a, b) => {
-        if (a.count > b.count) return -1;
-        else if (a.count < b.count) return 1;
-        else return a.name.localeCompare(b.name);
-    });
-    if (query == 'all') {
-        let count = 1;
-        msg += '===CHECKTT===';
+
+    storage.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+    let msg = "";
+    if (query === "all") {
+        msg += "📊=== CHECKTT LEADERBOARD ===📊";
+        let rank = 1;
         for (const user of storage) {
-            msg += `\n${count++}. ${user.name} - ${user.count}`;
+            msg += `\n${rank++}. ${user.name} - 💌 ${user.count} messages`;
         }
-    } else if (query == 'rank') {
-        msg += Object.values(rankNames).join('\n');
-    } else if (!query) {
+    } else if (query === "rank") {
+        msg += "🏅=== RANK LIST ===🏅\n" + Object.values(rankNames).join("\n");
+    } else {
         let userID = senderID;
-        if (Object.keys(mentions).length > 0) {
-            userID = Object.keys(mentions)[0];
-        }
-        const rankUser = storage.findIndex(e => e.id == userID);
-        msg += `${userID == senderID ? '💠Friend' : storage[rankUser].name} ranked ${rankUser + 1}\n💌Number of messages: ${storage[rankUser].count}\n🔰Rank ${getRankName(storage[rankUser].count)}`;
+        if (Object.keys(mentions).length > 0) userID = Object.keys(mentions)[0];
+
+        const userIndex = storage.findIndex(e => e.id == userID);
+        const user = storage[userIndex];
+
+        msg += `💠 ${userID == senderID ? "Your Stats" : user.name + "'s Stats"}\n`;
+        msg += `📌 Rank: ${userIndex + 1}\n`;
+        msg += `💌 Messages: ${user.count}\n`;
+        msg += `🔰 Rank Title: ${getRankName(user.count)}`;
     }
+
     api.sendMessage(msg, threadID, messageID);
-    return;
-}
+};
