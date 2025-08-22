@@ -1,224 +1,294 @@
-// url check image
-const checkUrlRegex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/gi;
-const regExColor = /#([0-9a-f]{6})|rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)|rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+\.?\d*)\)/gi;
+const { createCanvas, loadImage } = require('canvas');
 const { uploadImgbb } = global.utils;
 
-module.exports = {
-	config: {
-		name: "customrankcard",
-		aliases: ["crc", "customrank"],
-		version: "1.12",
-		author: "NTKhang",
-		countDown: 5,
-		role: 0,
-		description: {
-			vi: "Thiết kế thẻ rank theo ý bạn",
-			en: "Design rank card by your own"
-		},
-		category: "rank",
-		guide: {
-			vi: {
-				body: "   {pn} [maincolor | subcolor | linecolor | expbarcolor | progresscolor | alphasubcolor | textcolor | namecolor | expcolor | rankcolor | levelcolor | reset] <value>"
-					+ "\n   Trong đó: "
-					+ "\n  + maincolor | background <value>: background chính của thẻ rank"
-					+ "\n  + subcolor <value>: background phụ"
-					+ "\n  + linecolor <value>: màu của đường kẻ giữa background chính và phụ"
-					+ "\n  + expbarcolor <value>: màu của thanh exp"
-					+ "\n  + progresscolor <value>: màu của thanh exp hiện tại"
-					+ "\n  + alphasubcolor <value>: độ mờ của background phụ (từ 0 -> 1)"
-					+ "\n  + textcolor <value>: màu của chữ (hex color or rgba)"
-					+ "\n  + namecolor <value>: màu của tên"
-					+ "\n  + expcolor <value>: màu của exp"
-					+ "\n  + rankcolor <value>: màu của rank"
-					+ "\n  + levelcolor <value>: màu của level"
-					+ "\n    • <value> có thể là mã hex color, rgb, rgba, gradient (mỗi màu cách nhau bởi dấu cách) hoặc url hình ảnh"
-					+ "\n    • Nếu bạn muốn dùng gradient, hãy nhập nhiều mã màu cách nhau bởi dấu cách"
-					+ "\n   {pn} reset: reset tất cả về mặc định"
-					+ "\n   Ví dụ:"
-					+ "\n    {pn} maincolor #fff000"
-					+ "\n    {pn} maincolor #0093E9 #80D0C7"
-					+ "\n    {pn} subcolor rgba(255,136,86,0.4)"
-					+ "\n    {pn} reset",
-				attachment: {
-					[`${__dirname}/assets/guide/customrankcard_1.jpg`]: "https://i.ibb.co/BZ2Qgs1/image.png",
-					[`${__dirname}/assets/guide/customrankcard_2.png`]: "https://i.ibb.co/wy1ZHHL/image.png"
-				}
-			},
-			en: {
-				body: "   {pn} [maincolor | subcolor | linecolor | progresscolor | alphasubcolor | textcolor | namecolor | expcolor | rankcolor | levelcolor | reset] <value>"
-					+ "\n   In which: "
-					+ "\n  + maincolor | background <value>: main background of rank card"
-					+ "\n  + subcolor <value>: sub background"
-					+ "\n  + linecolor <value>: color of line between main and sub background"
-					+ "\n  + expbarcolor <value>: color of exp bar"
-					+ "\n  + progresscolor <value>: color of current exp bar"
-					+ "\n  + alphasubcolor <value>: opacity of sub background (from 0 -> 1)"
-					+ "\n  + textcolor <value>: color of text (hex color or rgba)"
-					+ "\n  + namecolor <value>: color of name"
-					+ "\n  + expcolor <value>: color of exp"
-					+ "\n  + rankcolor <value>: color of rank"
-					+ "\n  + levelcolor <value>: color of level"
-					+ "\n    • <value> can be hex color, rgb, rgba, gradient (each color is separated by space) or image url"
-					+ "\n    • If you want to use gradient, please enter many colors separated by space"
-					+ "\n   {pn} reset: reset all to default"
-					+ "\n   Example:"
-					+ "\n    {pn} maincolor #fff000"
-					+ "\n    {pn} subcolor rgba(255,136,86,0.4)"
-					+ "\n    {pn} reset",
-				attachment: {
-					[`${__dirname}/assets/guide/customrankcard_1.jpg`]: "https://i.ibb.co/BZ2Qgs1/image.png",
-					[`${__dirname}/assets/guide/customrankcard_2.png`]: "https://i.ibb.co/wy1ZHHL/image.png"
-				}
-			}
-		}
-	},
+// URL check image regex
+const checkUrlRegex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/gi;
+const regExColor = /#([0-9a-f]{6})|rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)|rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d+\.?\d*)\)/gi;
 
-	langs: {
-		vi: {
-			invalidImage: "Url hình ảnh không hợp lệ, vui lòng chọn 1 url với trang đích là hình ảnh (jpg, jpeg, png, gif), bạn có thể tải ảnh lên trang https://imgbb.com/ và chọn mục \"lấy link trực tiếp\" để lấy url hình ảnh",
-			invalidAttachment: "File đính kèm không phải là hình ảnh",
-			invalidColor: "Mã màu không hợp lệ, vui lòng nhập mã hex color (6 chữ số) hoặc mã màu rgba",
-			notSupportImage: "Url hình ảnh không được hỗ trợ với tùy chọn \"%1\"",
-			success: "Đã lưu thay đổi của bạn, bên dưới là phần xem trước",
-			reseted: "Đã reset tất cả cài đặt về mặc định",
-			invalidAlpha: "Vui lòng chọn chỉ số trong khoảng từ 0 -> 1"
-		},
+module.exports.config = {
+	name: "customrankcard",
+	aliases: ["crc", "customrank", "rankcard"],
+	version: "1.12",
+	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	countDown: 5,
+	role: 0,
+	description: {
+		vi: "Thiết kế thẻ rank theo ý bạn",
+		en: "✨ Design your own stylish rank card with custom colors and backgrounds"
+	},
+	category: "rank",
+	guide: {
 		en: {
-			invalidImage: "Invalid image url, please choose an url with image destination (jpg, jpeg, png, gif), you can upload image to https://imgbb.com/ and choose \"get direct link\" to get image url",
-			invalidAttachment: "Invalid attachment, please choose an image file",
-			invalidColor: "Invalid color code, please choose a hex color code (6 digits) or rgba color code",
-			notSupportImage: "Url image is not supported with option \"%1\"",
-			success: "Your changes have been saved, here is a preview",
-			reseted: "All settings have been reset to default",
-			invalidAlpha: "Please choose a number from 0 -> 1"
-		}
-	},
-
-	onStart: async function ({ message, threadsData, event, args, getLang, usersData, envCommands }) {
-		if (!args[0])
-			return message.SyntaxError();
-
-		const customRankCard = await threadsData.get(event.threadID, "data.customRankCard", {});
-		const key = args[0].toLowerCase();
-		let value = args.slice(1).join(" ");
-
-		const supportImage = ["maincolor", "background", "bg", "subcolor", "expbarcolor", "progresscolor", "linecolor"];
-		const notSupportImage = ["textcolor", "namecolor", "expcolor", "rankcolor", "levelcolor", "lvcolor"];
-
-		if ([...notSupportImage, ...supportImage].includes(key)) {
-			const attachmentsReply = event.messageReply?.attachments;
-			const attachments = [
-				...event.attachments.filter(({ type }) => ["photo", "animated_image"].includes(type)),
-				...attachmentsReply?.filter(({ type }) => ["photo", "animated_image"].includes(type)) || []
-			];
-			if (value == 'reset') {
-			}
-			else if (value.match(/^https?:\/\//)) {
-				// if image url
-				const matchUrl = value.match(checkUrlRegex);
-				if (!matchUrl)
-					return message.reply(getLang("invalidImage"));
-				const infoFile = await uploadImgbb(matchUrl[0], 'url');
-				value = infoFile.image.url;
-			}
-			else if (attachments.length > 0) {
-				// if image attachment
-				if (!["photo", "animated_image"].includes(attachments[0].type))
-					return message.reply(getLang("invalidAttachment"));
-				const url = attachments[0].url;
-				const infoFile = await uploadImgbb(url, 'url');
-				value = infoFile.image.url;
-			}
-			else {
-				// if color
-				const colors = value.match(regExColor);
-				if (!colors)
-					return message.reply(getLang("invalidColor"));
-				value = colors.length == 1 ? colors[0] : colors;
-			}
-
-			if (value != "reset" && notSupportImage.includes(key) && value.startsWith?.("http"))
-				return message.reply(getLang("notSupportImage", key));
-
-			switch (key) {
-				case "maincolor":
-				case "background":
-				case "bg":
-					value == "reset" ? delete customRankCard.main_color : customRankCard.main_color = value;
-					break;
-				case "subcolor":
-					value == "reset" ? delete customRankCard.sub_color : customRankCard.sub_color = value;
-					break;
-				case "linecolor":
-					value == "reset" ? delete customRankCard.line_color : customRankCard.line_color = value;
-					break;
-				case "progresscolor":
-					value == "reset" ? delete customRankCard.exp_color : customRankCard.exp_color = value;
-					break;
-				case "expbarcolor":
-					value == "reset" ? delete customRankCard.expNextLevel_color : customRankCard.expNextLevel_color = value;
-					break;
-				case "textcolor":
-					value == "reset" ? delete customRankCard.text_color : customRankCard.text_color = value;
-					break;
-				case "namecolor":
-					value == "reset" ? delete customRankCard.name_color : customRankCard.name_color = value;
-					break;
-				case "rankcolor":
-					value == "reset" ? delete customRankCard.rank_color : customRankCard.rank_color = value;
-					break;
-				case "levelcolor":
-				case "lvcolor":
-					value == "reset" ? delete customRankCard.level_color : customRankCard.level_color = value;
-					break;
-				case "expcolor":
-					value == "reset" ? delete customRankCard.exp_text_color : customRankCard.exp_text_color = value;
-					break;
-			}
-			try {
-				await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-				message.reply({
-					body: getLang("success"),
-					attachment: await global.client.makeRankCard(event.senderID, usersData, threadsData, event.threadID, envCommands["rank"]?.deltaNext || 5)
-						.then(stream => {
-							stream.path = "rankcard.png";
-							return stream;
-						})
-				});
-			}
-			catch (err) {
-				message.err(err);
+			body: "🎨 {pn} [maincolor | subcolor | linecolor | expbarcolor | progresscolor | alphasubcolor | textcolor | namecolor | expcolor | rankcolor | levelcolor | reset] <value>"
+				+ "\n\n🌈 Available options:"
+				+ "\n  • maincolor | background <value> - Main background (gradient/image)"
+				+ "\n  • subcolor <value> - Sub background"
+				+ "\n  • linecolor <value> - Line between backgrounds"
+				+ "\n  • expbarcolor <value> - Experience bar color"
+				+ "\n  • progresscolor <value> - Current progress color"
+				+ "\n  • alphasubcolor <value> - Sub background opacity (0-1)"
+				+ "\n  • textcolor <value> - Text color"
+				+ "\n  • namecolor <value> - Name color"
+				+ "\n  • expcolor <value> - EXP text color"
+				+ "\n  • rankcolor <value> - Rank text color"
+				+ "\n  • levelcolor <value> - Level text color"
+				+ "\n\n💡 Value can be: hex code, rgb, rgba, gradient (multiple colors), or image URL"
+				+ "\n📸 You can also send an image as attachment"
+				+ "\n\n🔄 {pn} reset - Reset all settings to default"
+				+ "\n\n🎯 Examples:"
+				+ "\n  • {pn} maincolor #fff000"
+				+ "\n  • {pn} maincolor #0093E9 #80D0C7"
+				+ "\n  • {pn} subcolor rgba(255,136,86,0.4)"
+				+ "\n  • {pn} reset",
+			attachment: {
+				[`${__dirname}/assets/guide/customrankcard_1.jpg`]: "https://i.ibb.co/BZ2Qgs1/image.png",
+				[`${__dirname}/assets/guide/customrankcard_2.png`]: "https://i.ibb.co/wy1ZHHL/image.png"
 			}
 		}
-		else if (["alphasubcolor", "alphasubcard"].includes(key)) {
-			if (parseFloat(value) < 0 && parseFloat(value) > 1)
-				return message.reply(getLang("invalidAlpha"));
-			customRankCard.alpha_subcard = parseFloat(value);
-			try {
-				await threadsData.set(event.threadID, customRankCard, "data.customRankCard");
-				message.reply({
-					body: getLang("success"),
-					attachment: await global.client.makeRankCard(event.senderID, usersData, threadsData, event.threadID, envCommands["rank"]?.deltaNext || 5)
-						.then(stream => {
-							stream.path = "rankcard.png";
-							return stream;
-						})
-				});
-			}
-			catch (err) {
-				message.err(err);
-			}
-		}
-		else if (key == "reset") {
-			try {
-				await threadsData.set(event.threadID, {}, "data.customRankCard");
-				message.reply(getLang("reseted"));
-			}
-			catch (err) {
-				message.err(err);
-			}
-		}
-		else
-			message.SyntaxError();
 	}
 };
+
+module.exports.langs = {
+	en: {
+		invalidImage: "❌ Invalid image URL. Please provide a direct image link (jpg, jpeg, png, gif). You can upload to imgbb.com and use the direct link.",
+		invalidAttachment: "❌ Please attach a valid image file",
+		invalidColor: "❌ Invalid color code. Please use hex (#RRGGBB) or rgba format",
+		notSupportImage: "❌ Image URLs are not supported for \"%1\" option",
+		success: "✅ Your custom rank card settings have been saved!\n\n🎉 Preview:",
+		reseted: "🔄 All rank card settings have been reset to default",
+		invalidAlpha: "❌ Please choose an opacity value between 0 and 1"
+	}
+};
+
+module.exports.run = async function ({ event, args, message, getLang, Threads, Users }) {
+	if (!args[0]) return message.SyntaxError();
+
+	const customRankCard = (await Threads.getData(event.threadID, "data.customRankCard")) || {};
+	const key = args[0].toLowerCase();
+	let value = args.slice(1).join(" ");
+
+	const supportImage = ["maincolor", "background", "bg", "subcolor", "expbarcolor", "progresscolor", "linecolor"];
+	const notSupportImage = ["textcolor", "namecolor", "expcolor", "rankcolor", "levelcolor", "lvcolor"];
+
+	if ([...notSupportImage, ...supportImage].includes(key)) {
+		const attachmentsReply = event.messageReply?.attachments;
+		const attachments = [
+			...event.attachments.filter(({ type }) => ["photo", "animated_image"].includes(type)),
+			...attachmentsReply?.filter(({ type }) => ["photo", "animated_image"].includes(type)) || []
+		];
+		
+		if (value === 'reset') {
+			// Handle reset case
+		}
+		else if (value.match(/^https?:\/\//)) {
+			const matchUrl = value.match(checkUrlRegex);
+			if (!matchUrl) return message.reply(getLang("invalidImage"));
+			const infoFile = await uploadImgbb(matchUrl[0], 'url');
+			value = infoFile.image.url;
+		}
+		else if (attachments.length > 0) {
+			if (!["photo", "animated_image"].includes(attachments[0].type))
+				return message.reply(getLang("invalidAttachment"));
+			const url = attachments[0].url;
+			const infoFile = await uploadImgbb(url, 'url');
+			value = infoFile.image.url;
+		}
+		else {
+			const colors = value.match(regExColor);
+			if (!colors) return message.reply(getLang("invalidColor"));
+			value = colors.length === 1 ? colors[0] : colors;
+		}
+
+		if (value !== "reset" && notSupportImage.includes(key) && value.startsWith?.("http"))
+			return message.reply(getLang("notSupportImage", key));
+
+		switch (key) {
+			case "maincolor":
+			case "background":
+			case "bg":
+				value === "reset" ? delete customRankCard.main_color : customRankCard.main_color = value;
+				break;
+			case "subcolor":
+				value === "reset" ? delete customRankCard.sub_color : customRankCard.sub_color = value;
+				break;
+			case "linecolor":
+				value === "reset" ? delete customRankCard.line_color : customRankCard.line_color = value;
+				break;
+			case "progresscolor":
+				value === "reset" ? delete customRankCard.exp_color : customRankCard.exp_color = value;
+				break;
+			case "expbarcolor":
+				value === "reset" ? delete customRankCard.expNextLevel_color : customRankCard.expNextLevel_color = value;
+				break;
+			case "textcolor":
+				value === "reset" ? delete customRankCard.text_color : customRankCard.text_color = value;
+				break;
+			case "namecolor":
+				value === "reset" ? delete customRankCard.name_color : customRankCard.name_color = value;
+				break;
+			case "rankcolor":
+				value === "reset" ? delete customRankCard.rank_color : customRankCard.rank_color = value;
+				break;
+			case "levelcolor":
+			case "lvcolor":
+				value === "reset" ? delete customRankCard.level_color : customRankCard.level_color = value;
+				break;
+			case "expcolor":
+				value === "reset" ? delete customRankCard.exp_text_color : customRankCard.exp_text_color = value;
+				break;
+		}
+		
+		try {
+			await Threads.setData(event.threadID, { customRankCard }, "data");
+			
+			// Generate preview with canvas
+			const userData = await Users.getData(event.senderID);
+			const rankCardPreview = await generateRankCardPreview(userData, customRankCard);
+			
+			message.reply({
+				body: getLang("success"),
+				attachment: rankCardPreview
+			});
+		}
+		catch (err) {
+			message.reply("❌ An error occurred: " + err.message);
+		}
+	}
+	else if (["alphasubcolor", "alphasubcard"].includes(key)) {
+		const alphaValue = parseFloat(value);
+		if (isNaN(alphaValue) || alphaValue < 0 || alphaValue > 1)
+			return message.reply(getLang("invalidAlpha"));
+		customRankCard.alpha_subcard = alphaValue;
+		
+		try {
+			await Threads.setData(event.threadID, { customRankCard }, "data");
+			
+			// Generate preview with canvas
+			const userData = await Users.getData(event.senderID);
+			const rankCardPreview = await generateRankCardPreview(userData, customRankCard);
+			
+			message.reply({
+				body: getLang("success"),
+				attachment: rankCardPreview
+			});
+		}
+		catch (err) {
+			message.reply("❌ An error occurred: " + err.message);
+		}
+	}
+	else if (key === "reset") {
+		try {
+			await Threads.setData(event.threadID, { customRankCard: {} }, "data");
+			message.reply(getLang("reseted"));
+		}
+		catch (err) {
+			message.reply("❌ An error occurred: " + err.message);
+		}
+	}
+	else {
+		message.SyntaxError();
+	}
+};
+
+// Function to generate rank card preview using canvas
+async function generateRankCardPreview(userData, customRankCard) {
+	const canvas = createCanvas(800, 300);
+	const ctx = canvas.getContext('2d');
+	
+	// Background - main color
+	if (customRankCard.main_color) {
+		if (Array.isArray(customRankCard.main_color)) {
+			// Gradient background
+			const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+			customRankCard.main_color.forEach((color, i) => {
+				gradient.addColorStop(i / (customRankCard.main_color.length - 1), color);
+			});
+			ctx.fillStyle = gradient;
+		} else if (customRankCard.main_color.startsWith('http')) {
+			// Image background
+			try {
+				const img = await loadImage(customRankCard.main_color);
+				ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+			} catch (e) {
+				ctx.fillStyle = '#36393f';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+			}
+		} else {
+			// Solid color background
+			ctx.fillStyle = customRankCard.main_color;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		}
+	} else {
+		ctx.fillStyle = '#36393f';
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	}
+	
+	// Sub background with alpha
+	const alpha = customRankCard.alpha_subcard || 0.5;
+	ctx.fillStyle = customRankCard.sub_color ? adjustAlpha(customRankCard.sub_color, alpha) : `rgba(0, 0, 0, ${alpha})`;
+	ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+	
+	// Line color
+	if (customRankCard.line_color) {
+		ctx.strokeStyle = customRankCard.line_color;
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		ctx.moveTo(20, 60);
+		ctx.lineTo(canvas.width - 20, 60);
+		ctx.stroke();
+	}
+	
+	// User name
+	ctx.fillStyle = customRankCard.name_color || '#ffffff';
+	ctx.font = 'bold 28px Arial';
+	ctx.fillText(userData.name || 'User', 150, 80);
+	
+	// Level and rank
+	ctx.fillStyle = customRankCard.level_color || '#f1c40f';
+	ctx.font = '20px Arial';
+	ctx.fillText('Level: 25', 150, 120);
+	
+	ctx.fillStyle = customRankCard.rank_color || '#e74c3c';
+	ctx.fillText('Rank: #15', 300, 120);
+	
+	// Experience bar background
+	ctx.fillStyle = customRankCard.expNextLevel_color || '#2c3e50';
+	ctx.fillRect(150, 160, 500, 20);
+	
+	// Experience progress
+	ctx.fillStyle = customRankCard.exp_color || '#3498db';
+	ctx.fillRect(150, 160, 350, 20); // 70% filled
+	
+	// Experience text
+	ctx.fillStyle = customRankCard.exp_text_color || '#ecf0f1';
+	ctx.font = '16px Arial';
+	ctx.fillText('3500/5000 XP', 150, 200);
+	
+	// Avatar placeholder
+	ctx.beginPath();
+	ctx.arc(80, 150, 60, 0, Math.PI * 2);
+	ctx.closePath();
+	ctx.clip();
+	ctx.fillStyle = '#7f8c8d';
+	ctx.fillRect(20, 90, 120, 120);
+	
+	return canvas.toBuffer();
+}
+
+// Helper function to adjust alpha for colors
+function adjustAlpha(color, alpha) {
+	if (color.startsWith('#')) {
+		// Hex color
+		const r = parseInt(color.slice(1, 3), 16);
+		const g = parseInt(color.slice(3, 5), 16);
+		const b = parseInt(color.slice(5, 7), 16);
+		return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+	} else if (color.startsWith('rgb')) {
+		// RGB or RGBA
+		const match = color.match(/(\d+),\s*(\d+),\s*(\d+)(,\s*[\d.]+)?/);
+		if (match) {
+			return `rgba(${match[1]}, ${match[2]}, ${match[3]}, ${alpha})`;
+		}
+	}
+	return color;
+}
