@@ -3,9 +3,9 @@ module.exports.config = {
     version: "2.0.0",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑺𝒉𝒐𝒘 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚",
-    commandCategory: "𝑳𝒐𝒗𝒆",
-    usages: "[𝒕𝒂𝒈]",
+    description: "💑 𝑺𝒉𝒐𝒘 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚",
+    commandCategory: "𝗟𝗢𝗩𝗘",
+    usages: "[@tag]",
     cooldowns: 5,
     dependencies: {
         "axios": "",
@@ -15,7 +15,7 @@ module.exports.config = {
     }
 };
 
-module.exports.onLoad = async() => {
+module.exports.onLoad = async ({ configValue }) => {
     const { resolve } = global.nodemodule["path"];
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
     const { downloadFile } = global.utils;
@@ -63,20 +63,20 @@ async function circle(image) {
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.run = async function({ api, event, args, Users, Threads, Currencies, permssion }) {
     const fs = global.nodemodule["fs-extra"];
     const { threadID, messageID, senderID } = event;
-    var mention = Object.keys(event.mentions)[0];
     
-    if (!mention) 
-        return api.sendMessage("𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒂𝒈 𝒂 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒔𝒆𝒆 𝒚𝒐𝒖𝒓 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚 💖", threadID, messageID);
+    if (!args[0]) 
+        return api.sendMessage("💝 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐚𝐠 𝐚 𝐮𝐬𝐞𝐫 𝐭𝐨 𝐬𝐞𝐞 𝐥𝐨𝐯𝐞 𝐜𝐨𝐦𝐩𝐚𝐭𝐢𝐛𝐢𝐥𝐢𝐭𝐲!", threadID, messageID);
     
-    let tag = event.mentions[mention].replace("@", "");
+    const mention = Object.keys(event.mentions)[0];
+    const tag = event.mentions[mention].replace("@", "");
     let one = senderID, two = mention;
     
     return makeImage({ one, two }).then(path => 
         api.sendMessage({ 
-            body: `💑 𝑳𝒐𝒗𝒆 𝑪𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚 𝒃𝒆𝒕𝒘𝒆𝒆𝒏 𝒚𝒐𝒖 𝒂𝒏𝒅 ${tag}`,
+            body: `💑 𝐋𝐨𝐯𝐞 𝐂𝐨𝐦𝐩𝐚𝐭𝐢𝐛𝐢𝐥𝐢𝐭𝐲 𝐁𝐞𝐭𝐰𝐞𝐞𝐧 𝐘𝐨𝐮 𝐀𝐧𝐝 ${tag}\n❣️ 𝗠𝗮𝘆 𝘆𝗼𝘂𝗿 𝗹𝗼𝘃𝗲 𝘀𝘁𝗼𝗿𝘆 𝗯𝗲 𝗳𝗼𝗿𝗲𝘃𝗲𝗿 ❣️`,
             mentions: [{
                 tag: tag,
                 id: mention
