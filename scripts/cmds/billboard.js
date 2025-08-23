@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🌟 𝑩𝒊𝒍𝒃𝒐𝒓𝒅𝒆 𝒕𝒆𝒙𝒕 𝒄𝒓𝒆𝒂𝒕𝒐𝒓 ( ͡° ͜ʖ ͡°)",
-    commandCategory: "edit-img",
+    category: "edit-img",
     usages: "[text]",
     cooldowns: 5,
     dependencies: {
