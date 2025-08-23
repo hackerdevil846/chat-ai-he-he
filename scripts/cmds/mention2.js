@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "⚡️ Bot admin mention detection & auto-response system",
-  commandCategory: "system",
+  category: "system",
   usages: "",
   cooldowns: 1,
   envConfig: {}
