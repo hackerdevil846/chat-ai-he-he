@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Get random jokes from official API",
-	commandCategory: "fun",
+	category: "fun",
 	usages: "",
 	cooldowns: 5,
 	dependencies: {
