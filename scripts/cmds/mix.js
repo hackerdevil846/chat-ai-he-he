@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "✨ Combine two emojis into a single image",
-  commandCategory: "image",
+  category: "image",
   usages: "[emoji1] [emoji2]",
   cooldowns: 5,
   dependencies: {
