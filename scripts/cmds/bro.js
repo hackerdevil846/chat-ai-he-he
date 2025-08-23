@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒕𝒉𝒆𝒌𝒆 𝑱𝒖𝒕𝒊 𝑷𝒂𝒘𝒂 👬",
-	commandCategory: "image-edit",
+	category: "image-edit",
 	usages: "[@mention]",
 	cooldowns: 5,
 	dependencies: {
