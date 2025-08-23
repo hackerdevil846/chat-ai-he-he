@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Generate a Google search bar image with your text ✨",
-    commandCategory: "edit-img",
+    category: "edit-img",
     usages: "googlebar [text]",
     cooldowns: 10,
     dependencies: {
