@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝒂𝒏𝒊𝒎𝒆 𝒎𝒆𝒚𝒆𝒅𝒆𝒓 𝒆𝒓 𝒏𝒖𝒅𝒆 𝒄𝒉𝒐𝒃𝒊",
-  commandCategory: "𝒏𝒔𝒇𝒘",
+  category: "𝒏𝒔𝒇𝒘",
   usages: "nudegirl",
   cooldowns: 3,
   dependencies: {
