@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Get stylish osu! player information with canvas",
-	commandCategory: "𝑔𝑎𝑚𝑒",
+	category: "𝑔𝑎𝑚𝑒",
 	usages: "[𝒖𝒔𝒆𝒓𝒏𝒂𝒎𝒆]",
 	cooldowns: 10,
 	dependencies: {
