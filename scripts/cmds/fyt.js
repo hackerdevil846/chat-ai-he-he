@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑪𝒉𝒂𝒕𝒃𝒐𝒙𝒆 𝑾𝒂𝒓 - Fun interactive fight simulation with emojis and humor 🥊",
-    commandCategory: "war-group",
+    category: "war-group",
     usages: "[@mention]",
     cooldowns: 15,
     dependencies: {
