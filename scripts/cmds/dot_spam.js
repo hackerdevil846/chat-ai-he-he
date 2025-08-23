@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💫 War In Chatbox Animation",
-    commandCategory: "wargroup",
+    category: "wargroup",
     usages: "[mention]",
     cooldowns: 7,
     dependencies: {
