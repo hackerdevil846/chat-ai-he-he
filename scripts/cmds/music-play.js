@@ -12,7 +12,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🎶 𝙆𝙚𝙮𝙬𝙤𝙧𝙙 𝙙𝙞𝙮𝙚 𝙗𝙖 𝙡𝙞𝙣𝙠 𝙩𝙝𝙚𝙠𝙚 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙜𝙖𝙖𝙣 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙠𝙤𝙧𝙪𝙣 🎧",
-    commandCategory: "Media",
+    category: "Media",
     usages: "[song_name_or_link] [audio/video]",
     cooldowns: 5,
     dependencies: {
