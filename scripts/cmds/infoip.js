@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Get detailed information about any IP address",
-	commandCategory: "tools",
+	category: "tools",
 	usages: "[ip-address]",
 	cooldowns: 5,
 	dependencies: {
