@@ -17,6 +17,25 @@ module.exports.config = {
 	}
 };
 
+module.exports.languages = {
+	"en": {
+		"downloading": "📥 | Downloading Islamic content, please wait...",
+		"error": "❌ | Could not retrieve Islamic content. Please try again later.",
+		"message": "✨ السلام عليكم ورحمة الله وبركاته ✨\n\n📿 Here is an Islamic video for reflection and inspiration:\n\n🌙 May Allah bless you and guide us all to the right path 🕋"
+	}
+};
+
+// minimal onStart to avoid loader errors
+module.exports.onStart = function () {
+	// no-op (keeps loaders that expect onStart happy)
+};
+
+module.exports.onLoad = function () {
+	// ensure cache directory exists when the module loads (optional)
+	const cacheDir = path.join(__dirname, 'cache');
+	if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+};
+
 module.exports.run = async function ({ api, event }) {
 	const videoLinks = [
 		"https://drive.usercontent.google.com/download?id=1Y5O3qRzxt-MFR4vVhz0QsMwHQmr-34iH",
@@ -31,21 +50,20 @@ module.exports.run = async function ({ api, event }) {
 		"https://drive.usercontent.google.com/download?id=1YhfyPl8oGmsIAIOjWQyzQYkDdZUPSalo"
 	];
 
+	const cacheDir = path.join(__dirname, 'cache');
+	if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+
+	const randomVideo = videoLinks[Math.floor(Math.random() * videoLinks.length)];
+	const videoPath = path.join(cacheDir, `islamic_${Date.now()}.mp4`);
+
 	try {
-		const cacheDir = path.join(__dirname, 'cache');
-		if (!fs.existsSync(cacheDir)) {
-			fs.mkdirSync(cacheDir, { recursive: true });
-		}
-
-		const randomVideo = videoLinks[Math.floor(Math.random() * videoLinks.length)];
-		const videoPath = path.join(cacheDir, `islamic_${Date.now()}.mp4`);
-
-		api.sendMessage("📥 | Downloading Islamic content, please wait...", event.threadID, event.messageID);
+		api.sendMessage(module.exports.languages.en.downloading, event.threadID, event.messageID);
 
 		const response = await axios({
 			method: 'GET',
 			url: randomVideo,
-			responseType: 'stream'
+			responseType: 'stream',
+			timeout: 120000
 		});
 
 		const writer = fs.createWriteStream(videoPath);
@@ -57,12 +75,18 @@ module.exports.run = async function ({ api, event }) {
 		});
 
 		api.sendMessage({
-			body: `✨ السلام عليكم ورحمة الله وبركاته ✨\n\n📿 Here is an Islamic video for reflection and inspiration:\n\n🌙 May Allah bless you and guide us all to the right path 🕋`,
+			body: module.exports.languages.en.message,
 			attachment: fs.createReadStream(videoPath)
-		}, event.threadID, () => fs.unlinkSync(videoPath), event.messageID);
+		}, event.threadID, (err) => {
+			// cleanup file after sending (ignore errors)
+			try { if (fs.existsSync(videoPath)) fs.unlinkSync(videoPath); } catch (e) {}
+			if (err) console.error("Send message error:", err);
+		}, event.messageID);
 
 	} catch (error) {
-		console.error("Error:", error);
-		api.sendMessage("❌ | Could not retrieve Islamic content. Please try again later.", event.threadID, event.messageID);
+		console.error("Error in islamicvideo:", error);
+		// Attempt to remove partial file if exists
+		try { if (fs.existsSync(videoPath)) fs.unlinkSync(videoPath); } catch (e) {}
+		api.sendMessage(module.exports.languages.en.error, event.threadID, event.messageID);
 	}
 };
