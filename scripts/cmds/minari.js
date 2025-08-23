@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑨𝑰 𝑴𝒊𝒏𝒂𝒓𝒊 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒌𝒂𝒕𝒉𝒂 𝒃𝒐𝒍𝒖𝒏 🌸",
-	commandCategory: "AI-Chatbot",
+	category: "AI-Chatbot",
 	usages: "[on|off|status] or [your message]",
 	cooldowns: 5,
 	dependencies: {
