@@ -2,56 +2,62 @@ module.exports.config = {
   name: "bestu",
   version: "7.3.1",
   hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑩𝒆𝒔𝒕𝒖 𝑷𝒂𝒊𝒓 𝑩𝒂𝒏𝒂𝒏𝒐𝒓 𝒋𝒐𝒏𝒏𝒐 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒆𝒏",
-  commandCategory: "𝒑𝒏𝒈",
-  usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
-  cooldowns: 5, 
+  commandCategory: "image",
+  usages: "[@mention]",
+  cooldowns: 5,
   dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "path": "",
-      "jimp": ""
+    "axios": "",
+    "fs-extra": "",
+    "path": "",
+    "jimp": ""
   }
 };
 
-module.exports.onLoad = async() => {
+module.exports.onLoad = async () => {
   const { resolve } = global.nodemodule["path"];
   const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
   const { downloadFile } = global.utils;
   const dirMaterial = __dirname + `/cache/canvas/`;
-  const path = resolve(__dirname, 'cache/canvas', 'bestu.png');
-  if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-  if (!existsSync(path)) await downloadFile("https://i.imgur.com/RloX16v.jpg", path); 
-}
+  const pathFile = resolve(__dirname, 'cache/canvas', 'bestu.png');
+  if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+  if (!existsSync(pathFile)) await downloadFile("https://i.imgur.com/RloX16v.jpg", pathFile);
+};
 
 async function makeImage({ one, two }) {
   const fs = global.nodemodule["fs-extra"];
   const path = global.nodemodule["path"];
-  const axios = global.nodemodule["axios"]; 
+  const axios = global.nodemodule["axios"];
   const jimp = global.nodemodule["jimp"];
   const __root = path.resolve(__dirname, "cache", "canvas");
 
-  let batgiam_img = await jimp.read(__root + "/bestu.png");
-  let pathImg = __root + `/batman${one}_${two}.png`;
-  let avatarOne = __root + `/avt_${one}.png`;
-  let avatarTwo = __root + `/avt_${two}.png`;
+  const baseImage = await jimp.read(__root + "/bestu.png");
+  const pathImg = __root + `/bestu_${one}_${two}.png`;
+  const avatarOnePath = __root + `/avt_${one}.png`;
+  const avatarTwoPath = __root + `/avt_${two}.png`;
 
-  let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
+  // Download avatars
+  const getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+  fs.writeFileSync(avatarOnePath, Buffer.from(getAvatarOne, 'utf-8'));
 
-  let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-  fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
+  const getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+  fs.writeFileSync(avatarTwoPath, Buffer.from(getAvatarTwo, 'utf-8'));
 
-  let circleOne = await jimp.read(await circle(avatarOne));
-  let circleTwo = await jimp.read(await circle(avatarTwo));
-  batgiam_img.composite(circleOne.resize(191, 191), 93, 111).composite(circleTwo.resize(190, 190), 434, 107);
+  // Create circular avatars
+  const circleOne = await jimp.read(await circle(avatarOnePath));
+  const circleTwo = await jimp.read(await circle(avatarTwoPath));
 
-  let raw = await batgiam_img.getBufferAsync("image/png");
+  // Composite avatars on base image
+  baseImage.composite(circleOne.resize(191, 191), 93, 111).composite(circleTwo.resize(190, 190), 434, 107);
 
-  fs.writeFileSync(pathImg, raw);
-  fs.unlinkSync(avatarOne);
-  fs.unlinkSync(avatarTwo);
+  // Save final image
+  const buffer = await baseImage.getBufferAsync("image/png");
+  fs.writeFileSync(pathImg, buffer);
+
+  // Cleanup
+  fs.unlinkSync(avatarOnePath);
+  fs.unlinkSync(avatarTwoPath);
 
   return pathImg;
 }
@@ -65,29 +71,29 @@ async function circle(image) {
 
 function toMathBoldItalic(text) {
   const map = {
-    'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱',
-    'K': '𝑲', 'L': '𝑳', 'M': '𝑴', 'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻',
-    'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿', 'Y': '𝒀', 'Z': '𝒁',
-    'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋',
-    'k': '𝒌', 'l': '𝒍', 'm': '𝒎', 'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕',
-    'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚', 'z': '𝒛'
+    'A':'𝑨','B':'𝑩','C':'𝑪','D':'𝑫','E':'𝑬','F':'𝑭','G':'𝑮','H':'𝑯','I':'𝑰','J':'𝑱',
+    'K':'𝑲','L':'𝑳','M':'𝑴','N':'𝑵','O':'𝑶','P':'𝑷','Q':'𝑸','R':'𝑹','S':'𝑺','T':'𝑻',
+    'U':'𝑼','V':'𝑽','W':'𝑾','X':'𝑿','Y':'𝒀','Z':'𝒁',
+    'a':'𝒂','b':'𝒃','c':'𝒄','d':'𝒅','e':'𝒆','f':'𝒇','g':'𝒈','h':'𝒉','i':'𝒊','j':'𝒋',
+    'k':'𝒌','l':'𝒍','m':'𝒎','n':'𝒏','o':'𝒐','p':'𝒑','q':'𝒒','r':'𝒓','s':'𝒔','t':'𝒕',
+    'u':'𝒖','v':'𝒗','w':'𝒘','x':'𝒙','y':'𝒚','z':'𝒛'
   };
   return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function ({ event, api, args }) {    
+module.exports.run = async function ({ api, event, args }) {
   const fs = global.nodemodule["fs-extra"];
   const { threadID, messageID, senderID } = event;
   const mention = Object.keys(event.mentions);
-  
+
   if (!mention[0]) {
     const msg = toMathBoldItalic("𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒋𝒐𝒏𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏 😅");
     return api.sendMessage(msg, threadID, messageID);
   }
-  else {
-      const one = senderID, two = mention[0];
-      return makeImage({ one, two }).then(path => {
-          const bodyMsg = toMathBoldItalic(`✧•❁𝑩𝒂𝒏𝒅𝒉𝒖𝒕𝒕𝒐❁•✧
+
+  const one = senderID, two = mention[0];
+  return makeImage({ one, two }).then(path => {
+    const bodyMsg = toMathBoldItalic(`✧•❁𝑩𝒂𝒏𝒅𝒉𝒖𝒕𝒕𝒐❁•✧
 
 ╔═══❖••° °••❖═══╗
 
@@ -102,10 +108,9 @@ module.exports.run = async function ({ event, api, args }) {
 𝑻𝒐𝒎𝒂𝒓 𝑩𝒆𝒔𝒕𝒖 🩷
 
    ✶⊶⊷⊷❍⊶⊷⊷✶`);
-          api.sendMessage({
-              body: bodyMsg,
-              attachment: fs.createReadStream(path)
-          }, threadID, () => fs.unlinkSync(path), messageID);
-      });
-  }
-}
+    api.sendMessage({
+      body: bodyMsg,
+      attachment: fs.createReadStream(path)
+    }, threadID, () => fs.unlinkSync(path), messageID);
+  });
+};
