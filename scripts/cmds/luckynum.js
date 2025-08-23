@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🎲 Generate your lucky number with beautiful formatting",
-	commandCategory: "game",
+	category: "game",
 	usages: "[min] [max]",
 	cooldowns: 5,
 	envConfig: {
