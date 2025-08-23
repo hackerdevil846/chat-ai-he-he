@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🔄 𝐒𝐨𝐛 𝐠𝐫𝐮𝐩 𝐭𝐡𝐞𝐤𝐞 𝐁𝐨𝐭 𝐤𝐞 𝐛𝐚𝐡𝐢𝐫 𝐧𝐢𝐲𝐞 𝐣𝐚𝐨𝐚",
-  commandCategory: "🛠️ 𝐀𝐝𝐦𝐢𝐧",
+  category: "🛠️ 𝐀𝐝𝐦𝐢𝐧",
   usages: "outall",
   cooldowns: 5,
   info: [
