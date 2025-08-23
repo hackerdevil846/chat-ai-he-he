@@ -1,4 +1,4 @@
-const fs = global.nodemodule["fs-extra"];
+const fs = require("fs-extra");
 const moment = require("moment-timezone");
 
 module.exports.config = {
@@ -6,8 +6,8 @@ module.exports.config = {
     version: "1.0.2",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🎵 𝗠𝘂𝘀𝗶𝗰 𝗕𝗼𝘁 𝗔𝘂𝘁𝗼-𝗥𝗲𝘀𝗽𝗼𝗻𝗱 𝗦𝘆𝘀𝘁𝗲𝗺",
-    commandCategory: "𝗦𝘆𝘀𝘁𝗲𝗺",
+    description: "🎵 Music Bot Auto-Respond System",
+    category: "system",
     usages: "[]",
     cooldowns: 3,
     dependencies: {
@@ -21,64 +21,70 @@ module.exports.config = {
 
 module.exports.languages = {
     "en": {
-        "welcome": "🎵 𝗠𝘂𝘀𝗶𝗰 𝗕𝗼𝘁 𝗔𝗰𝘁𝗶𝘃𝗮𝘁𝗲𝗱",
-        "response": "✨ 𝗔𝘂𝘁𝗼-𝗥𝗲𝘀𝗽𝗼𝗻𝗱𝗲𝗿 𝗔𝗰𝘁𝗶𝘃𝗲"
+        "welcome": "🎵 Music Bot Activated",
+        "response": "✨ Auto-Responder Active"
+    },
+    "bn": {
+        "welcome": "🎵 মিউজিক বট চালু হয়েছে",
+        "response": "✨ অটো-রেসপন্ডার সক্রিয় হয়েছে"
     }
 };
 
-module.exports.onLoad = function() {
-    console.log('\x1b[36m%s\x1b[0m', '🎵 𝗠𝘂𝘀𝗶𝗰 𝗕𝗼𝘁 𝗠𝗼𝗱𝘂𝗹𝗲 𝗟𝗼𝗮𝗱𝗲𝗱 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆');
+module.exports.onLoad = function () {
+    console.log('\x1b[36m%s\x1b[0m', '🎵 Music Bot Module Loaded Successfully');
 };
 
+// Utility function: Convert normal text to Mathematical Bold Italic
 function toMathBoldItalic(text) {
     const map = {
-        'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 
-        'K': '𝑲', 'L': '𝑳', 'M': '𝑴', 'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻', 
+        'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱',
+        'K': '𝑲', 'L': '𝑳', 'M': '𝑴', 'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻',
         'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿', 'Y': '𝒀', 'Z': '𝒁',
-        'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋', 
-        'k': '𝒌', 'l': '𝒍', 'm': '𝒎', 'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕', 
+        'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋',
+        'k': '𝒌', 'l': '𝒍', 'm': '𝒎', 'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕',
         'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚', 'z': '𝒛'
     };
     return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.handleEvent = async function({ api, event, Users }) {
+module.exports.handleEvent = async function ({ api, event, Users }) {
     try {
         const { threadID, messageID, senderID, body } = event;
-        const time = moment.tz("Asia/Dhaka").format("𝗗𝗗/𝗠𝗠/𝗬𝗬𝗬𝗬 ║ 𝗛𝗛:𝗺𝗺:𝘀𝘀");
-        
+        const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY ║ HH:mm:ss");
+
         if (body && body.toLowerCase().includes("song")) {
             const name = await Users.getNameUser(senderID);
+
             const tl = [
-                "🎶 𝗧𝘂𝗺𝗶 𝗮𝗺𝗮𝗿 𝗵𝗼𝘆𝗲 𝘁𝗵𝗮𝗸𝗼 𝗻𝗮, 𝗔𝗺𝗶 𝗧𝗼𝗺𝗮𝗸 𝗕𝗵𝗮𝗹𝗼𝗯𝗼 𝗕𝗼𝗹𝗯𝗼 𝗡𝗮 🌹",
-                "💔 𝗧𝘂𝗺𝗶 𝗝𝗲 𝗔𝗺𝗮𝗿 𝗛𝗼𝗯𝗲, 𝗧𝗮𝗵𝗼𝗹𝗲 𝗧𝗼𝗯𝗼 𝗦𝗼𝗯 𝗞𝗶𝗰𝗵𝘂 𝗗𝗶𝗻𝗲 𝗣𝗮𝗿𝗯𝗼 𝗡𝗮 🎵",
-                "🌟 𝗔𝗺𝗮𝗿 𝗣𝗿𝗮𝗻𝗲𝗿 𝗠𝗮𝗷𝗵𝗲 𝗧𝘂𝗺𝗶, 𝗧𝘂𝗺𝗶 𝗖𝗵𝗮𝗿𝗮 𝗞𝗼𝗻𝗼 𝗚𝗮𝗻 𝗡𝗲𝗶 🎤",
-                "🌠 𝗧𝘂𝗺𝗶 𝗔𝗺𝗮𝗿 𝗦𝗼𝗻𝗱𝗵𝗮𝗻, 𝗔𝗺𝗮𝗿 𝗦𝗼𝗯 𝗞𝗶𝗰𝗵𝘂, 𝗔𝗺𝗮𝗿 𝗦𝗵𝗲𝘀𝗵 𝗢𝗯𝗶𝗱𝗵𝗮𝗻 🎶",
-                "🌹 𝗧𝘂𝗺𝗶 𝗘𝗸𝗮 𝗕𝗮𝗿 𝗣𝗵𝗶𝗿𝗲 𝗔𝗦𝗼, 𝗔𝗺𝗶 𝗧𝗼𝗺𝗮𝗸 𝗡𝗶𝗷𝗲𝗿 𝗞𝗼𝗿𝗲 𝗡𝗲𝗯𝗼 💫",
-                "🎵 𝗔𝗺𝗮𝗿 𝗗𝗶𝗯𝗮 𝗥𝗮𝘁𝗶 𝗧𝘂𝗺𝗶, 𝗔𝗺𝗮𝗿 𝗦𝗼𝗯 𝗦𝗼𝗸𝗵𝗼 𝗧𝘂𝗺𝗶 🌙",
-                "✨ 𝗧𝘂𝗺𝗶 𝗝𝗮𝗸𝗵𝗼𝗻 𝗔𝗺𝗮𝗿 𝗞𝗮𝗰𝗵𝗲, 𝗧𝗮𝗸𝗵𝗼𝗻 𝗦𝗼𝗯 𝗞𝗶𝗰𝗵𝘂 𝗣𝗮𝗶 🌟",
-                "🎶 𝗔𝗺𝗮𝗿 𝗠𝗼𝗻𝗲𝗿 𝗞𝗼𝘁𝗵𝗮 𝗦𝘂𝗻𝗼, 𝗧𝘂𝗺𝗶 𝗖𝗵𝗮𝗿𝗮 𝗞𝗲𝘂 𝗡𝗲𝗶 💭",
-                "🌌 𝗧𝘂𝗺𝗶 𝗔𝗺𝗮𝗮𝗿 𝗛𝗼𝗶𝗲 𝗧𝗵𝗮𝗸𝗹𝗲, 𝗔𝗺𝗶 𝗕𝗲𝗹𝗲𝘁𝗲 𝗣𝗮𝗿𝗶 𝗡𝗶 💖",
-                "🎵 𝗔𝗺𝗮𝗿 𝗣𝗿𝗶𝘆𝗼 𝗛𝗼𝗯𝗼 𝗧𝘂𝗺𝗶, 𝗔𝗺𝗶 𝗦𝗼𝗯 𝗖𝗵𝗲𝘆𝗲 𝗣𝗿𝗶𝘆𝗼 🌟"
+                "🎶 Tumi amar hoye thako na, ami tomak bhalobashi bolbo na 🌹",
+                "💔 Tumi je amar hobe, tahole tobo sob kichu dine parbo na 🎵",
+                "🌟 Amar praner majhe tumi, tumi chara kono gan nei 🎤",
+                "🌠 Tumi amar sondhan, amar sob kichu, amar shesh obidhan 🎶",
+                "🌹 Tumi eka bar fire aso, ami tomake nijer kore nebo 💫",
+                "🎵 Amar diba rati tumi, amar sob sokho tumi 🌙",
+                "✨ Tumi jokhon amar kache, tokhon sob kichu pai 🌟",
+                "🎶 Amar moner kotha shuno, tumi chara keu nei 💭",
+                "🌌 Tumi amar hoye thakle, ami bechete pari ni 💖",
+                "🎵 Amar priyo hobo tumi, ami sob cheye priyo 🌟"
             ];
-            
+
             const rand = tl[Math.floor(Math.random() * tl.length)];
             const creditName = toMathBoldItalic("Asif") + " " + toMathBoldItalic("Mahmud");
 
             const msg = {
                 body: `╔═════ஜ۩۞۩ஜ═════╗
-🎵 𝗛𝗘𝗟𝗟𝗼 ${name} 💖
+🎵 Hello ${name} 💖
 ╚═════ஜ۩۞۩ஜ═════╝
 
 『 ${rand} 』
 
 ✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦
 
-𝗖𝗿𝗲𝗱𝗶𝘁𝘀 » ${creditName}
-𝗧𝗶𝗺𝗲 » ${time}
+📌 Credits » ${creditName}
+⏰ Time » ${time}
 ✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦`
             };
-            
+
             return api.sendMessage(msg, threadID, messageID);
         }
     } catch (error) {
@@ -86,6 +92,10 @@ module.exports.handleEvent = async function({ api, event, Users }) {
     }
 };
 
-module.exports.run = function({ api, event }) {
-    api.sendMessage("🎵 𝗠𝘂𝘀𝗶𝗰 𝗕𝗼𝘁 𝗜𝘀 𝗔𝗰𝘁𝗶𝘃𝗲\n\n𝗦𝗲𝗻𝗱 '𝘀𝗼𝗻𝗴' 𝘁𝗼 𝘁𝗿𝗶𝗴𝗴𝗲𝗿 𝗮𝘂𝘁𝗼-𝗿𝗲𝘀𝗽𝗼𝗻𝘀𝗲", event.threadID, event.messageID);
+module.exports.run = function ({ api, event }) {
+    api.sendMessage(
+        "🎵 Music Bot Is Active\n\n💬 Send 'song' to trigger auto-response",
+        event.threadID,
+        event.messageID
+    );
 };
