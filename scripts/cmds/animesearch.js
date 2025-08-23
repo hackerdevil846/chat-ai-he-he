@@ -1,11 +1,22 @@
 const https = require('https');
 
-async function fetchAnimeData() {
+module.exports.config = {
+  name: "animesearch",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Search anime info from AnimeDB API",
+  category: "media",
+  usages: "[search term]",
+  cooldowns: 5
+};
+
+async function fetchAnimeData(searchTerm = "Fullmetal") {
   const options = {
     method: 'GET',
     hostname: 'anime-db.p.rapidapi.com',
     port: 443,
-    path: '/anime?page=1&size=10&search=Fullmetal&genres=Fantasy%2CDrama&sortBy=ranking&sortOrder=asc',
+    path: `/anime?page=1&size=10&search=${encodeURIComponent(searchTerm)}&genres=Fantasy%2CDrama&sortBy=ranking&sortOrder=asc`,
     headers: {
       'x-rapidapi-key': '78186a3f74msh516a9d9dd0f051cp19fea6jsnac2a9d4351fb',
       'x-rapidapi-host': 'anime-db.p.rapidapi.com'
@@ -42,19 +53,38 @@ async function fetchAnimeData() {
   });
 }
 
-(async () => {
+module.exports.run = async function({ api, event, args }) {
+  const searchTerm = args.join(" ") || "Fullmetal";
+
   try {
-    const animeData = await fetchAnimeData();
+    const animeData = await fetchAnimeData(searchTerm);
 
     if (!animeData.data || !Array.isArray(animeData.data) || animeData.data.length === 0) {
-      console.log('No anime data found.');
-      return;
+      return api.sendMessage(`❌ No results found for: ${searchTerm}`, event.threadID, event.messageID);
     }
 
+    let resultMsg = `✨ Anime Search Results for: "${searchTerm}" ✨\n\n`;
+
     animeData.data.forEach((anime, index) => {
-      console.log(`${index + 1}. ${anime.name || 'Unknown name'}`);
+      resultMsg += `🔹 ${index + 1}. ${anime.title || anime.name || 'Unknown Title'}\n`;
+      if (anime.synopsis) {
+        resultMsg += `   📖 ${anime.synopsis.substring(0, 100)}...\n`;
+      }
+      if (anime.type) {
+        resultMsg += `   🎬 Type: ${anime.type}\n`;
+      }
+      if (anime.episodes) {
+        resultMsg += `   🎞 Episodes: ${anime.episodes}\n`;
+      }
+      if (anime.status) {
+        resultMsg += `   📌 Status: ${anime.status}\n`;
+      }
+      resultMsg += "\n";
     });
+
+    api.sendMessage(resultMsg, event.threadID, event.messageID);
+
   } catch (error) {
-    console.error('Error fetching data:', error.message);
+    api.sendMessage(`⚠️ Error fetching anime data: ${error.message}`, event.threadID, event.messageID);
   }
-})();
+};
