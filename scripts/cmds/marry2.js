@@ -11,7 +11,7 @@ module.exports.config = {
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "💍 Generate marriage proposal images",
   longDescription: "Tag your loved one to create beautiful marriage proposal images 💖",
-  commandCategory: "love",
+  category: "love",
   usages: "{pn} @mention",
   cooldowns: 5,
   dependencies: {
