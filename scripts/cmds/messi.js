@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,                      // 0 = all members
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",       // updated credits (Mathematical Bold Italic)
   description: "Send random Lionel Messi photos",
-  commandCategory: "random-img",
+  category: "random-img",
   usages: "{pn}",
   cooldowns: 5
 };
