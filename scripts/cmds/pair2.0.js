@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑬𝒕𝒂 𝒆𝒌𝒕𝒊 𝒋𝒐𝒅𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂 :>",
-  commandCategory: "𝒎𝒐𝒏𝒐𝒓𝒐𝒏𝒋𝒐𝒏",
+  category: "𝒎𝒐𝒏𝒐𝒓𝒐𝒏𝒋𝒐𝒏",
   usages: "",
   dependencies: {
     "axios": "",
