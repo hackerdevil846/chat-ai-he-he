@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🧹 𝐃𝐞𝐥𝐞𝐭𝐞 𝐚𝐥𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬 𝐨𝐫 𝐠𝐫𝐨𝐮𝐩 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬",
-	commandCategory: "🛡️ 𝐒𝐲𝐬𝐭𝐞𝐦",
+	category: "🛡️ 𝐒𝐲𝐬𝐭𝐞𝐦",
 	usages: "[thread/all]",
 	cooldowns: 0
 };
