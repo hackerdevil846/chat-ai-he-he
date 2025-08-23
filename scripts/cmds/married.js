@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💍 Biye korar image banay",
-    commandCategory: "edit-img",
+    category: "edit-img",
     usages: "[@mention]",
     cooldowns: 5,
     dependencies: {
