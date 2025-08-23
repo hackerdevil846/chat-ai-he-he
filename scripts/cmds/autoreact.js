@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermission: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑩𝒐𝒕 𝒂𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏",
-  commandCategory: "𝑵𝒐 𝑷𝒓𝒆𝒇𝒊𝒙",
+  category: "𝑵𝒐 𝑷𝒓𝒆𝒇𝒊𝒙",
   usages: '[]',
   cooldowns: 0,
 };
