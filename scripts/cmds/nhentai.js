@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑵𝑯𝒆𝒏𝒕𝒂𝒊 𝒆 𝒈𝒂𝒍𝒑𝒐 𝒆𝒓 𝒊𝒏𝒇𝒐 𝒌𝒉𝒖𝒏𝒋𝒖𝒏",
-    commandCategory: "𝒏𝒔𝒇𝒘",
+    category: "𝒏𝒔𝒇𝒘",
     usages: "[𝑰𝑫]",
     cooldowns: 10,
     dependencies: {
