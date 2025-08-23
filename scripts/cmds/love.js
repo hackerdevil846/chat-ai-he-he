@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑷𝒓𝒆𝒎 𝒆𝒓 𝒊𝒎𝒂𝒈𝒆 𝒃𝒂𝒏𝒂𝒐",
-    commandCategory: "𝑳𝒐𝒗𝒆",
+    category: "𝑳𝒐𝒗𝒆",
     usages: "[𝒕𝒂𝒈]",
     cooldowns: 5,
     dependencies: {
