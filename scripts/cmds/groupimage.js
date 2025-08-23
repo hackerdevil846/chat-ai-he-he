@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Change group image by replying to an image",
-	commandCategory: "group",
+	category: "group",
 	usages: "[reply to image]",
 	cooldowns: 5,
 	dependencies: {
