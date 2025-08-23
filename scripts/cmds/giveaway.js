@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🎉 Advanced giveaway management system",
-	commandCategory: "economy",
+	category: "economy",
 	usages: "[create/details/join/roll/end] [IDGiveAway]",
 	cooldowns: 5,
 	envConfig: {
