@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑫𝒂𝒓𝒖 𝒑𝒊𝒕𝒆 𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒃𝒉𝒂𝒍𝒐𝒃𝒂𝒔𝒉𝒂 💖",
-	commandCategory: "noprefix",
+	category: "noprefix",
 	usages: "daru",
 	cooldowns: 3,
 	envConfig: {
