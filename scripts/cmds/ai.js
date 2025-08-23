@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑴𝒊𝒔𝒂 𝑨𝑰 - 𝑨𝒌𝒂𝒓𝒔𝒉𝒐𝒏𝒊𝒚𝒐 𝒃𝒂𝒏𝒈𝒂𝒍𝒊 𝒈𝒊𝒓𝒍𝒇𝒓𝒊𝒆𝒏𝒅 𝒔𝒂𝒎𝒊𝒌𝒔𝒉𝒂𝒌𝒂𝒓𝒊",
-    commandCategory: "ai",
+    category: "ai",
     usages: "[on/off/ask]",
     cooldowns: 2,
     dependencies: {
