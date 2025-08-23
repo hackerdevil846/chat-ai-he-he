@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Get sexy pictures 🥵",
-	commandCategory: "adult",
+	category: "adult",
 	usages: "sex",
 	cooldowns: 5,
 	dependencies: {
