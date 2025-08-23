@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑺𝒊𝒌𝒌𝒉𝒂𝒏 𝒌𝒂𝒋 — calculator, integrals, graphs, vectors",
-	commandCategory: "𝑺𝒊𝒌𝒌𝒉𝒂",
+	category: "𝑺𝒊𝒌𝒌𝒉𝒂",
 	usages: "math 1 + 2\nmath -p xdx\nmath -p xdx from 0 to 2\nmath -g y = x^3 - 9\nmath -v (1,2,3) - (5,6,7)",
 	cooldowns: 5,
 	dependencies: {
