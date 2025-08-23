@@ -5,7 +5,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "⚽ Send random high-quality Neymar Jr. photos with automatic error recovery",
-  commandCategory: "football",
+  category: "football",
   usages: "",
   cooldowns: 5,
   dependencies: {
