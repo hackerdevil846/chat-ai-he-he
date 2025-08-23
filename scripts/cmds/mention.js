@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🦋 𝑴𝒂𝒍𝒊𝒌 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒍𝒆 𝒃𝒐𝒕 𝒂𝒖𝒕𝒐 𝒓𝒆𝒑𝒍𝒚 𝒅𝒊𝒃𝒆 🌺",
-  commandCategory: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎",
+  category: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎",
   usages: "",
   cooldowns: 1,
   envConfig: {
