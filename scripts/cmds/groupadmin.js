@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑮𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏𝒊𝒔𝒕𝒓𝒂𝒕𝒐𝒓𝒔 𝒍𝒊𝒔𝒕",
-    commandCategory: "group",
+    category: "group",
     usages: "[dsqtv]",
     cooldowns: 5,
     dependencies: {}
