@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "💖 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂 𝒍𝒐𝒗𝒆 𝒑𝒂𝒊𝒓 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒄𝒓𝒖𝒔𝒉",
-  commandCategory: "💝 𝑳𝒐𝒗𝒆",
+  category: "💝 𝑳𝒐𝒗𝒆",
   usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
   cooldowns: 5,
   dependencies: {
