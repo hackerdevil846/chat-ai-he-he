@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🌸 𝑲𝒂𝒏𝒏𝒂 𝒄𝒉𝒂𝒏 𝒆𝒓 𝒊𝒎𝒂𝒈𝒆 𝒅𝒆𝒌𝒉𝒖𝒏",
-    commandCategory: "🎀 𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝒎𝒂𝒈𝒆𝒔",
+    category: "🎀 𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝒎𝒂𝒈𝒆𝒔",
     usages: "kanna",
     cooldowns: 5,
     dependencies: {
