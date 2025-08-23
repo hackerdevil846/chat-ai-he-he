@@ -1,41 +1,53 @@
+const axios = require("axios");
+
 module.exports.config = {
-	name: "baybayin",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝒄𝒐𝒏𝒗𝒆𝒓𝒕 𝒕𝒆𝒙𝒕 𝒕𝒐 𝑩𝒂𝒚𝒃𝒂𝒚𝒊𝒏 𝒔𝒄𝒓𝒊𝒑𝒕",
-	commandCategory: "𝒑𝒉𝒐𝒏𝒆𝒕𝒊𝒄-𝒄𝒐𝒏𝒗𝒆𝒓𝒔𝒊𝒐𝒏",
-	usages: "baybayin [𝒕𝒆𝒙𝒕]",
-	cooldowns: 5
+    name: "baybayin",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "Convert text to Baybayin script",
+    commandCategory: "phontetic-conversion",
+    usages: "baybayin [text]",
+    cooldowns: 5,
+    dependencies: {
+        "axios": ""
+    }
 };
 
-module.exports.run = async ({ api, event, args }) => {
-	const axios = global.nodemodule["axios"];
-	
-	if (!args[0]) {
-		return api.sendMessage(`🌺 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒕𝒆𝒙𝒕 𝒕𝒐 𝒄𝒐𝒏𝒗𝒆𝒓𝒕 𝒕𝒐 𝑩𝒂𝒚𝒃𝒂𝒚𝒊𝒏 𝒔𝒄𝒓𝒊𝒑𝒕!\n💡 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒃𝒂𝒚𝒃𝒂𝒚𝒊𝒏 𝒌𝒂𝒎𝒖𝒔𝒕𝒂`, event.threadID);
-	}
-	
-	const text = args.join(" ");
-	
-	try {
-		const res = await axios.get(`https://api-baybayin-transliterator.vercel.app/?text=${encodeURIComponent(text)}`);
-		const baybayinText = res.data.baybay;
-		
-		const formattedResult = `🪷 𝗕𝗮𝘆𝗯𝗮𝘆𝗶𝗻 𝗖𝗼𝗻𝘃𝗲𝗿𝘀𝗶𝗼𝗻 🪷
-		
-✨ 𝗢𝗿𝗶𝗴𝗶𝗻𝗮𝗹: 
+module.exports.languages = {
+    "en": {
+        "noText": "🌺 Please enter text to convert to Baybayin script!\n💡 Example: baybayin kamusta",
+        "error": "❌ Error converting \"{text}\" to Baybayin. Please try again later."
+    }
+};
+
+module.exports.run = async function({ api, event, args }) {
+    try {
+        if (!args[0]) {
+            return api.sendMessage(module.exports.languages.en.noText, event.threadID, event.messageID);
+        }
+
+        const text = args.join(" ");
+        const response = await axios.get(`https://api-baybayin-transliterator.vercel.app/?text=${encodeURIComponent(text)}`);
+        const baybayinText = response.data.baybay;
+
+        const formattedMessage = `
+🪷 𝗕𝗮𝘆𝗯𝗮𝘆𝗶𝗻 𝗖𝗼𝗻𝘃𝗲𝗿𝘀𝗶𝗼𝗻 🪷
+
+✨ 𝗢𝗿𝗶𝗴𝗶𝗻𝗮𝗹:
 "${text}"
 
 🏮 𝗕𝗮𝘆𝗯𝗮𝘆𝗶𝗻 𝗦𝗰𝗿𝗶𝗽𝘁:
 "${baybayinText}"
 
 📜 𝗔𝗯𝗼𝘂𝘁 𝗕𝗮𝘆𝗯𝗮𝘆𝗶𝗻:
-𝑩𝒂𝒚𝒃𝒂𝒚𝒊𝒏 𝒊𝒔 𝒂𝒏 𝒂𝒏𝒄𝒊𝒆𝒏𝒕 𝑭𝒊𝒍𝒊𝒑𝒊𝒏𝒐 𝒔𝒄𝒓𝒊𝒑𝒕 𝒖𝒔𝒆𝒅 𝒃𝒆𝒇𝒐𝒓𝒆 𝒕𝒉𝒆 𝑺𝒑𝒂𝒏𝒊𝒔𝒉 𝒆𝒓𝒂. 𝑰𝒕'𝒔 𝒂 𝒃𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒘𝒓𝒊𝒕𝒊𝒏𝒈 𝒔𝒚𝒔𝒕𝒆𝒎 𝒕𝒉𝒂𝒕 𝒇𝒆𝒂𝒕𝒖𝒓𝒆𝒔 𝒇𝒍𝒐𝒘𝒊𝒏𝒈 𝒄𝒖𝒓𝒗𝒆𝒔 𝒂𝒏𝒅 𝒅𝒊𝒂𝒄𝒓𝒊𝒕𝒊𝒄𝒂𝒍 𝒎𝒂𝒓𝒌𝒔 𝒕𝒐 𝒓𝒆𝒑𝒓𝒆𝒔𝒆𝒏𝒕 𝒗𝒐𝒘𝒆𝒍 𝒔𝒐𝒖𝒏𝒅𝒔.`;
+Baybayin is an ancient Filipino script used before the Spanish era. 
+It features flowing curves and diacritical marks to represent vowel sounds.`;
 
-		return api.sendMessage(formattedResult, event.threadID, event.messageID);
-	} catch (error) {
-		console.error(error);
-		return api.sendMessage(`❌ 𝑬𝒓𝒓𝒐𝒓 𝒄𝒐𝒏𝒗𝒆𝒓𝒕𝒊𝒏𝒈 "${text}" 𝒕𝒐 𝑩𝒂𝒚𝒃𝒂𝒚𝒊𝒏. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.`, event.threadID);
-	}
+        return api.sendMessage(formattedMessage, event.threadID, event.messageID);
+    } catch (error) {
+        console.error(error);
+        const text = args.join(" ") || "";
+        return api.sendMessage(module.exports.languages.en.error.replace("{text}", text), event.threadID, event.messageID);
+    }
 };
