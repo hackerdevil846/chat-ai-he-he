@@ -1,23 +1,25 @@
-const fs = global.nodemodule["fs-extra"];
+const moment = require("moment-timezone");
+
 module.exports.config = {
   name: "goibot",
   version: "1.0.1",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝘽𝙤𝙩 �𝙧𝙤𝙢𝙥𝙩 �𝙚 �𝙧𝙚𝙨𝙥𝙤𝙣𝙙 �𝙠𝙤𝙧𝙚",
-  commandCategory: "𝙉𝙤-𝙥𝙧𝙚𝙛𝙞𝙭",
-  usages: "𝙉𝙤𝙣𝙚",
-  cooldowns: 5,
+  description: "Bot ke rompt e respond kore",
+  category: "no-prefix",
+  usages: "None",
+  cooldowns: 5
 };
-module.exports.handleEvent = async function({ api, event, args, Threads, Users }) {
-  var { threadID, messageID, reason } = event;
-  const moment = require("moment-timezone");
-  const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
-  var idgr = `${event.threadID}`;
-  var id = event.senderID;
-  var name = await Users.getNameUser(event.senderID);
 
-  var tl = [
+module.exports.handleEvent = async function({ api, event, Users }) {
+  const { threadID, messageID, senderID, body } = event;
+  if (!body) return;
+
+  const name = await Users.getNameUser(senderID);
+  const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
+
+  // Bot er reply list
+  const tl = [
     "𝘛𝘶𝘮𝘪 𝘬𝘪 𝘌𝘓𝘷𝘪𝘴𝘩 𝘉𝘩𝘢𝘪𝘦𝘳 𝘢𝘨𝘦 𝘣𝘰𝘭𝘣𝘦?🙄",
     "𝘊𝘢𝘮𝘦𝘳𝘢𝘮𝘢𝘯, 𝘤𝘩𝘰𝘣𝘪 𝘵𝘶𝘭𝘵𝘦 𝘴𝘶𝘳𝘶 𝘬𝘰𝘳𝘰 📸",
     "𝘓𝘢𝘩𝘰𝘳𝘦𝘳 𝘮𝘰𝘵𝘰 𝘭𝘢𝘨𝘤𝘩𝘦🙈",
@@ -52,7 +54,7 @@ module.exports.handleEvent = async function({ api, event, args, Threads, Users }
     "𝘈𝘱𝘯𝘢𝘳 𝘓𝘢𝘣𝘩𝘢𝘳 𝘬𝘦 𝘥𝘩𝘰𝘬𝘢 𝘥𝘢𝘰, 𝘢𝘮𝘢𝘬𝘦 𝘰 𝘮𝘰𝘬𝘢 𝘥𝘢𝘰🙈",
     "𝘈𝘳𝘳𝘦 𝘣𝘢𝘴 𝘬𝘰𝘳𝘰🤣😛",
     "𝘈𝘮𝘪 𝘯𝘢𝘪𝘭𝘦 𝘬𝘦?",
-    "𝘕𝘢𝘮 𝘈𝘥𝘪𝘵𝘺𝘢 𝘒𝘶𝘮𝘢𝘳, 𝘤𝘭𝘢𝘴𝘴 7𝘦 𝘱𝘰𝘳𝘦, 𝘧𝘢𝘷𝘰𝘳𝘪𝘵𝘦 𝘴𝘶𝘣𝘫𝘦𝘤𝘵 𝘣𝘦𝘨𝘢𝘯😘",
+    "𝘕𝘢𝘮 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥, 𝘤𝘭𝘢𝘴𝘴 12𝘦 𝘱𝘰𝘳𝘦, 𝘧𝘢𝘷𝘰𝘳𝘪𝘵𝘦 𝘴𝘶𝘣𝘫𝘦𝘤𝘵 𝘣𝘦𝘨𝘢𝘯😘",
     "𝘈𝘮𝘢𝘳 𝘮𝘢𝘵𝘩𝘢𝘺 𝘬𝘩𝘢𝘮𝘶 𝘯𝘢😒😒",
     "𝘊𝘩𝘶𝘱 𝘴𝘢𝘵𝘩𝘦 𝘧𝘢𝘪𝘭😒",
     "𝘚𝘢𝘴𝘵𝘦 𝘯𝘢𝘴𝘩𝘢 𝘬𝘪 𝘣𝘢𝘯𝘥𝘩 𝘬𝘰𝘳𝘣𝘦?",
@@ -77,14 +79,17 @@ module.exports.handleEvent = async function({ api, event, args, Threads, Users }
     "𝘒𝘰𝘯 𝘤𝘰𝘭𝘰𝘳 𝘦𝘳 𝘫𝘢𝘤𝘬𝘦𝘵 𝘱𝘰𝘳𝘣𝘦, 𝘣𝘰𝘭𝘰 𝘯𝘢😚",
     "𝘋𝘩𝘢𝘯 𝘬𝘩𝘢𝘤𝘤𝘩𝘦 𝘣𝘰𝘰𝘺𝘢𝘢𝘩"
   ];
-  var rand = tl[Math.floor(Math.random() * tl.length)]
-  
-  if (event.body.indexOf("Bot") == 0 || (event.body.indexOf("bot") == 0)) {
-    var msg = {
-      body: `🔶${name}🔶,  \n\n『\n   ${rand} 』\n\n❤️𝘿𝙝𝙤𝙣𝙣𝙤𝙗𝙖𝙙 : 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅🌹 `
-    }
-    return api.sendMessage(msg, threadID, messageID);
-  };
-}
+  const rand = tl[Math.floor(Math.random() * tl.length)];
 
-module.exports.run = function({ api, event, client, __GLOBAL }) { }
+  // Jodi message er surute "Bot" ba "bot" thake tahole reply dibe
+  if (body.indexOf("Bot") === 0 || body.indexOf("bot") === 0) {
+    const msg = {
+      body: `✨ ${name} ✨\n\n『 ${rand} 』\n\n❤️ Dhonnobad : 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 🌹\n⏰ ${time}`
+    };
+    return api.sendMessage(msg, threadID, messageID);
+  }
+};
+
+module.exports.run = function({ api, event }) {
+  // Ei command ta just no-prefix handle er jonno
+};
