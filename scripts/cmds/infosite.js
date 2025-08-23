@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑾𝒆𝒃𝒔𝒊𝒕𝒆 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏",
-  commandCategory: "𝑰𝒏𝒇𝒐",
+  category: "𝑰𝒏𝒇𝒐",
   usages: "[𝒔𝒊𝒕𝒆 𝒖𝒓𝒍]",
   cooldowns: 5,
   dependencies: {
