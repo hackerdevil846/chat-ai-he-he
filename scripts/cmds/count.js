@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑪𝒉𝒆𝒄𝒌 𝒈𝒓𝒐𝒖𝒑 𝒎𝒆𝒎𝒃𝒆𝒓𝒔' 𝒊𝒏𝒕𝒆𝒓𝒂𝒄𝒕𝒊𝒐𝒏 𝒓𝒂𝒏𝒌𝒊𝒏𝒈𝒔",
-	commandCategory: "𝑮𝒓𝒐𝒖𝒑",
+	category: "𝑮𝒓𝒐𝒖𝒑",
 	usages: "[𝒂𝒍𝒍/𝒕𝒂𝒈]",
 	cooldowns: 5,
 	dependencies: {},
