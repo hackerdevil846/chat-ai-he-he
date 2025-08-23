@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔄 𝑪𝒐𝒏𝒇𝒊𝒈 𝒇𝒂𝒊𝒍 𝒓𝒆𝒍𝒐𝒂𝒅 𝒔𝒚𝒔𝒕𝒆𝒎",
-	commandCategory: "🛠️ 𝑺𝒚𝒔𝒕𝒆𝒎",
+	category: "🛠️ 𝑺𝒚𝒔𝒕𝒆𝒎",
 	usages: "[]",
 	cooldowns: 30,
 	dependencies: {}
