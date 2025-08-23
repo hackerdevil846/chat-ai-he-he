@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑺𝒍𝒐𝒕 𝑴𝒂𝒄𝒉𝒊𝒏𝒆 𝑮𝒂𝒎𝒆",
-	commandCategory: "𝒈𝒂𝒎𝒆𝒔",
+	category: "𝒈𝒂𝒎𝒆𝒔",
 	usages: "baucuaca [𝒃𝒆𝒕 𝒂𝒎𝒐𝒖𝒏𝒕]",
 	cooldowns: 5
 };
