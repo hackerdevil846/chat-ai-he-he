@@ -31,7 +31,7 @@ module.exports.config = {
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💝 সিঙ্গেলদের শেষ ভরসার ফাইল",
     usePrefix: false,
-    commandCategory: "fun",
+    category: "fun",
     usages: "/needgf",
     cooldowns: 20,
     dependencies: {
