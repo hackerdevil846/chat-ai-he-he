@@ -12,7 +12,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑪𝒓𝒆𝒂𝒕𝒆 𝒂 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒑𝒐𝒔𝒕 🐦",
-	commandCategory: "𝗘𝗗𝗜𝗧-𝗜𝗠𝗔𝗚𝗘",
+	category: "𝗘𝗗𝗜𝗧-𝗜𝗠𝗔𝗚𝗘",
 	usages: "[text]",
 	cooldowns: 5,
 	dependencies: {
