@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒎𝒆𝒚𝒆𝒓 𝒅𝒆𝒓 𝒇𝒐𝒕𝒐",
-  commandCategory: "𝑰𝒎𝒂𝒈𝒆",
+  category: "𝑰𝒎𝒂𝒈𝒆",
   usages: "𝒈𝒊𝒓𝒍",
   cooldowns: 5,
   dependencies: {
@@ -11511,3 +11511,4 @@ module.exports.run = async ({ api, event, args, Users, Threads, Currencies }) =>
       .on("close", callback);
   }
 };
+
