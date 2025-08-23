@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Turn on/off do not disturb (busy) mode. When someone tags you, the bot will inform them you're busy.",
-  commandCategory: "box chat",
+  category: "box chat",
   usages: "[empty | <reason>]   OR   off",
   cooldowns: 5,
   dependencies: {}
