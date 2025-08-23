@@ -9,7 +9,7 @@ module.exports.config = {
     usePrefix: true,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🖥️ Prank friends with hack simulation",
-    commandCategory: "group",
+    category: "group",
     usages: "@mention",
     cooldowns: 0,
     dependencies: {
