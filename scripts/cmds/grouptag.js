@@ -5,7 +5,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Tag members by group",
-  commandCategory: "info",
+  category: "info",
   usages: "add/del/remove/list/info/rename/tag <groupTagName>",
   cooldowns: 5
 };
