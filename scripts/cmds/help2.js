@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑵𝒊𝒋𝒆𝒓 𝑩𝒐𝒕 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑳𝒊𝒔𝒕",
-	commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+	category: "𝑺𝒚𝒔𝒕𝒆𝒎",
 	usages: "[𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑵𝒂𝒎𝒆]",
 	cooldowns: 1,
 	envConfig: {
