@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "💼 Work to earn money with various jobs - Enhanced Edition",
-  commandCategory: "economy",
+  category: "economy",
   usages: "[job number]",
   cooldowns: 5,
   envConfig: {
