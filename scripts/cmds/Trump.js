@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒂𝒏 ( ͡° ͜ʖ ͡°)",
-  commandCategory: "edit-img",
+  category: "edit-img",
   usages: "trump [text]",
   cooldowns: 10,
   dependencies: {
