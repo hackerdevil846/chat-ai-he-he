@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔞 NSFW GIF command",
-	commandCategory: "adult",
+	category: "adult",
 	usages: "[nsfgif]",
 	cooldowns: 5,
 	dependencies: {
