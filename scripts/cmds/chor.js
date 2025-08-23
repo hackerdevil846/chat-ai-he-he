@@ -9,7 +9,7 @@ module.exports.config = {
 	version: "1.2.0",
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	hasPermssion: 0,
-	commandCategory: "image",
+	category: "image",
 	description: "🖼️ Create Scooby-Doo 'got caught' memes",
 	usages: "[@mention]",
 	cooldowns: 15,
