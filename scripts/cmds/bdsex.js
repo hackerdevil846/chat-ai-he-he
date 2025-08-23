@@ -1,24 +1,23 @@
-const axios = require("axios");
 const request = require("request");
 const fs = require("fs-extra");
 
-module.exports = {
-  config: {
-    name: "sex",
-    version: "1.0.0",
-    permission: 2,
-    credits: "Asif",
-    description: "Sex pic",
-    prefix: true,
-    category: "user",
-    usages: "sex",
-    cooldowns: 5,
-    dependencies: {}
-  },
+module.exports.config = {
+	name: "sex",
+	version: "1.0.0",
+	hasPermssion: 2,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "Get sexy pictures 🥵",
+	commandCategory: "adult",
+	usages: "sex",
+	cooldowns: 5,
+	dependencies: {
+		"request": "",
+		"fs-extra": ""
+	}
+};
 
-  // Main command handler
-  onStart: async function({ api, event, args, Users, Threads, Currencies }) {
-    const link = [
+module.exports.run = async function({ api, event }) {
+	const links = [
       "https://i.postimg.cc/wTZJ1Yvb/images-1-29.jpg",
       "https://i.postimg.cc/ZRN79xP1/97420.jpg",
       "https://i.postimg.cc/tCB54cQs/27712360-320x180.jpg",
@@ -133,25 +132,31 @@ module.exports = {
       "https://i.postimg.cc/52z6xh36/cute-college-girl-in-glasses-showing-boobs.jpg",
       "https://i.postimg.cc/4NDxF8gZ/sexy-boobs-show-by-cute-Bangladeshi-girl.webp"
     ];
+	
+	const path = __dirname + "/cache/sex.jpg";
+	
+	if (!fs.existsSync(__dirname + "/cache")) {
+		fs.mkdirSync(__dirname + "/cache");
+	}
 
-    const callback = () => api.sendMessage({
-      body: `লুচ্ছা বেডা😋+\nSố ảnh: ${link.length}`,
-      attachment: fs.createReadStream(__dirname + "/cache/1.jpg")
-    }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/1.jpg"));
+	try {
+		const imageUrl = links[Math.floor(Math.random() * links.length)];
+		
+		await new Promise((resolve, reject) => {
+			request(encodeURI(imageUrl))
+				.pipe(fs.createWriteStream(path))
+				.on("close", resolve)
+				.on("error", reject);
+		});
 
-    // Create cache directory if it doesn't exist
-    if (!fs.existsSync(__dirname + "/cache")) {
-      fs.mkdirSync(__dirname + "/cache");
-    }
+		await api.sendMessage({
+			body: `🔞 লুচ্ছা বেডা 😋\n✨ সেক্সি ছবি এসেছে!\n\n📸 Number of images: ${links.length}`,
+			attachment: fs.createReadStream(path)
+		}, event.threadID);
 
-    try {
-      const randomImage = link[Math.floor(Math.random() * link.length)];
-      return request(encodeURI(randomImage))
-        .pipe(fs.createWriteStream(__dirname + "/cache/1.jpg"))
-        .on("close", callback);
-    } catch (error) {
-      console.error("Error in bdsex command:", error);
-      return api.sendMessage("⚠️ An error occurred while sending the image.", event.threadID, event.messageID);
-    }
-  }
+		fs.unlinkSync(path);
+	} catch (error) {
+		console.error("Error:", error);
+		api.sendMessage("❌ An error occurred while processing the image", event.threadID);
+	}
 };
