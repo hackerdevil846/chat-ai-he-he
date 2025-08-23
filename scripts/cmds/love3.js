@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "দুইজন ইউজারের romantic love image তৈরি করবে 💖",
-	commandCategory: "edit-img",
+	category: "edit-img",
 	usages: "love3 @mention",
 	cooldowns: 5,
 	dependencies: {
