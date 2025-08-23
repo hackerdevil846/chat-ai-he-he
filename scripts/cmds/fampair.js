@@ -1,16 +1,16 @@
-const fs = global.nodemodule["fs-extra"];
-const path = global.nodemodule["path"];
-const axios = global.nodemodule["axios"];
-const jimp = global.nodemodule["jimp"];
+const fs = require("fs-extra");
+const path = require("path");
+const axios = require("axios");
+const jimp = require("jimp");
 
 module.exports.config = {
 	name: "fampair",
 	version: "1.0.1",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "👨‍👩‍👧‍👦 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐟𝐨𝐫 𝐁𝐨𝐲𝐬",
-	commandCategory: "💞 𝗟𝗢𝗩𝗘",
-	usages: "[@tag]",
+	description: "👨‍👩‍👧‍👦 Family Pair Command for Boys",
+	category: "💞 LOVE",
+	usages: "fampair",
 	cooldowns: 5,
 	dependencies: {
 		"axios": "",
@@ -76,7 +76,7 @@ async function makeImage({ one, two, three }) {
 	return pathImg;
 }
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.run = async function({ api, event, Users }) {
 	try {
 		const { threadID, messageID, senderID } = event;
 		const tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
@@ -89,13 +89,12 @@ module.exports.run = async function({ api, event, args, Users }) {
 		const participantIDs = threadInfo.participantIDs.filter(id => id !== senderID);
 		
 		if (participantIDs.length < 2) {
-			return api.sendMessage("👥 | 𝐆𝐫𝐨𝐮𝐩 𝐦𝐮𝐬𝐭 𝐡𝐚𝐯𝐞 𝐚𝐭 𝐥𝐞𝐚𝐬𝐭 𝟐 𝐨𝐭𝐡𝐞𝐫 𝐦𝐞𝐦𝐛𝐞𝐫𝐬 𝐭𝐨 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 𝐜𝐨𝐦𝐦𝐚𝐧𝐝!", threadID, messageID);
+			return api.sendMessage("👥 | Group e at least 2 jon member thakte hobe ei command use korte!", threadID, messageID);
 		}
 		
 		// Select two random participants
 		const firstIndex = Math.floor(Math.random() * participantIDs.length);
 		let secondIndex;
-		
 		do {
 			secondIndex = Math.floor(Math.random() * participantIDs.length);
 		} while (secondIndex === firstIndex);
@@ -106,12 +105,12 @@ module.exports.run = async function({ api, event, args, Users }) {
 		const name1 = (await Users.getData(e)).name;
 		const name2 = (await Users.getData(r)).name;
 		
-		api.sendMessage("🔄 | 𝐂𝐫𝐞𝐚𝐭𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐟𝐚𝐦𝐢𝐥𝐲 𝐩𝐚𝐢𝐫 𝐢𝐦𝐚𝐠𝐞...", threadID, messageID);
+		api.sendMessage("🔄 | Family pair image create hocche... ⏳", threadID, messageID);
 		
 		const imagePath = await makeImage({ one: senderID, two: e, three: r });
 		
 		return api.sendMessage({ 
-			body: `👨‍👩‍👧‍👦 | 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐑𝐞𝐬𝐮𝐥𝐭\n\n✦ 𝐀𝐛𝐡𝐢𝐧𝐚𝐧𝐝𝐚𝐧 ${nameSender} 𝐭𝐮𝐦𝐢 𝐬𝐚𝐩𝐡𝐚𝐥𝐛𝐡𝐚𝐛𝐞 ${name1} 𝐚𝐫 ${name2} 𝐞𝐫 𝐬𝐚𝐭𝐡𝐞 𝐟𝐚𝐦𝐢𝐥𝐲 𝐩𝐚𝐢𝐫 𝐡𝐨𝐥𝐨\n🌸 𝐓𝐨𝐦𝐚𝐝𝐞𝐫 𝐬𝐚𝐦𝐚𝐧𝐧𝐣𝐨𝐬𝐲𝐚: ${tle}`,
+			body: `👨‍👩‍👧‍👦 | 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐑𝐞𝐬𝐮𝐥𝐭\n\n✨ ${nameSender}, tumi successfully ${name1} ar ${name2} er sathe Family Pair hoye gecho!\n💞 Tomader Compatibility: ${tle}`,
 			mentions: [
 				{ tag: nameSender, id: senderID },
 				{ tag: name1, id: e },
@@ -124,6 +123,6 @@ module.exports.run = async function({ api, event, args, Users }) {
 		
 	} catch (error) {
 		console.error(error);
-		api.sendMessage("❌ | 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐭𝐡𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝", threadID, messageID);
+		api.sendMessage("❌ | Kisu problem hoye geche command execute korte!", event.threadID, event.messageID);
 	}
 };
