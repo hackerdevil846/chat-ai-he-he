@@ -7,7 +7,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Create stylish user info cards",
-  commandCategory: "info",
+  category: "info",
   usages: "[reply to user or leave blank for self]",
   cooldowns: 15,
   dependencies: {
