@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Interactive message counter & rank checker",
-    commandCategory: "Utilities",
+    category: "Utilities",
     usages: "[all/rank/@mention]",
     cooldowns: 5,
     dependencies: {
