@@ -8,7 +8,7 @@ module.exports = {
         hasPermssion: 0,
         credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
         description: "🍫 Automated chocolate response system",
-        commandCategory: "fun",
+        category: "fun",
         usages: "N/A",
         cooldowns: 5,
         envConfig: {}
