@@ -1,85 +1,91 @@
 module.exports.config = {
-	name: "googlebar",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-	description: "𝑮𝒐𝒐𝒈𝒍𝒆 𝒔𝒆𝒂𝒓𝒄𝒉 𝒃𝒂𝒓 𝒆 𝒕𝒆𝒙𝒕 𝒍𝒊𝒌𝒉𝒂𝒏𝒐",
-	commandCategory: "edit-img",
-	usages: "googlebar [text]",
-	cooldowns: 10,
-	dependencies: {
-		"canvas": "",
-		"axios": "",
-		"fs-extra": ""
-	}
+    name: "googlebar",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "Generate a Google search bar image with your text ✨",
+    commandCategory: "edit-img",
+    usages: "googlebar [text]",
+    cooldowns: 10,
+    dependencies: {
+        "canvas": "",
+        "axios": "",
+        "fs-extra": ""
+    }
 };
 
 module.exports.wrapText = (ctx, text, maxWidth) => {
-	return new Promise(resolve => {
-		if (ctx.measureText(text).width < maxWidth) return resolve([text]);
-		if (ctx.measureText('W').width > maxWidth) return resolve(null);
-		const words = text.split(' ');
-		const lines = [];
-		let line = '';
-		while (words.length > 0) {
-			let split = false;
-			while (ctx.measureText(words[0]).width >= maxWidth) {
-				const temp = words[0];
-				words[0] = temp.slice(0, -1);
-				if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
-				else {
-					split = true;
-					words.splice(1, 0, temp.slice(-1));
-				}
-			}
-			if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
-			else {
-				lines.push(line.trim());
-				line = '';
-			}
-			if (words.length === 0) lines.push(line.trim());
-		}
-		return resolve(lines);
-	});
+    return new Promise(resolve => {
+        if (ctx.measureText(text).width < maxWidth) return resolve([text]);
+        if (ctx.measureText('W').width > maxWidth) return resolve(null);
+        const words = text.split(' ');
+        const lines = [];
+        let line = '';
+        while (words.length > 0) {
+            let split = false;
+            while (ctx.measureText(words[0]).width >= maxWidth) {
+                const temp = words[0];
+                words[0] = temp.slice(0, -1);
+                if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
+                else {
+                    split = true;
+                    words.splice(1, 0, temp.slice(-1));
+                }
+            }
+            if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
+            else {
+                lines.push(line.trim());
+                line = '';
+            }
+            if (words.length === 0) lines.push(line.trim());
+        }
+        return resolve(lines);
+    });
 }
 
 module.exports.run = async function({ api, event, args }) {
-	let { senderID, threadID, messageID } = event;
-	const { loadImage, createCanvas } = require("canvas");
-	const fs = global.nodemodule["fs-extra"];
-	const axios = global.nodemodule["axios"];
-	let pathImg = __dirname + '/cache/google.png';
-	var text = args.join(" ");
-	
-	if (!text) return api.sendMessage("𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒔𝒐𝒎𝒆 𝒕𝒆𝒙𝒕 𝒕𝒐 𝒑𝒖𝒕 𝒐𝒏 𝒕𝒉𝒆 𝑮𝒐𝒐𝒈𝒍𝒆 𝒃𝒂𝒓", threadID, messageID);
-	
-	let getGoogleBar = (await axios.get(`https://i.imgur.com/GXPQYtT.png`, { responseType: 'arraybuffer' })).data;
-	fs.writeFileSync(pathImg, Buffer.from(getGoogleBar, 'utf-8'));
-	
-	let baseImage = await loadImage(pathImg);
-	let canvas = createCanvas(baseImage.width, baseImage.height);
-	let ctx = canvas.getContext("2d");
-	ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-	
-	ctx.font = "400 30px Arial";
-	ctx.fillStyle = "#000000";
-	ctx.textAlign = "start";
-	
-	let fontSize = 50;
-	while (ctx.measureText(text).width > 1200) {
-		fontSize--;
-		ctx.font = `400 ${fontSize}px Arial`;
-	}
-	
-	const lines = await this.wrapText(ctx, text, 470);
-	ctx.fillText(lines.join('\n'), 580, 646);
-	
-	ctx.beginPath();
-	const imageBuffer = canvas.toBuffer();
-	fs.writeFileSync(pathImg, imageBuffer);
-	
-	return api.sendMessage({ 
-		body: "𝑯𝒆𝒓𝒆'𝒔 𝒚𝒐𝒖𝒓 𝑮𝒐𝒐𝒈𝒍𝒆 𝒔𝒆𝒂𝒓𝒄𝒉 𝒃𝒂𝒓 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒕𝒆𝒙𝒕:",
-		attachment: fs.createReadStream(pathImg) 
-	}, threadID, () => fs.unlinkSync(pathImg), messageID);
+    const { senderID, threadID, messageID } = event;
+    const { loadImage, createCanvas } = require("canvas");
+    const fs = require("fs-extra");
+    const axios = require("axios");
+    
+    const pathImg = __dirname + '/cache/google.png';
+    const text = args.join(" ");
+
+    if (!text) return api.sendMessage("❌ Please enter some text to put on the Google bar.", threadID, messageID);
+
+    try {
+        const getGoogleBar = (await axios.get(`https://i.imgur.com/GXPQYtT.png`, { responseType: 'arraybuffer' })).data;
+        fs.writeFileSync(pathImg, Buffer.from(getGoogleBar, 'utf-8'));
+
+        const baseImage = await loadImage(pathImg);
+        const canvas = createCanvas(baseImage.width, baseImage.height);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+
+        ctx.font = "400 30px Arial";
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "start";
+
+        let fontSize = 50;
+        while (ctx.measureText(text).width > 1200) {
+            fontSize--;
+            ctx.font = `400 ${fontSize}px Arial`;
+        }
+
+        const lines = await this.wrapText(ctx, text, 470);
+        ctx.fillText(lines.join('\n'), 580, 646);
+
+        const imageBuffer = canvas.toBuffer();
+        fs.writeFileSync(pathImg, imageBuffer);
+
+        return api.sendMessage({
+            body: `✅ Here's your Google search bar with your text! 🌟`,
+            attachment: fs.createReadStream(pathImg)
+        }, threadID, () => fs.unlinkSync(pathImg), messageID);
+
+    } catch (error) {
+        console.error(error);
+        return api.sendMessage("❌ Error generating Google bar image.", threadID, messageID);
+    }
 }
