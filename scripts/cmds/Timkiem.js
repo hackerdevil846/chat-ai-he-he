@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑮𝒐𝒐𝒈𝒍𝒆 𝒆 𝒔𝒆𝒂𝒓𝒄𝒉 𝒌𝒐𝒓𝒐",
-    commandCategory: "info",
+    category: "info",
     usages: "search [Text]",
     cooldowns: 5,
     dependencies: {
