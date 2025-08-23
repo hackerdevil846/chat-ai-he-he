@@ -1,29 +1,35 @@
 const fs = require("fs");
+
 module.exports.config = {
-  name: "tea",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-  description: "𝑻𝒆𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒗𝒆𝒏𝒕 𝒉𝒂𝒏𝒅𝒍𝒆𝒓",
-  commandCategory: "𝒏𝒐 𝒑𝒓𝒆𝒇𝒊𝒙",
-  usages: "𝒕𝒆𝒂/𝑻𝒆𝒂/𝑪𝒉𝒂𝒊/𝑪𝑯𝑨𝑰/𝑪𝒉𝒂/𝑪𝑯𝑨",
-  cooldowns: 5, 
+    name: "tea",
+    version: "1.0.1",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "☕ | Tea command event handler",
+    commandCategory: "noprefix",
+    usages: "tea/Tea/Chai/CHAI/Cha/CHA",
+    cooldowns: 5
 };
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-  var { threadID, messageID } = event;
-  const triggers = ["tea", "Tea", "Chai", "CHAI", "Cha", "CHA"];
-  
-  if (triggers.some(word => event.body.indexOf(word) === 0)) {
-    var msg = {
-      body: "𝒂𝒊𝒊 𝒍𝒐 𝒃𝒂𝒃𝒚 ☕", // Updated to "aii lo bby"
-      attachment: fs.createReadStream(__dirname + `/noprefix/tea.mp4`)
+module.exports.handleEvent = async function({ api, event }) {
+    const { threadID, messageID } = event;
+    const triggers = ["tea", "Tea", "Chai", "CHAI", "Cha", "CHA"];
+    
+    if (triggers.some(trigger => event.body.indexOf(trigger) === 0)) {
+        try {
+            const msg = {
+                body: "☕ | 𝒂𝒊𝒊 𝒍𝒐 𝒃𝒂𝒃𝒚 ☕",
+                attachment: fs.createReadStream(__dirname + `/noprefix/tea.mp4`)
+            };
+            await api.sendMessage(msg, threadID, messageID);
+            await api.setMessageReaction("🫖", messageID, (err) => {}, true);
+        } catch (error) {
+            console.error("Error in tea command:", error);
+        }
     }
-    api.sendMessage(msg, threadID, messageID);
-    api.setMessageReaction("🫖", event.messageID, (err) => {}, true);
-  }
-}
+};
 
-module.exports.run = function({ api, event, client, __GLOBAL }) {
-  // No changes needed here
-}
+module.exports.run = function({ api, event }) {
+    // Optional: Add response when command is directly run with prefix
+    api.sendMessage("☕ | Tea command is active! Type 'tea' to get a warm cup! 🫖", event.threadID, event.messageID);
+};
