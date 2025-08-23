@@ -5,8 +5,8 @@ module.exports.config = {
   version: "1.0.1",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝒎𝒐𝒋𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒉𝒖𝒎𝒎𝒂 𝒅𝒆𝒘𝒂 💋",
-  commandCategory: "no prefix",
+  description: "💋 মজার জন্য চুমা দেওয়া! 😘",
+  category: "no prefix",
   usages: "😘 চুমা দিন!",
   cooldowns: 5,
   dependencies: {}
@@ -26,7 +26,7 @@ function toMathBoldItalic(text) {
     'a': '𝒂','b': '𝒃','c': '𝒄','d': '𝒅','e': '𝒆','f': '𝒇','g': '𝒈','h': '𝒉','i': '𝒊','j': '𝒋',
     'k': '𝒌','l': '𝒍','m': '𝒎','n': '𝒏','o': '𝒐','p': '𝒑','q': '𝒒','r': '𝒓','s': '𝒔','t': '𝒕',
     'u': '𝒖','v': '𝒗','w': '𝒘','x': '𝒙','y': '𝒚','z': '𝒛',
-    ' ': ' ', '!': '!','?': '?','.': '.',"'", "'","\"": '"',':': ':',';': ';','-': '-','_': '_'
+    ' ': ' ', '!': '!','?': '?','.': '.',"\'": "\'",'\"': '\"',':': ':',';': ';','-': '-','_': '_'
   };
   return text.split('').map(c => map[c] || c).join('');
 }
@@ -39,10 +39,10 @@ module.exports.handleEvent = async function({ api, event }) {
   
   if (triggers.some(trigger => body.toLowerCase().includes(trigger.toLowerCase()) || body.includes("😘"))) {
     const responses = [
-      "𝑼𝒎𝒎𝒎𝒎𝒎𝒎𝒎𝒂𝒂𝒂𝒂𝒂𝒂𝒉𝒉𝒉𝒉𝒉𝒉 😘 𝑺𝒉𝒐𝒏𝒂 😘💖",
-      "𝑴𝒖𝒂𝒂𝒂𝒂𝒂𝒉𝒉𝒉𝒉𝒉𝒉𝒉 😘 𝑩𝒂𝒄𝒉𝒂 😘💞",
-      "𝑪𝒉𝒖𝒎𝒎𝒂 𝒅𝒊𝒍𝒂𝒎 𝒕𝒐𝒎𝒂𝒌𝒆 😘💘",
-      "𝑲𝒊𝒔𝒔 𝒌𝒐𝒓𝒆 𝒅𝒊𝒍𝒂𝒎 😘💓"
+      "Ummmmmmmmaaahhhh 😘 Shona 😘💖",
+      "Muaaaaaahhh 😘 Bacha 😘💞",
+      "Chumma dilam tomake 😘💘",
+      "Kiss kore dilam 😘💓"
     ];
     
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
@@ -53,7 +53,6 @@ module.exports.handleEvent = async function({ api, event }) {
   }
 };
 
-// Required to prevent errors when using command manually
 module.exports.run = function({ api, event, args }) {
   return api.sendMessage("💋 চুমা এসেছে! 😘", event.threadID, event.messageID);
 };
