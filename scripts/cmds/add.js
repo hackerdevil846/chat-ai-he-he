@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Add media to database with content filtering and admin notifications",
-  commandCategory: "media",
+  category: "media",
   usages: "[name]",
   cooldowns: 5,
   dependencies: { "axios": "" }
