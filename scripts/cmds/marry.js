@@ -7,7 +7,7 @@ module.exports.config = {
         en: "💍 Propose to someone with a marriage certificate",
         bn: "💍 কারো সাথে বিয়ের প্রস্তাব পাঠান"
     },
-    commandCategory: {
+    category: {
         en: "Romance",
         bn: "রোমান্স"
     },
