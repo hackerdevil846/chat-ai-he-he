@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🐕 Random dog images with interesting facts",
-	commandCategory: "random-img",
+	category: "random-img",
 	usages: "[dogfact]",
 	cooldowns: 5,
 	dependencies: {
