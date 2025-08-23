@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🇺🇸 Create presidential Obama-style tweet images",
-	commandCategory: "image",
+	category: "image",
 	usages: "[text]",
 	cooldowns: 10,
 	dependencies: {
