@@ -25,7 +25,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Get a random hot video",
-  commandCategory: "media",
+  category: "media",
   usages: "hot",
   cooldowns: 5,
   dependencies: {
