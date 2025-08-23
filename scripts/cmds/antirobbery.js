@@ -5,7 +5,7 @@ module.exports.config = {
   hasPermssion: 1,
   description: "𝑷𝒓𝒆𝒗𝒆𝒏𝒕 𝒄𝒉𝒂𝒏𝒈𝒊𝒏𝒈 𝒈𝒓𝒐𝒖𝒑 𝒂𝒅𝒎𝒊𝒏𝒊𝒔𝒕𝒓𝒂𝒕𝒐𝒓𝒔",
   usages: "",
-  commandCategory: "𝑩𝒐𝒙 𝑪𝒉𝒂𝒕",
+  category: "𝑩𝒐𝒙 𝑪𝒉𝒂𝒕",
   cooldowns: 0
 };
 
