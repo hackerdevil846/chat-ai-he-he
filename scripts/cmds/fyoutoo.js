@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑭𝒖𝒄𝒌 𝒚𝒐𝒖 𝒕𝒐𝒐 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆 🖕",
-	commandCategory: "𝒏𝒐-𝒑𝒓𝒆𝒇𝒊𝒙",
+	category: "𝒏𝒐-𝒑𝒓𝒆𝒇𝒊𝒙",
 	usages: "𝒇𝒖𝒄𝒌",
 	cooldowns: 5,
 	envConfig: {
