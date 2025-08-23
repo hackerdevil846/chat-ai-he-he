@@ -5,10 +5,10 @@ const path = require('path');
 module.exports.config = {
   name: "add",
   version: "7.0",
-  hasPermission: 0,
-  credits: "Asif",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Add media to database with content filtering and admin notifications",
-  category: "media",
+  commandCategory: "media",
   usages: "[name]",
   cooldowns: 5,
   dependencies: { "axios": "" }
@@ -63,13 +63,10 @@ const uploadMedia = async (url, duration) => {
     const apis = await axios.get('https://raw.githubusercontent.com/shaonproject/Shaon/main/api.json');
     const { imgur: imgurAPI } = apis.data;
     
-    // Use Catbox for videos longer than 60 seconds
     if (duration > 60) {
       const catRes = await axios.get(`${imgurAPI}/catbox?url=${encodeURIComponent(url)}`);
       return catRes.data.url;
-    } 
-    // Use Imgur for images and short videos
-    else {
+    } else {
       const imgurRes = await axios.get(`${imgurAPI}/imgur?link=${encodeURIComponent(url)}`);
       return imgurRes.data.uploaded?.image || imgurRes.data.link;
     }
@@ -81,9 +78,11 @@ const uploadMedia = async (url, duration) => {
 // Admin notification
 const notifyAdmins = (api, message) => {
   ADMIN_IDS.forEach(adminID => {
-    api.sendMessage(message, adminID, (err) => {
-      if (err) console.error('Admin notification failed:', err);
-    });
+    if (adminID) {
+      api.sendMessage(message, adminID, (err) => {
+        if (err) console.error('Admin notification failed:', err);
+      });
+    }
   });
 };
 
@@ -92,7 +91,6 @@ module.exports.run = async ({ api, event, args }) => {
   const { threadID, messageID, senderID, messageReply } = event;
   
   try {
-    // Validate input
     const mediaUrl = messageReply?.attachments[0]?.url;
     const mediaName = args.join(' ').trim();
     
@@ -102,21 +100,18 @@ module.exports.run = async ({ api, event, args }) => {
     if (!mediaName) 
       return api.sendMessage("⚠️ Please provide a name for the media", threadID, messageID);
     
-    // Handle bad words
     if (hasBadWords(mediaName)) {
       const warnings = getWarnings();
       warnings[senderID] = (warnings[senderID] || 0) + 1;
       saveWarnings(warnings);
       
       const warningCount = warnings[senderID];
-      const userWarning = `❌ Your media name contains prohibited content!\n⚠️ Warning: ${warningCount}/3`;
+      const userWarning = `❌ আপনার দেওয়া নামের মধ্যে নিষিদ্ধ শব্দ আছে!\n⚠️ সতর্কবার্তা: ${warningCount}/3`;
       const adminAlert = `🚨 CONTENT VIOLATION\n• User: ${senderID}\n• Content: ${mediaName}\n• Thread: ${threadID}\n⚠️ Warnings: ${warningCount}/3`;
       
-      // Send notifications
       api.sendMessage(userWarning, threadID, messageID);
       notifyAdmins(api, adminAlert);
       
-      // Block user after 3 warnings
       if (warningCount >= 3) {
         api.sendMessage(`🚫 User ${senderID} has been blocked for repeated violations!`, threadID);
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -125,7 +120,6 @@ module.exports.run = async ({ api, event, args }) => {
       return;
     }
     
-    // Process media
     const attachment = messageReply.attachments[0];
     const duration = attachment.type === "video" ? attachment.duration || 0 : 0;
     
@@ -133,7 +127,6 @@ module.exports.run = async ({ api, event, args }) => {
     if (!finalUrl) 
       return api.sendMessage("❌ Failed to upload media to hosting service", threadID, messageID);
     
-    // Add to database
     const apis = await axios.get('https://raw.githubusercontent.com/shaonproject/Shaon/main/api.json');
     const baseAPI = apis.data.api;
     
@@ -141,9 +134,8 @@ module.exports.run = async ({ api, event, args }) => {
       `${baseAPI}/video/random?name=${encodeURIComponent(mediaName)}&url=${encodeURIComponent(finalUrl)}`
     );
     
-    // Success message
     api.sendMessage(
-      `✅ Added successfully!\n┏📛 Name: ${dbResponse.data.name}\n┗🔗 URL: ${dbResponse.data.url}`,
+      `✅ Added successfully!\n📛 Name: ${dbResponse.data.name}\n🔗 URL: ${dbResponse.data.url}`,
       threadID,
       messageID
     );
