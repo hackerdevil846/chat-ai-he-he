@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🍓 𝑮𝒓𝒐𝒖𝒑 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒑𝒂𝒊𝒓𝒊𝒏𝒈 𝒇𝒆𝒂𝒕𝒖𝒓𝒆",
-	commandCategory: "💞 𝒓𝒆𝒍𝒂𝒕𝒊𝒐𝒏𝒔𝒉𝒊𝒑",
+	category: "💞 𝒓𝒆𝒍𝒂𝒕𝒊𝒐𝒏𝒔𝒉𝒊𝒑",
 	cooldowns: 5,
 	usages: "[mention/reply/leave blank]",
 	dependencies: {
