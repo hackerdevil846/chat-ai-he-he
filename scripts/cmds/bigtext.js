@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "✨ 𝗖𝗼𝗻𝘃𝗲𝗿𝘁𝘀 𝘁𝗲𝘅𝘁 𝘁𝗼 𝗯𝗶𝗴 𝗯𝗹𝗼𝗰𝗸 𝗹𝗲𝘁𝘁𝗲𝗿𝘀 ✨",
-    commandCategory: "𝗠𝗘𝗗𝗜𝗔",
+    category: "𝗠𝗘𝗗𝗜𝗔",
     usages: "[text]",
     cooldowns: 5
 };
