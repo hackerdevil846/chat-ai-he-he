@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Upload image/video to Imgur",
-	commandCategory: "tools",
+	category: "tools",
 	usages: "[reply to image/video]",
 	cooldowns: 5,
 	dependencies: {
