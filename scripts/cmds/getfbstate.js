@@ -9,7 +9,7 @@ module.exports.config = {
 		en: "Get current fbstate in different formats",
 		vi: "Lấy fbstate hiện tại ở các định dạng khác nhau"
 	},
-	commandCategory: "system",
+	category: "system",
 	usages: "[cookies/string]",
 	cooldowns: 5,
 	dependencies: {
