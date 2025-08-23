@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
   description: "𝑾𝒉𝒊𝒕𝒆 𝒃𝒓𝒐𝒕𝒉𝒆𝒓 𝒎𝒆𝒎𝒆 𝒄𝒓𝒆𝒂𝒕𝒐𝒓", // Banglish description
-  commandCategory: "Edit-IMG",
+  category: "Edit-IMG",
   usages: "[text 1] | [text 2]",
   cooldowns: 10
 };
