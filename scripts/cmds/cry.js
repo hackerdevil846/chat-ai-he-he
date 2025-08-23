@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0, // 0 = all members can use
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
 	description: "Cry meme effect with mentioned/replied user avatar 😭", 
-	commandCategory: "meme", // Category
+	category: "meme", // Category
 	usages: "{pn} [tag/reply]", // Usage
 	cooldowns: 3, // Cooldown in seconds
 	dependencies: {
