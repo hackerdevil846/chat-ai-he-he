@@ -12,7 +12,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🤖 AI assistant with image generation capability (Free Version)",
-  commandCategory: "ai",
+  category: "ai",
   usages: "[draw] [prompt] | [clear] | [prompt]",
   cooldowns: 5,
   dependencies: {
