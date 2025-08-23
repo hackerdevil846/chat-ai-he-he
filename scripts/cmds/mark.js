@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒖𝒏",
-	commandCategory: "𝑮𝒂𝒎𝒆",
+	category: "𝑮𝒂𝒎𝒆",
 	usages: "[𝒕𝒆𝒙𝒕]",
 	cooldowns: 5,
 	dependencies: {
