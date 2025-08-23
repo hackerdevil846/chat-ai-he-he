@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑩𝒐𝒕 𝒋𝒆 𝒃𝒐𝒙 𝒆 𝒂𝒔𝒆 𝒋𝒐𝒊𝒏 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
     usages: "",
     cooldowns: 5,
     dependencies: {
