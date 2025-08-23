@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔞 𝒏𝒖𝒅𝒆 𝒄𝒉𝒐𝒃𝒊 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 📸",
-	commandCategory: "🔞 18+",
+	category: "🔞 18+",
 	usages: "",
 	cooldowns: 5,
 	dependencies: {
