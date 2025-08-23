@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑩𝒐𝒕 𝒆𝒓 𝒃𝒆𝒃𝒐𝒉𝒂𝒓 𝒆𝒓 𝒏𝒊𝒚𝒐𝒎𝒎𝒂𝒍𝒊",
-    commandCategory: "group",
+    category: "group",
     usages: "RuleBot",
     cooldowns: 5,
     dependencies: {}
