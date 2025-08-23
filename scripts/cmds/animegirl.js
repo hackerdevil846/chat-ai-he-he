@@ -2,7 +2,7 @@ module.exports.config = {
   name: "animegirl",
   version: "5.0.0",
   hasPermssion: 0,
-  credits: "Manus",
+  credits: "Asif",
   description: "Fetches a random anime picture from various categories with multiple fallbacks.",
   category: "media",
   usages: "animegirl [category]\n\nAvailable Categories:\n- waifu (default)\n- neko\n- shinobu\n- megumin",
