@@ -42,7 +42,7 @@ module.exports = {
     hasPermission: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: toBI("Search and download videos, music, documents, APKs, and images from archive.org"),
-    commandCategory: toBI("media"),
+    category: toBI("media"),
     usages: toBI("<type> <query>"),
     cooldowns: 5,
   },
