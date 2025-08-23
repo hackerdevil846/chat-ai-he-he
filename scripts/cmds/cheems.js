@@ -7,7 +7,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🐶 Oh is that Cheems?",
-  commandCategory: "Edit-IMG",
+  category: "Edit-IMG",
   usages: "[text 1] | [text 2] | [text 3] | [text 4]",
   cooldowns: 1,
   dependencies: {
