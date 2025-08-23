@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Change group emoji", 
-	commandCategory: "Group", 
+	category: "Group", 
 	usages: "[emoji]", 
 	cooldowns: 5,
 	dependencies: {} 
