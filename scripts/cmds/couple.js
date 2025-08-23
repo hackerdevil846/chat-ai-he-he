@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💑 𝑺𝒉𝒐𝒘 𝒍𝒐𝒗𝒆 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚",
-    commandCategory: "𝗟𝗢𝗩𝗘",
+    category: "𝗟𝗢𝗩𝗘",
     usages: "[@tag]",
     cooldowns: 5,
     dependencies: {
