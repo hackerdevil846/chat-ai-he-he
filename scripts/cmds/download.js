@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "📥 Download files from links",
-  commandCategory: "⚙️ System",
+  category: "⚙️ System",
   usages: "[path] <link>",
   cooldowns: 5,
   dependencies: {
@@ -55,3 +55,4 @@ module.exports.run = async function({ api, event, args }) {
     return api.sendMessage("❌ Download failed! Please check the link and try again", event.threadID, event.messageID);
   }
 };
+
