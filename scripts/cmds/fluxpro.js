@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0, // 0 = all users can use
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
   description: "🎨 Generate high-quality images using Flux.1 Pro AI",
-  commandCategory: "IMAGE GENERATOR", // Category
+  category: "IMAGE GENERATOR", // Category
   usages: "[prompt] --style [style_id] --size [dimensions]",
   cooldowns: 20, // 20s cooldown
   dependencies: {
