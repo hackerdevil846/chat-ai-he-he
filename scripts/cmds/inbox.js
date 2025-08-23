@@ -5,7 +5,7 @@ module.exports.config = {
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	hasPermssion: 0,
 	description: "Sends a friendly inbox notification with emojis ✨",
-	commandCategory: "system",
+	category: "system",
 	usages: "[text]",
 	cooldowns: 5,
 	envConfig: {}
