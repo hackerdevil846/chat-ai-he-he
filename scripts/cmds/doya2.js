@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Islamic supplications and prayers with beautiful images",
-	commandCategory: "islamic",
+	category: "islamic",
 	usages: "[doya number]",
 	cooldowns: 5,
 	dependencies: {
