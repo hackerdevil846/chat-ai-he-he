@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆 𝒕𝒐 𝒂𝒃𝒖𝒔𝒊𝒗𝒆 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔",
-	commandCategory: "noprefix",
+	category: "noprefix",
 	usages: "[a𝒖𝒕𝒐𝒕𝒓𝒊𝒈𝒈𝒆𝒓]",
 	cooldowns: 5,
 	envConfig: {
