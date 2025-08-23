@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
     description: "𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍𝒅𝒆𝒗 𝒂𝒖𝒓 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒔𝒆 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒂𝒓𝒆𝒏", // Banglish description
-    commandCategory: "Admin",
+    category: "Admin",
     usages: "[reply or text]",
     cooldowns: 0,
     dependencies: {
