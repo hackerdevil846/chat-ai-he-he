@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "💖 2 jon er FB avatar diye ekta romantic love image create kore",
-	commandCategory: "edit-img",
+	category: "edit-img",
 	usages: "[tag]",
 	cooldowns: 5,
 	dependencies: {
