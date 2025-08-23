@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0, // 0 = everyone
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🌸 Random সুন্দর মেয়ের ছবি দেখাবে",
-	commandCategory: "random-img", 
+	category: "random-img", 
 	usages: "girl2", 
 	cooldowns: 5, 
 	dependencies: {
