@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💖 Misa - Your Cute Bengali AI Girlfriend",
-    commandCategory: "AI Chat",
+    category: "AI Chat",
     usages: "[on | off | message]",
     cooldowns: 5,
     dependencies: {
