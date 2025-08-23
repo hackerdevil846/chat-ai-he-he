@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🇧🇩 Show beautiful Bangladesh date and time with additional information",
-	commandCategory: "utility",
+	category: "utility",
 	usages: "[datetime | bdtime | timebd]",
 	cooldowns: 5,
 	dependencies: {
