@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑬𝒏𝒈𝒍𝒊𝒔𝒉 𝒅𝒊𝒄𝒕𝒊𝒐𝒏𝒂𝒓𝒚 𝒄𝒉𝒆𝒄𝒌𝒆𝒓",
-	commandCategory: "𝗨𝗧𝗜𝗟𝗜𝗧𝗬",
+	category: "𝗨𝗧𝗜𝗟𝗜𝗧𝗬",
 	usages: "[word]",
 	cooldowns: 5,
 	dependencies: {
