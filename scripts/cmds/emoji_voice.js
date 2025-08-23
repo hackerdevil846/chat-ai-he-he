@@ -51,7 +51,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🎵 Emoji-based voice responses with Bengali captions",
-    commandCategory: "entertainment",
+    category: "entertainment",
     usages: "Send any supported emoji: 🥺 😍 😭 😡 🙄 😑 😒 🤣 💔 🙂",
     cooldowns: 3,
     dependencies: {
