@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑺𝒂𝒅𝒉𝒖𝒃𝒂𝒔𝒉𝒂 𝒊𝒎𝒂𝒈𝒆 𝒄𝒓𝒆𝒂𝒕𝒆 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "image",
+    category: "image",
     usages: "[@mention]",
     cooldowns: 5,
     dependencies: {
