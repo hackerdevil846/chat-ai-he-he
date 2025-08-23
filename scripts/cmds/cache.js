@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📁 Manage cache folder files and directories",
-	commandCategory: "system",
+	category: "system",
 	usages: "[start/ext/help] [text]",
 	cooldowns: 3,
 	envConfig: {
