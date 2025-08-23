@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🆔 Get sticker ID or send sticker by ID",
-  commandCategory: "sticker",
+  category: "sticker",
   usages: "[reply|stickerID]",
   cooldowns: 5,
   dependencies: {}
