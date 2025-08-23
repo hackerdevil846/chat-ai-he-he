@@ -43,7 +43,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "Asif Mahmud",
     description: "YouTube music downloader with thumbnail and info",
-    commandCategory: "Media",
+    category: "Media",
     usages: "music <query> | music video <query>",
     cooldowns: 5,
   },
