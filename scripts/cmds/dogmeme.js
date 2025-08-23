@@ -9,7 +9,7 @@ module.exports.config = {
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     hasPermssion: 0,
     description: "🐕 Create personalized dog memes with beautiful formatting",
-    commandCategory: "fun",
+    category: "fun",
     usages: "[@mention]",
     cooldowns: 15,
     dependencies: {
