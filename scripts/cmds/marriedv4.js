@@ -8,7 +8,7 @@ module.exports = {
             en: "💍 Create marriage images for couples",
             bn: "💑 দম্পতিদের জন্য বিবাহের ছবি তৈরি করুন"
         },
-        commandCategory: {
+        category: {
             en: "Image",
             bn: "ছবি"
         },
