@@ -1,12 +1,15 @@
 module.exports.config = {
 	name: "cache",
-	version: "1.0.1",
+	version: "1.1.0",
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝒄𝒂𝒄𝒉𝒆 𝒇𝒐𝒍𝒅𝒆𝒓 𝒆𝒓 𝒇𝒊𝒍𝒆 𝒃𝒂 𝒇𝒐𝒍𝒅𝒆𝒓 𝒅𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂",
-	commandCategory: "Admin-bot system",
-	usages: "\ncache start <text>\ncache ext <text>\ncache <text>\ncache [blank]\ncache help\n𝑵𝑶𝑻𝑬: <𝒕𝒆𝒙𝒕> 𝒉𝒐𝒍𝒐 𝒂𝒑𝒏𝒊 𝒋𝒆 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝒆𝒏𝒕𝒆𝒓 𝒌𝒂𝒓𝒆𝒏 𝒔𝒆𝒕𝒂",
-	cooldowns: 5
+	description: "📁 Manage cache folder files and directories",
+	commandCategory: "system",
+	usages: "[start/ext/help] [text]",
+	cooldowns: 3,
+	envConfig: {
+		allowedUsers: ["61571630409265"]
+	}
 };
 
 const toMBI = (str) => {
@@ -22,138 +25,193 @@ const toMBI = (str) => {
 	return str.split('').map(char => map[char] || char).join('');
 };
 
-module.exports.handleReply = ({ api, event, handleReply }) => {
-	if (event.senderID != handleReply.author) return; 
+module.exports.handleReply = async function({ api, event, handleReply }) {
+	if (event.senderID !== handleReply.author) return;
+	
 	const fs = require("fs-extra");
-	let msg = "";
-	const nums = event.body.split(" ").map(n => parseInt(n)).filter(n => !isNaN(n));
+	const { promisify } = require("util");
+	const unlinkAsync = promisify(fs.unlink);
+	const rmdirAsync = promisify(fs.rmdir);
+	
+	let successList = [];
+	let errorList = [];
+	const nums = event.body.split(" ").map(n => parseInt(n)).filter(n => !isNaN(n) && n > 0 && n <= handleReply.files.length);
 
-	nums.forEach(num => {
-		if (num > 0 && num <= handleReply.files.length) {
-			const target = handleReply.files[num - 1];
-			const path = __dirname + '/cache/' + target;
-			try {
-				if (fs.existsSync(path)) {
-					const stat = fs.statSync(path);
-					let typef = "";
-					if (stat.isDirectory()) {
-						typef = "[𝑭𝒐𝒍𝒅𝒆𝒓🗂️]";
-						fs.rmdirSync(path, { recursive: true });
-					} else {
-						typef = "[𝑭𝒊𝒍𝒆📄]";
-						fs.unlinkSync(path);
-					}
-					msg += `${typef} ${target}\n`;
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		}
-	});
-
-	if (msg) {
-		api.sendMessage(toMBI("Deleted the following files in cache folder:\n\n") + msg, event.threadID);
-	} else {
-		api.sendMessage(toMBI("Invalid selection. Please enter valid numbers."), event.threadID);
+	if (nums.length === 0) {
+		return api.sendMessage("❌ Invalid selection. Please enter valid numbers separated by spaces.", event.threadID);
 	}
+
+	for (const num of nums) {
+		const target = handleReply.files[num - 1];
+		const path = `${__dirname}/cache/${target}`;
+		
+		try {
+			if (fs.existsSync(path)) {
+				const stat = fs.statSync(path);
+				if (stat.isDirectory()) {
+					await rmdirAsync(path, { recursive: true });
+					successList.push(`🗂️ ${target}`);
+				} else {
+					await unlinkAsync(path);
+					successList.push(`📄 ${target}`);
+				}
+			}
+		} catch (error) {
+			errorList.push(`❌ ${target}: ${error.message}`);
+		}
+	}
+
+	let response = "";
+	if (successList.length > 0) {
+		response += `✅ Successfully deleted ${successList.length} item(s):\n${successList.join('\n')}\n\n`;
+	}
+	if (errorList.length > 0) {
+		response += `❌ Errors (${errorList.length}):\n${errorList.join('\n')}`;
+	}
+
+	api.sendMessage(toMBI(response || "⚠️ No items were processed"), event.threadID);
 };
 
 module.exports.run = async function({ api, event, args }) {
 	const fs = require("fs-extra");
-	const permission = ["61571630409265"];
-	if (!permission.includes(event.senderID)) {
-		return api.sendMessage(toMBI("You don't have permission to use this command"), event.threadID);
+	const cachePath = `${__dirname}/cache`;
+	
+	// Permission check
+	if (!module.exports.config.envConfig.allowedUsers.includes(event.senderID)) {
+		return api.sendMessage("⛔ Access Denied: You don't have permission to use this command", event.threadID);
 	}
 
-	const cachePath = __dirname + "/cache";
-	const files = fs.readdirSync(cachePath) || [];
-	let msg = "", key = "", i = 1;
-
-	if (args[0] === 'help') {
+	// Help command
+	if (args[0] === "help") {
 		const helpMsg = `
-👉𝑴𝒐𝒅𝒖𝒍𝒆 𝒄𝒐𝒅𝒆 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅👈
-		
-𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒖𝒔𝒂𝒈𝒆:
-• 𝑲𝒆𝒚: 𝒔𝒕𝒂𝒓𝒕 <𝒕𝒆𝒙𝒕>
-• 𝑬𝒇𝒇𝒆𝒄𝒕: 𝑭𝒊𝒍𝒕𝒆𝒓 𝒇𝒊𝒍𝒆𝒔 𝒔𝒕𝒂𝒓𝒕𝒊𝒏𝒈 𝒘𝒊𝒕𝒉 𝒕𝒆𝒙𝒕
-• 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒄𝒂𝒄𝒉𝒆 𝒔𝒕𝒂𝒓𝒕 𝒂𝒃𝒄
-		
-• 𝑲𝒆𝒚: 𝒆𝒙𝒕 <𝒕𝒆𝒙𝒕>
-• 𝑬𝒇𝒇𝒆𝒄𝒕: 𝑭𝒊𝒍𝒕𝒆𝒓 𝒇𝒊𝒍𝒆𝒔 𝒘𝒊𝒕𝒉 𝒆𝒙𝒕𝒆𝒏𝒔𝒊𝒐𝒏
-• 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒄𝒂𝒄𝒉𝒆 𝒆𝒙𝒕 𝒑𝒏𝒈
-		
-• 𝑲𝒆𝒚: <𝒕𝒆𝒙𝒕>
-• 𝑬𝒇𝒇𝒆𝒄𝒕: 𝑭𝒊𝒍𝒕𝒆𝒓 𝒇𝒊𝒍𝒆𝒔 𝒄𝒐𝒏𝒕𝒂𝒊𝒏𝒊𝒏𝒈 𝒕𝒆𝒙𝒕
-• 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒄𝒂𝒄𝒉𝒆 𝒕𝒆𝒔𝒕
-		
-• 𝑲𝒆𝒚: [𝒃𝒍𝒂𝒏𝒌]
-• 𝑬𝒇𝒇𝒆𝒄𝒕: 𝑳𝒊𝒔𝒕 𝒂𝒍𝒍 𝒄𝒂𝒄𝒉𝒆 𝒇𝒊𝒍𝒆𝒔
-• 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒄𝒂𝒄𝒉𝒆
-		
-• 𝑲𝒆𝒚: 𝒉𝒆𝒍𝒑
-• 𝑬𝒇𝒇𝒆𝒄𝒕: 𝑺𝒉𝒐𝒘 𝒕𝒉𝒊𝒔 𝒉𝒆𝒍𝒑 𝒎𝒆𝒔𝒔𝒂𝒈𝒆
-• 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: 𝒄𝒂𝒄𝒉𝒆 𝒉𝒆𝒍𝒑`;
+🔄 𝐂𝐀𝐂𝐇𝐄 𝐌𝐀𝐍𝐀𝐆𝐄𝐌𝐄𝐍𝐓 𝐒𝐘𝐒𝐓𝐄𝐌
+
+▸ 𝐜𝐚𝐜𝐡𝐞 𝐬𝐭𝐚𝐫𝐭 <𝐭𝐞𝐱𝐭>
+   ↳ Filter files starting with text
+   ↳ Example: cache start abc
+
+▸ 𝐜𝐚𝐜𝐡𝐞 𝐞𝐱𝐭 <𝐞𝐱𝐭𝐞𝐧𝐬𝐢𝐨𝐧>
+   ↳ Filter files by extension
+   ↳ Example: cache ext .png
+
+▸ 𝐜𝐚𝐜𝐡𝐞 <𝐭𝐞𝐱𝐭>
+   ↳ Filter files containing text
+   ↳ Example: cache test
+
+▸ 𝐜𝐚𝐜𝐡𝐞
+   ↳ List all cache files
+
+▸ 𝐜𝐚𝐜𝐡𝐞 𝐡𝐞𝐥𝐩
+   ↳ Show this help message
+
+📝 𝐍𝐎𝐓𝐄: Reply with numbers to delete files/folders
+🔒 𝐏𝐞𝐫𝐦𝐢𝐬𝐬𝐢𝐨𝐧: Bot Admin Only
+👨‍💻 𝐂𝐫𝐞𝐚𝐭𝐨𝐫: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
 		return api.sendMessage(helpMsg, event.threadID);
 	}
 
-	if (args[0] === "start" && args[1]) {
-		const word = args.slice(1).join(" ");
-		const filtered = files.filter(file => file.startsWith(word));
-		if (filtered.length === 0) {
-			return api.sendMessage(toMBI(`No files starting with: ${word}`), event.threadID);
-		}
-		files = filtered;
-		key = toMBI(`Found ${files.length} file(s) starting with: ${word}`);
-	}
-	else if (args[0] === "ext" && args[1]) {
-		const ext = args[1];
-		const filtered = files.filter(file => file.endsWith(ext));
-		if (filtered.length === 0) {
-			return api.sendMessage(toMBI(`No files with extension: ${ext}`), event.threadID);
-		}
-		files = filtered;
-		key = toMBI(`Found ${files.length} file(s) with extension: ${ext}`);
-	}
-	else if (!args[0]) {
-		if (files.length === 0) {
-			return api.sendMessage(toMBI("Cache folder is empty"), event.threadID);
-		}
-		key = toMBI("All files in cache:");
-	}
-	else {
-		const word = args.join(" ");
-		const filtered = files.filter(file => file.includes(word));
-		if (filtered.length === 0) {
-			return api.sendMessage(toMBI(`No files containing: ${word}`), event.threadID);
-		}
-		files = filtered;
-		key = toMBI(`Found ${files.length} file(s) containing: ${word}`);
+	// Read cache directory
+	let files = [];
+	try {
+		files = fs.readdirSync(cachePath);
+	} catch (error) {
+		return api.sendMessage(`❌ Error reading cache folder: ${error.message}`, event.threadID);
 	}
 
-	files.forEach(file => {
+	let filterType = "";
+	let filterValue = "";
+	let filteredFiles = [];
+
+	// Apply filters
+	if (args[0] === "start" && args[1]) {
+		filterValue = args.slice(1).join(" ");
+		filteredFiles = files.filter(file => file.startsWith(filterValue));
+		filterType = `starting with "${filterValue}"`;
+	} else if (args[0] === "ext" && args[1]) {
+		filterValue = args[1];
+		filteredFiles = files.filter(file => file.endsWith(filterValue));
+		filterType = `with extension "${filterValue}"`;
+	} else if (args.length > 0) {
+		filterValue = args.join(" ");
+		filteredFiles = files.filter(file => file.includes(filterValue));
+		filterType = `containing "${filterValue}"`;
+	} else {
+		filteredFiles = files;
+		filterType = "in cache";
+	}
+
+	// Handle no results
+	if (filteredFiles.length === 0) {
+		return api.sendMessage(
+			`📭 No files found ${filterType}\n💡 Try: cache help for usage instructions`, 
+			event.threadID
+		);
+	}
+
+	// Format file list
+	let fileList = "";
+	filteredFiles.forEach((file, index) => {
 		const fullPath = `${cachePath}/${file}`;
 		try {
 			const stat = fs.statSync(fullPath);
-			const type = stat.isDirectory() ? "𝑭𝒐𝒍𝒅𝒆𝒓🗂️" : "𝑭𝒊𝒍𝒆📄";
-			msg += `${i++}. ${type} ${file}\n`;
-		} catch (e) {
-			console.error(e);
+			const type = stat.isDirectory() ? "🗂️" : "📄";
+			const size = stat.isDirectory() ? "" : ` (${formatBytes(stat.size)})`;
+			fileList += `${index + 1}. ${type} ${file}${size}\n`;
+		} catch (error) {
+			fileList += `${index + 1}. ❓ ${file} (inaccessible)\n`;
 		}
 	});
 
-	api.sendMessage(
-		toMBI("Reply with numbers to delete (multiple numbers separated by space):\n") + 
-		key + "\n\n" + msg,
-		event.threadID,
-		(error, info) => {
-			if (!error) {
-				global.client.handleReply.push({
-					name: this.config.name,
-					messageID: info.messageID,
-					author: event.senderID,
-					files
-				});
-			}
+	// Send results
+	const totalSize = await getTotalSize(cachePath, filteredFiles);
+	const message = `
+📦 𝐂𝐀𝐂𝐇𝐄 𝐌𝐀𝐍𝐀𝐆𝐄𝐑
+
+🔍 Found ${filteredFiles.length} items ${filterType}
+💾 Total size: ${formatBytes(totalSize)}
+
+${fileList}
+✨ Reply with numbers to delete (ex: 1 3 5)
+📝 Multiple numbers separated by spaces
+❌ Type 'cancel' to abort operation
+	`;
+
+	api.sendMessage(toMBI(message), event.threadID, (error, info) => {
+		if (!error) {
+			global.client.handleReply.push({
+				name: this.config.name,
+				messageID: info.messageID,
+				author: event.senderID,
+				files: filteredFiles
+			});
 		}
-	);
+	});
 };
+
+// Helper functions
+function formatBytes(bytes, decimals = 2) {
+	if (bytes === 0) return '0 Bytes';
+	const k = 1024;
+	const dm = decimals < 0 ? 0 : decimals;
+	const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+	const i = Math.floor(Math.log(bytes) / Math.log(k));
+	return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+async function getTotalSize(cachePath, files) {
+	const fs = require("fs-extra");
+	let totalSize = 0;
+	
+	for (const file of files) {
+		try {
+			const stat = fs.statSync(`${cachePath}/${file}`);
+			if (!stat.isDirectory()) {
+				totalSize += stat.size;
+			}
+		} catch (error) {
+			// Skip inaccessible files
+		}
+	}
+	
+	return totalSize;
+}
