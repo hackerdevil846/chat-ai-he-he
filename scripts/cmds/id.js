@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑼𝒔𝒆𝒓 𝒆𝒓 𝑰𝑫 𝒊𝒏𝒇𝒐 𝒃𝒆𝒓 𝒌𝒐𝒓𝒆 𝒅𝒆𝒌𝒉𝒂𝒏𝒐",
-	commandCategory: "utility",
+	category: "utility",
 	usages: "[reply/mention/url/uid]",
 	cooldowns: 5,
 	dependencies: {
