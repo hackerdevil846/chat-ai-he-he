@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑯𝒐𝒍𝒐𝒍𝒊𝒗𝒆 𝑽𝑻𝒖𝒃𝒆𝒓 𝑷𝒉𝒐𝒕𝒐 𝑮𝒂𝒍𝒍𝒆𝒓𝒚",
-    commandCategory: "media",
+    category: "media",
     usages: "[character_name]",
     cooldowns: 5,
     dependencies: {
