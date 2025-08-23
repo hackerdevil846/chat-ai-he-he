@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🍌 𝒎𝒊𝒏𝒊𝒐𝒏𝒆𝒓 𝒃𝒉𝒂𝒔𝒉𝒂𝒚 𝒌𝒐𝒕𝒉𝒂 𝒃𝒐𝒍𝒐!",
-  commandCategory: "🎮 Fun",
+  category: "🎮 Fun",
   usages: "[text]",
   cooldowns: 5,
   dependencies: {
