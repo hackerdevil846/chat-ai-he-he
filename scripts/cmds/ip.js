@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑨𝒑𝒏𝒂𝒓 𝑰𝑷 𝒃𝒂 𝒂𝒏𝒏𝒐 𝑰𝑷 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏", 
-	commandCategory: "utility",
+	category: "utility",
 	usages: "[ip address]",
 	cooldowns: 5,
 	dependencies: {"axios": ""}
