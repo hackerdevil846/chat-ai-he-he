@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2, // Only bot admins/owners
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🔥 Random NSFW video from premium sources",
-  commandCategory: "nsfw",
+  category: "nsfw",
   usages: "[no options]",
   cooldowns: 5,
   dependencies: {},
