@@ -4,7 +4,7 @@ module.exports.config = {
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   hasPermssion: 2,
   description: "𝑩𝒐𝒕 𝒋𝒐𝒊𝒏 𝒌𝒐𝒓𝒂 𝒈𝒓𝒐𝒖𝒑 𝒈𝒖𝒍𝒐𝒓 𝒍𝒊𝒔𝒕 [𝑫𝒂𝒕𝒂] - 𝑩𝒂𝒏/𝑼𝒏𝒃𝒂𝒏/𝑫𝒆𝒍/𝑹𝒆𝒎𝒐𝒗𝒆 𝒆𝒓 𝒌𝒂𝒋 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒆𝒏",
-  commandCategory: "Admin",
+  category: "Admin",
   usages: "[page number/all]",
   cooldowns: 5
 };
