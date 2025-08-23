@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
     description: "𝑬𝒂𝒓𝒏 𝒄𝒐𝒊𝒏𝒔 𝒃𝒚 𝒘𝒐𝒓𝒌𝒊𝒏𝒈",
-    commandCategory: "Economy",
+    category: "Economy",
     cooldowns: 5,
     envConfig: {
         cooldownTime: 5000
