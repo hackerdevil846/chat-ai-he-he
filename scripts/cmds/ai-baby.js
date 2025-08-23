@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "Mirrykal",
     description: "Gemini AI - Intelligent assistant",
-    commandCategory: "ai",
+    category: "ai",
     usages: "[ask/on/off]",
     cooldowns: 2,
     dependencies: {
