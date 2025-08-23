@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ 𝐂𝐡𝐚𝐧𝐠𝐞 𝐲𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩'𝐬 𝐧𝐚𝐦𝐞 𝐰𝐢𝐭𝐡 𝐬𝐭𝐲𝐥𝐞 ✨",
-	commandCategory: "🅶🆁🅾🆄🅿",
+	category: "🅶🆁🅾🆄🅿",
 	usages: "[𝐧𝐞𝐰 𝐧𝐚𝐦𝐞]",
 	cooldowns: 3,
 	dependencies: {}
