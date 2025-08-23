@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑨𝒍𝒕𝒂𝒓 𝒊𝒎𝒂𝒈𝒆 𝒄𝒓𝒆𝒂𝒕𝒊𝒐𝒏 [𝒎𝒆𝒏𝒕𝒊𝒐𝒏𝒆𝒅]",
-  commandCategory: "𝒆𝒅𝒊𝒕-𝒊𝒎𝒂𝒈𝒆",
+  category: "𝒆𝒅𝒊𝒕-𝒊𝒎𝒂𝒈𝒆",
   usages: "[@𝒕𝒂𝒈]",
   cooldowns: 5,
   dependencies: {
