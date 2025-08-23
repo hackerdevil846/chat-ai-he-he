@@ -1,3 +1,9 @@
+const fs = require("fs-extra");
+const path = require("path");
+const axios = require("axios");
+const jimp = require("jimp");
+
+// Function to convert text to Math Bold Italic
 function toMathBoldItalic(text) {
     const map = {
         A: '𝑨', B: '𝑩', C: '𝑪', D: '𝑫', E: '𝑬', F: '𝑭', G: '𝑮', H: '𝑯', I: '𝑰', J: '𝑱', K: '𝑲', L: '𝑳', M: '𝑴',
@@ -25,82 +31,93 @@ module.exports.config = {
     }
 };
 
-module.exports.onLoad = async() => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'arr2.png');
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/iaOiAXe.jpeg", path);
-}
+module.exports.onLoad = async () => {
+    const dirMaterial = path.resolve(__dirname, "cache/canvas");
+    const arrPath = path.resolve(dirMaterial, "arr2.png");
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(arrPath)) {
+        await global.utils.downloadFile(
+            "https://i.imgur.com/iaOiAXe.jpeg",
+            arrPath
+        );
+    }
+};
 
-async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"]; 
-    const jimp = global.nodemodule["jimp"];
-    const __root = path.resolve(__dirname, "cache", "canvas");
-
-    let batgiam_img = await jimp.read(__root + "/arr2.png");
-    let pathImg = __root + `/batman${one}_${two}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
-    
-    let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-    
-    let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-    
-    let circleOne = await jimp.read(await circle(avatarOne));
-    let circleTwo = await jimp.read(await circle(avatarTwo));
-    batgiam_img.composite(circleOne.resize(200, 200), 70, 110).composite(circleTwo.resize(200, 200), 465, 110);
-    
-    let raw = await batgiam_img.getBufferAsync("image/png");
-    
-    fs.writeFileSync(pathImg, raw);
-    fs.unlinkSync(avatarOne);
-    fs.unlinkSync(avatarTwo);
-    
-    return pathImg;
-}
-
-async function circle(image) {
-    const jimp = require("jimp");
-    image = await jimp.read(image);
+// Create circular avatar
+async function circle(imagePath) {
+    let image = await jimp.read(imagePath);
     image.circle();
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args }) {    
-    const fs = global.nodemodule["fs-extra"];
+// Generate couple image
+async function makeImage({ one, two }) {
+    const __root = path.resolve(__dirname, "cache/canvas");
+    let baseImage = await jimp.read(path.join(__root, "arr2.png"));
+
+    const avatarOnePath = path.join(__root, `avt_${one}.png`);
+    const avatarTwoPath = path.join(__root, `avt_${two}.png`);
+    const finalPath = path.join(__root, `batman${one}_${two}.png`);
+
+    // Download avatars
+    const avatarOneBuffer = (await axios.get(
+        `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+        { responseType: "arraybuffer" }
+    )).data;
+    fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneBuffer, "utf-8"));
+
+    const avatarTwoBuffer = (await axios.get(
+        `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+        { responseType: "arraybuffer" }
+    )).data;
+    fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoBuffer, "utf-8"));
+
+    // Apply circle effect
+    let circleOne = await jimp.read(await circle(avatarOnePath));
+    let circleTwo = await jimp.read(await circle(avatarTwoPath));
+
+    // Composite images
+    baseImage.composite(circleOne.resize(200, 200), 70, 110)
+             .composite(circleTwo.resize(200, 200), 465, 110);
+
+    const buffer = await baseImage.getBufferAsync("image/png");
+    fs.writeFileSync(finalPath, buffer);
+
+    // Cleanup avatars
+    fs.unlinkSync(avatarOnePath);
+    fs.unlinkSync(avatarTwoPath);
+
+    return finalPath;
+}
+
+module.exports.run = async function({ api, event, args }) {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
-    
+
     if (!mention[0]) {
         return api.sendMessage(
-            toMathBoldItalic("𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝟏 𝐩𝐞𝐫𝐬𝐨𝐧"), 
-            threadID, 
+            toMathBoldItalic("❌ 𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝟏 𝐩𝐞𝐫𝐬𝐨𝐧"),
+            threadID,
             messageID
         );
     }
-    
-    const one = senderID, two = mention[0];
-    return makeImage({ one, two }).then(path => {
-        const bodyMsg = toMathBoldItalic(
-            "╔═══❖••° °••❖═══╗\n\n" +
-            "   𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥 𝐂𝐨𝐮𝐩𝐥𝐞\n\n" +
-            "╚═══❖••° °••❖═══╝\n\n" +
-            "   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n" +
-            "       👑 𝐈 𝐆𝐨𝐭 𝐘𝐨𝐮 ❤\n\n" +
-            "𝐘𝐨𝐮𝐫 𝐁𝐨𝐲𝐟𝐫𝐢𝐞𝐧𝐝 🩷\n\n" +
-            "   ✶⊶⊷⊷❍⊶⊷⊷✶"
-        );
-        
-        api.sendMessage({ 
-            body: bodyMsg, 
-            attachment: fs.createReadStream(path) 
-        }, threadID, () => fs.unlinkSync(path), messageID);
-    });
-}
+
+    const one = senderID;
+    const two = mention[0];
+
+    const imagePath = await makeImage({ one, two });
+
+    const bodyMsg = toMathBoldItalic(
+        "💞 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥 𝐂𝐨𝐮𝐩𝐥𝐞 💞\n\n" +
+        "✨ 𝐈 𝐆𝐨𝐭 𝐘𝐨𝐮 ❤\n" +
+        "👑 𝐘𝐨𝐮𝐫 𝐁𝐨𝐲𝐟𝐫𝐢𝐞𝐧𝐝 🩷\n\n" +
+        "💖 𝐓𝐨𝐠𝐞𝐭𝐡𝐞𝐫 𝐅𝐨𝐫𝐞𝐯𝐞𝐫 💖"
+    );
+
+    api.sendMessage(
+        { body: bodyMsg, attachment: fs.createReadStream(imagePath) },
+        threadID,
+        () => fs.unlinkSync(imagePath),
+        messageID
+    );
+};
