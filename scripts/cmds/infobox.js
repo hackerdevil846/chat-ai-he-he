@@ -11,7 +11,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "📊 View your group's information with beautiful graphics",
-  commandCategory: "group",
+  category: "group",
   usages: "infobox",
   cooldowns: 10,
   dependencies: {
