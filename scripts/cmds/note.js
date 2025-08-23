@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑷𝒓𝒐𝒕𝒊 𝒈𝒓𝒐𝒖𝒑𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒏𝒐𝒕𝒆 𝒃𝒐𝒔𝒉𝒂𝒏𝒐",
-	commandCategory: "𝑩𝒐𝒙 𝒄𝒉𝒂𝒕",
+	category: "𝑩𝒐𝒙 𝒄𝒉𝒂𝒕",
 	usages: "[add/remove/list] [note]",
 	cooldowns: 5,
 	dependencies: {
