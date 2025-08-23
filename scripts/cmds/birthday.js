@@ -5,11 +5,16 @@ module.exports.config = {
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑨𝒅𝒎𝒊𝒏'𝒔 𝒃𝒊𝒓𝒕𝒉𝒅𝒂𝒚 𝒄𝒐𝒖𝒏𝒕𝒅𝒐𝒘𝒏",
 	usePrefix: false,
-	commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
-	cooldowns: 5
-}
+	commandCategory: "system",
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"request": "",
+		"fs-extra": ""
+	}
+};
 
-module.exports.run = ({ api, event, args, client, Users, Threads, __GLOBAL, Currencies }) => {
+module.exports.run = function({ api, event, args, Users, Threads, Currencies }) {
 	const axios = global.nodemodule["axios"];
 	const request = global.nodemodule["request"];
 	const fs = global.nodemodule["fs-extra"];
