@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Advanced SMS bombing tool",
-	commandCategory: "system",
+	category: "system",
 	usages: "[phone] [amount]",
 	cooldowns: 10,
 	dependencies: {
