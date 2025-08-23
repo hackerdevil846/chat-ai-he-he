@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒇𝒂𝒄𝒕𝒔 𝒋𝒂𝒏𝒂𝒏",
-	commandCategory: "fun",
+	category: "fun",
 	usages: "[blank]",
 	cooldowns: 5,
 	dependencies: {
