@@ -11,7 +11,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "📇 Make a simple stylish Facebook group card info",
-  commandCategory: "logo",
+  category: "logo",
   usages: "{p}cardinfo2 <Name> <Sex> <Followers> <Love> <DOB> <Location> <FB Link>",
   cooldowns: 5,
   dependencies: {
