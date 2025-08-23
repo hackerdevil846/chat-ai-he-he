@@ -8,8 +8,8 @@ module.exports = {
     name: "brother",
     version: "1.0.0",
     hasPermssion: 0,
-    credits: "Asif",
-    description: "Create sibling pair images from mentioned users",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "👫 Create sibling pair images from mentioned users",
     category: "image",
     usages: "[@mention]",
     cooldowns: 5,
@@ -21,8 +21,7 @@ module.exports = {
     }
   },
 
-  // Changed from onLoad to onStart to satisfy framework requirements
-  onStart: async function() {
+  onLoad: async function() {
     try {
       const canvasPath = path.join(__dirname, "cache", "canvas");
       if (!fs.existsSync(canvasPath)) {
@@ -35,9 +34,10 @@ module.exports = {
           responseType: "arraybuffer"
         });
         fs.writeFileSync(templatePath, Buffer.from(data, "binary"));
+        console.log("✅ Template downloaded successfully");
       }
     } catch (error) {
-      console.error("Template Loading Error:", error);
+      console.error("❌ Template Loading Error:", error);
     }
   },
 
@@ -54,7 +54,7 @@ module.exports = {
       const imagePath = await this.makeSiblingImage(senderID, mention, cachePath);
 
       api.sendMessage({
-        body: `👫 Sibling pair: You and ${targetName}`,
+        body: `👫 Sibling pair created!\n\n✨ You and ${targetName} look awesome together!`,
         mentions: [
           { tag: targetName, id: mention }
         ],
@@ -64,7 +64,7 @@ module.exports = {
       }, messageID);
 
     } catch (error) {
-      console.error("Sibling Command Error:", error);
+      console.error("❌ Sibling Command Error:", error);
       api.sendMessage("❌ Failed to create sibling image. Please try again later.", threadID, messageID);
     }
   },
@@ -72,9 +72,12 @@ module.exports = {
   makeSiblingImage: async function(user1, user2, cacheDir) {
     const templatePath = path.join(cacheDir, "sibling_template.jpg");
     const outputPath = path.join(cacheDir, `siblings_${user1}_${user2}_${Date.now()}.png`);
+    
     try {
-      const avatar1 = await this.processAvatar(user1, cacheDir);
-      const avatar2 = await this.processAvatar(user2, cacheDir);
+      const [avatar1, avatar2] = await Promise.all([
+        this.processAvatar(user1, cacheDir),
+        this.processAvatar(user2, cacheDir)
+      ]);
       
       const template = await jimp.read(templatePath);
       
@@ -84,7 +87,7 @@ module.exports = {
       await template.writeAsync(outputPath);
       return outputPath;
     } catch (error) {
-      console.error("Image Creation Error:", error);
+      console.error("❌ Image Creation Error:", error);
       throw error;
     }
   },
@@ -102,7 +105,7 @@ module.exports = {
       fs.unlinkSync(avatarPath);
       return avatar;
     } catch (error) {
-      console.error("Avatar Processing Error:", error);
+      console.error("❌ Avatar Processing Error:", error);
       throw error;
     }
   }
