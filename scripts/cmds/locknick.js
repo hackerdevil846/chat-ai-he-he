@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🔒 𝐋𝐨𝐜𝐤/𝐮𝐧𝐥𝐨𝐜𝐤 𝐠𝐫𝐨𝐮𝐩 𝐦𝐞𝐦𝐛𝐞𝐫𝐬' 𝐧𝐢𝐜𝐤𝐧𝐚𝐦𝐞𝐬",
-    commandCategory: "𝐆𝐫𝐨𝐮𝐩",
+    category: "𝐆𝐫𝐨𝐮𝐩",
     usages: "locknick [on/off]",
     cooldowns: 5
 };
