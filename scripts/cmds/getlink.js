@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑮𝒆𝒕 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒍𝒊𝒏𝒌𝒔 𝒇𝒐𝒓 𝒂𝒕𝒕𝒂𝒄𝒉𝒆𝒅 𝒎𝒆𝒅𝒊𝒂",
-	commandCategory: "𝗧𝗢𝗢𝗟𝗦",
+	category: "𝗧𝗢𝗢𝗟𝗦",
 	usages: "[reply]",
 	cooldowns: 5,
 	dependencies: {}
