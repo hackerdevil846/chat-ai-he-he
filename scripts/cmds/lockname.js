@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔒 𝐆𝐫𝐨𝐮𝐩 𝐍𝐚𝐦𝐞 𝐋𝐨𝐜𝐤 𝐒𝐲𝐬𝐭𝐞𝐦",
-	commandCategory: "group",
+	category: "group",
 	usages: "lockname [lock/unlock/reset] [name]",
 	cooldowns: 3,
 	envConfig: {
