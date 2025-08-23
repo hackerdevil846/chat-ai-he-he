@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Convert text to Baybayin script",
-    commandCategory: "phontetic-conversion",
+    category: "phontetic-conversion",
     usages: "baybayin [text]",
     cooldowns: 5,
     dependencies: {
