@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝒏𝒊𝒋𝒆𝒓 𝒃𝒂 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂 𝒍𝒐𝒌𝒆𝒓 𝒕𝒂𝒌𝒂 𝒅𝒆𝒌𝒉𝒐",
-	commandCategory: "𝑒𝒄𝒐𝒏𝒐𝒎𝒚",
+	category: "𝑒𝒄𝒐𝒏𝒐𝒎𝒚",
 	usages: "[𝒕𝒂𝒈]",
 	cooldowns: 5,
 	dependencies: {
