@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑼𝒔𝒆𝒓 𝒆𝒓 𝒂𝒗𝒂𝒕𝒂𝒓 𝒑𝒂𝒘𝒂 𝒋𝒂𝒃𝒆",
-  commandCategory: "𝒕𝒐𝒐𝒍𝒔",
+  category: "𝒕𝒐𝒐𝒍𝒔",
   cooldowns: 0
 };
 
