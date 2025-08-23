@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑰𝒏𝒕𝒆𝒓𝒏𝒂𝒕𝒊𝒐𝒏𝒂𝒍 𝑺𝒑𝒂𝒄𝒆 𝑺𝒕𝒂𝒕𝒊𝒐𝒏 𝒆𝒓 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 𝒍𝒐𝒄𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏",
-    commandCategory: "𝑻𝒐𝒐𝒍",
+    category: "𝑻𝒐𝒐𝒍",
     usages: "iss",
     cooldowns: 5,
     dependencies: {
