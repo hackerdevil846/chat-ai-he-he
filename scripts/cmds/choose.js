@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Apnar poschand ekti option bacher korte sahayyo kore 🤔",
-    commandCategory: "utilities",
+    category: "utilities",
     usages: "[Option 1] | [Option 2]",
     cooldowns: 5
 };
