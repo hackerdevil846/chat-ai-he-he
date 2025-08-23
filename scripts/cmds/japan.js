@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐𝒔",
-  commandCategory: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝒎𝒂𝒈𝒆",
+  category: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝒎𝒂𝒈𝒆",
   usages: "𝒋𝒂𝒑𝒂𝒏",
   cooldowns: 5,
   dependencies: {
