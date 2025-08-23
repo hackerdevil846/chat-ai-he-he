@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Changed credits as requested
 	description: "✨ Create Khaby Lame memes with custom text",
-	commandCategory: "🎭 fun",
+	category: "🎭 fun",
 	usages: "[text1] | [text2]",
 	cooldowns: 5,
 	dependencies: {
