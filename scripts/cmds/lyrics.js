@@ -17,7 +17,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑮𝒂𝒏𝒆𝒓 𝒆𝒓 𝒍𝒚𝒓𝒊𝒄𝒔 𝒋𝒂𝒏𝒂𝒏",
-  commandCategory: "𝑴𝒆𝒅𝒊𝒂",
+  category: "𝑴𝒆𝒅𝒊𝒂",
   usages: "𝒍𝒚𝒓𝒊𝒄𝒔 [𝒈𝒂𝒏𝒆𝒓 𝒏𝒂𝒎]",
   cooldowns: 5
 };
