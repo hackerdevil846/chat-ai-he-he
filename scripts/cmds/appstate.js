@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝒂𝒑𝒑𝒔𝒕𝒂𝒕𝒆.𝒋𝒔𝒐𝒏 𝒌𝒆 𝒓𝒆𝒇𝒓𝒆𝒔𝒉 𝒌𝒐𝒓𝒂",
-  commandCategory: "Admin",
+  category: "Admin",
   usages: "appstate",
   cooldowns: 5,
   dependencies: {}
