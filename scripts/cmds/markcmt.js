@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑭𝒂𝒌𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒃𝒂𝒏𝒂𝒏𝒐",
-	commandCategory: "𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
+	category: "𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
 	usages: "𝒎𝒂𝒓𝒌𝒄𝒎𝒕 [𝒕𝒆𝒙𝒕]",
 	cooldowns: 10,
 	dependencies: {
