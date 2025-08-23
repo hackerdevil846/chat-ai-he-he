@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑻𝒐𝒑 8 𝒈𝒓𝒐𝒖𝒑𝒔 𝒊𝒏𝒕𝒆𝒓𝒂𝒄𝒕𝒊𝒗𝒆 𝒅𝒊𝒂𝒈𝒓𝒂𝒎 𝒄𝒓𝒆𝒂𝒕𝒆 𝒌𝒐𝒓𝒕𝒆",
-	commandCategory: "group",
+	category: "group",
 	usages: "",
 	cooldowns: 5,
 	dependencies: {
