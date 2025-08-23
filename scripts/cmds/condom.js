@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Make fun of your friends using crazy condom fails 😆",
-	commandCategory: "fun",
+	category: "fun",
 	usages: "tag someone",
 	cooldowns: 5,
 	dependencies: {
