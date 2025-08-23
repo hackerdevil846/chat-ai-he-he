@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂 𝒈𝒓𝒆𝒂𝒕 𝒃𝒂𝒏𝒏𝒆𝒓",
-  commandCategory: "𝒎𝒆𝒅𝒊𝒂",
+  category: "𝒎𝒆𝒅𝒊𝒂",
   usages: "",
   cooldowns: 5
 };
