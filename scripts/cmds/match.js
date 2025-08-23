@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "⚡ 2 জনের মধ্যে ম্যাচ রেটিং দেখুন",
-  commandCategory: "𝑮𝒂𝒎𝒆",
+  category: "𝑮𝒂𝒎𝒆",
   usages: "[@ব্যাক্তি]",
   cooldowns: 5,
   dependencies: {
