@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "☕ | Tea command event handler",
-    commandCategory: "noprefix",
+    category: "noprefix",
     usages: "tea/Tea/Chai/CHAI/Cha/CHA",
     cooldowns: 5
 };
