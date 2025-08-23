@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "📜 List friends and manage your Facebook friends list",
-  commandCategory: "admin",
+  category: "admin",
   usages: "[page number]",
   cooldowns: 5
 };
