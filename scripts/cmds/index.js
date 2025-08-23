@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🎬 Send a beautiful Shairi video from YouTube or any custom link",
-  commandCategory: "media",
+  category: "media",
   usages: "[YouTube Link]",
   cooldowns: 10,
   dependencies: {
