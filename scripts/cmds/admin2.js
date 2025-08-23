@@ -9,7 +9,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "✨ Admin Management System ✨",
-  commandCategory: "system",
+  category: "system",
   usages: "admin2",
   cooldowns: 0,
   dependencies: {
