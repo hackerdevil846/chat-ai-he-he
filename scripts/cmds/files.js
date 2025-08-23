@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🛠️ Manage command folder files and directories",
-    commandCategory: "𝗔𝗗𝗠𝗜𝗡",
+    category: "𝗔𝗗𝗠𝗜𝗡",
     usages: "[start/ext/help] [text]",
     cooldowns: 5
 };
