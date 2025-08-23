@@ -11,7 +11,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
   description: '𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒎𝒂𝒓𝒌 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔 𝒂𝒔 𝒔𝒆𝒆𝒏',
-  commandCategory: '𝒕𝒐𝒐𝒍𝒔',
+  category: '𝒕𝒐𝒐𝒍𝒔',
   usages: 'on/off',
   cooldowns: 5
 };
