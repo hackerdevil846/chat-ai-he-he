@@ -8,7 +8,7 @@ module.exports.config = {
 	description: {
 		en: "Commands Store of Dipto - Browse available commands"
 	},
-	commandCategory: "system",
+	category: "system",
 	usages: "[command name | single character | page number]",
 	cooldowns: 5,
 	dependencies: {
