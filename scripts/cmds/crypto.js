@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑹𝒆𝒂𝒍-𝒕𝒊𝒎𝒆 𝒄𝒓𝒚𝒑𝒕𝒐𝒄𝒖𝒓𝒓𝒆𝒏𝒄𝒚 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒘𝒊𝒕𝒉 𝒂𝒅𝒗𝒂𝒏𝒄𝒆𝒅 𝒇𝒆𝒂𝒕𝒖𝒓𝒆𝒔",
-	commandCategory: "finance",
+	category: "finance",
 	usages: "[coin name] or [list]",
 	cooldowns: 10,
 	dependencies: {
