@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑩𝒂𝒏𝒏𝒆𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒐𝒏 𝒕𝒐𝒐𝒍",
-  commandCategory: "𝒎𝒆𝒅𝒊𝒂",
+  category: "𝒎𝒆𝒅𝒊𝒂",
   usages: "",
   cooldowns: 5
 };
