@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ Create romantic love image with two users",
-	commandCategory: "love",
+	category: "love",
 	usages: "[tag]",
 	cooldowns: 5,
 	dependencies: {
