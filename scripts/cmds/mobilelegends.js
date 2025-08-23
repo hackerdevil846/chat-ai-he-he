@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑴𝒐𝒃𝒊𝒍𝒆 𝑳𝒆𝒈𝒆𝒏𝒅𝒔 𝒆𝒓 𝒎𝒆𝒎𝒆",
-  commandCategory: "Entertainment",
+  category: "Entertainment",
   usages: "𝒎𝒐𝒃𝒊𝒍𝒆𝒍𝒆𝒈𝒆𝒏𝒅𝒔",
   cooldowns: 3,
   dependencies: {
