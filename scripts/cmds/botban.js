@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🛡️ 𝑶𝒕𝒉𝒆𝒓 𝑩𝒐𝒕𝒔 𝑫𝒆𝒕𝒆𝒄𝒕𝒊𝒐𝒏 & 𝑨𝒖𝒕𝒐-𝑩𝒂𝒏 𝑺𝒚𝒔𝒕𝒆𝒎",
-	commandCategory: "🛡️ 𝑺𝒚𝒔𝒕𝒆𝒎 𝑪𝒐𝒏𝒇𝒊𝒈",
+	category: "🛡️ 𝑺𝒚𝒔𝒕𝒆𝒎 𝑪𝒐𝒏𝒇𝒊𝒈",
 	usages: "[info|status]",
 	cooldowns: 5,
 	dependencies: {
