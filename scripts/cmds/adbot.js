@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     description: "𝑩𝒐𝒕 𝒆𝒓 𝒊𝒏𝒇𝒐 𝒅𝒆𝒌𝒉𝒂𝒏𝒐 𝒆𝒓 𝒌𝒂𝒋",
-    commandCategory: "Media",
+    category: "Media",
     usages: "",
     cooldowns: 4,
     dependencies: {
