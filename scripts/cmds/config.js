@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Configure bot settings",
-	commandCategory: "admin",
+	category: "admin",
 	cooldowns: 5,
 	dependencies: {
 		"axios": "*",
@@ -19,15 +19,37 @@ module.exports.languages = {
 
 const axios = require("axios");
 const fs = require("fs-extra");
+const path = require("path");
 
-// Keep original appstate path as requested (do NOT change)
-const appState = require("../../appstate.json");
-const cookie = appState.map(item => item = item.key + "=" + item.value).join(";");
+// keep original appstate path as requested (do NOT change)
+const appStatePath = path.join(__dirname, "../../appstate.json");
+
+let appState = null;
+let cookie = "";
+
+// Try to load the appstate.json but don't throw if missing — fail gracefully.
+try {
+  if (fs.existsSync(appStatePath)) {
+    appState = require(appStatePath);
+    if (Array.isArray(appState)) {
+      cookie = appState.map(item => `${item.key}=${item.value}`).join(";");
+    }
+  } else {
+    appState = null;
+    cookie = process.env.FB_COOKIE || "";
+  }
+} catch (err) {
+  // In case require caching or parse error, fallback to env var if present
+  appState = null;
+  cookie = process.env.FB_COOKIE || "";
+}
+
 const headers = {
   "Host": "mbasic.facebook.com",
   "user-agent": "Mozilla/5.0 (Linux; Android 11; M2101K7BG Build/RP1A.200720.011;) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/97.0.4692.98 Mobile Safari/537.36",
   "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-  "sec-fetch-site": "same-origin","sec-fetch-mode": "navigate",
+  "sec-fetch-site": "same-origin",
+  "sec-fetch-mode": "navigate",
   "sec-fetch-user": "?1",
   "sec-fetch-dest": "document",
   "referer": "https://mbasic.facebook.com/?refsrc=deprecated&_rdr",
@@ -62,19 +84,24 @@ function getGUID() {
 
 /**
  * handleReply
- * This function handles follow-up replies from the user (same logic and behaviour preserved).
+ * Keep the original logic and behaviour — adapted to GoatBot structure.
  */
-module.exports.handleReply = async function({ api, event, handleReply }) {
+module.exports.handleReply = async function({ api, event, handleReply, Users, Threads, Currencies }) {
   try {
     const botID = api.getCurrentUserID();
     const { type, author } = handleReply;
     const { threadID, messageID, senderID } = event;
-    let body = event.body || "";
+    let body = (event && event.body) ? event.body : "";
 
-    // Permission check - kept as original
+    // Permission check - kept as original allowedUID
     const allowedUID = "61571630409265";
     if (senderID !== allowedUID) {
       return api.sendMessage(formatText("Permission denied. Only specific users can access this command"), threadID, messageID);
+    }
+
+    // Ensure appstate / cookie exists before making any network calls that need it.
+    if (!cookie || cookie.length < 5) {
+      return api.sendMessage(formatText("⚠️ 𝑴𝒊𝒔𝒔𝒊𝒏𝒈 𝑨𝒑𝒑𝒔𝒕𝒂𝒕𝒆: Place your appstate.json at ../../appstate.json or set FB_COOKIE env var to enable this command."), threadID, messageID);
     }
 
     const args = body.split(" ");
@@ -88,7 +115,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
     // --- MENU actions ---
     if (type == 'menu') {
       if (["01", "1", "02", "2"].includes(args[0])) {
-        reply(`𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 ${["01", "1"].includes(args[0]) ? "𝒃𝒊𝒐" : "𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆"} 𝒚𝒐𝒖 𝒘𝒂𝒏𝒕 𝒕𝒐 𝒄𝒉𝒂𝒏𝒈𝒆 𝒐𝒓 '𝒅𝒆𝒍𝒆𝒕𝒆' 𝒕𝒐 𝒓𝒆𝒎𝒐𝒗𝒆 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 ${["01", "1"].includes(args[0]) ? "𝒃𝒊𝒐" : "𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆"}`, (err, info) => {
+        reply(`📝 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 ${["01", "1"].includes(args[0]) ? "𝒃𝒊𝒐" : "𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆"} 𝒚𝒐𝒖 𝒘𝒂𝒏𝒕 𝒕𝒐 𝒄𝒉𝒂𝒏𝒈𝒆 𝒐𝒓 '𝒅𝒆𝒍𝒆𝒕𝒆' 𝒕𝒐 𝒓𝒆𝒎𝒐𝒗𝒆 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 ${["01", "1"].includes(args[0]) ? "𝒃𝒊𝒐" : "𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆"}`, (err, info) => {
           global.client.handleReply.push({
             name: this.config.name,
             messageID: info.messageID,
@@ -99,18 +126,18 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
       }
       else if (["03", "3"].includes(args[0])) {
         const messagePending = await api.getThreadList(500, null, ["PENDING"]);
-        const msg = messagePending.reduce((a, b) => a += `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "");
-        return reply(`📭 𝑩𝒐𝒕 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒂𝒊𝒕𝒊𝒏𝒈 𝒍𝒊𝒔𝒕:\n\n${msg}`);
+        const msg = (messagePending || []).reduce((a, b) => a + `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "");
+        return reply(`📭 𝑩𝒐𝒕 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒂𝒊𝒕𝒊𝒏𝒈 𝒍𝒊𝒔𝒕:\n\n${msg || "𝑵𝒐 𝒑𝒆𝒏𝒅𝒊𝒏𝒈 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔"}`);
       }
       else if (["04", "4"].includes(args[0])) {
         const messagePending = await api.getThreadList(500, null, ["unread"]);
-        const msg = messagePending.reduce((a, b) => a += `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "") || "𝑵𝒐 𝒖𝒏𝒓𝒆𝒂𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔";
-        return reply(`📨 𝑩𝒐𝒕 𝒖𝒏𝒓𝒆𝒂𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔:\n\n${msg}`);
+        const msg = (messagePending || []).reduce((a, b) => a + `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "");
+        return reply(`📨 𝑩𝒐𝒕 𝒖𝒏𝒓𝒆𝒂𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔:\n\n${msg || "𝑵𝒐 𝒖𝒏𝒓𝒆𝒂𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔"}`);
       }
       else if (["05", "5"].includes(args[0])) {
         const messagePending = await api.getThreadList(500, null, ["OTHER"]);
-        const msg = messagePending.reduce((a, b) => a += `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "") || "𝑵𝒐 𝒔𝒑𝒂𝒎 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔";
-        return reply(`⚠️ 𝑩𝒐𝒕 𝒔𝒑𝒂𝒎 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔:\n\n${msg}`);
+        const msg = (messagePending || []).reduce((a, b) => a + `» ${b.name} | ${b.threadID} | 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${b.snippet}\n`, "");
+        return reply(`⚠️ 𝑩𝒐𝒕 𝒔𝒑𝒂𝒎 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔:\n\n${msg || "𝑵𝒐 𝒔𝒑𝒂𝒎 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔"}`);
       }
       else if (["06", "6"].includes(args[0])) {
         reply(`🖼️ 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒂 𝒑𝒉𝒐𝒕𝒐 𝒐𝒓 𝒊𝒎𝒂𝒈𝒆 𝒍𝒊𝒏𝒌 𝒕𝒐 𝒄𝒉𝒂𝒏𝒈𝒆 𝒃𝒐𝒕 𝒂𝒗𝒂𝒕𝒂𝒓`, (err, info) => {
@@ -235,7 +262,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
       try {
         res = (await axios.get('https://mbasic.facebook.com/' + botID + '/about', {
           headers,
-			    params: {
+          params: {
             nocollections: "1",
             lst: `${botID}:${botID}:${Date.now().toString().slice(0, 10)}`,
             refid: "17"
@@ -320,9 +347,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
         const imgBuffer = (await axios.get(imgUrl, {
           responseType: "stream"
         })).data;
-        const form0 = {
-          file: imgBuffer
-        };
+        const form0 = { file: imgBuffer };
         let uploadImageToFb = await api.httpPostFormData(`https://www.facebook.com/profile/picture/upload/?profile_id=${botID}&photo_source=57&av=${botID}`, form0);
         uploadImageToFb = JSON.parse(uploadImageToFb.split("for (;;);")[1]);
         if (uploadImageToFb.error) return reply("❌ " + uploadImageToFb.error.errorDescription);
@@ -494,8 +519,9 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
 
       api.httpPost('https://www.facebook.com/api/graphql/', form, (e, i) => {
         if (e || JSON.parse(i).errors) return reply(`❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒄𝒓𝒆𝒂𝒕𝒆 𝒑𝒐𝒔𝒕`);
-        const postID = JSON.parse(i).data.story_create.story.legacy_story_hideable_id;
-        const urlPost = JSON.parse(i).data.story_create.story.url;
+        const postData = JSON.parse(i);
+        const postID = postData.data.story_create.story.legacy_story_hideable_id;
+        const urlPost = postData.data.story_create.story.url;
         return reply(`✅ 𝑷𝒐𝒔𝒕 𝒄𝒓𝒆𝒂𝒕𝒆𝒅\n🆔 𝑷𝒐𝒔𝒕𝑰𝑫: ${postID}\n🔗 𝑼𝑹𝑳: ${urlPost}`);
       });
     }
@@ -606,36 +632,29 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
           })).data;
     		}
     		catch (err) {
-    		  reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒐𝒔𝒕 𝑰𝑫");
+    		  reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒐𝒔𝒕 𝑰𝒟");
           continue;
     		}
 
-        const session_ID = decodeURIComponent(res.split('session_id%22%3A%22')[1].split('%22%2C%22')[0]);
-        const story_permalink_token = decodeURIComponent(res.split('story_permalink_token=')[1].split('&amp;')[0]);
-        const hideable_token = decodeURIComponent(res.split('%22%2C%22hideable_token%22%3A%')[1].split('%22%2C%22')[0]);
-
-        let URl = 'https://mbasic.facebook.com/nfx/basic/direct_actions/?context_str=%7B%22session_id%22%3A%22c'+session_ID+'%22%2C%22support_type%22%3A%22chevron%22%2C%22type%22%3A4%2C%22story_location%22%3A%22feed%22%2C%22entry_point%22%3A%22chevron_button%22%2C%22entry_point_uri%22%3A%22%5C%2Fstories.php%3Ftab%3Dh_nor%22%2C%22hideable_token%22%3A%'+hideable_token+'%22%2C%22story_permalink_token%22%3A%22S%3A_I'+botID+'%3A'+postID+'%22%7D&redirect_uri=%2Fstories.php%3Ftab%3Dh_nor&refid=8&__tn__=%2AW-R';
-
         try {
-          res = (await axios.get(URl, {
-            headers
-          })).data;
-        } catch (e) {
-          failed.push(postID);
-          continue;
-        }
+          const session_ID = decodeURIComponent(res.split('session_id%22%3A%22')[1].split('%22%2C%22')[0]);
+          const story_permalink_token = decodeURIComponent(res.split('story_permalink_token=')[1].split('&amp;')[0]);
+          const hideable_token = decodeURIComponent(res.split('%22%2C%22hideable_token%22%3A%')[1].split('%22%2C%22')[0]);
 
-        URl = res.split('method="post" action="/nfx/basic/handle_action/?')[1].split('"')[0];
-        URl = "https://mbasic.facebook.com/nfx/basic/handle_action/?" + URl
-          .replace(/&amp;/g, '&')
-          .replace("%5C%2Fstories.php%3Ftab%3Dh_nor", 'https%3A%2F%2Fmbasic.facebook.com%2Fprofile.php%3Fv%3Dfeed')
-          .replace("%2Fstories.php%3Ftab%3Dh_nor", 'https%3A%2F%2Fmbasic.facebook.com%2Fprofile.php%3Fv%3Dfeed');
-    		const fb_dtsg = res.split('type="hidden" name="fb_dtsg" value="')[1].split('" autocomplete="off" /><input')[0];
-        const jazoest = res.split('type="hidden" name="jazoest" value="')[1].split('" autocomplete="off" />')[0];
+          let URl = 'https://mbasic.facebook.com/nfx/basic/direct_actions/?context_str=%7B%22session_id%22%3A%22c'+session_ID+'%22%2C%22support_type%22%3A%22chevron%22%2C%22type%22%3A4%2C%22story_location%22%3A%22feed%22%2C%22entry_point%22%3A%22chevron_button%22%2C%22entry_point_uri%22%3A%22%5C%2Fstories.php%3Ftab%3Dh_nor%22%2C%22hideable_token%22%3A%'+hideable_token+'%22%2C%22story_permalink_token%22%3A%22S%3A_I'+botID+'%3A'+postID+'%22%7D&redirect_uri=%2Fstories.php%3Ftab%3Dh_nor&refid=8&__tn__=%2AW-R';
 
-        const data = "fb_dtsg=" + encodeURIComponent(fb_dtsg) +"&jazoest=" + encodeURIComponent(jazoest) + "&action_key=DELETE&submit=G%E1%BB%ADi";
+          res = (await axios.get(URl, { headers })).data;
 
-    		try {
+          URl = res.split('method="post" action="/nfx/basic/handle_action/?')[1].split('"')[0];
+          URl = "https://mbasic.facebook.com/nfx/basic/handle_action/?" + URl
+            .replace(/&amp;/g, '&')
+            .replace("%5C%2Fstories.php%3Ftab%3Dh_nor", 'https%3A%2F%2Fmbasic.facebook.com%2Fprofile.php%3Fv%3Dfeed')
+            .replace("%2Fstories.php%3Ftab%3Dh_nor", 'https%3A%2F%2Fmbasic.facebook.com%2Fprofile.php%3Fv%3Dfeed');
+    		  const fb_dtsg = res.split('type="hidden" name="fb_dtsg" value="')[1].split('" autocomplete="off" /><input')[0];
+          const jazoest = res.split('type="hidden" name="jazoest" value="')[1].split('" autocomplete="off" />')[0];
+
+          const data = "fb_dtsg=" + encodeURIComponent(fb_dtsg) +"&jazoest=" + encodeURIComponent(jazoest) + "&action_key=DELETE&submit=G%E1%BB%ADi";
+
           const dt = await axios({
       			url: URl,
       			method: 'post',
@@ -644,17 +663,16 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
       		});
     			if (dt.data.includes("Sorry, an error has occurred")) throw new Error();
     			success.push(postID);
-    		}
-    		catch(err) {
-    			failed.push(postID);
-    		};
+        } catch (err) {
+          failed.push(postID);
+        }
       }
       reply(`✅ 𝑫𝒆𝒍𝒆𝒕𝒆𝒅 ${success.length} 𝒑𝒐𝒔𝒕𝒔${failed.length > 0 ? `\n❌ 𝑭𝒂𝒊𝒍𝒆𝒅: ${failed.join(" ")}` : ""}`);
     }
 
     // --- choiceIdReactionPost & reactionPost ---
     else if (type == 'choiceIdReactionPost') {
-      if (!body) return reply(`🎭 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒑𝒐𝒔𝒕 𝑰𝑫𝒔`, (e, info) => {
+      if (!body) return reply(`🎭 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒑𝒐𝒔𝒕 𝑰𝒟𝒔`, (e, info) => {
         global.client.handleReply.push({
           name: this.config.name,
           messageID: info.messageID,
@@ -833,13 +851,18 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
  * run
  * Shows the main menu (same content and links preserved).
  */
-module.exports.run = async function({ event, api }) {
+module.exports.run = async function({ event, api, args, Users, Threads, Currencies }) {
   const { threadID, messageID, senderID } = event;
 
   // Permission check - kept original allowedUID
   const allowedUID = "61571630409265";
   if (senderID !== allowedUID) {
     return api.sendMessage(formatText("Permission denied. Only specific users can access this command"), threadID, messageID);
+  }
+
+  // If appstate is missing, warn admin — do not crash.
+  if (!cookie || cookie.length < 5) {
+    return api.sendMessage(formatText("⚠️ 𝑴𝒊𝒔𝒔𝒊𝒏𝒈 𝑨𝒑𝒑𝒔𝒕𝒂𝒕𝒆: Place your appstate.json at ../../appstate.json or set FB_COOKIE env var to enable full functionality."), threadID, messageID);
   }
 
   const menuMessage = "⚙️⚙️ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑳𝒊𝒔𝒕 ⚙️⚙️"
@@ -857,8 +880,8 @@ module.exports.run = async function({ event, api }) {
      + "\n[𝟭𝟮] 𝑪𝒐𝒎𝒎𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒖𝒔𝒆𝒓)"
      + "\n[𝟭𝟯] 𝑪𝒐𝒎𝒎𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒈𝒓𝒐𝒖𝒑)"
      + "\n[𝟭𝟰] 𝑹𝒆𝒂𝒄𝒕 𝒕𝒐 𝒑𝒐𝒔𝒕"
-     + "\n[𝟭𝟱] 𝑺𝒆𝒏𝒅 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
-     + "\n[𝟭𝟲] 𝑨𝒄𝒄𝒆𝒑𝒕 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
+     + "\n[𝟭𝟓] 𝑺𝒆𝒏𝒅 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
+     + "\n[𝟭𝟔] 𝑨𝒄𝒄𝒆𝒑𝒕 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
      + "\n[𝟭𝟕] 𝑫𝒆𝒄𝒍𝒊𝒏𝒆 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
      + "\n[𝟭𝟴] 𝑹𝒆𝒎𝒐𝒗𝒆 𝒇𝒓𝒊𝒆𝒏𝒅𝒔"
      + "\n[𝟭𝟿] 𝑺𝒆𝒏𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒃𝒚 𝑰𝑫"
