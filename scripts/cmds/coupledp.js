@@ -19,7 +19,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: lockedCredits,
   description: "📸 𝑭𝒆𝒕𝒄𝒉 𝒄𝒐𝒖𝒑𝒍𝒆 𝒅𝒑 𝒊𝒎𝒂𝒈𝒆𝒔 𝒇𝒓𝒐𝒎 𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕",
-  commandCategory: "𝗙𝗨𝗡",
+  category: "𝗙𝗨𝗡",
   usages: "[query] - [number]",
   cooldowns: 3,
   dependencies: {
