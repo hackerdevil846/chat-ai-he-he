@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📣 𝑷𝒂𝒕𝒉𝒂𝒏𝒐 𝒕𝒆𝒙𝒕 𝒕𝒂 𝒑𝒉𝒊𝒓𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐",
-	commandCategory: "utility",
+	category: "utility",
 	usages: "[text]",
 	cooldowns: 0,
 	dependencies: {}
