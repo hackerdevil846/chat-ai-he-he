@@ -7,7 +7,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Generate alert images with custom text",
-  commandCategory: "image",
+  category: "image",
   usages: "[text]",
   cooldowns: 0,
   dependencies: {
