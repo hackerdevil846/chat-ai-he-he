@@ -7,7 +7,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑰𝒏𝒇𝒐 𝒄𝒂𝒓𝒅 𝒃𝒂𝒏𝒂𝒐",
-  commandCategory: "𝒊𝒏𝒇𝒐",
+  category: "𝒊𝒏𝒇𝒐",
   usages: "[reply | none]",
   cooldowns: 2,
   dependencies: {
