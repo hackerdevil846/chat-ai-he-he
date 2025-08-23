@@ -4,7 +4,7 @@ module.exports.config = {
   credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
   hasPermssion: 2,
   description: '𝑩𝒐𝒕 𝒋𝒆 𝒈𝒓𝒐𝒖𝒑 𝒆 𝒂𝒄𝒉𝒆 𝒕𝒂𝒓 𝒍𝒊𝒔𝒕',
-  commandCategory: 'system',
+  category: 'system',
   usages: 'listbox',
   cooldowns: 15,
   dependencies: {}
