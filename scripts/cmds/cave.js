@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💰 Sell your own capital and earn rewards!",
-    commandCategory: "Economy",
+    category: "Economy",
     usages: "",
     cooldowns: 5,
     envConfig: {
