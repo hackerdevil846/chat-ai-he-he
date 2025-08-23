@@ -10,7 +10,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "📝 Create Facebook user information card",
-  commandCategory: "info",
+  category: "info",
   usages: "",
   cooldowns: 5,
   dependencies: {
