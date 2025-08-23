@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🦇 Batslap meme creator",
-    commandCategory: "general",
+    category: "general",
     usages: "[tag]",
     cooldowns: 5,
     dependencies: {
