@@ -9,7 +9,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🔓 𝑯𝒂𝒄𝒌𝒊𝒏𝒈 𝒔𝒊𝒎𝒖𝒍𝒂𝒕𝒊𝒐𝒏 𝒘𝒊𝒕𝒉 𝒗𝒊𝒔𝒖𝒂𝒍 𝒆𝒇𝒇𝒆𝒄𝒕𝒔 🔍",
-  commandCategory: "fun",
+  category: "fun",
   usages: "[@mention]",
   dependencies: {
     "axios": "",
