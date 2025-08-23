@@ -7,7 +7,7 @@ module.exports = {
 		hasPermssion: 0,
 		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		description: "🖼️ Upload images to imgur",
-		commandCategory: "media",
+		category: "media",
 		usages: "[reply to image] or type 'imgur' with attachment",
 		cooldowns: 5,
 		dependencies: {
