@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑬𝒌𝒕𝒊 𝒋𝒐𝒓𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂",
-	commandCategory: "𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
+	category: "𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
 	cooldowns: 5,
 	dependencies: {
 		"axios": "",
