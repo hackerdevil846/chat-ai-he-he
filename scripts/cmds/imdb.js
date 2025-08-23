@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Get movie/series details from IMDB",
-    commandCategory: "media",
+    category: "media",
     usages: "[movie/series name]",
     cooldowns: 5,
     dependencies: {
