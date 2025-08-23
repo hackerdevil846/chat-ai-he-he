@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "Manus",
   description: "Fetches a random anime picture from various categories with multiple fallbacks.",
-  commandCategory: "media",
+  category: "media",
   usages: "animegirl [category]\n\nAvailable Categories:\n- waifu (default)\n- neko\n- shinobu\n- megumin",
   cooldowns: 3,
   dependencies: {
