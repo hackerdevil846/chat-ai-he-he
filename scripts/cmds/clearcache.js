@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🗑️ Delete cache file(s) from the bot safely",
-    commandCategory: "system",
+    category: "system",
     usages: "[file extension]",
     cooldowns: 2,
     dependencies: {
