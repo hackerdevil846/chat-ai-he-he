@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
   description: "𝑨𝒑𝒏𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒂𝒘𝒂𝒓𝒅",
-  commandCategory: "𝑬𝒅𝒊𝒕-𝑰𝑴𝑮",
+  category: "𝑬𝒅𝒊𝒕-𝑰𝑴𝑮",
   usages: "[ 𝒏𝒂𝒎𝒆 ] | [ 𝒕𝒆𝒙𝒕 ]",
   cooldowns: 10
 };
