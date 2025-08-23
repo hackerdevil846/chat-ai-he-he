@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💖 Ishqer moment! Kiss someone by tagging them 💌",
-    commandCategory: "Love",
+    category: "Love",
     usages: "kiss [tag]",
     cooldowns: 5,
     dependencies: {
