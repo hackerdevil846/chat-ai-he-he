@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑮𝒓𝒐𝒖𝒑 𝒎𝒂𝒏𝒂𝒈𝒆𝒎𝒆𝒏𝒕 𝒄𝒐𝒎𝒎𝒂𝒏𝒅𝒔",
-	commandCategory: "box",
+	category: "box",
 	usages: "[name/emoji/admin/image/info]",
 	cooldowns: 1,
 	dependencies: {
