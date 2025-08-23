@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🥰 𝑴𝒆𝒚𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒉𝒖𝒈 𝒅𝒆𝒐𝒘𝒂",
-    commandCategory: "🖼️ 𝑰𝒎𝒂𝒈𝒆",
+    category: "🖼️ 𝑰𝒎𝒂𝒈𝒆",
     usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
     cooldowns: 5,
     dependencies: {
