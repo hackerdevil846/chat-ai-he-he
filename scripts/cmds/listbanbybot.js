@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑩𝒂𝒏/𝑼𝒏𝒃𝒂𝒏 𝒎𝒐𝒅𝒖𝒍𝒆 𝒇𝒐𝒓 𝒂𝒅𝒎𝒊𝒏𝒔",
-  commandCategory: "𝑨𝒅𝒎𝒊𝒏",
+  category: "𝑨𝒅𝒎𝒊𝒏",
   usages: "[𝒕𝒉𝒓𝒆𝒂𝒅/𝒖𝒔𝒆𝒓]",
   cooldowns: 5
 };
