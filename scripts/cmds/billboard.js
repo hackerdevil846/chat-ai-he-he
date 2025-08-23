@@ -3,100 +3,107 @@ module.exports.config = {
     version: "1.0.1",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑩𝒊𝒍𝒃𝒐𝒓𝒅𝒆 𝒕𝒆𝒙𝒕 𝒍𝒊𝒌𝒉𝒖𝒏 ( ͡° ͜ʖ ͡°)",
+    description: "🌟 𝑩𝒊𝒍𝒃𝒐𝒓𝒅𝒆 𝒕𝒆𝒙𝒕 𝒄𝒓𝒆𝒂𝒕𝒐𝒓 ( ͡° ͜ʖ ͡°)",
     commandCategory: "edit-img",
-    usages: "billboard [𝒕𝒆𝒙𝒕]",
+    usages: "[text]",
     cooldowns: 5,
     dependencies: {
         "canvas": "",
-        "axios": ""
+        "axios": "",
+        "fs-extra": ""
     }
 };
 
-module.exports.wrapText = (ctx, text, maxWidth) => {
-    return new Promise(resolve => {
-        if (ctx.measureText(text).width < maxWidth) return resolve([text]);
-        if (ctx.measureText('W').width > maxWidth) return resolve(null);
-        const words = text.split(' ');
-        const lines = [];
-        let line = '';
-        while (words.length > 0) {
-            let split = false;
-            while (ctx.measureText(words[0]).width >= maxWidth) {
-                const temp = words[0];
-                words[0] = temp.slice(0, -1);
-                if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
-                else {
-                    split = true;
-                    words.splice(1, 0, temp.slice(-1));
-                }
+module.exports.wrapText = async (ctx, text, maxWidth) => {
+    if (ctx.measureText(text).width < maxWidth) return [text];
+    if (ctx.measureText('W').width > maxWidth) return null;
+    
+    const words = text.split(' ');
+    const lines = [];
+    let line = '';
+    
+    while (words.length > 0) {
+        let split = false;
+        while (ctx.measureText(words[0]).width >= maxWidth) {
+            const temp = words[0];
+            words[0] = temp.slice(0, -1);
+            if (split) {
+                words[1] = `${temp.slice(-1)}${words[1]}`;
+            } else {
+                split = true;
+                words.splice(1, 0, temp.slice(-1));
             }
-            if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
-            else {
-                lines.push(line.trim());
-                line = '';
-            }
-            if (words.length === 0) lines.push(line.trim());
         }
-        return resolve(lines);
-    });
-}
-
-module.exports.run = async function({ api, event, args, client, __GLOBAL }) {
-    let { senderID, threadID, messageID } = event;
-    const { loadImage, createCanvas } = require("canvas");
-    const fs = require("fs-extra");
-    const axios = require("axios");
-    let avatar = __dirname + '/cache/avt.png';
-    let pathImg = __dirname + '/cache/wew.png';
-    var text = args.join(" ");
-    let name = (await api.getUserInfo(senderID))[senderID].name;
-    var linkAvatar = (await api.getUserInfo(senderID))[senderID].thumbSrc;
-    
-    if (!text) return api.sendMessage("𝒅𝒚𝒂𝒚𝒂 𝒌𝒓𝒓𝒆 𝒆𝒌𝒕𝒊 𝒃𝒂𝒓𝒕𝒂 𝒍𝒊𝒌𝒉𝒖𝒏 😓", threadID, messageID);
-    
-    let getAvatar = (await axios.get(linkAvatar, { responseType: 'arraybuffer' })).data;
-    let getPorn = (await axios.get(`https://imgur.com/uN7Sllp.png`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatar, Buffer.from(getAvatar, 'utf-8'));
-    fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
-    
-    let image = await loadImage(avatar);
-    let baseImage = await loadImage(pathImg);
-    let canvas = createCanvas(baseImage.width, baseImage.height);
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(baseImage, 10, 10, canvas.width, canvas.height);
-    ctx.drawImage(image, 148, 75, 110, 110);
-    
-    ctx.font = "800 23px Arial";
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "start";
-    ctx.fillText(name, 280, 110);
-    
-    ctx.font = "400 23px Arial";
-    ctx.fillStyle = "#000000";
-    ctx.textAlign = "start";
-    
-    let fontSize = 55;
-    while (ctx.measureText(text).width > 600) {
-        fontSize--;
-        ctx.font = `400 ${fontSize}px Arial, sans-serif`;
+        if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) {
+            line += `${words.shift()} `;
+        } else {
+            lines.push(line.trim());
+            line = '';
+        }
+        if (words.length === 0) lines.push(line.trim());
     }
-    
-    const lines = await this.wrapText(ctx, text, 250);
-    ctx.fillText(lines.join('\n'), 280, 145);
-    ctx.beginPath();
-    
-    const imageBuffer = canvas.toBuffer();
-    fs.writeFileSync(pathImg, imageBuffer);
-    fs.removeSync(avatar);
-    
-    return api.sendMessage(
-        { 
-            body: "🌟 𝑩𝒊𝒍𝒍𝒃𝒐𝒓𝒅 𝑻𝒆𝒙𝒕 𝑺𝒂𝒇𝒍𝒚𝒂𝒕𝒂𝒑𝒖𝒓𝒌 𝑸𝒐𝒓𝒂 𝑯𝒐𝒚𝒆𝒄𝒉𝒆! 🎉", 
-            attachment: fs.createReadStream(pathImg) 
-        }, 
-        threadID, 
-        () => fs.unlinkSync(pathImg), 
-        messageID
-    );
-}
+    return lines;
+};
+
+module.exports.run = async function({ api, event, args }) {
+    try {
+        const { createCanvas, loadImage } = require("canvas");
+        const fs = require("fs-extra");
+        const axios = require("axios");
+        
+        const text = args.join(" ");
+        if (!text) return api.sendMessage("✨ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒚𝒐𝒖𝒓 𝒕𝒆𝒙𝒕!", event.threadID, event.messageID);
+
+        const avatarPath = __dirname + '/cache/avt.png';
+        const outputPath = __dirname + '/cache/billboard_result.png';
+        
+        // Get user info
+        const userInfo = await api.getUserInfo(event.senderID);
+        const { name, thumbSrc } = userInfo[event.senderID];
+        
+        // Download images
+        const avatarBuffer = (await axios.get(thumbSrc, { responseType: 'arraybuffer' })).data;
+        const billboardTemplate = (await axios.get("https://imgur.com/uN7Sllp.png", { responseType: 'arraybuffer' })).data;
+        
+        fs.writeFileSync(avatarPath, Buffer.from(avatarBuffer, 'utf-8'));
+        fs.writeFileSync(outputPath, Buffer.from(billboardTemplate, 'utf-8'));
+
+        // Process images
+        const canvas = createCanvas(700, 350);
+        const ctx = canvas.getContext("2d");
+        const baseImage = await loadImage(outputPath);
+        const avatarImage = await loadImage(avatarPath);
+        
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(avatarImage, 148, 75, 110, 110);
+
+        // Add text
+        ctx.font = "800 23px Arial";
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillText(name, 280, 110);
+
+        ctx.font = "400 20px Arial";
+        ctx.fillStyle = "#000000";
+        
+        const lines = await this.wrapText(ctx, text, 250);
+        if (lines) {
+            lines.forEach((line, i) => {
+                ctx.fillText(line, 280, 145 + (i * 25));
+            });
+        }
+
+        // Save and send
+        const resultBuffer = canvas.toBuffer();
+        fs.writeFileSync(outputPath, resultBuffer);
+        fs.removeSync(avatarPath);
+
+        return api.sendMessage({
+            body: "🎊 𝑩𝒊𝒍𝒍𝒃𝒐𝒓𝒅 𝑪𝒓𝒆𝒂𝒕𝒆𝒅 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!",
+            attachment: fs.createReadStream(outputPath)
+        }, event.threadID, () => fs.unlinkSync(outputPath), event.messageID);
+
+    } catch (error) {
+        console.error(error);
+        return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒃𝒊𝒍𝒍𝒃𝒐𝒓𝒅 𝒄𝒓𝒆𝒂𝒕𝒊𝒐𝒏", event.threadID, event.messageID);
+    }
+};
