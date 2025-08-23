@@ -13,7 +13,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Create facebook user information card",
-  commandCategory: "group",
+  category: "group",
   usages: "[tag/reply/uid]",
   cooldowns: 5,
   dependencies: {
