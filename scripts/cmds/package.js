@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
 	description: "𝒑𝒓𝒐𝒋𝒆𝒄𝒕 𝒑𝒂𝒄𝒌𝒂𝒈𝒆 𝒋𝒂𝒏𝒌𝒂𝒓𝒊",
-	commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
+	category: "𝒔𝒚𝒔𝒕𝒆𝒎",
 	cooldowns: 1,
 	dependencies: {
     "request":"",
