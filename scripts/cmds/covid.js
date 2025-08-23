@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑽𝒊𝒆𝒘 𝒄𝒐𝒗𝒊𝒅-𝟭𝟵 𝒔𝒕𝒂𝒕𝒊𝒔𝒕𝒊𝒄𝒔",
-  commandCategory: "𝑼𝒕𝒊𝒍𝒊𝒕𝒊𝒆𝒔",
+  category: "𝑼𝒕𝒊𝒍𝒊𝒕𝒊𝒆𝒔",
   usages: "[𝒄𝒐𝒖𝒏𝒕𝒓𝒚 𝒏𝒂𝒎𝒆]",
   cooldowns: 5,
   dependencies: {
@@ -75,3 +75,4 @@ module.exports.run = async function({ api, event, args }) {
     api.sendMessage(`🚫 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒇𝒆𝒕𝒄𝒉𝒊𝒏𝒈 𝑪𝒐𝒗𝒊𝒅 𝒅𝒂𝒕𝒂. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.`, event.threadID, event.messageID);
   }
 };
+
