@@ -12,18 +12,16 @@ function getDomain(url) {
 module.exports.config = {
 	name: "event",
 	version: "1.9",
-	author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	countDown: 5,
-	role: 2,
-	description: {
-		en: "Manage your event command files 🛠️"
-	},
+	hasPermssion: 2,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "Manage your event command files 🛠️",
 	category: "owner",
-	guide: {
-		en: "{pn} load <command file name> 📥"
-			+ "\n{pn} loadAll 🔄"
-			+ "\n{pn} install <url> <command file name> 🌐"
-			+ "\n{pn} install <code> <command file name> 📝"
+	usages: "{pn} load <file> | loadAll | unload <file> | install <url/code> <file>",
+	cooldowns: 5,
+	dependencies: {
+		"axios": "",
+		"cheerio": "",
+		"fs-extra": ""
 	}
 };
 
@@ -50,15 +48,15 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args, getLang }) {
+module.exports.onStart = async function ({ api, event, args, getLang }) {
 	const { configCommands } = global.GoatBot;
 	const { log, loadScripts, unloadScripts } = global.utils;
 
 	switch (args[0]) {
-		case "load":
+		case "load": {
 			if (!args[1]) return api.sendMessage(getLang("missingFileName"), event.threadID, event.messageID);
-			
-			const infoLoad = loadScripts("events", args[1], log, configCommands, api, 
+
+			const infoLoad = loadScripts("events", args[1], log, configCommands, api,
 				global.GoatBot.threadModel,
 				global.GoatBot.userModel,
 				global.GoatBot.dashBoardModel,
@@ -69,17 +67,18 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 				global.GoatBot.globalData,
 				getLang
 			);
-			
+
 			api.sendMessage(
-				infoLoad.status === "success" 
+				infoLoad.status === "success"
 					? getLang("loaded", infoLoad.name)
 					: getLang("loadedError", infoLoad.name, infoLoad.error, infoLoad.message),
 				event.threadID,
 				event.messageID
 			);
 			break;
+		}
 
-		case "loadAll":
+		case "loadAll": {
 			const allFile = fs.readdirSync(path.join(__dirname, "..", "events"))
 				.filter(file => file.endsWith(".js") &&
 					!file.match(/(eg)\.js$/g) &&
@@ -90,7 +89,7 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 
 			const arraySucces = [];
 			const arrayFail = [];
-			
+
 			for (const fileName of allFile) {
 				const infoLoad = loadScripts("events", fileName, log, configCommands, api,
 					global.GoatBot.threadModel,
@@ -103,33 +102,35 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 					global.GoatBot.globalData,
 					getLang
 				);
-				
-				infoLoad.status === "success" 
-					? arraySucces.push(fileName) 
+
+				infoLoad.status === "success"
+					? arraySucces.push(fileName)
 					: arrayFail.push(`${fileName} => ${infoLoad.error.name}: ${infoLoad.error.message}`);
 			}
-			
+
 			let msg = "";
 			if (arraySucces.length > 0) msg += getLang("loadedSuccess", arraySucces.length) + '\n';
 			if (arrayFail.length > 0) msg += getLang("loadedFail", arrayFail.length, "❗" + arrayFail.join("\n❗ "));
-			
-			api.sendMessage(msg || "No files processed", event.threadID, event.messageID);
-			break;
 
-		case "unload":
+			api.sendMessage(msg || "⚠️ No files processed", event.threadID, event.messageID);
+			break;
+		}
+
+		case "unload": {
 			if (!args[1]) return api.sendMessage(getLang("missingCommandNameUnload"), event.threadID, event.messageID);
-			
+
 			const infoUnload = unloadScripts("events", args[1], configCommands, getLang);
 			api.sendMessage(
-				infoUnload.status === "success" 
+				infoUnload.status === "success"
 					? getLang("unloaded", infoUnload.name)
 					: getLang("unloadedError", infoUnload.name, infoUnload.error.name, infoUnload.error.message),
 				event.threadID,
 				event.messageID
 			);
 			break;
+		}
 
-		case "install":
+		case "install": {
 			if (!args[1] || !args[2]) return api.sendMessage(getLang("missingUrlCodeOrFileName"), event.threadID, event.messageID);
 
 			let url = args[1];
@@ -144,7 +145,6 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 				const domain = getDomain(url);
 				if (!domain) return api.sendMessage(getLang("invalidUrlOrCode"), event.threadID, event.messageID);
 
-				// Handle different domains
 				if (domain === "pastebin.com") {
 					url = url.replace(/pastebin\.com\/(?!raw\/)/, "pastebin.com/raw/");
 				} else if (domain === "github.com") {
@@ -154,7 +154,7 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 				try {
 					const response = await axios.get(url);
 					rawCode = response.data;
-					
+
 					if (domain === "savetext.net") {
 						const $ = cheerio.load(rawCode);
 						rawCode = $("#content").text();
@@ -173,7 +173,7 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 			if (fs.existsSync(filePath)) {
 				api.sendMessage(getLang("alreadExist"), event.threadID, (err, info) => {
 					global.GoatBot.onReaction.set(info.messageID, {
-						commandName: this.config.name,
+						commandName: module.exports.config.name,
 						messageID: info.messageID,
 						type: "install",
 						author: event.senderID,
@@ -193,7 +193,7 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 					getLang,
 					rawCode
 				);
-				
+
 				api.sendMessage(
 					infoLoad.status === "success"
 						? getLang("installed", infoLoad.name, filePath)
@@ -203,13 +203,14 @@ module.exports.run = async function ({ api, event, args, getLang }) {
 				);
 			}
 			break;
+		}
 
 		default:
-			api.sendMessage(`Invalid command usage. Guide:\n${this.config.guide.en}`, event.threadID, event.messageID);
+			api.sendMessage(`⚠️ Invalid usage!\n\nGuide:\n${module.exports.config.usages}`, event.threadID, event.messageID);
 	}
 };
 
-module.exports.handleReaction = async function({ event, api, getLang, Reaction }) {
+module.exports.handleReaction = async function ({ event, api, getLang, Reaction }) {
 	const { author, messageID, data } = Reaction;
 	if (event.userID !== author) return;
 
