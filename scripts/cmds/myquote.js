@@ -8,7 +8,7 @@ module.exports.config = {
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   hasPermssion: 0,
   description: "✨ Create stylish quote images with beautiful backgrounds",
-  commandCategory: "fun",
+  category: "fun",
   usages: "[quote text] = [author name]",
   cooldowns: 5,
   dependencies: {
