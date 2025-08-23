@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0, 
 	credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
 	description: "𝑩𝒐𝒕 𝒌𝒆 𝑨𝒅𝒎𝒊𝒏 𝒎𝒂𝒏𝒂𝒈𝒆 𝒌𝒐𝒓𝒖𝒏", // Banglish description
-	commandCategory: "config",
+	category: "config",
 	usages: "[list/add/remove] [userID]",
     cooldowns: 5,
     dependencies: {
