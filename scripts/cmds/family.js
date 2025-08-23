@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Create beautiful family photos with group members' avatars",
-    commandCategory: "𝑭𝒐𝒕𝒐 𝒆𝒅𝒊𝒕",
+    category: "𝑭𝒐𝒕𝒐 𝒆𝒅𝒊𝒕",
     usages: "family [size] [#color] [title text]",
     cooldowns: 15,
     dependencies: {
