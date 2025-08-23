@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ 𝑩𝒍𝒂 𝒃𝒍𝒂 𝒃𝒐𝒍𝒃𝒐 𝒆𝒌𝒉𝒂𝒏𝒆 ✨",
-	commandCategory: "👥 𝒈𝒓𝒐𝒖𝒑",
+	category: "👥 𝒈𝒓𝒐𝒖𝒑",
 	usages: "[🔄 𝒐𝒑𝒕𝒊𝒐𝒏] [📝 𝒕𝒆𝒙𝒕]",
 	cooldowns: 5,
 	dependencies: {
