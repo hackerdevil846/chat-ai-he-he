@@ -15,7 +15,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Guess number game 🎮",
-	commandCategory: "game",
+	category: "game",
 	usages: "[4|5|6] [single|multi]",
 	cooldowns: 5,
 	dependencies: { "canvas": "*" },
