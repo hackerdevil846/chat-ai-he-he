@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "💰 𝑴𝒃𝒃𝒂𝒏𝒌 𝒆-𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒐𝒓",
-  commandCategory: "edit-img",
+  category: "edit-img",
   usages: "[text]",
   cooldowns: 1,
   dependencies: {
