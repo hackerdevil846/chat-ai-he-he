@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑨𝑼𝑻𝑶 𝑹𝑬𝑺𝑻𝑨𝑹𝑻 𝑺𝒀𝑺𝑻𝑬𝑴",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
     cooldowns: 5
 }
 
