@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "✨ 𝑨𝒑𝒏𝒂𝒓 𝒑𝒂𝒓𝒕𝒏𝒆𝒓 𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "🥰 𝑩𝒂𝒍𝒐𝒃𝒂𝒔𝒂",
+    category: "🥰 𝑩𝒂𝒍𝒐𝒃𝒂𝒔𝒂",
     usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
     cooldowns: 5,
     dependencies: {
