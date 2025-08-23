@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Interactive messaging sequence",
-	commandCategory: "fun",
+	category: "fun",
 	usages: "[@mention]",
 	cooldowns: 5,
 	dependencies: {},
