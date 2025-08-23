@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ Create fake Facebook posts with your text",
-	commandCategory: "🖼️ Edit-Image",
+	category: "🖼️ Edit-Image",
 	usages: "[text]",
 	cooldowns: 10,
 	dependencies: {
