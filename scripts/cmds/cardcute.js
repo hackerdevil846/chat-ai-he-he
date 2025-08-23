@@ -10,7 +10,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "✨ 𝑪𝒓𝒆𝒂𝒕𝒆 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅𝒔 𝒊𝒏 𝒄𝒖𝒕𝒆 𝒔𝒕𝒚𝒍𝒆",
-  commandCategory: "𝗜𝗡𝗙𝗢",
+  category: "𝗜𝗡𝗙𝗢",
   usages: "",
   cooldowns: 5,
   dependencies: {
@@ -135,3 +135,4 @@ module.exports.run = async function({ api, event, args, Users }) {
     return api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗶𝗺𝗮𝗴𝗲", threadID, messageID);
   }
 };
+
