@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑴𝒆𝒎𝒃𝒆𝒓 𝑹𝒂𝒏𝒌𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒏 💫",
-    commandCategory: "group",
+    category: "group",
     usages: "[user] or [tag]",
     cooldowns: 5,
     dependencies: {
