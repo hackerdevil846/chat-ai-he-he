@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑩𝒐𝒕 𝒆𝒓 𝒔𝒐𝒃 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓 𝒍𝒊𝒔𝒕",
-	commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
+	category: "𝒔𝒚𝒔𝒕𝒆𝒎",
 	usages: "[𝑴𝒐𝒅𝒖𝒍𝒆 𝒏𝒂𝒎𝒆] or [page]",
 	cooldowns: 1,
 	envConfig: {
