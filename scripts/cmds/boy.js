@@ -1,31 +1,47 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const axios = require("axios");
 const path = require("path");
 
-module.exports = {
-  config: {
-    name: "boy",
-    version: "1.0.0",
-    hasPermssion: 0,
-    credits: "Asif",
-    description: "Send random Islamic boy profile pictures",
-    category: "image",
-    usages: "boy",
-    cooldowns: 2,
-    dependencies: {
-      "axios": "",
-      "fs-extra": ""
-    }
-  },
+module.exports.config = {
+  name: "boy",
+  version: "1.0.0",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Send random Islamic boy profile pictures",
+  commandCategory: "random-img",
+  usages: "boy",
+  cooldowns: 2,
+  dependencies: {
+    "axios": "",
+    "fs-extra": ""
+  }
+};
 
-  // Added required onStart function
-  onStart: async function() {
-    // Initialization if needed
+module.exports.languages = {
+  "en": {
+    "success": "📸✨ 𝐈𝐒𝐋𝐀𝐌𝐈𝐂 𝐁𝐎𝐘 𝐅𝐁 𝐏𝐑𝐎𝐅𝐈𝐋𝐄 𝐈𝐌𝐆",
+    "error": "❌ Failed to send image. Please try again later."
   },
+  "bn": {
+    "success": "📸✨ 𝐈𝐒𝐋𝐀𝐌𝐈𝐂 𝐁𝐎𝐘 𝐅𝐁 𝐏𝐑𝐎𝐅𝐈𝐋𝐄 𝐈𝐌𝐆",
+    "error": "❌ ইমেজ পাঠানো যায়নি। পরে চেষ্টা করুন।"
+  }
+};
 
-  run: async ({ api, event }) => {
-    try {
-      const imageLinks = [
+module.exports.onLoad = async function () {
+  // Ensure cache folder exists when module loads
+  const cachePath = path.join(__dirname, "cache");
+  try {
+    await fs.ensureDir(cachePath);
+  } catch (e) {
+    // ignore - will be created on demand later
+    console.error("boy command onLoad error:", e);
+  }
+};
+
+module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
+  try {
+    const imageLinks = [
         "https://i.imgur.com/QhlqGb1.jpg",
         "https://i.imgur.com/BQDcmQ7.jpg",
         "https://i.imgur.com/A2bkbNb.jpg",
@@ -74,30 +90,43 @@ module.exports = {
         "https://i.imgur.com/BFuXq0I.jpg"
       ];
 
-      const randomLink = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+    const randomLink = imageLinks[Math.floor(Math.random() * imageLinks.length)];
 
-      const cachePath = path.join(__dirname, "cache");
-      if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath, { recursive: true });
-      }
+    const cachePath = path.join(__dirname, "cache");
+    await fs.ensureDir(cachePath);
 
-      const imagePath = path.join(cachePath, `boy_${Date.now()}.jpg`);
-      const response = await axios.get(randomLink, { responseType: "arraybuffer" });
-      fs.writeFileSync(imagePath, Buffer.from(response.data, "binary"));
+    const imagePath = path.join(cachePath, `boy_${Date.now()}.jpg`);
+    const response = await axios.get(randomLink, { responseType: "arraybuffer" });
 
-      api.sendMessage(
-        {
-          body: "𝐈𝐒𝐋𝐀𝐌𝐈𝐂𝐊 𝐁𝐎𝐘 𝐅𝐁 𝐏𝐑𝐎𝐅𝐈𝐋𝐄 𝐈𝐌𝐆",
-          attachment: fs.createReadStream(imagePath)
-        },
-        event.threadID,
-        () => {
-          fs.unlinkSync(imagePath);
+    await fs.writeFile(imagePath, Buffer.from(response.data, "binary"));
+
+    const messageBody = module.exports.languages["en"].success;
+
+    api.sendMessage(
+      {
+        body: messageBody + " 🔁",
+        attachment: fs.createReadStream(imagePath)
+      },
+      event.threadID,
+      async (err) => {
+        try {
+          if (fs.existsSync(imagePath)) await fs.unlink(imagePath);
+        } catch (e) {
+          console.error("Failed to remove temp image:", e);
         }
-      );
-    } catch (err) {
-      console.error("Error in boy command:", err);
-      api.sendMessage("❌ Failed to send image. Please try again later.", event.threadID);
+
+        if (err) {
+          console.error("Error sending message in boy command:", err);
+          api.sendMessage(module.exports.languages["en"].error, event.threadID);
+        }
+      }
+    );
+  } catch (err) {
+    console.error("Error in boy command:", err);
+    try {
+      api.sendMessage(module.exports.languages["en"].error, event.threadID);
+    } catch (e) {
+      console.error("Also failed to send fallback error message:", e);
     }
   }
 };
