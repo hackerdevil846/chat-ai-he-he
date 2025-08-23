@@ -1,6 +1,6 @@
 module.exports = {
 	config: {
-		name: "hvd",
+		name: "hentai",
 		aliases: ["hvdo"],
 		version: "1.0",
 		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
