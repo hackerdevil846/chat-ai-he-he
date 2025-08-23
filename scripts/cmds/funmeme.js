@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0, // Permission level (0 = everyone)
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Owner of the module
 	description: "😂 Create meme with user's profile picture", 
-	commandCategory: "image", // Category
+	category: "image", // Category
 	usages: "[@mention]", // Usage example
 	cooldowns: 5, // Cooldown (seconds)
 	dependencies: {
