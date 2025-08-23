@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🚫 𝑮𝒓𝒐𝒖𝒑 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅", 
-	commandCategory: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎", 
+	category: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎", 
 	usages: "[@𝒕𝒂𝒈]", 
 	cooldowns: 5,
 	dependencies: {},
