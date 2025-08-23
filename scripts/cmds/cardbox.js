@@ -11,7 +11,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "📋 Group information card with beautiful design",
-    commandCategory: "𝗜𝗡𝗙𝗢",
+    category: "𝗜𝗡𝗙𝗢",
     usages: "[text]",
     cooldowns: 10,
     dependencies: {
