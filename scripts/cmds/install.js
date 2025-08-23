@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0, // Everyone can use
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
   description: "📱 Playstore style er user info card generate kore", // Description
-  commandCategory: "user", // Category
+  category: "user", // Category
   usages: "[mention/reply/none]", // Usage
   cooldowns: 3, // Cooldown
   dependencies: {
