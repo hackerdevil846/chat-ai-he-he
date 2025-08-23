@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0, // 0 = everyone
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // <-- updated credits as requested
 	description: "Random Islamic video",
-	commandCategory: "islamic",
+	category: "islamic",
 	usages: "hot2",
 	cooldowns: 2,
 	dependencies: {
