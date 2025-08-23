@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
   description: "𝑨𝒚𝒂𝒌𝒂 𝒆𝒓 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆",
-  commandCategory: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝑴𝑮",
+  category: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝑴𝑮",
   usages: "ayaka",
   cooldowns: 5,
   dependencies: {
