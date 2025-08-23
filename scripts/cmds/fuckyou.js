@@ -6,7 +6,7 @@ module.exports = {
 		hasPermssion: 0,
 		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // ✅ Added credits field
 		description: "🖕 Auto-reply to 'fuck' trigger",
-		commandCategory: "no-prefix",
+		category: "no-prefix",
 		usages: "[auto-trigger]",
 		cooldowns: 5,
 		envConfig: {}
