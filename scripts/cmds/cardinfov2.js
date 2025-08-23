@@ -1,8 +1,8 @@
-const fonts = "/cache/Play-Bold.ttf"
-const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTMH5R8gW8&export=download"
-const fontsLink = 20
-const fontsInfo = 28
-const colorName = "#000000"
+const fonts = "/cache/Play-Bold.ttf";
+const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTMH5R8gW8&export=download";
+const fontsLink = 20;
+const fontsInfo = 28;
+const colorName = "#000000";
 
 module.exports.config = {
   name: "cardinfov2",
@@ -10,7 +10,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒖𝒔𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒕𝒖𝒎𝒊 𝒌𝒂𝒋 𝒌𝒐𝒓𝒃𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-  commandCategory: "𝒊𝒏𝒇𝒐",
+  category: "𝒊𝒏𝒇𝒐",
   usages: "",
   cooldowns: 5,
   dependencies: {
@@ -36,7 +36,7 @@ module.exports.onLoad = function () {
   try {
     fs.ensureDirSync(__dirname + "/cache");
   } catch (e) { /* ignore */ }
-}
+};
 
 /**
  * Create circular avatar buffer using jimp
@@ -46,7 +46,7 @@ module.exports.circle = async (image) => {
   image = await jimp.read(image);
   image.circle();
   return await image.getBufferAsync("image/png");
-}
+};
 
 /**
  * Convert ASCII chars to Mathematical Bold Italic equivalents where mapped
@@ -65,7 +65,7 @@ function toMathBoldItalic(text) {
 
 module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
   // prevent credit tampering
-  if ((this.config.credits) != "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
+  if ((this.config.credits) !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
     return api.sendMessage(`⚠️ ক্রেডিট পাল্টানো যাবে না!`, event.threadID, event.messageID);
   }
 
@@ -97,9 +97,9 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
     // background image (unchanged)
     const bg = (await axios.get(encodeURI(`https://i.imgur.com/C8yIgMZ.png`), { responseType: "arraybuffer" })).data;
 
-    // write fetched files to cache
-    fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
-    fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
+    // write fetched files to cache (safe Buffer.from usage)
+    fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne));
+    fs.writeFileSync(pathImg, Buffer.from(bg));
 
     // make circular avatar
     const avataruser = await this.circle(pathAvata);
@@ -107,7 +107,7 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
     // ensure font exists, download if missing (link unchanged)
     if (!fs.existsSync(__dirname + `${fonts}`)) {
       let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
-      fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont, "utf-8"));
+      fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont));
     }
 
     // load images into canvas
@@ -130,9 +130,7 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
     // normalize fields (keep original checks for 'Không Có Dữ Liệu')
     if (!res.location || res.location === "Không Có Dữ Liệu") res.location = notFoundText;
     if (!res.birthday || res.birthday === "Không Có Dữ Liệu") res.birthday = notFoundText;
-    if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệ
-
-u") res.relationship_status = notFoundText;
+    if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệu") res.relationship_status = notFoundText;
     if (!res.follow || res.follow === "Không Có Dữ Liệu") res.follow = notFoundText;
 
     // assign converted values
@@ -164,7 +162,7 @@ u") res.relationship_status = notFoundText;
 
     ctx.fillText(`${nameLabel} ${nameText}`, 111, 160);
     ctx.fillText(`${genderLabel} ${gender}`, 111, 200);
-    ctx.fillText(`${followLabel} ${res.follow}`, 111, 240);
+    ctx.fillText(`${followLabel} ${toMathBoldItalic(String(res.follow || notFoundText))}`, 111, 240);
     ctx.fillText(`${loveLabel} ${love}`, 111, 280);
     ctx.fillText(`${bdayLabel} ${birthday}`, 111, 320);
     ctx.fillText(`${locationLabel} ${location}`, 111, 360);
@@ -176,7 +174,7 @@ u") res.relationship_status = notFoundText;
     // finalize image
     const imageBuffer = canvas.toBuffer();
     fs.writeFileSync(pathImg, imageBuffer);
-    fs.removeSync(pathAvata);
+    try { fs.removeSync(pathAvata); } catch (e) { /* ignore */ }
 
     // send message with emoji-rich body (message converted to math bold italic)
     const doneMessage = toMathBoldItalic("✅ 𝑨𝒑𝒏𝒂𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒑𝒓𝒐𝒔𝒕𝒖𝒕 𝒉𝒐𝒚𝒆𝒄𝒉𝒆! 🎉✨");
@@ -195,7 +193,7 @@ u") res.relationship_status = notFoundText;
 
   } catch (error) {
     // graceful error message with emoji
-    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error.message || error}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
+    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error && error.message ? error.message : String(error)}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
     return api.sendMessage(errText, threadID, messageID);
   }
 };
