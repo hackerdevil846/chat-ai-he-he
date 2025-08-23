@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "😂 Create a funny meme with you and the mentioned user!",
-	commandCategory: "edit-img",
+	category: "edit-img",
 	usages: "fuck @mention",
 	cooldowns: 5,
 	dependencies: {
