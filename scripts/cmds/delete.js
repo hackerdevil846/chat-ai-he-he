@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑫𝒆𝒍𝒆𝒕𝒆 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 🖱️",
-	commandCategory: "𝗠𝗘𝗗𝗜𝗔",
+	category: "𝗠𝗘𝗗𝗜𝗔",
 	usages: "[tag]",
 	cooldowns: 5,
 	dependencies: {
