@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔞 NSFW command toggle for groups",
-	commandCategory: "⚙️ System",
+	category: "⚙️ System",
 	usages: "[on/off]",
 	cooldowns: 5,
 	dependencies: {}
