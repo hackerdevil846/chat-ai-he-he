@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🎨 Generate stunning AI-powered images with Flux technology",
-	commandCategory: "image",
+	category: "image",
 	usages: "[prompt] --ratio [width:height]",
 	cooldowns: 20,
 	dependencies: {
