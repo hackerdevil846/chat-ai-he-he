@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0, // 0 = All users
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
 	description: "𝑩𝒐𝒕 𝒕𝒐𝒎𝒂𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒓𝒆𝒑𝒆𝒂𝒕 𝒌𝒐𝒓𝒃𝒆 📣", 
-	commandCategory: "ai", // Category
+	category: "ai", // Category
 	usages: "[message]", // Usage format
 	cooldowns: 5 // Cooldown (sec)
 };
