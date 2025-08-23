@@ -11,7 +11,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📇 Create Facebook user information card",
-	commandCategory: "group",
+	category: "group",
 	usages: "[reply/@mention]",
 	cooldowns: 5,
 	dependencies: {
@@ -149,3 +149,4 @@ module.exports.run = async function ({ api, event, args }) {
 		messageID
 	);
 };
+
