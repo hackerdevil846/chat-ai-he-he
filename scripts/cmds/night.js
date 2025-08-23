@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Bengali-styled font
 	description: "✨ 𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄 𝑮𝒐𝒐𝒅 𝑵𝒊𝒈𝒉𝒕 𝑾𝒊𝒔𝒉𝒆𝒓 ✨",
-	commandCategory: "𝑵𝒐 𝑷𝒓𝒆𝒇𝒊𝒙", // Bengali-styled font
+	category: "𝑵𝒐 𝑷𝒓𝒆𝒇𝒊𝒙", // Bengali-styled font
 	usages: "𝑵𝒐𝒏𝒆 (𝑨𝒖𝒕𝒐-𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆)", // Bengali-styled font
 	cooldowns: 3,
 	dependencies: {
