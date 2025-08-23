@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔄 𝑩𝒐𝒕 𝒂𝒄𝒄𝒐𝒖𝒏𝒕 𝒍𝒐𝒈𝒐𝒖𝒕 𝒔𝒚𝒔𝒕𝒆𝒎",
-	commandCategory: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎",
+	category: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎",
 	usages: "",
 	cooldowns: 0,
 	envConfig: {
