@@ -1,84 +1,182 @@
 module.exports.config = {
   name: "fixspam-ch",
-  version: "1.0.0",
+  version: "1.0.1",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒃𝒂𝒏 𝒖𝒔𝒆𝒓𝒔 𝒘𝒉𝒐 𝒖𝒔𝒆 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 𝒂𝒈𝒂𝒊𝒏𝒔𝒕 𝒕𝒉𝒆 𝒃𝒐𝒕",
-  commandCategory: "𝒔𝒚𝒔𝒕𝒆𝒎",
-  usages: "𝒏𝒐𝒑𝒓𝒆𝒇𝒊𝒙",
+  description: "Automatically ban users who use bad words against the bot",
+  category: "system",
+  usages: "noprefix",
   cooldowns: 0,
   dependencies: {}
 };
 
-module.exports.handleEvent = async ({ event, api, Users }) => {
-  const { threadID, messageID, body, senderID } = event;
-  
-  // Ignore messages from the bot itself
-  if (senderID === api.getCurrentUserID()) return;
-  
-  const userName = await Users.getNameUser(senderID);
-  const time = require("moment-timezone").tz("Asia/Dhaka").format("HH:MM:ss L");
-  
-  // Curse words list
-  const badWords = [
-    "bot mc", "Mc bot", "Chutiya bot", "Bsdk bot", "Bot teri maa ki chut", 
-    "Jhatu bot", "Rhaine bobo", "stupid bots", "chicken bot", "Bot lund", 
-    "Priyansh mc", "Mc priyansh", "Bsdk priyansh", "fuck bots", 
-    "Priyansh chutiya", "Priyansh gandu", "bobo Ginoong choru bot", 
-    "Priyansh bc", "crazy bots", "bc priyansh", "Nikal bsdk bot", 
-    "bot khùng", "đĩ bot", "bot paylac rồi", "con bot lòn", "cmm bot", 
-    "clap bot", "bot ncc", "bot oc", "bot óc", "bot óc chó", "cc bot", 
-    "bot tiki", "lozz bottt", "lol bot", "loz bot", "lồn bot", "bot lồn", 
-    "bot lon", "bot cac", "bot nhu lon", "bot như cc", "bot như bìu", 
-    "Bot sida", "bot sida", "bot fake", "Bảo ngu", "bot shoppee", 
-    "bad bots", "bot cau"
-  ];
-
-  for (const word of badWords) {
-    const capitalized = word.charAt(0).toUpperCase() + word.slice(1);
-    
-    if (body === word.toUpperCase() || body === word || body === capitalized) {
-      console.log(`𝑩𝒂𝒅 𝒘𝒐𝒓𝒅 𝒅𝒆𝒕𝒆𝒄𝒕𝒆𝒅: ${userName} said "${word}"`);
-      
-      // Ban the user
-      const userData = await Users.getData(senderID);
-      userData.banned = 1;
-      userData.reason = word;
-      userData.dateAdded = time;
-      
-      await Users.setData(senderID, userData);
-      global.data.userBanned.set(senderID, {
-        reason: userData.reason,
-        dateAdded: userData.dateAdded
-      });
-
-      // Send warning message
-      const warningMsg = {
-        body: `» 𝑵𝒐𝒕𝒊𝒄𝒆 𝒇𝒓𝒐𝒎 𝑶𝒘𝒏𝒆𝒓 𝑨𝒔𝒊𝒇 𝑴𝒂𝒎𝒖𝒅 «\n\n${userName}, 𝒀𝒐𝒖 𝒉𝒂𝒗𝒆 𝒃𝒆𝒆𝒏 𝒃𝒂𝒏𝒏𝒆𝒅 𝒇𝒓𝒐𝒎 𝒖𝒔𝒊𝒏𝒈 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒔𝒚𝒔𝒕𝒆𝒎 𝒇𝒐𝒓 𝒖𝒔𝒊𝒏𝒈 𝒊𝒏𝒂𝒑𝒑𝒓𝒐𝒑𝒓𝒊𝒂𝒕𝒆 𝒍𝒂𝒏𝒈𝒖𝒂𝒈𝒆`
-      };
-      
-      api.sendMessage(warningMsg, threadID);
-
-      // Notify admin
-      for (const adminID of global.config.ADMINBOT) {
-        api.sendMessage(
-          `=== 𝑩𝒐𝒕 𝑵𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 ===\n\n` +
-          `🆔 𝑼𝒔𝒆𝒓: ${userName}\n` +
-          `🔰 𝑼𝑰𝑫: ${senderID}\n` +
-          `💬 𝑴𝒆𝒔𝒔𝒂𝒈𝒆: ${word}\n\n` +
-          `𝑩𝒂𝒏𝒏𝒆𝒅 𝒇𝒓𝒐𝒎 𝒕𝒉𝒆 𝒔𝒚𝒔𝒕𝒆𝒎`,
-          adminID
-        );
-      }
-      break;
-    }
+module.exports.languages = {
+  "en": {
+    "banned_notice_subject": "» Notice from Owner 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 «",
+    "banned_message": "{name}, you have been banned from using the bot system for using inappropriate language.",
+    "auto_command_msg": "⚠️ This is an automated system command. It does not need to be called manually.\n\nWhen users use bad words against the bot, they will be automatically banned. ✅",
+    "admin_notify_subject": "=== Bot Notification ===",
+    "admin_notify_body": "👤 User: {name}\n🆔 UID: {uid}\n💬 Message: {msg}\n\nBanned from the system."
+  },
+  "bn": {
+    "auto_command_msg": "⚠️ এটী একটি অটোমেটেড সিস্টেম কমান্ড। ম্যানুয়ালি কল করার দরকার নেই।\n\nযদি কেউ বটকে গালি দেয়, তারা স্বয়ংক্রিয়ভাবে ব্যান হয়ে যাবে। ✅"
   }
 };
 
-module.exports.run = async ({ event, api }) => {
-  api.sendMessage(
-    "𝑻𝒉𝒊𝒔 𝒊𝒔 𝒂𝒏 𝒂𝒖𝒕𝒐𝒎𝒂𝒕𝒆𝒅 𝒔𝒚𝒔𝒕𝒆𝒎 𝒄𝒐𝒎𝒎𝒂𝒏𝒅. 𝑰𝒕 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒏𝒆𝒆𝒅 𝒕𝒐 𝒃𝒆 𝒄𝒂𝒍𝒍𝒆𝒅 𝒎𝒂𝒏𝒖𝒂𝒍𝒍𝒚.\n\n` +
-    "𝑾𝒉𝒆𝒏 𝒖𝒔𝒆𝒓𝒔 𝒖𝒔𝒆 𝒃𝒂𝒅 𝒘𝒐𝒓𝒅𝒔 𝒂𝒈𝒂𝒊𝒏𝒔𝒕 𝒕𝒉𝒆 𝒃𝒐𝒕, 𝒕𝒉𝒆𝒚 𝒘𝒊𝒍𝒍 𝒃𝒆 𝒂𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒃𝒂𝒏𝒏𝒆𝒅.",
-    event.threadID
-  );
+module.exports.onLoad = function () {
+  // Ensure global.data.userBanned exists and is a Map (to avoid runtime errors)
+  if (!global.data) global.data = {};
+  if (!global.data.userBanned) global.data.userBanned = new Map();
+
+  // Ensure there is a ADMINBOT array to notify (if not present, keep empty array to avoid crashes)
+  if (!global.config) global.config = {};
+  if (!global.config.ADMINBOT) global.config.ADMINBOT = [];
+};
+
+module.exports.handleEvent = async function ({ event, api, Users }) {
+  try {
+    // Basic destructuring and safe handling for message body
+    const threadID = event.threadID || event.threadId || (event.message && event.message.threadID);
+    const senderID = event.senderID || (event.message && event.message.senderID);
+    let body = (event.body || (event.message && (event.message.text || event.message.body)) || "");
+    if (!body || typeof body !== "string") return; // nothing to check
+
+    // Don't react to the bot's own messages
+    try {
+      const selfID = typeof api.getCurrentUserID === "function" ? await api.getCurrentUserID() : (api.getCurrentUserID || null);
+      if (selfID && senderID == selfID) return;
+    } catch (errSelf) {
+      // ignore getCurrentUserID errors and continue
+    }
+
+    // Normalize message for case-insensitive checking
+    const bodyNormalized = body.toLowerCase();
+
+    // Bad words list (kept as requested, unchanged text content)
+    const badWords = [
+      "bot mc", "mc bot", "chutiya bot", "bsdk bot", "bot teri maa ki chut",
+      "jhatu bot", "rhaine bobo", "stupid bots", "chicken bot", "bot lund",
+      "priyansh mc", "mc priyansh", "bsdk priyansh", "fuck bots",
+      "priyansh chutiya", "priyansh gandu", "bobo ginoong choru bot",
+      "priyansh bc", "crazy bots", "bc priyansh", "nikal bsdk bot",
+      "bot khùng", "đĩ bot", "bot paylac rồi", "con bot lòn", "cmm bot",
+      "clap bot", "bot ncc", "bot oc", "bot óc", "bot óc chó", "cc bot",
+      "bot tiki", "lozz bottt", "lol bot", "loz bot", "lồn bot", "bot lồn",
+      "bot lon", "bot cac", "bot nhu lon", "bot như cc", "bot như bìu",
+      "bot sida", "bot fake", "bảo ngu", "bot shoppee",
+      "bad bots", "bot cau"
+    ];
+
+    // Check each bad word: case-insensitive, detect if the bad phrase appears anywhere in the message
+    for (const rawWord of badWords) {
+      if (!rawWord) continue;
+      const word = rawWord.toLowerCase().trim();
+      if (!word) continue;
+
+      // If message contains the word (anywhere) -> ban
+      if (bodyNormalized.includes(word)) {
+        // Fetch user name (best-effort)
+        let userName = senderID;
+        try {
+          userName = await Users.getNameUser(senderID) || senderID;
+        } catch (e) {
+          // ignore
+        }
+
+        console.log(`Bad word detected: ${userName} said "${rawWord}"`);
+
+        // Prepare time in Asia/Dhaka
+        let time = "";
+        try {
+          const moment = require("moment-timezone");
+          time = moment().tz("Asia/Dhaka").format("HH:mm:ss, DD/MM/YYYY");
+        } catch (errMoment) {
+          time = new Date().toLocaleString("en-GB", { timeZone: "Asia/Dhaka" });
+        }
+
+        // Mark user data as banned (best-effort; silent failures won't break)
+        try {
+          const userData = (await Users.getData(senderID)) || {};
+          userData.banned = 1;
+          userData.reason = rawWord;
+          userData.dateAdded = time;
+          await Users.setData(senderID, userData);
+
+          // Also update global banned map used by some GoatBot setups
+          if (!global.data) global.data = {};
+          if (!global.data.userBanned) global.data.userBanned = new Map();
+          global.data.userBanned.set(senderID, {
+            reason: userData.reason,
+            dateAdded: userData.dateAdded
+          });
+        } catch (errSetData) {
+          console.error("Failed to set user data for ban:", errSetData);
+        }
+
+        // Send warning message to the thread
+        const warningBody = [
+          "» Notice from Owner 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 «",
+          "",
+          `${userName}, you have been banned from using the bot system for using inappropriate language. 🚫`,
+          "",
+          `Reason: "${rawWord}"`,
+          `Time: ${time}`
+        ].join("\n");
+
+        try {
+          await api.sendMessage({ body: warningBody }, threadID);
+        } catch (errSend) {
+          console.error("Failed to send warning message:", errSend);
+        }
+
+        // Notify each admin
+        const adminMsg = [
+          "=== Bot Notification ===",
+          "",
+          `👤 User: ${userName}`,
+          `🆔 UID: ${senderID}`,
+          `💬 Message: ${rawWord}`,
+          "",
+          `Banned from the system. 🔒`
+        ].join("\n");
+
+        try {
+          const admins = Array.isArray(global.config.ADMINBOT) ? global.config.ADMINBOT : [];
+          for (const adminID of admins) {
+            try {
+              await api.sendMessage(adminMsg, adminID);
+            } catch (errAdmin) {
+              console.error(`Failed to notify admin ${adminID}:`, errAdmin);
+            }
+          }
+        } catch (errNotifyAll) {
+          console.error("Error while notifying admins:", errNotifyAll);
+        }
+
+        // Break after first match to avoid multiple notifications for same message
+        break;
+      }
+    }
+  } catch (err) {
+    console.error("Error in fixspam-ch handleEvent:", err);
+  }
+};
+
+module.exports.run = async function ({ event, api }) {
+  try {
+    // Friendly informational reply when someone purposely calls the command
+    const msg = [
+      "⚠️ Automated System Command",
+      "",
+      "This command runs automatically on message events — you don't need to call it manually.",
+      "",
+      "When users use bad words against the bot, they will be automatically banned. ✅",
+      "",
+      "If you are an admin and want to update the bad words list or manage bans, edit the script."
+    ].join("\n");
+
+    await api.sendMessage({ body: msg }, event.threadID);
+  } catch (err) {
+    console.error("Error in fixspam-ch run():", err);
+  }
 };
