@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "✨ 𝐏𝐚𝐢𝐫 𝐮𝐩 𝐮𝐬𝐞𝐫𝐬 𝐚𝐧𝐝 𝐬𝐡𝐨𝐰 𝐜𝐨𝐦𝐩𝐚𝐭𝐢𝐛𝐢𝐥𝐢𝐭𝐲 ✨",
-  commandCategory: "𝐌𝐨𝐣𝐚",
+  category: "𝐌𝐨𝐣𝐚",
   usages: "",
   dependencies: {
     "axios": "",
