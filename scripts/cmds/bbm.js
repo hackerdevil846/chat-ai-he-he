@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🎭 𝑫𝒓𝒂𝒌𝒆 𝒎𝒆𝒎𝒆 𝒄𝒓𝒆𝒂𝒕𝒐𝒓",
-  commandCategory: "🖼️ 𝒎𝒆𝒎𝒆𝒔",
+  category: "🖼️ 𝒎𝒆𝒎𝒆𝒔",
   usages: "𝒕𝒆𝒙𝒕 1 | 𝒕𝒆𝒙𝒕 2",
   cooldowns: 1,
   dependencies: {
