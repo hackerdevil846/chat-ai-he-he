@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📱 Create Nokia meme with user's avatar",
-	commandCategory: "fun",
+	category: "fun",
 	usages: "[mention/reply]",
 	cooldowns: 10,
 	dependencies: {
