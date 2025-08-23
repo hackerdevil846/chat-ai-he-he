@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0, // 0 = all users
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Play beautiful Islamic gazals 🎶",
-	commandCategory: "islamic",
+	category: "islamic",
 	usages: "gojol",
 	cooldowns: 5,
 	dependencies: {
