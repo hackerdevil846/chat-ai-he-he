@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝒂𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒖𝒔𝒆𝒓𝒔",
-	commandCategory: "𝒐𝒕𝒉𝒆𝒓",
+	category: "𝒐𝒕𝒉𝒆𝒓",
 	cooldowns: 5
 };
 
