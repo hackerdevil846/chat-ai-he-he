@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "💰 𝗗𝗔𝗜𝗟𝗬 𝗥𝗘𝗪𝗔𝗥𝗗 𝗦𝗬𝗦𝗧𝗘𝗠 | 𝗚𝗲𝘁 𝟭𝟵𝗕+ 𝗖𝗼𝗶𝗻𝘀 𝗘𝘃𝗲𝗿𝘆 𝟭𝟮 𝗛𝗼𝘂𝗿𝘀",
-	commandCategory: "economy",
+	category: "economy",
 	usages: "daily",
 	cooldowns: 5,
 	envConfig: {
