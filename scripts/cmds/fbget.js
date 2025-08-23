@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒆𝒓 𝒗𝒊𝒅𝒆𝒐/𝒂𝒖𝒅𝒊𝒐 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 📥",
-    commandCategory: "𝑼𝒕𝒊𝒍𝒊𝒕𝒊𝒆𝒔",
+    category: "𝑼𝒕𝒊𝒍𝒊𝒕𝒊𝒆𝒔",
     usages: "[audio/video] [facebook video link]",
     cooldowns: 5,
     dependencies: {
