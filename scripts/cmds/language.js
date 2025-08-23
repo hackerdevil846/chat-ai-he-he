@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Change bot's language between Bengali and English",
-	commandCategory: "system",
+	category: "system",
 	usages: "[bn | en]",
 	cooldowns: 5,
 	envConfig: {
