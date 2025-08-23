@@ -6,7 +6,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "☪️ 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝑮𝒓𝒆𝒆𝒕𝒊𝒏𝒈𝒔 𝒘𝒊𝒕𝒉 𝑫𝒚𝒏𝒂𝒎𝒊𝒄 𝑩𝒐𝒓𝒅𝒆𝒓𝒔 𝒂𝒏𝒅 𝑺𝒕𝒊𝒄𝒌𝒆𝒓𝒔",
-  commandCategory: "☪️ 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝑺𝒘𝒂𝒈",
+  category: "☪️ 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝑺𝒘𝒂𝒈",
   usages: ["on/off"],
   cooldowns: 5,
   dependencies: {
@@ -109,3 +109,4 @@ module.exports.run = async function({ api, event, Threads, getText }) {
     messageID
   );
 };
+
