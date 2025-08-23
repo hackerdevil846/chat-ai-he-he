@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermission: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 (updated by Manus)",
     description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎e 𝒇𝒂𝒄𝒕𝒔 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆𝒔",
-    commandCategory: "𝒓𝒂𝒏𝒅𝒐𝒎-𝒊𝒎𝒈",
+    category: "𝒓𝒂𝒏𝒅𝒐𝒎-𝒊𝒎𝒈",
     cooldowns: 5
 };
 
