@@ -1,14 +1,13 @@
 module.exports.config = {
     name: "coin",
     version: "1.2.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    category: "economy",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💰 Check coin balances in economy system",
-    commandCategory: "economy",
+    description: "💰 Check coin balances in the economy system",
+    category: "economy",
     usages: "[@mention | help]",
     cooldowns: 3,
+    dependencies: {},
     envConfig: {}
 };
 
@@ -31,20 +30,25 @@ module.exports.languages = {
     }
 };
 
+module.exports.onLoad = function() {
+    // This runs when the command is loaded
+    console.log("✅ Coin command loaded successfully!");
+};
+
 module.exports.run = async function({ api, event, args, Users, Currencies, getText }) {
     try {
         const { threadID, messageID, senderID, mentions } = event;
-        
+
         // Show help if requested
         if (args[0]?.toLowerCase() === "help") {
             return api.sendMessage(getText("help"), threadID, messageID);
         }
 
-        // Check own balance if no mention
+        // If no mention, show own balance
         if (args.length === 0 || Object.keys(mentions).length === 0) {
             const userData = await Currencies.getData(senderID);
             const balance = userData.money || 0;
-            
+
             return api.sendMessage(
                 getText("own_balance", balance.toLocaleString()), 
                 threadID,
@@ -52,20 +56,15 @@ module.exports.run = async function({ api, event, args, Users, Currencies, getTe
             );
         }
 
-        // Get mentioned user's balance
+        // If user is mentioned, get their balance
         const targetID = Object.keys(mentions)[0];
         const targetName = mentions[targetID].replace(/@/g, "");
-        
-        // Get target user data
+
         const targetData = await Currencies.getData(targetID);
-        
+
         // Handle invalid user
         if (!targetData) {
-            return api.sendMessage(
-                getText("no_user"),
-                threadID,
-                messageID
-            );
+            return api.sendMessage(getText("no_user"), threadID, messageID);
         }
 
         const targetBalance = targetData.money || 0;
