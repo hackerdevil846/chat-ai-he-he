@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🎪 Add some clown vibes to yourself or a friend!",
-    commandCategory: "edit-img",
+    category: "edit-img",
     usages: "[reply/tag someone]",
     cooldowns: 5,
     dependencies: {
