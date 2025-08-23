@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2, // Only bot admins/owners can use
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Module creator
   description: "Kick out all non-admin members inside the group 🚫👥", 
-  commandCategory: "group",
+  category: "group",
   usages: "[]",
   cooldowns: 3,
   dependencies: {},
