@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🥵 Get random NSFW content with multiple categories",
-	commandCategory: "nsfw",
+	category: "nsfw",
 	usages: "[category]",
 	cooldowns: 5,
 	dependencies: {
