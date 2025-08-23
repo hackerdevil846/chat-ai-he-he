@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🚫 Filter Facebook users from group with detailed reporting",
-    commandCategory: "group",
+    category: "group",
     usages: "[all/list]",
     cooldowns: 300,
     dependencies: {},
