@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Enhance photos to stunning 4K resolution",
-    commandCategory: "edit-img",
+    category: "edit-img",
     usages: "Reply to an image or provide image URL",
     cooldowns: 10,
     dependencies: {
