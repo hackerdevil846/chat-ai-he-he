@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
     description: '✨ 𝑩𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅 𝒄𝒓𝒆𝒂𝒕𝒐𝒓',
-    commandCategory: 'media',
+    category: 'media',
     usages: '[text]',
     cooldowns: 10,
     dependencies: {
