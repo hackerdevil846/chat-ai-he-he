@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Start a joyful celebration in chat with interactive messages and emojis",
-  commandCategory: "fun",
+  category: "fun",
   usages: "[@mention or name]",
   cooldowns: 60
 };
