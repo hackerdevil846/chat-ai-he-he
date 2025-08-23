@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔊 𝑽𝒊𝒏𝒆 𝑩𝒐𝒐𝒎 𝒔𝒐𝒖𝒏𝒅 𝒆𝒇𝒇𝒆𝒄𝒕",
-	commandCategory: "noprefix",
+	category: "noprefix",
 	usages: "[trigger_words]",
 	cooldowns: 3,
 	envConfig: {
