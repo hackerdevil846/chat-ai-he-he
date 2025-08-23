@@ -6,7 +6,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝒉𝒊𝒉𝒊𝒉𝒊𝒉𝒊",
-  commandCategory: "𝒏𝒐 𝒑𝒓𝒆𝒇𝒊𝒙",
+  category: "𝒏𝒐 𝒑𝒓𝒆𝒇𝒊𝒙",
   usages: "𝒔𝒖𝒔",
   cooldowns: 5, 
 };
