@@ -18,7 +18,7 @@ How to use:
 3. Reply with a number (1-7) to download selected file.
 4. Bot sends the audio/video stream as attachment.`,
 
-  commandCategory: "media",
+  category: "media",
   usages: "mp3|mp4 <search terms> [quality]",
   cooldowns: 5,
   usePrefix: true
