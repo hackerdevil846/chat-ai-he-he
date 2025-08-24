@@ -11,8 +11,17 @@ module.exports.config = {
   cooldowns: 5,
 };
 
+// Provide an onStart to avoid "onStart of command undefined" errors
+module.exports.onStart = function() {
+  // intentionally empty — required by loader
+};
+
 module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
   var { threadID, messageID } = event;
+
+  // guard: ensure event.body exists before using string operations
+  if (!event.body) return;
+
   if (
     event.body.indexOf("ADMIN") === 0 ||
     event.body.indexOf("Admin") === 0 ||
@@ -31,10 +40,11 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
 »»————-　★　————-««
 🥀 𝐵𝑜𝓉 𝑒𝓇 𝑀𝒶𝓁𝒾𝓀 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
 »»————-　★　————-««`,
-      attachment: fs.createReadStream(__dirname + '/noprefix/profile.png')
+      attachment: fs.createReadStream(__dirname + "/noprefix/profile.png"),
     };
     api.sendMessage(msg, threadID, messageID);
-    api.setMessageReaction("🫅", event.messageID, (err) => {}, true);
+    // use the local messageID variable (consistent with destructuring above)
+    api.setMessageReaction("🫅", messageID, (err) => {}, true);
   }
 };
 
