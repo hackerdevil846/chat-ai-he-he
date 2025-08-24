@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0, // kept for compatibility
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙏𝙞𝙠𝙏𝙤𝙠 𝙫𝙞𝙙𝙚𝙤 𝙙𝙖𝙪𝙣𝙡𝙤𝙖𝙙 𝙠𝙤𝙧𝙚",
-  commandCategory: "𝙐𝙨𝙚𝙧 𝙡𝙖𝙜𝙚",
+  category: "𝙐𝙨𝙚𝙧 𝙡𝙖𝙜𝙚",
   usages: "",
   cooldowns: 5
 };
