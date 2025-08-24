@@ -81,7 +81,7 @@ function toMathBoldItalic(text) {
   return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const fs = global.nodemodule["fs-extra"];
   const { threadID, messageID, senderID } = event;
   const mention = Object.keys(event.mentions);
