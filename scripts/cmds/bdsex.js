@@ -16,7 +16,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
 	const links = [
       "https://i.postimg.cc/wTZJ1Yvb/images-1-29.jpg",
       "https://i.postimg.cc/ZRN79xP1/97420.jpg",
