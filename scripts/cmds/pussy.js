@@ -5,7 +5,7 @@ module.exports.config = {
   author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   hasPermssion: 0,
   description: "NSFW photo command (authorized users only)",
-  commandCategory: "nsfw",
+  category: "nsfw",
   usages: "{pn}",
   cooldowns: 5,
   dependencies: {
