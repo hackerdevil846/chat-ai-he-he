@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
 	description: '𝑭𝒂𝒊𝒍 𝒑𝒂𝒕𝒉𝒂𝒏𝒐𝒓 𝒋𝒐𝒏𝒏𝒐 𝒂𝒅𝒎𝒊𝒏 𝒌𝒎𝒅',
-	commandCategory: '𝑨𝒅𝒎𝒊𝒏',
+	category: '𝑨𝒅𝒎𝒊𝒏',
 	usages: '[filename.js]',
 	cooldowns: 0,
 	dependencies: {
