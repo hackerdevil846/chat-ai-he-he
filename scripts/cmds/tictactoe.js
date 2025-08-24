@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅-𝒆𝒓 𝒃𝒂𝒏𝒂𝒏𝒐 𝑻𝒊𝒄 𝑻𝒂𝒄 𝑻𝒐𝒆 𝒌𝒉𝒆𝒍𝒂",
-	commandCategory: "game-sp",
+	category: "game-sp",
 	usages: "x/o/delete/continue",
 	cooldowns: 5,
 	dependencies: {
