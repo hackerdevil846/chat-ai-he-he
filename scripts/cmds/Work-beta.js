@@ -152,7 +152,7 @@ module.exports.handleReply = async ({ event, api, handleReply, Currencies, getTe
     }
 }
 
-module.exports.run = async ({ event, api, Currencies, getText }) => {
+module.exports.onStart = async ({ event, api, Currencies, getText }) => {
     const { threadID, messageID, senderID } = event;
     const cooldown = global.configModule[this.config.name].cooldownTime;
     let data = (await Currencies.getData(senderID)).data || {};
@@ -177,7 +177,7 @@ module.exports.run = async ({ event, api, Currencies, getText }) => {
             "\n5. 𝑫𝒊𝒈𝒈𝒊𝒏𝒈 𝒌𝒂𝒋" +
             "\n6. 𝑺𝒑𝒆𝒄𝒊𝒂𝒍 𝒋𝒐𝒃" +
             "\n7. 𝑼𝒑𝒅𝒂𝒕𝒆 𝒔𝒐𝒐𝒏..." +
-            "\n\n⚡️𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒄𝒉𝒐𝒐𝒔𝒆 𝒌𝒐𝒓𝒖𝒏"
+            "\n\n⚡️𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒄𝒉𝒐𝒐𝒔𝒆 �𝒌𝒐𝒓𝒖𝒏"
         );
         
         return api.sendMessage(menu, event.threadID, (error, info) => {
@@ -191,7 +191,3 @@ module.exports.run = async ({ event, api, Currencies, getText }) => {
         });
     }
 }
-/*
-@credit P-SeverTeam
-@Vui lòng không đổi credit!
-*/
