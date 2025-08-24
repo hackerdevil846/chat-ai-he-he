@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🔍 𝑰𝒎𝒂𝒈𝒆 𝒔𝒆𝒂𝒓𝒄𝒉 𝒘𝒊𝒕𝒉 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒓𝒆𝒔𝒖𝒍𝒕𝒔",
-    commandCategory: "media",
+    category: "media",
     usages: "[query] - [number]",
     cooldowns: 15,
     dependencies: {
