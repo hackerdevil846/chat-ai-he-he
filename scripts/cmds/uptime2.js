@@ -5,7 +5,7 @@ module.exports.config = {
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   hide: true,
   description: "𝑨𝑷𝑰 𝒕𝒉𝒆𝒌𝒆 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆𝒔 - 𝒖𝒑𝒕𝒊𝒎𝒆",
-  commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+  category: "𝑺𝒚𝒔𝒕𝒆𝒎",
   cooldowns: 2,
   dependencies: {
     "pidusage": ""
