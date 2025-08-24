@@ -9,6 +9,11 @@ module.exports.config = {
   cooldowns: 5
 };
 
+// Added onStart to prevent "onStart of command undefined" error in loader
+module.exports.onStart = async () => {
+  // noop — intentionally empty to satisfy loader that expects an onStart export
+};
+
 module.exports.run = async ({ api, event, args }) => {
   const axios = require('axios');
   const fs = require('fs-extra');
