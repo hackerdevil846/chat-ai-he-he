@@ -4,7 +4,7 @@ module.exports.config = {
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	hasPermssion: 2,
 	description: "𝑩𝒐𝒕 𝒆𝒓 𝒑𝒆𝒏𝒅𝒊𝒏𝒈 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒎𝒂𝒏𝒂𝒈𝒆 𝒌𝒐𝒓𝒂",
-	commandCategory: "system",
+	category: "system",
 	usages: "[approve/reject] [numbers]",
 	cooldowns: 5,
 	dependencies: {
