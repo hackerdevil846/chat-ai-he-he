@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Creator
 	description: "𝑺𝒍𝒐𝒕 𝑴𝒂𝒄𝒉𝒊𝒏𝒆 𝑮𝒂𝒎𝒆",
-	commandCategory: "game-sp", // Single player games
+	category: "game-sp", // Single player games
 	usages: "rdi [bet amount]",
 	cooldowns: 5,
 	dependencies: {
