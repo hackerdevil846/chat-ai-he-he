@@ -5,7 +5,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Group-e bot-er naam ke default (BOTNAME [ PREFIX ]) a kore reset kore.",
-    commandCategory: "group",
+    category: "group",
     usages: "",
     cooldowns: 5
   },
