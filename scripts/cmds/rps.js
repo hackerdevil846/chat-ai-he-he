@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Rock-paper-scissors game (supports text & emoji)",
-    commandCategory: "fun",
+    category: "fun",
     usages: "[rock|paper|scissors] or [✊|✋|✌️]",
     cooldowns: 5,
     dependencies: {}
