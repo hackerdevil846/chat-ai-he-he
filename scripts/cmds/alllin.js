@@ -10,6 +10,11 @@ module.exports.config = {
   dependencies: {"request": "", "fs-extra": ""},
 };
 
+module.exports.onStart = async function() {
+  // no-op onStart to avoid "onStart of command undefined" loader errors
+  return;
+};
+
 module.exports.run = async function({ api, event, args, Threads }) {
   const request = global.nodemodule["request"];
   const fs = global.nodemodule["fs-extra"];
@@ -71,8 +76,8 @@ module.exports.run = async function({ api, event, args, Threads }) {
     case "name":
       try {
         const name = args.slice(1).join(" ");
-        const mention = Object.keys(event.mentions)[0];
-        const targetID = mention || event.messageReply?.senderID || event.senderID;
+        const mention = event.mentions ? Object.keys(event.mentions)[0] : null;
+        const targetID = mention || (event.messageReply && event.messageReply.senderID) || event.senderID;
         
         if (!name) return api.sendMessage("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒔𝒑𝒆𝒄𝒊𝒇𝒚 𝒂 𝒏𝒆𝒘 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆", event.threadID, event.messageID);
         
@@ -136,8 +141,8 @@ module.exports.run = async function({ api, event, args, Threads }) {
 
     case "QTV":
       try {
-        const mention = Object.keys(event.mentions)[0];
-        const targetID = mention || event.messageReply?.senderID || args[1];
+        const mention = event.mentions ? Object.keys(event.mentions)[0] : null;
+        const targetID = mention || (event.messageReply && event.messageReply.senderID) || args[1];
         
         if (!targetID) {
           return api.sendMessage("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓", event.threadID, event.messageID);
