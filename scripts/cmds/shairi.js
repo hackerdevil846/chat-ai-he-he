@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 (Updated by Manus AI)",
   description: "Send a shairi video stream using Asif Shairi API",
-  commandCategory: "entertainment",
+  category: "entertainment",
   usages: "",
   cooldowns: 10,
 };
