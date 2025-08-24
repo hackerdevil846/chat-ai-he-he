@@ -10,7 +10,7 @@ module.exports.config = {
   countDown: 10,
   hasPermssion: 0,
   description: "🎵 Download high-quality audio from YouTube",
-  commandCategory: "media",
+  category: "media",
   usages: "[song name | YouTube link]",
   cooldowns: 20,
   dependencies: {
