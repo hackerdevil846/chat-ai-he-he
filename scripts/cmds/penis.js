@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑷𝒆𝒏𝒊𝒔 𝒔𝒊𝒛𝒆 𝒄𝒉𝒆𝒄𝒌𝒆𝒓 𝒌𝒉𝒆𝒍𝒂 ( ͡° ͜ʖ ͡°)",
-	commandCategory: "fun",
+	category: "fun",
 	cooldowns: 5,
 	dependencies: {
 		"canvas": ""
