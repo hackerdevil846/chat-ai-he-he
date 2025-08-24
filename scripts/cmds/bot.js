@@ -90,6 +90,6 @@ module.exports.handleEvent = async function({ api, event, Users }) {
   }
 };
 
-module.exports.run = function({ api, event }) {
-  // Ei command ta just no-prefix handle er jonno
+module.exports.onStart = async function({ api }) {
+  // onStart required by framework — intentionally left blank to avoid side effects
 };
