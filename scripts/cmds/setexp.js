@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermission: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑴𝒐𝒅𝒊𝒇𝒚 𝑬𝑿𝑷 𝒍𝒆𝒗𝒆𝒍𝒔 𝒇𝒐𝒓 𝒖𝒔𝒆𝒓𝒔",
-  commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+  category: "𝑺𝒚𝒔𝒕𝒆𝒎",
   usages: "setexp [me/del/UID] [amount/userID]",
   cooldowns: 5,
   dependencies: {
@@ -101,3 +101,4 @@ module.exports.run = async function({ api, event, args, Currencies, Users, langu
     api.sendMessage("❌ An error occurred while processing your request", event.threadID, event.messageID);
   }
 };
+
