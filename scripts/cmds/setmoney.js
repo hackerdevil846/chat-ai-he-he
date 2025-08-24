@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Change the amount of money for yourself or tagged users",
-    commandCategory: "system",
+    category: "system",
     usages: "setmoney [me/del/uid/@user] [amount/userID]",
     cooldowns: 5,
     dependencies: {},
