@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 2, // Only bot admins/owners
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🌟 Sob user er EXP reset kore dai 💫",
-    commandCategory: "system",
+    category: "system",
     usages: "[cc], [del], [all]",
     cooldowns: 5,
     dependencies: {
