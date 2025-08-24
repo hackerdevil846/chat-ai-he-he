@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 2, // 2 = bot admins/owners
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🔄 Bot ke punarabar suru korano",
-    commandCategory: "system",
+    category: "system",
     usages: "",
     cooldowns: 5,
     dependencies: {
