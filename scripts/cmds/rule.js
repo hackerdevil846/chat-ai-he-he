@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑷𝒓𝒐𝒕𝒊𝒕𝒊 𝒈𝒓𝒖𝒑𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒏𝒊𝒚𝒐𝒎 𝒌𝒉𝒂𝒔𝒂 𝒌𝒐𝒓𝒂",
-  commandCategory: "𝒈𝒓𝒖𝒑",
+  category: "𝒈𝒓𝒖𝒑",
   usages: "[add/list/remove/all] [text/ID]",
   cooldowns: 5,
   dependencies: {
