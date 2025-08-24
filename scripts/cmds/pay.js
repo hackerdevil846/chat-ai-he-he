@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💰 𝑻𝒓𝒂𝒏𝒔𝒇𝒆𝒓 𝒎𝒐𝒏𝒆𝒚 𝒘𝒊𝒕𝒉 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒓𝒆𝒄𝒆𝒊𝒑𝒕𝒔",
-    commandCategory: "economy",
+    category: "economy",
     usages: "[@𝒕𝒂𝒈] [𝒂𝒎𝒐𝒖𝒏𝒕]",
     cooldowns: 15,
     dependencies: {
