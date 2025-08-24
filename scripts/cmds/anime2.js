@@ -12,6 +12,11 @@ module.exports.config = {
 	}
 };
 
+// Added to prevent "onStart of command undefined" error in loader
+module.exports.onStart = async function() {
+	// intentionally left empty to satisfy loader expectation
+};
+
 module.exports.run = async function({ api, event, args }) {
 	const { threadID, messageID } = event;
 	const axios = require("axios");
