@@ -12,6 +12,12 @@ module.exports.config = {
     }
 };
 
+// Adicione esta função para resolver o erro
+module.exports.onLoad = function() {
+    // Pode adicionar lógica de inicialização aqui, se necessário
+    return;
+}
+
 module.exports.languages = {
     "vi": {
         "listAdmin": '[Admin] Danh sách toàn bộ người điều hành bot: \n\n%1',
