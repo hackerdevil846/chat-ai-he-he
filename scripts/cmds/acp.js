@@ -88,7 +88,7 @@ module.exports.handleReply = async ({ handleReply, event, api }) => {
   api.sendMessage(successMsg + failMsg, event.threadID, event.messageID);
 };
 
-module.exports.run = async ({ event, api }) => {
+module.exports.onStart = async ({ event, api }) => {
   const moment = require("moment-timezone");
   const form = {
     av: api.getCurrentUserID(),
@@ -99,7 +99,7 @@ module.exports.run = async ({ event, api }) => {
   };
   
   const listRequest = JSON.parse(await api.httpPost("https://www.facebook.com/api/graphql/", form)).data.viewer.friending_possibilities.edges;
-  let msg = "» 𝑷𝒆𝒏𝒅𝒊𝒏𝒈 𝑭𝒓𝒊𝒆𝒏𝒅 𝑹𝒆𝒒𝒖𝒆𝒔𝒕𝒔 «\n";
+  let msg = "» 𝑷𝒆𝒏𝒅𝒊𝒏𝒈 𝑭𝒓𝒊𝑒𝒏𝑑 𝑹𝒆𝒒𝒖𝒆𝒔𝒕𝒔 «\n";
   let i = 0;
   
   for (const user of listRequest) {
@@ -110,7 +110,7 @@ module.exports.run = async ({ event, api }) => {
          + `\n𝑫𝒂𝒕𝒆: ${moment(user.time*1000).tz("Asia/Dhaka").format("DD/MM/YYYY HH:mm:ss")}\n`);
   }
   
-  msg += "\n𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉: <𝒂𝒅𝒅 | 𝒅𝒆𝒍> <𝒏𝒖𝒎𝒃𝒆𝒓 | 𝒂𝒍𝒍> 𝒕𝒐 𝒎𝒂𝒏𝒂𝒈𝒆 𝒓𝒆𝒒𝒖𝒆𝒔𝒕𝒔";
+  msg += "\n𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉: <𝒂𝒅𝒅 | 𝒅𝒆𝒍> <𝒏𝒖𝒎𝒃𝒆𝒓 | 𝒂𝒍𝒍> 𝒕𝒐 𝒎𝒂𝑛𝒂𝒈𝒆 𝒓𝒆𝒒𝒖𝒆𝒔𝒕𝒔";
   
   api.sendMessage(msg, event.threadID, (e, info) => {
     global.client.handleReply.push({
