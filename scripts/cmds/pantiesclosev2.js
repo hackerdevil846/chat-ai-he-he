@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆 ✨",
-  commandCategory: "🎨 Random-IMG",
+  category: "🎨 Random-IMG",
   usages: "panclose",
   cooldowns: 3,
   dependencies: {
