@@ -9,7 +9,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑸𝒖𝒊𝒄𝒌 𝒑𝒓𝒂𝒏𝒌: ~𝟏𝟎 𝒔𝒆𝒌𝒆𝒏𝒅𝒆𝒓 𝒎𝒐𝒅𝒅𝒉𝒆 𝒉𝒂𝒄𝒌𝒊𝒏𝒈 𝒔𝒊𝒎𝒖𝒍𝒂𝒕𝒆 𝒌𝒐𝒓𝒆, 𝒇𝒆𝒊𝒌 𝒍𝒐𝒈𝒊𝒏 𝒑𝒆𝒋 𝒂𝒓 𝒑𝒓𝒐𝒇𝒊𝒍 𝒑𝒊𝒄 𝒅𝒆𝒚 𝒋𝒐𝒅𝒊 𝒑𝒂𝒘𝒂 𝒋𝒂𝒚, 𝒂𝒃𝒐𝒏𝒈 𝒂𝒅𝒎𝒊𝒏𝒌𝒆 𝒋𝒂𝒏𝒂𝒏𝒐 𝒌𝒐𝒓𝒆. 𝑷𝒓𝒐𝒇𝒊𝒍 𝒇𝒆𝒕𝒄𝒉 𝒆𝒓𝒓𝒐𝒓 𝒉𝒂𝒏𝒅𝒍𝒆 𝒌𝒐𝒓𝒆.",
-  commandCategory: "monoronjon",
+  category: "monoronjon",
   usages: "@user",
   cooldowns: 30,
 };
