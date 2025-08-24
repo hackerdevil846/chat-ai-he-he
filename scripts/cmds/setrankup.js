@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "User level up hoye notun data set kora",
-    commandCategory: "system",
+    category: "system",
     usages: "[text/gif] [Text or URL to GIF]",
     cooldowns: 10,
     dependencies: {
