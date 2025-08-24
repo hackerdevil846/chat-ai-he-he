@@ -5,7 +5,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝙐𝙨𝙚𝙧𝙚𝙧 𝙄𝘿 𝙟𝙖𝙣𝙩𝙚 𝙥𝙖𝙧𝙗𝙚𝙣",
-    commandCategory: "𝙏𝙤𝙤𝙡𝙨",
+    category: "𝙏𝙤𝙤𝙡𝙨",
     cooldowns: 5
   },
 
