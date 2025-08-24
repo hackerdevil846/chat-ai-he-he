@@ -9,7 +9,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑬𝒊 𝒋𝒐𝒏𝒏𝒆𝒓 𝒏𝒂𝒎𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒆 𝒕𝒂𝒌𝒆 𝒎𝒂𝒓𝒂",
-  commandCategory: "fun",
+  category: "fun",
   usages: "𝒑𝒖𝒏𝒄𝒉 [@𝒕𝒂𝒈]",
   cooldowns: 5,
   dependencies: {
