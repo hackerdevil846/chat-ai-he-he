@@ -10,6 +10,12 @@ module.exports.config = {
   dependencies: {}
 };
 
+// onStart added to prevent "onStart of command undefined" error in loader
+module.exports.onStart = async function () {
+  // intentionally empty — loader expects this function to exist
+  return;
+};
+
 module.exports.run = async function ({ api, event, args }) {
   const fs = require("fs-extra");
   const permission = ["61571630409265"];
