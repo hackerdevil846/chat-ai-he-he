@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Mathematical Bold Italic
     description: "𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒂𝒓𝒂 𝒃𝒂𝒏𝒅𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂", // Banglish in Mathematical Bold Italic
-    commandCategory: "img",
+    category: "img",
     usages: "[@mention]",
     cooldowns: 5,
     dependencies: {
