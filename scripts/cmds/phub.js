@@ -9,7 +9,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "✍️ Create a Pornhub-style comment image.",
-    commandCategory: "Edit-img",
+    category: "Edit-img",
     usages: "[text]",
     cooldowns: 10,
     dependencies: {
