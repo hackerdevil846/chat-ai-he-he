@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑱𝒂𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂 𝒉𝒂𝒍𝒂𝒌 𝒌𝒆 𝒔𝒍𝒂𝒑 𝒎𝒂𝒓𝒂",
-  commandCategory: "general",
+  category: "general",
   usages: "slap [@tag]",
   cooldowns: 5,
   dependencies: {
