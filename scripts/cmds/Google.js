@@ -14,6 +14,12 @@ module.exports.config = {
     }
 };
 
+module.exports.onStart = async function() {
+    // This function is called when the command is loaded
+    // Add any initialization logic here if needed
+    console.log("Google bar command loaded successfully!");
+};
+
 module.exports.wrapText = (ctx, text, maxWidth) => {
     return new Promise(resolve => {
         if (ctx.measureText(text).width < maxWidth) return resolve([text]);
@@ -51,39 +57,34 @@ module.exports.run = async function({ api, event, args }) {
     
     const pathImg = __dirname + '/cache/google.png';
     const text = args.join(" ");
-
     if (!text) return api.sendMessage("❌ Please enter some text to put on the Google bar.", threadID, messageID);
-
+    
     try {
         const getGoogleBar = (await axios.get(`https://i.imgur.com/GXPQYtT.png`, { responseType: 'arraybuffer' })).data;
         fs.writeFileSync(pathImg, Buffer.from(getGoogleBar, 'utf-8'));
-
         const baseImage = await loadImage(pathImg);
         const canvas = createCanvas(baseImage.width, baseImage.height);
         const ctx = canvas.getContext("2d");
         ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
         ctx.font = "400 30px Arial";
         ctx.fillStyle = "#000000";
         ctx.textAlign = "start";
-
+        
         let fontSize = 50;
         while (ctx.measureText(text).width > 1200) {
             fontSize--;
             ctx.font = `400 ${fontSize}px Arial`;
         }
-
+        
         const lines = await this.wrapText(ctx, text, 470);
         ctx.fillText(lines.join('\n'), 580, 646);
-
         const imageBuffer = canvas.toBuffer();
         fs.writeFileSync(pathImg, imageBuffer);
-
+        
         return api.sendMessage({
             body: `✅ Here's your Google search bar with your text! 🌟`,
             attachment: fs.createReadStream(pathImg)
         }, threadID, () => fs.unlinkSync(pathImg), messageID);
-
     } catch (error) {
         console.error(error);
         return api.sendMessage("❌ Error generating Google bar image.", threadID, messageID);
