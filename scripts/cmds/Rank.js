@@ -21,6 +21,12 @@ module.exports.config = {
     }
 };
 
+// Add the missing onStart function
+module.exports.onStart = async function () {
+    // This function is called when the command starts
+    // You can leave it empty or add initialization code here
+};
+
 module.exports.onLoad = async function () {
     const { resolve } = path;
     const { existsSync, mkdirSync } = fs;
