@@ -11,7 +11,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🖼️ Remove image backgrounds with enhanced API handling and stylish canvas output",
-    commandCategory: "media",
+    category: "media",
     usages: "[reply to image]",
     cooldowns: 15,
     dependencies: {
