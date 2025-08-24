@@ -2,21 +2,21 @@ module.exports = {
   config: {
     name: "trace",
     version: "1.0",
+    hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    cooldowns: 5,
-    role: 0,
-    shortDescription: {
-      en: "𝙈𝙚𝙣𝙩𝙞𝙤𝙣 𝙠𝙖𝙧𝙖 𝙪𝙨𝙚𝙧𝙚𝙧 𝙚𝙧 𝙟𝙤𝙣𝙣𝙤 𝙩𝙧𝙖𝙘𝙠𝙞𝙣𝙜 𝙡𝙞𝙣𝙠 𝙗𝙖𝙣𝙖𝙤"
-    },
-    category: "𝙎𝙮𝙨𝙩𝙚𝙢"
+    description: "Mention kora user er jonno tracking link banay",
+    category: "system",
+    usages: "@mention",
+    cooldowns: 5
   },
 
-  run: async function({ api, event, args }) {
+  onStart: async function({ api, event }) {
     const mentionIDs = Object.keys(event.mentions);
     const mention = mentionIDs[0];
+
     if (!mention) {
       return api.sendMessage(
-        "❌ 𝘿𝙖𝙮𝙖 𝙠𝙤𝙧𝙚 𝙠𝙖𝙧𝙤 𝙩𝙧𝙖𝙘𝙚 𝙠𝙤𝙧𝙩𝙚 𝙠𝙖𝙧𝙪 𝙢𝙚𝙣𝙩𝙞𝙤𝙣",
+        "❌ Dayakore jake trace korte chao take mention koro!",
         event.threadID,
         event.messageID
       );
@@ -29,10 +29,10 @@ module.exports = {
     return api.sendMessage(
       {
         body:
-          "🕵️‍♂️ 𝑨𝒔𝒊𝒇 𝑻𝒓𝒂𝒄𝒌𝒊𝒏𝒈 𝑺𝒚𝒔𝒕𝒆𝒎\n\n" +
-          `👤 𝙅𝙖𝙧 𝙪𝙥𝙚𝙧 𝙩𝙧𝙖𝙘𝙚: ${name}\n` +
-          `🔗 𝙏𝙧𝙖𝙘𝙠𝙞𝙣𝙜 𝙡𝙞𝙣𝙠: ${link}\n` +
-          `🕒 𝙎𝙝𝙤𝙢𝙤𝙮: ${time}`,
+          "🕵️‍♂️ 𝗔𝘀𝗶𝗳 𝗧𝗿𝗮𝗰𝗸𝗶𝗻𝗴 𝗦𝘆𝘀𝘁𝗲𝗺\n\n" +
+          `👤 Trace target: ${name}\n` +
+          `🔗 Tracking link: ${link}\n` +
+          `🕒 Time: ${time}`,
         mentions: [{ id: mention, tag: name }]
       },
       event.threadID,
