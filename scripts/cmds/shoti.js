@@ -12,7 +12,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Send random TikTok short videos",
-  commandCategory: "entertainment",
+  category: "entertainment",
   usages: "",
   cooldowns: 10,
   dependencies: { "axios": "" },
