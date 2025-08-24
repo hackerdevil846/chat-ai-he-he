@@ -14,10 +14,10 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async({api,event,args,Users,Threads,Currencies}) => {
-const axios = global.nodemodule["axios"];
-const request = global.nodemodule["request"];
-const fs = global.nodemodule["fs-extra"];
+module.exports.onStart = async ({ api, event, args, Users, Threads, Currencies }) => {
+  const axios = global.nodemodule["axios"];
+  const request = global.nodemodule["request"];
+  const fs = global.nodemodule["fs-extra"];
   
   var link = [
     "https://i.imgur.com/uXWLBeC.jpeg",
@@ -123,13 +123,13 @@ const fs = global.nodemodule["fs-extra"];
   var max = Math.floor(Math.random() * 6);  
   var min = Math.floor(Math.random() * 2);
   var data = await Currencies.getData(event.senderID);
-  var exp =  data.exp;
+  var exp = data.exp;
   var money = data.money;
   
-  if(money < 100) {
+  if (money < 100) {
     api.sendMessage("❌ 𝑨𝒑𝒏𝒂𝒓 𝒌𝒂𝒄𝒉𝒆 𝟏𝟎𝟎 $ 𝒏𝒆𝒊, 𝑨𝒚𝒂𝒌𝒂 𝒆𝒓 𝒑𝒉𝒐𝒕𝒐 𝒅𝒆𝒌𝒉𝒕𝒆 𝒑𝒂𝒓𝒃𝒆𝒏 𝒏𝒂!", event.threadID, event.messageID);
   } else {
-    Currencies.setData(event.senderID, {money: money - 100});
+    Currencies.setData(event.senderID, { money: money - 100 });
     
     var callback = () => api.sendMessage({
       body: `✨ 𝑨𝒚𝒂𝒌𝒂 𝒆𝒓 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆...\n𝑻𝒐𝒕𝒂𝒍 𝒊𝒎𝒂𝒈𝒆: ${link.length}\n𝑷𝒓𝒊𝒄𝒆: -𝟏𝟎𝟎 $`,
