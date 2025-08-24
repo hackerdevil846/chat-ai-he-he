@@ -13,7 +13,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async({api,event,args}) => {
+module.exports.onStart = async ({ api, event, args }) => {
     const fs = global.nodemodule["fs-extra"];
     const request = global.nodemodule["request"];
     const threadSetting = global.data.threadData.get(parseInt(event.threadID)) || {};
@@ -39,11 +39,11 @@ module.exports.run = async({api,event,args}) => {
             for (let z in threadInfo.userInfo) {
                 var gioitinhone = threadInfo.userInfo[z].gender;
                 if (gioitinhone == "MALE") {
-                    gendernam.push(gioitinhone)
+                    gendernam.push(gioitinhone);
                 } else {
-                    gendernu.push(gioitinhone)
+                    gendernu.push(gioitinhone);
                 }
-            };
+            }
             
             var nam = gendernam.length;
             var nu = gendernu.length;
@@ -88,11 +88,11 @@ module.exports.run = async({api,event,args}) => {
             for (let z in threadInfo.userInfo) {
                 var gioitinhone = threadInfo.userInfo[z].gender;
                 if (gioitinhone == "MALE") {
-                    gendernam.push(gioitinhone)
+                    gendernam.push(gioitinhone);
                 } else {
-                    gendernu.push(gioitinhone)
+                    gendernu.push(gioitinhone);
                 }
-            };
+            }
             
             var nam = gendernam.length;
             var nu = gendernu.length;
@@ -119,7 +119,7 @@ module.exports.run = async({api,event,args}) => {
                           `𝑬𝒎𝒐𝒋𝒊: ${threadInfo.emoji}\n` +
                           `𝑰𝒏𝒇𝒐:\n` +
                           `» ${threadInfo.participantIDs.length} 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒂𝒏𝒅 ${threadInfo.adminIDs.length} 𝒂𝒅𝒎𝒊𝒏𝒔\n` +
-                          `» 𝑰𝒏𝒄𝒍𝒖𝒅𝒊𝒏𝒈 ${nam} 𝒃𝒐𝒚 𝒂𝒏𝒅 ${nu} 𝒈𝒊𝒓𝒍\n` +
+                          `» 𝑰𝒏𝒄𝒍𝒖𝒅𝒊𝒏𝒈 ${nam} 𝒃𝒐𝒚 𝒂𝒏𝒅 ${nu} �𝒈𝒊𝒓𝒍\n` +
                           `» 𝑻𝒐𝒕𝒂𝒍 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔: ${threadInfo.messageCount}.`,
                     attachment: fs.createReadStream(__dirname + "/cache/1.png")
                 }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/1.png"), event.messageID);
@@ -184,4 +184,4 @@ module.exports.run = async({api,event,args}) => {
             .pipe(fs.createWriteStream(__dirname + '/cache/1.png'))
             .on('close', () => callback());
     }
-}
+};
