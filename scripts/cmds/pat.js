@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝐏𝐚𝐭 𝐤𝐚𝐫𝐮𝐧 𝐞𝐤𝐣𝐨𝐧 𝐛𝐚𝐧𝐝𝐡𝐮𝐤𝐞 ❤️",
-  commandCategory: "anime",
+  category: "anime",
   usages: "𝐩𝐚𝐭 [𝐓𝐚𝐠 𝐤𝐚𝐫𝐮𝐧 𝐭𝐮𝐦𝐢 𝐲𝐚𝐫 𝐩𝐚𝐭 𝐤𝐚𝐫𝐭𝐞 𝐜𝐚𝐨]",
   cooldowns: 5,
   dependencies: {
