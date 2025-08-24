@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑩𝒐𝒕 𝒆𝒓 𝒂𝒄𝒄𝒐𝒖𝒏𝒕 𝒆 𝒏𝒐𝒕𝒐𝒏 𝒑𝒐𝒔𝒕 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
-	commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+	category: "𝑺𝒚𝒔𝒕𝒆𝒎",
 	usages: "[text] [image]",
 	cooldowns: 10,
 	dependencies: {
