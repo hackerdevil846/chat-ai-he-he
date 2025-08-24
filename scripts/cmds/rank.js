@@ -27,7 +27,7 @@ module.exports.config = {
 		vi: "Xem level của bạn hoặc người được tag. Có thể tag nhiều người",
 		en: "View your level or the level of the tagged person. You can tag many people"
 	},
-	commandCategory: "rank",
+	category: "rank",
 	usages: "[empty | @tags]",
 	cooldowns: 5,
 	envConfig: {
