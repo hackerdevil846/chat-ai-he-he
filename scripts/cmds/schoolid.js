@@ -8,7 +8,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑭𝒆𝒌 𝑺𝒌𝒖𝒍 𝑰𝑫 𝑩𝒂𝒏𝒂𝒐 🏫",
-	commandCategory: "image",
+	category: "image",
 	usages: "@mention",
 	cooldowns: 3,
 	dependencies: {
