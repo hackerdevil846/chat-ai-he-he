@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Reset group prefix or change it",
-    commandCategory: "group",
+    category: "group",
     usages: "[prefix/reset]",
     cooldowns: 5
 };
