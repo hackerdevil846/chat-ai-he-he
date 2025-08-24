@@ -2,7 +2,7 @@ module.exports.config = {
     name: "anifact",
     version: "1.0.2",
     hasPermission: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 (updated by Manus)",
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎e 𝒇𝒂𝒄𝒕𝒔 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆𝒔",
     category: "𝒓𝒂𝒏𝒅𝒐𝒎-𝒊𝒎𝒈",
     cooldowns: 5
@@ -35,3 +35,7 @@ module.exports.run = async function({ api, event }) {
     }
 }
 
+// add a no-op onStart so loader won't error about undefined onStart
+module.exports.onStart = async function() {
+    return;
+};
