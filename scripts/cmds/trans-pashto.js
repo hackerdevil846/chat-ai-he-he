@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙏𝙚𝙭𝙩 𝙥𝙖𝙨𝙝𝙩𝙤 𝙩𝙖𝙮 𝙗𝙖𝙙𝙖𝙡𝙚𝙣",
-  commandCategory: "𝙢𝙚𝙙𝙞𝙖",
+  category: "𝙢𝙚𝙙𝙞𝙖",
   usages: "[𝙏𝙚𝙭𝙩]",
   cooldowns: 5,
   dependencies: {
