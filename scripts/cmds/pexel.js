@@ -11,7 +11,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑷𝒆𝒙𝒆𝒍𝒔 𝒕𝒉𝒆𝒌𝒆 𝒇𝒓𝒆𝒆 𝒇𝒐𝒕𝒐 𝒃𝒂 𝒗𝒊𝒅𝒆𝒐 𝒌𝒉𝒖𝒏𝒋𝒖𝒏",
-    commandCategory: "media",
+    category: "media",
     usages: "pexels <query> | pexels video <query>",
     cooldowns: 3,
     dependencies: {
