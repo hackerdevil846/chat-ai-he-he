@@ -13,6 +13,7 @@ const fs = require("fs");
 
 module.exports.handleEvent = function({ api, event }) {
   var { threadID, messageID } = event;
+  if (!event.body) return;
   let react = event.body.toLowerCase();
   
   // 𝑺𝒐𝒖𝒍 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏
@@ -57,4 +58,4 @@ module.exports.handleEvent = function({ api, event }) {
   }
 };
 
-module.exports.run = function() {};
+module.exports.onStart = function() {};
