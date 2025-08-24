@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Change bot avatar (URL or reply an image). Supports optional caption and temporary avatar (expiration in seconds).",
-	commandCategory: "owner",
+	category: "owner",
 	usages: "[<image url> | reply image] [<caption>] [<expirationAfter (seconds)>]",
 	cooldowns: 5,
 	dependencies: {
