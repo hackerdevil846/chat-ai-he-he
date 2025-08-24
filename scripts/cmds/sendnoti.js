@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ 𝑨𝒅𝒎𝒊𝒏-𝒐𝒏𝒍𝒚 𝒈𝒍𝒐𝒃𝒂𝒍 𝒏𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 𝒔𝒚𝒔𝒕𝒆𝒎",
-	commandCategory: "⚙️ 𝑨𝒅𝒎𝒊𝒏",
+	category: "⚙️ 𝑨𝒅𝒎𝒊𝒏",
 	usages: "[𝑻𝒆𝒙𝒕]",
 	cooldowns: 5,
 	dependencies: {
