@@ -18,7 +18,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = function ({ api, event }) {
+module.exports.onStart = function ({ api, event }) {
 	const targetDate = Date.parse("June 27, 2024 00:00:00");
 	const now = Date.parse(new Date());
 	const t = targetDate - now;
