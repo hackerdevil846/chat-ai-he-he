@@ -41,6 +41,10 @@ module.exports.config = {
   	]
 };
 
+module.exports.onStart = function({}) {
+  // Empty onStart function to prevent errors
+};
+
 module.exports.run = async function({ api, args, Users, event, Threads, utils, client }) {
 	let {messageID, threadID, senderID} = event;
 	var info = await api.getThreadInfo(threadID);
@@ -135,7 +139,7 @@ module.exports.run = async function({ api, args, Users, event, Threads, utils, c
 		bans.warns[threadID] = {};
 		bans.banned[threadID] = [];
 		fs.writeFileSync(__dirname + `/cache/bans.json`, JSON.stringify(bans, null, 2));
-		api.sendMessage("✅ 𝑨𝒑𝒏𝒂𝒓 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒔𝒉𝒐𝒃 𝒅𝒂𝒕𝒂 𝒓𝒆𝒔𝒆𝒕 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐", threadID, messageID);
+		api.sendMessage("✅ 𝑨𝒑𝒏𝒂𝒓 𝒈𝒓𝒐𝒖𝒑 𝒆𝒓 𝒔𝒉𝒐𝒃 𝒅𝒂𝒕𝒂 𝒓𝒆𝒔𝒆𝒕 𝒌�𝒓𝒂 𝒉𝒐𝒍𝒐", threadID, messageID);
 	}
 	else { 
 		if (event.type != "message_reply" && Object.keys(event.mentions).length == 0)	
