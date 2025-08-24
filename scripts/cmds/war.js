@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "War in group boxchat",
-  commandCategory: "group",
+  category: "group",
   usages: "tag war",
   cooldowns: 10,
   dependencies: {
