@@ -9,7 +9,7 @@ module.exports.config = {
     cooldowns: 5
 };
 
-module.exports.run = function({ api, event, args }) {
+module.exports.onStart = function({ api, event, args }) {
     if (!args[0]) {
         return api.sendMessage("🔍 𝗣𝗹𝗲𝗮𝘀𝗲 𝗲𝗻𝘁𝗲𝗿 𝘁𝗲𝘅𝘁 𝘁𝗼 𝗰𝗼𝗻𝘃𝗲𝗿𝘁!", event.threadID, event.messageID);
     }
