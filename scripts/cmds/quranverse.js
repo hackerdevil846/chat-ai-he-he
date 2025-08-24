@@ -3,23 +3,17 @@ const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
+// --- Configuration ---
 module.exports.config = {
   name: "quranverse",
   aliases: ["verse", "quran", "ayah"],
   version: "2.0",
-  author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  countDown: 10,
-  role: 0,
-  shortDescription: {
-    en: "Get Quran verses with translations and audio"
-  },
-  longDescription: {
-    en: "Fetch Quran verses with multiple translations and optional audio recitation"
-  },
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Get Quran verses with translations and audio",
   category: "islam",
-  guide: {
-    en: "{pn} [random] - Get random verse\n{pn} audio - Get verse with recitation\n{pn} [surah]:[verse] - Get specific verse\n{pn} lang [code] - Set translation language (en/ur/ar/bn)"
-  },
+  usages: "[random] | audio | [surah]:[verse] | lang [code]",
+  cooldowns: 10,
   dependencies: {
     "axios": "",
     "canvas": ""
@@ -27,13 +21,53 @@ module.exports.config = {
   envConfig: {}
 };
 
-module.exports.langs = {
-  en: "English",
-  ur: "Urdu",
-  ar: "Arabic",
-  bn: "Bengali"
+// --- Language labels (for headers) ---
+const LANGS = {
+  en: 'English',
+  ur: 'Urdu',
+  ar: 'Arabic',
+  bn: 'Bengali'
 };
 
+// expose for compatibility with other code expecting `languages` or `langs`
+module.exports.languages = LANGS;
+module.exports.langs = LANGS;
+
+// Ensure tmp folder exists when the module loads
+module.exports.onLoad = function () {
+  try {
+    const tmpDir = path.join(__dirname, '..', 'tmp');
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
+    console.log(`[quranverse] tmp directory ready: ${tmpDir}`);
+  } catch (err) {
+    console.error('[quranverse] Failed to create tmp directory:', err);
+  }
+};
+
+// Some systems expect onStart as well — alias to onLoad to avoid "onStart undefined" errors
+module.exports.onStart = module.exports.onLoad;
+
+// --- Utility: wrap text for canvas ---
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  if (!text) return;
+  const words = String(text).split(' ');
+  let line = '';
+
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, y);
+}
+
+// --- Create the verse image ---
 async function createVerseImage(verseData, language) {
   const width = 800;
   const height = 600;
@@ -47,7 +81,7 @@ async function createVerseImage(verseData, language) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  // Decorative elements
+  // Decorative soft circles
   ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
   for (let i = 0; i < 20; i++) {
     ctx.beginPath();
@@ -70,157 +104,164 @@ async function createVerseImage(verseData, language) {
   // Surah info
   ctx.font = '28px "Segoe UI"';
   ctx.fillStyle = '#e67e22';
-  ctx.fillText(`${verseData.surahName} (${verseData.surahNameTranslation})`, width / 2, 130);
-  
+  ctx.fillText(`${verseData.surahName} (${verseData.surahNameTranslation || ''})`, width / 2, 130);
+
   ctx.font = '22px "Segoe UI"';
   ctx.fillStyle = '#ecf0f1';
-  ctx.fillText(`Surah ${verseData.surahNumber}:${verseData.verseNumber} | ${verseData.revelationPlace}`, width / 2, 170);
+  ctx.fillText(`Surah ${verseData.surahNumber}:${verseData.verseNumber} | ${verseData.revelationPlace || ''}`, width / 2, 170);
 
-  // Arabic text
+  // Arabic text (centered) — use a font that supports Arabic if available
   ctx.font = 'bold 36px "Traditional Arabic"';
   ctx.fillStyle = '#2ecc71';
-  ctx.fillText(verseData.arabic1, width / 2, 260);
+  ctx.textAlign = 'center';
+  // if the Arabic string is long, we can split into multiple lines by newline
+  const arabic = verseData.arabic1 || verseData.arabic || '';
+  const arabicLines = String(arabic).split('\n');
+  let arabicY = 240;
+  for (const line of arabicLines) {
+    ctx.fillText(line.trim(), width / 2, arabicY);
+    arabicY += 36;
+  }
 
   // Translation header
   ctx.font = 'italic 26px "Segoe UI"';
   ctx.fillStyle = '#3498db';
-  ctx.fillText(`${this.langs[language]} Translation:`, width / 2, 330);
+  ctx.fillText(`${LANGS[language] || LANGS.en} Translation:`, width / 2, 330);
 
   // Translation text
-  const translation = verseData[language] || verseData.english;
+  const translation = verseData[language] || verseData.english || verseData.translation || '';
   ctx.font = '24px "Segoe UI"';
   ctx.fillStyle = '#ecf0f1';
-  wrapText(ctx, translation, width / 2, 380, 700, 32);
+  ctx.textAlign = 'center';
+  wrapText(ctx, translation, width / 2, 380, 700, 34);
 
   // Footer
   ctx.font = '18px "Segoe UI"';
   ctx.fillStyle = '#bdc3c7';
   ctx.fillText('Generated by GoatBot • Credits: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅', width / 2, height - 30);
 
-  // Save image
+  // Save image to same path pattern as original (do not change path)
   const imagePath = path.join(__dirname, '..', 'tmp', `quran_${Date.now()}.png`);
   const buffer = canvas.toBuffer('image/png');
   fs.writeFileSync(imagePath, buffer);
-  
+
   return imagePath;
 }
 
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(' ');
-  let line = '';
-  let testLine;
-  let metrics;
-  
-  for (let n = 0; n < words.length; n++) {
-    testLine = line + words[n] + ' ';
-    metrics = ctx.measureText(testLine);
-    
-    if (metrics.width > maxWidth && n > 0) {
-      ctx.fillText(line, x, y);
-      line = words[n] + ' ';
-      y += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line, x, y);
-}
-
+// --- Main run handler ---
 module.exports.run = async function ({ api, event, args }) {
   try {
-    const action = args[0]?.toLowerCase();
-    const wantsAudio = action === 'audio';
-    const wantsRandom = !action || action === 'random';
-    const wantsLanguage = action === 'lang' && args[1];
-    const wantsSpecific = /^\d+:\d+$/.test(action);
+    const actionRaw = args[0] ? String(args[0]).toLowerCase() : '';
+    const wantsAudio = actionRaw === 'audio';
+    const wantsLanguage = actionRaw === 'lang' && args[1];
+    const wantsSpecific = /^\d+:\d+$/.test(actionRaw);
 
     if (wantsLanguage) {
-      const langCode = args[1].toLowerCase();
-      if (this.langs[langCode]) {
+      const langCode = String(args[1]).toLowerCase();
+      if (LANGS[langCode]) {
         global.quranLanguage = langCode;
-        return api.sendMessage(`✅ Translation language set to ${this.langs[langCode]}`, event.threadID);
+        return api.sendMessage(`✅ Translation language set to ${LANGS[langCode]}`, event.threadID);
       }
-      return api.sendMessage(`❌ Invalid language. Available: ${Object.keys(this.langs).join(', ')}`, event.threadID);
+      return api.sendMessage(`❌ Invalid language. Available: ${Object.keys(LANGS).join(', ')}`, event.threadID);
     }
 
     const language = global.quranLanguage || 'en';
-    const surahsResponse = await axios.get("https://quranapi.pages.dev/api/surah.json");
-    if (!surahsResponse.data) throw new Error("Couldn't fetch surah list");
+
+    // Fetch surah list
+    const surahsResponse = await axios.get('https://quranapi.pages.dev/api/surah.json');
+    if (!surahsResponse || !surahsResponse.data) throw new Error("Couldn't fetch surah list");
 
     const surahs = surahsResponse.data;
     let surahNumber, verseNumber;
 
     if (wantsSpecific) {
-      [surahNumber, verseNumber] = action.split(':').map(Number);
+      [surahNumber, verseNumber] = actionRaw.split(':').map(Number);
     } else {
-      surahNumber = surahs[Math.floor(Math.random() * surahs.length)].number;
+      // Pick a random surah
+      const randomSurah = surahs[Math.floor(Math.random() * surahs.length)];
+      surahNumber = randomSurah.number;
+      // fetch surah details to determine verse count
       const surahDetail = await axios.get(`https://quranapi.pages.dev/api/${surahNumber}.json`);
-      if (!surahDetail.data) throw new Error("Couldn't fetch surah details");
-      verseNumber = Math.floor(Math.random() * surahDetail.data.english.length) + 1;
+      if (!surahDetail || !surahDetail.data) throw new Error("Couldn't fetch surah details");
+      const totalVerses = (surahDetail.data.english || []).length || 1;
+      verseNumber = Math.floor(Math.random() * totalVerses) + 1;
     }
 
     const verseResponse = await axios.get(`https://quranapi.pages.dev/api/${surahNumber}/${verseNumber}.json`);
-    if (!verseResponse.data) throw new Error("Couldn't fetch verse details");
+    if (!verseResponse || !verseResponse.data) throw new Error("Couldn't fetch verse details");
 
     const verseData = verseResponse.data;
     verseData.surahNumber = surahNumber;
     verseData.verseNumber = verseNumber;
 
-    // Create canvas image
+    // Create image
     const imagePath = await createVerseImage(verseData, language);
-    
-    let messageBody = `📖 ${verseData.surahName} (${verseData.surahNameTranslation})\n` +
-                     `Surah ${surahNumber}:${verseNumber} | ${verseData.revelationPlace}\n\n` +
-                     `"${verseData.arabic1}"\n\n` +
-                     `*${this.langs[language]} Translation:*\n${verseData[language] || verseData.english}`;
+
+    // Compose message body
+    let messageBody = `📖 ${verseData.surahName} (${verseData.surahNameTranslation || ''})\n` +
+                      `Surah ${surahNumber}:${verseNumber} | ${verseData.revelationPlace || ''}\n\n` +
+                      `"${verseData.arabic1 || verseData.arabic || ''}"\n\n` +
+                      `*${LANGS[language] || LANGS.en} Translation:*\n${verseData[language] || verseData.english || ''}`;
 
     if (wantsAudio && verseData.audio) {
-      const reciters = Object.values(verseData.audio);
-      messageBody += `\n\n🎧 Available Reciters:\n`;
-      reciters.forEach((reciter, i) => {
-        messageBody += `${i+1}. ${reciter.reciter}\n`;
-      });
-      messageBody += `\nReply with number to hear recitation`;
+      const reciters = Object.values(verseData.audio || {});
+      if (reciters.length) {
+        messageBody += `\n\n🎧 Available Reciters:\n`;
+        reciters.forEach((reciter, i) => {
+          messageBody += `${i + 1}. ${reciter.reciter || reciter.name || 'Reciter'}\n`;
+        });
+        messageBody += `\nReply with number to hear recitation`;
 
-      global.audioOptions = {
-        reciters: reciters,
-        verseInfo: `${verseData.surahName} ${surahNumber}:${verseNumber}`
-      };
+        // Save options globally for handleReply
+        global.quranAudioOptions = {
+          reciters: reciters,
+          verseInfo: `${verseData.surahName} ${surahNumber}:${verseNumber}`
+        };
+      }
     }
 
-    api.sendMessage({
+    await api.sendMessage({
       body: messageBody,
       attachment: fs.createReadStream(imagePath)
-    }, event.threadID, () => fs.unlinkSync(imagePath));
+    }, event.threadID, () => {
+      try { fs.unlinkSync(imagePath); } catch (e) {}
+    });
 
   } catch (error) {
-    console.error(error);
+    console.error('[quranverse] Error in run:', error);
     api.sendMessage("❌ An error occurred while fetching Quran verse. Please try again later.", event.threadID);
   }
 };
 
+// --- Handle replies (for audio selection) ---
 module.exports.handleReply = async function ({ api, event }) {
   try {
-    if (!global.audioOptions || !event.body) return;
+    if (!global.quranAudioOptions || !event.body) return;
 
     const selectedNumber = parseInt(event.body);
-    const { reciters, verseInfo } = global.audioOptions;
+    const { reciters, verseInfo } = global.quranAudioOptions;
 
-    if (isNaN(selectedNumber)) return;
+    if (isNaN(selectedNumber)) return api.sendMessage("❌ Please reply with a valid number.", event.threadID);
     if (selectedNumber < 1 || selectedNumber > reciters.length) {
       return api.sendMessage("❌ Invalid selection. Please reply with a number from the list.", event.threadID);
     }
 
     const selectedReciter = reciters[selectedNumber - 1];
-    api.sendMessage({
-      body: `🎧 Playing ${verseInfo} - ${selectedReciter.reciter}`,
-      attachment: await global.utils.getStreamFromURL(selectedReciter.url)
+    const stream = await global.utils.getStreamFromURL(selectedReciter.url || selectedReciter.link);
+
+    await api.sendMessage({
+      body: `🎧 Playing ${verseInfo} - ${selectedReciter.reciter || selectedReciter.name || 'Reciter'}`,
+      attachment: stream
     }, event.threadID);
 
-    delete global.audioOptions;
+    // clean up
+    delete global.quranAudioOptions;
 
   } catch (error) {
-    console.error(error);
+    console.error('[quranverse] handleReply error:', error);
     api.sendMessage("❌ Failed to play the recitation. Please try again.", event.threadID);
   }
 };
+
+// Export an empty handleEvent in case the bot loader expects it
+module.exports.handleEvent = function () {};
