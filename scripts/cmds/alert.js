@@ -16,6 +16,11 @@ module.exports.config = {
   }
 };
 
+// Add empty onStart to prevent the error
+module.exports.onStart = async function() {
+  return;
+};
+
 module.exports.run = async function({ api, event, args }) {
   const { threadID, messageID } = event;
   
