@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Zuckerberg er board e apnar moner kotha likhun ( ͡° ͜ʖ ͡°)",
-	commandCategory: "edit-img",
+	category: "edit-img",
 	usages: "zuck [likha]",
 	cooldowns: 10
 };
