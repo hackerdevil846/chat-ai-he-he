@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙂𝙧𝙪𝙥 𝙖𝙧 𝙪𝙨𝙚𝙧𝙙𝙚𝙧 𝙗𝙖𝙣 𝙨𝙤𝙢𝙪𝙝𝙤 𝙚𝙠 𝙨𝙖𝙩𝙝𝙚 𝙢𝙪𝙘𝙝𝙚 𝙙𝙚𝙤𝙖",
-  commandCategory: "𝙎𝙮𝙨𝙩𝙚𝙢",
+  category: "𝙎𝙮𝙨𝙩𝙚𝙢",
   usages: "unban",
   cooldowns: 2,
   dependencies: {}
