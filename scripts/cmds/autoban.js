@@ -162,7 +162,7 @@ module.exports.handleEvent = async function ({ event, api, Users }) {
   }
 };
 
-module.exports.run = async function ({ event, api }) {
+module.exports.onStart = async function ({ event, api }) {
   try {
     // Friendly informational reply when someone purposely calls the command
     const msg = [
@@ -177,6 +177,6 @@ module.exports.run = async function ({ event, api }) {
 
     await api.sendMessage({ body: msg }, event.threadID);
   } catch (err) {
-    console.error("Error in fixspam-ch run():", err);
+    console.error("Error in fixspam-ch onStart():", err);
   }
 };
