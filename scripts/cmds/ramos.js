@@ -12,7 +12,7 @@ module.exports.config = {
   description: {
     en: "🏆 Send picture of football legend Sergio Ramos"
   },
-  commandCategory: "football",
+  category: "football",
   usages: "",
   cooldowns: 5,
   dependencies: {
