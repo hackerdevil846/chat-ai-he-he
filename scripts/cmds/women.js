@@ -7,7 +7,7 @@ module.exports = {
     Permssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑴𝒐𝒉𝒊𝒍𝒂𝒅𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒆𝒌𝒕𝒂 𝒇𝒖𝒏𝒏𝒚 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
-    Category: "no prefix",
+    category: "no prefix",
     usages: "𝑾𝒐𝒎𝒆𝒏",
     cooldowns: 5
   },
