@@ -9,6 +9,11 @@ module.exports.config = {
   cooldowns: 5
 };
 
+module.exports.onStart = async function() {
+  // Empty onStart to prevent 'undefined' error
+  return;
+};
+
 module.exports.handleReply = async function ({ api, event, args, Threads, handleReply }) {
   const { threadID, messageID, senderID } = event;
   if (parseInt(senderID) !== parseInt(handleReply.author)) return;
