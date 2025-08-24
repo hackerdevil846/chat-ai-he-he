@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "💸 Gruper sobaier taka shunyo kore dey! Stylish canvas output 🎨",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
     usages: "[cc], [del], [all]",
     cooldowns: 5,
     dependencies: {
