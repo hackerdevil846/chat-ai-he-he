@@ -92,7 +92,8 @@ module.exports.handleEvent = async function ({ api, event, Users }) {
     }
 };
 
-module.exports.run = function ({ api, event }) {
+// Fixed the function name to onStart
+module.exports.onStart = function ({ api, event }) {
     api.sendMessage(
         "🎵 Music Bot Is Active\n\n💬 Send 'song' to trigger auto-response",
         event.threadID,
