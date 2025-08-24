@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Set new data of all group boxes into database",
-    commandCategory: "system",
+    category: "system",
     usages: "",
     cooldowns: 5,
     dependencies: {}
