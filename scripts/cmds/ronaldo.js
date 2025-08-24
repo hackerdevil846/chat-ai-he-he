@@ -9,7 +9,7 @@ module.exports.config = {
   role: 0,
   shortDescription: "Send random Cristiano Ronaldo photos ⚽🐐",
   longDescription: "Sends high-quality random images of Cristiano Ronaldo with automatic error recovery and progressive retry delay.",
-  commandCategory: "football",
+  category: "football",
   usages: "{pn}",
   cooldowns: 5,
   dependencies: {}
