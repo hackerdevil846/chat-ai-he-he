@@ -5,7 +5,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝑽𝑻𝒖𝒃𝒆𝒓 𝒆𝒓 𝒄𝒉𝒉𝒐𝒃𝒊 𝒕𝒐𝒊𝒓𝒊 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "vtuber",
+    category: "vtuber",
     usages: "[gura/marine/rushia/pekora/coco/korone/amelia/fubuki/okayu/watame/uto/chloe/ayame/polka/botan/aloe]",
     cooldowns: 5
   },
