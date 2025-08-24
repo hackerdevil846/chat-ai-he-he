@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 1,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑵𝒆𝒘 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒋𝒐𝒊𝒏 𝒌𝒉𝒂𝒏𝒆 𝒕𝒆𝒙𝒕/𝒈𝒊𝒇 𝒔𝒆𝒕 𝒌𝒐𝒓𝒖𝒏",
-    commandCategory: "config",
+    category: "config",
     usages: "[text/gif] [message or url]",
     cooldowns: 10,
     dependencies: {
