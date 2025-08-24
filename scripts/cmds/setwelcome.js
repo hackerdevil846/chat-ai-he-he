@@ -1,14 +1,3 @@
-/**
- * GoatBot-compatible `setwelcome` command
- * - Preserves original functionality (text/file/on/off/reset)
- * - Keeps all original paths/links untouched
- * - Credits changed to "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅"
- *
- * This file exports both the original-style handlers (onStart/onReply)
- * and GoatBot-style wrappers (run/handleReply) so it should be copy/paste
- * friendly across common GoatBot setups.
- */
-
 const { drive, getStreamFromURL, getExtFromUrl, getTime } = global.utils;
 
 module.exports.config = {
