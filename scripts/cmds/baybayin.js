@@ -21,7 +21,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     try {
         if (!args[0]) {
             return api.sendMessage(module.exports.languages.en.noText, event.threadID, event.messageID);
