@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🔑 Generate stylish password images with custom text",
-  commandCategory: "🖼️ Image Creation",
+  category: "🖼️ Image Creation",
   usages: "[text1] | [text2]",
   cooldowns: 10,
   dependencies: {
