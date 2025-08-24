@@ -12,7 +12,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙂𝙧𝙪𝙥𝙚𝙧 𝙞𝙙 𝙟𝙖𝙣𝙩𝙚 𝙘𝙝𝙖𝙞",
-  commandCategory: "𝙂𝙧𝙪𝙥",
+  category: "𝙂𝙧𝙪𝙥",
   usages: "tid",
   cooldowns: 5,
   dependencies: ""
