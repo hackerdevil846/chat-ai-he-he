@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝑺𝒊𝒆𝒔𝒕𝒂 𝒆𝒓 𝒑𝒉𝒐𝒕𝒐 𝒂𝒏𝒔𝒆𝒏",
-  commandCategory: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝑴𝑮",
+  category: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝑴𝑮",
   usages: "siesta",
   cooldowns: 3
 };
