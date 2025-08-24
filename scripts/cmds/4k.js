@@ -21,7 +21,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { threadID, messageID, senderID, messageReply } = event;
     const tempPath = __dirname + `/cache/4k_${Date.now()}_${senderID}.jpg`;
 
