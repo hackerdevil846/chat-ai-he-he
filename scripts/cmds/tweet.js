@@ -3,7 +3,7 @@ module.exports.config = {
   version: "1.0.1",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒆 𝒕𝒖𝒊 𝒕𝒖𝒊 𝒍𝒊𝒌𝒉𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒆𝒌𝒕𝒊 𝒊𝒎𝒂𝒈𝒆 𝒃𝒂𝒏𝒂𝒏𝒐",
+  description: "🐦 𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒔𝒕𝒚𝒍𝒆 𝒕𝒆𝒙𝒕 𝒄𝒓𝒆𝒂𝒕𝒐𝒓 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆 🖼️",
   commandCategory: "edit-img",
   usages: "[text]",
   cooldowns: 5,
@@ -41,61 +41,69 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
     }
     return resolve(lines);
   });
-}
+};
 
 module.exports.run = async function({ api, event, args }) {
-  let { threadID, messageID } = event;
-  const { loadImage, createCanvas } = global.nodemodule["canvas"];
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
+  const { threadID, messageID } = event;
+  const { loadImage, createCanvas } = require("canvas");
+  const fs = require("fs-extra");
+  const axios = require("axios");
 
   try {
-    fs.ensureDirSync(__dirname + '/cache');
-    let pathImg = __dirname + '/cache/tweet.png';
-    var text = args.join(" ");
+    // Ensure cache directory exists
+    const pathImg = `${__dirname}/cache/tweet.png`;
+    fs.ensureDirSync(`${__dirname}/cache`);
+    
+    const text = args.join(" ");
+    if (!text) return api.sendMessage("❓ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒕𝒆𝒙𝒕 𝒕𝒐 𝒄𝒓𝒆𝒂𝒕𝒆 𝒕𝒘𝒆𝒆𝒕", threadID, messageID);
 
-    if (!text) return api.sendMessage("𝑨𝒑𝒏𝒊 𝒌𝒊 𝒍𝒊𝒌𝒉𝒕𝒆 𝒄𝒉𝒂𝒏? 𝑺𝒐𝒎𝒆 𝒕𝒆𝒙𝒕 𝒕𝒐 𝒅𝒂𝒐 𝒋𝒐𝒌𝒉𝒐𝒏", threadID, messageID);
+    // Download template image
+    const imageResponse = await axios.get("https://imgur.com/FcbMto5.jpeg", {
+      responseType: "arraybuffer"
+    });
+    fs.writeFileSync(pathImg, Buffer.from(imageResponse.data, "utf-8"));
 
-    let getPorn = (await axios.get(`https://imgur.com/FcbMto5.jpeg`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(pathImg, Buffer.from(getPorn, 'utf-8'));
-
-    let baseImage = await loadImage(pathImg);
-    let canvas = createCanvas(baseImage.width, baseImage.height);
-    let ctx = canvas.getContext("2d");
+    // Process image
+    const baseImage = await loadImage(pathImg);
+    const canvas = createCanvas(baseImage.width, baseImage.height);
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
 
+    // Configure text styling
     ctx.font = "600 70px Arial";
     ctx.fillStyle = "#000000";
     ctx.textAlign = "start";
 
+    // Adjust font size to fit
     let fontSize = 70;
     while (ctx.measureText(text).width > 2600) {
       fontSize--;
       ctx.font = `350 ${fontSize}px Arial, sans-serif`;
     }
 
-    const lines = await module.exports.wrapText(ctx, text, 1160);
+    // Wrap and draw text
+    const lines = await this.wrapText(ctx, text, 1160);
     const lineHeight = fontSize + 15;
-
+    
     if (lines && lines.length) {
-      lines.forEach((line, i) => {
-        ctx.fillText(line, 200, 400 + i * lineHeight);
+      lines.forEach((line, index) => {
+        ctx.fillText(line, 200, 400 + index * lineHeight);
       });
     } else {
       ctx.fillText(text, 200, 400);
     }
 
-    ctx.beginPath();
-    const imageBuffer = canvas.toBuffer();
-    fs.writeFileSync(pathImg, imageBuffer);
+    // Save and send result
+    const outputBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, outputBuffer);
 
     return api.sendMessage({
-      body: "𝑵𝒊𝒋𝒆𝒓 𝑻𝒘𝒆𝒆𝒕 𝑻𝒊 𝒓𝒆𝒂𝒅𝒚 𝒌𝒐𝒓𝒆 𝒅𝒊𝒍𝒂𝒎 😘",
+      body: "✅ 𝑻𝒘𝒆𝒆𝒕 𝒄𝒓𝒆𝒂𝒕𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚! 🐦",
       attachment: fs.createReadStream(pathImg)
     }, threadID, () => fs.unlinkSync(pathImg), messageID);
 
-  } catch (e) {
-    return api.sendMessage("কিছু একটা সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।", threadID, messageID);
+  } catch (error) {
+    console.error(error);
+    return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒊𝒎𝒂𝒈𝒆", threadID, messageID);
   }
-}
-```
+};
