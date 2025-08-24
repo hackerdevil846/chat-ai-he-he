@@ -30,6 +30,8 @@ module.exports.handleEvent = async function({ api, event }) {
 };
 
 module.exports.run = function({ api, event }) {
-    // Optional: Add response when command is directly run with prefix
     api.sendMessage("☕ | Tea command is active! Type 'tea' to get a warm cup! 🫖", event.threadID, event.messageID);
 };
+
+// Added to prevent loader errors
+module.exports.onStart = async function() {};
