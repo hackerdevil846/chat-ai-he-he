@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🔍 Perform Google text searches or reverse image searches",
-  commandCategory: "info",
+  category: "info",
   usages: "[query] or reply to image",
   cooldowns: 5,
   dependencies: {},
