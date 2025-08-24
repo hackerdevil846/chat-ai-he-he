@@ -6,7 +6,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝙏𝙤𝙞𝙡𝙚𝙩 🚽",
-  commandCategory: "𝙄𝙢𝙖𝙜𝙚",
+  category: "𝙄𝙢𝙖𝙜𝙚",
   usages: "toilet @tag",
   cooldowns: 5,
   dependencies: {
