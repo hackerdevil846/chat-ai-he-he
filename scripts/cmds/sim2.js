@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝙎𝙞𝙢𝙨𝙞𝙢𝙞 𝘼𝙄 𝙨𝙖𝙩𝙝𝙚 𝙠𝙖𝙩𝙝𝙖 𝙗𝙤𝙡𝙖",
-    commandCategory: "𝙎𝙞𝙢𝙨𝙖𝙩𝙝𝙚 𝙠𝙖𝙩𝙝𝙖 𝙗𝙤𝙡𝙚",
+    category: "𝙎𝙞𝙢𝙨𝙖𝙩𝙝𝙚 𝙠𝙖𝙩𝙝𝙖 𝙗𝙤𝙡𝙚",
     usages: "[args]",
     cooldowns: 5,
     dependencies: {
