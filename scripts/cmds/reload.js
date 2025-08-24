@@ -6,7 +6,7 @@ module.exports.config = {
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "🔄 Bot command punararmbho korbe stylish canvas message soho",
-	commandCategory: "𝑷𝒆𝒏𝒈𝒖𝒊𝒏",
+	category: "𝑷𝒆𝒏𝒈𝒖𝒊𝒏",
 	usages: "reload [somoy]",
 	cooldowns: 5,
 	dependencies: {
