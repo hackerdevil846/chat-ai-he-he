@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑻𝒆𝒙𝒕 𝒌𝒆 𝑩𝒉𝒐𝒋𝒑𝒖𝒓𝒊 𝒕𝒂𝒚 𝒂𝒏𝒖𝒃𝒂𝒅 𝒌𝒂𝒓𝒂",
-  commandCategory: "𝑴𝒆𝒅𝒊𝒂",
+  category: "𝑴𝒆𝒅𝒊𝒂",
   usages: "[𝑻𝒆𝒙𝒕]",
   cooldowns: 5,
   dependencies: {
