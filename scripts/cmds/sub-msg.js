@@ -6,7 +6,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝙎𝙪𝙗𝙨𝙘𝙧𝙞𝙗𝙚 𝙨𝙖𝙢𝙥𝙖𝙧𝙠𝙚 𝙘𝙤𝙢𝙢𝙖𝙣𝙙",
-    commandCategory: "𝙣𝙤-𝙥𝙧𝙚𝙛𝙞𝙭",
+    category: "𝙣𝙤-𝙥𝙧𝙚𝙛𝙞𝙭",
     usages: "sub",
     cooldowns: 5,
 };
