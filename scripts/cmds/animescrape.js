@@ -1,3 +1,7 @@
+const fs = require("fs");
+const axios = require("axios");
+const cheerio = require("cheerio");
+
 module.exports.config = {
     name: "animescrape",
     version: "1.0.1",
@@ -9,10 +13,11 @@ module.exports.config = {
     cooldowns: 5
 };
 
+module.exports.onStart = async function() {
+    // শুধু empty placeholder দেওয়া হলো, এটি বটকে crash হওয়া থেকে রক্ষা করবে
+};
+
 module.exports.run = async function({ api, args, event }) {
-    const fs = require("fs");
-    const axios = require("axios");
-    const cheerio = require("cheerio");
     const path = __dirname + "/cache/torrent-links.txt";
     
     if (!args[0]) {
