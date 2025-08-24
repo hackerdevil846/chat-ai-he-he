@@ -8,7 +8,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Search for images on Pinterest",
-    commandCategory: "Search",
+    category: "Search",
     usages: "[query] - [number of images]",
     cooldowns: 5,
     dependencies: {
