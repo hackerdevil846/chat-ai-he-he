@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑷𝒖𝒕𝒉𝒖𝒍 𝒌𝒉𝒂𝒍𝒆𝒓 𝒎𝒐𝒏𝒅𝒐𝒍 𝒕𝒐𝒎𝒂𝒓 𝒃𝒂𝒏𝒕𝒊 𝒍𝒆𝒌𝒉𝒂",
-    commandCategory: "monoronjon",
+    category: "monoronjon",
     usages: "[text1 | text2]",
     cooldowns: 0,
     dependencies: {
