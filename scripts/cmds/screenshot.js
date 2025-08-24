@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📸 Ekti website-er fullpage screenshot nie (NSFW page gulo block kora ache)",
-	commandCategory: "Any",
+	category: "Any",
 	usages: "[url]",
 	cooldowns: 5,
 	dependencies: {
