@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑪𝒉𝒂𝒏𝒈𝒆 𝒕𝒉𝒓𝒆𝒂𝒅 𝒄𝒐𝒍𝒐𝒓 𝒓𝒂𝒏𝒅𝒐𝒎𝒍𝒚 𝒎𝒖𝒍𝒕𝒊𝒑𝒍𝒆 𝒕𝒊𝒎𝒆𝒔",
-  commandCategory: "𝑮𝒓𝒐𝒖𝒑",
+  category: "𝑮𝒓𝒐𝒖𝒑",
   usages: "rainbow [number]",
   cooldowns: 5,
   dependencies: {
