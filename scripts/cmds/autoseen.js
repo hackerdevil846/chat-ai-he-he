@@ -23,7 +23,7 @@ module.exports.handleEvent = async ({ api, event }) => {
   }
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
   try {
     const [arg] = args;
     
