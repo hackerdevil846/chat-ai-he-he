@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Change nicknames in group chats",
-  commandCategory: "Box Chat",
+  category: "Box Chat",
   usages: "[new name] or [new name] @mention",
   cooldowns: 3
 };
