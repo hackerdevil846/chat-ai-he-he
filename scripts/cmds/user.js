@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Ban or unblock users",
-	commandCategory: "system",
+	category: "system",
 	usages: "[unban/ban/search/banCommand/unbanCommand/list/info] [ID or mention]",
 	cooldowns: 5
 };
