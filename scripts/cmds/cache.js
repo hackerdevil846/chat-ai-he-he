@@ -66,13 +66,13 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
 		response += `✅ Successfully deleted ${successList.length} item(s):\n${successList.join('\n')}\n\n`;
 	}
 	if (errorList.length > 0) {
-		response += `❌ Errors (${errorList.length}):\n${errorList.join('\n')}`;
+		response += `❌ Errors ${errorList.length}:\n${errorList.join('\n')}`;
 	}
 
 	api.sendMessage(toMBI(response || "⚠️ No items were processed"), event.threadID);
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const fs = require("fs-extra");
 	const cachePath = `${__dirname}/cache`;
 	
