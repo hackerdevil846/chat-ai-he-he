@@ -1,199 +1,164 @@
 "use strict";
 
-const moment = require("moment-timezone");
-const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-const { createCanvas, loadImage } = require("canvas");
+const Canvas = require("canvas");
+const axios = require("axios");
+const moment = require("moment-timezone");
 
 const TMP_DIR = path.join(__dirname, "cache");
 
-const EMOJI = {
-  SUCCESS: "✅",
-  ERROR: "❌",
-  PROCESS: "⏳",
-  PROFILE: "👤",
-  INFO: "📝",
-  WARN: "⚠️"
-};
-
-function generateProgressBar(percentage) {
-  const blocks = 15;
-  const completed = Math.round(blocks * (percentage / 100));
-  return `▰`.repeat(completed) + `▱`.repeat(blocks - completed);
-}
-
 module.exports.config = {
-  name: "profile",
-  version: "5.0",
+  name: "pfp",
+  version: "3.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "User profile dekhai — avatar, join date, last active.",
-  category: "info",
-  usages: "profile [@mention|reply|uid]",
+  description: "Ultra-stylish, colorful profile card generate kore",
+  commandCategory: "random-img",
+  usages: "[@mention|UID]",
   cooldowns: 5,
   dependencies: {
-    "axios": "latest",
+    "canvas": "latest",
     "fs-extra": "latest",
-    "moment-timezone": "latest",
-    "canvas": "latest"
+    "axios": "latest",
+    "moment-timezone": "latest"
   }
 };
 
 module.exports.languages = {
   bn: {
     processing: "🔍 Profile data neya hocche...",
-    accessData: "📡 User data access kortesi...",
-    loadingImage: "🖼️ Profile image load kortesi...",
-    success: "👤 Profile pawa gelo!",
-    noAvatar: "⚠️ Avatar pawa jaay nai",
-    invalidUser: "⚠️ User pawa jaay nai",
-    error: "⚠️ System e kono error hoyeche",
-    tryAgain: "💡 Poroborti te abar cheshta korun"
+    error: "⚠️ Kichu vul hoyeche, abar cheshta korun"
   }
 };
 
-module.exports.onLoad = async function () {
-  try {
-    await fs.ensureDir(TMP_DIR);
-  } catch {}
+module.exports.onLoad = async function() {
+  await fs.ensureDir(TMP_DIR);
 };
 
-module.exports.run = async function ({ api, event, args, Users, models }) {
+// Generate random gradient for background
+function randomGradient(ctx, width, height) {
+  const colors = [
+    ["#ff416c", "#ff4b2b"],
+    ["#6a11cb", "#2575fc"],
+    ["#00c6ff", "#0072ff"],
+    ["#f7971e", "#ffd200"],
+    ["#ff9966", "#ff5e62"]
+  ];
+  const pick = colors[Math.floor(Math.random() * colors.length)];
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, pick[0]);
+  gradient.addColorStop(1, pick[1]);
+  return gradient;
+}
+
+// Draw glowing text
+function drawGlowText(ctx, text, x, y, fontSize = 40, color = "#fff") {
+  ctx.save();
+  ctx.font = `${fontSize}px Arial Black`;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 25;
+  ctx.fillStyle = color;
+  ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
+module.exports.run = async function({ api, event, args, Users }) {
+  const { senderID, threadID, mentions, messageReply } = event;
   const lang = module.exports.languages.bn;
-  const { threadID, senderID, mentions, messageReply } = event;
 
   const send = async (body, attachment = null) => {
     return api.sendMessage({ body, attachment }, threadID);
   };
 
-  await fs.ensureDir(TMP_DIR).catch(() => {});
-  let processingMsg;
+  let targetID = senderID;
+  if (mentions && Object.keys(mentions).length > 0) targetID = Object.keys(mentions)[0];
+  else if (messageReply && messageReply.senderID) targetID = messageReply.senderID;
+  else if (args && args.length > 0 && args[0].match(/\d+/)) targetID = args[0].replace(/[^0-9]/g, "");
 
   try {
-    processingMsg = await send(`${EMOJI.PROCESS} ${lang.processing}\n${generateProgressBar(30)} 30%`);
-    await send(`${EMOJI.PROCESS} ${lang.accessData}\n${generateProgressBar(60)} 60%`);
-
-    let targetID = senderID;
-    if (mentions && Object.keys(mentions).length > 0) {
-      targetID = Object.keys(mentions)[0];
-    } else if (messageReply?.senderID) {
-      targetID = messageReply.senderID;
-    } else if (args?.length > 0) {
-      const maybeId = args[0].replace(/[^0-9]/g, "");
-      if (maybeId.length >= 5) targetID = maybeId;
-    }
-
     const userInfo = await api.getUserInfo(targetID);
-    if (!userInfo || !userInfo[targetID]) {
-      if (processingMsg?.messageID) await api.unsendMessage(processingMsg.messageID).catch(() => {});
-      return send(`${EMOJI.ERROR} ${lang.invalidUser}`);
-    }
+    if (!userInfo || !userInfo[targetID]) return send(lang.error);
     const user = userInfo[targetID];
 
-    const avatarUrl = `https://graph.facebook.com/${targetID}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-    let avatarBuffer;
-    try {
-      const resp = await axios.get(avatarUrl, { responseType: "arraybuffer", timeout: 15000 });
-      avatarBuffer = Buffer.from(resp.data, "binary");
-    } catch {
-      avatarBuffer = null;
-    }
+    // Download avatar
+    const avatarURL = `https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+    const avatarPath = path.join(TMP_DIR, `avatar_${targetID}.jpg`);
+    const resp = await axios.get(avatarURL, { responseType: "arraybuffer" });
+    await fs.writeFile(avatarPath, Buffer.from(resp.data, "binary"));
 
+    // User Data
     let userData = {};
-    try {
-      if (Users?.getData) {
-        userData = (await Users.getData(targetID)) || {};
-      } else if (models?.Users?.findOne) {
-        const dbUser = await models.Users.findOne({ where: { userID: targetID } });
-        userData = dbUser?.dataValues || {};
-      }
-    } catch {}
+    try { userData = (Users && Users.getData) ? await Users.getData(targetID) : {}; } catch(e){}
 
-    const joinDate = userData?.createdAt ? moment(userData.createdAt).format("DD/MM/YYYY") : "N/A";
-    const lastActive = userData?.lastUpdated ? moment(userData.lastUpdated).fromNow() : "N/A";
+    const joinDate = userData && userData.createdAt ? moment(userData.createdAt).format("DD/MM/YYYY") : "N/A";
+    const lastActive = userData && (userData.lastUpdated || userData.updatedAt) ? moment(userData.lastUpdated || userData.updatedAt).fromNow() : "N/A";
+    const genderMap = {1: "👨 Male", 2: "👩 Female", 3: "⚧️ Custom"};
+    const genderText = (userData && userData.gender) ? (genderMap[userData.gender] || userData.gender) : "❓ Unknown";
+    const followers = (user && user.follow) ? user.follow : (userData && (userData.followers || userData.follow)) || "N/A";
+    const relationship = (user && user.relationship_status) ? user.relationship_status : (userData && userData.relationship_status) || "❓ Unknown";
 
-    const genderMap = { 1: "👨 Male", 2: "👩 Female", 3: "⚧️ Custom" };
-    const genderText = userData?.gender ? (genderMap[userData.gender] || userData.gender) : "❓ Unknown";
+    // Canvas
+    const canvas = Canvas.createCanvas(700, 350);
+    const ctx = canvas.getContext("2d");
 
-    const followers = user?.follow || userData?.followers || "N/A";
-    const relationship = user?.relationship_status || userData?.relationship_status || "❓ Unknown";
+    // Background
+    ctx.fillStyle = randomGradient(ctx, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const time = moment().tz("Asia/Dhaka").format("HH:mm:ss DD/MM/YYYY");
+    // Avatar with glow
+    const avatarImg = await Canvas.loadImage(avatarPath);
+    const avatarX = 50, avatarY = 70, avatarSize = 200;
 
-    const info = [];
-    info.push(`${EMOJI.PROFILE} *${user.name}* er Profile`);
-    info.push(`——————————————`);
-    info.push(`${EMOJI.INFO} Name: ${user.name}`);
-    info.push(`🆔 UID: ${targetID}`);
-    info.push(`📅 Join Date: ${joinDate}`);
-    info.push(`🕒 Last Active: ${lastActive}`);
-    info.push(`——————————————`);
-    info.push(`🔎 Additional Info:`);
-    info.push(`• Gender: ${genderText}`);
-    info.push(`• Followers: ${followers}`);
-    info.push(`• Relationship: ${relationship}`);
-    info.push(`——————————————`);
-    info.push(`⏱️ Retrieved: ${time}`);
-    const finalMessage = info.join("\n");
+    ctx.shadowColor = "#ffffff";
+    ctx.shadowBlur = 30;
+    ctx.beginPath();
+    ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 10, 0, Math.PI*2);
+    ctx.fillStyle = "#ffffff22";
+    ctx.fill();
+    ctx.closePath();
+    ctx.shadowBlur = 0;
 
-    if (processingMsg?.messageID) await api.unsendMessage(processingMsg.messageID).catch(() => {});
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
+    ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
+    ctx.restore();
 
-    if (avatarBuffer) {
-      const avatar = await loadImage(avatarBuffer);
-      const canvas = createCanvas(800, 450);
-      const ctx = canvas.getContext("2d");
+    // Username with glow
+    drawGlowText(ctx, user.name, 270, 100, 36, "#ffcc00");
 
-      // Gradient background
-      const gradient = ctx.createLinearGradient(0, 0, 800, 450);
-      gradient.addColorStop(0, "#1e1e2e");
-      gradient.addColorStop(1, "#6c2bd9");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Other info
+    ctx.font = "22px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillText(`UID: ${targetID}`, 270, 140);
+    ctx.fillText(`Gender: ${genderText}`, 270, 170);
+    ctx.fillText(`Followers: ${followers}`, 270, 200);
+    ctx.fillText(`Relationship: ${relationship}`, 270, 230);
+    ctx.fillText(`Last Active: ${lastActive}`, 270, 260);
 
-      // Shadow glow circle for avatar
-      ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 20;
+    // Border panel
+    ctx.strokeStyle = "#ffffff66";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(260, 80, 420, 200);
+
+    // Sparkle effect
+    for (let i = 0; i < 25; i++) {
+      ctx.fillStyle = `rgba(255,255,255,${Math.random()})`;
       ctx.beginPath();
-      ctx.arc(180, 225, 100, 0, Math.PI * 2, true);
-      ctx.closePath();
+      ctx.arc(Math.random() * 700, Math.random() * 350, Math.random() * 3 + 1, 0, Math.PI*2);
       ctx.fill();
-      ctx.restore();
-
-      // Avatar circle
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(180, 225, 100, 0, Math.PI * 2, true);
-      ctx.closePath();
-      ctx.clip();
-      ctx.drawImage(avatar, 80, 125, 200, 200);
-      ctx.restore();
-
-      // Text with shadow
-      ctx.fillStyle = "#ffffff";
-      ctx.shadowColor = "black";
-      ctx.shadowBlur = 6;
-      ctx.font = "bold 32px Sans";
-      ctx.fillText(user.name, 320, 160);
-      ctx.font = "22px Sans";
-      ctx.fillText(`UID: ${targetID}`, 320, 200);
-      ctx.fillText(`Gender: ${genderText}`, 320, 240);
-      ctx.fillText(`Followers: ${followers}`, 320, 280);
-      ctx.fillText(`Relationship: ${relationship}`, 320, 320);
-      ctx.fillText(`Last Active: ${lastActive}`, 320, 360);
-
-      const cardPath = path.join(TMP_DIR, `card_${targetID}_${Date.now()}.png`);
-      fs.writeFileSync(cardPath, canvas.toBuffer("image/png"));
-
-      return send(`${EMOJI.SUCCESS} ${lang.success}\n\n${finalMessage}`, fs.createReadStream(cardPath));
-    } else {
-      return send(`${EMOJI.WARN} ${lang.noAvatar}\n\n${finalMessage}`);
     }
+
+    const outputPath = path.join(TMP_DIR, `pfp_card_${targetID}.png`);
+    await fs.writeFile(outputPath, canvas.toBuffer());
+
+    return send(`🌟 Ultra-stylish Profile Card for ${user.name}`, fs.createReadStream(outputPath));
 
   } catch (err) {
-    console.error("Profile command error:", err);
-    if (processingMsg?.messageID) await api.unsendMessage(processingMsg.messageID).catch(() => {});
-    return send(`${EMOJI.ERROR} ${lang.error}\n🔧 ${err.message || ""}\n\n${lang.tryAgain}`);
+    console.error(err);
+    return send(lang.error + `\n${err.message}`);
   }
 };
