@@ -23,7 +23,12 @@ module.exports.circle = async (image) => {
   return await image.getBufferAsync("image/png");
 };
 
-module.exports.run = async ({ event, api, args, Users }) => {
+// onStart fix
+module.exports.onStart = async function ({ api, event }) {
+  return;
+};
+
+module.exports.run = async ({ event, api }) => {
   try {
     const Canvas = global.nodemodule['canvas'];
     const request = global.nodemodule["node-superfetch"];
