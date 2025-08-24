@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "Shell command chalano (owner only).",
-	commandCategory: "System",
+	category: "System",
 	usages: "[command]",
 	cooldowns: 0,
 	dependencies: {
