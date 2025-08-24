@@ -29,17 +29,15 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = async function () {
-  // Ensure cache folder exists when module loads
   const cachePath = path.join(__dirname, "cache");
   try {
     await fs.ensureDir(cachePath);
   } catch (e) {
-    // ignore - will be created on demand later
     console.error("boy command onLoad error:", e);
   }
 };
 
-module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function ({ api, event }) {
   try {
     const imageLinks = [
         "https://i.imgur.com/QhlqGb1.jpg",
@@ -91,7 +89,6 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
       ];
 
     const randomLink = imageLinks[Math.floor(Math.random() * imageLinks.length)];
-
     const cachePath = path.join(__dirname, "cache");
     await fs.ensureDir(cachePath);
 
