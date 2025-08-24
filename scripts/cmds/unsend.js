@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑩𝒐𝒕 𝒆𝒓 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒖𝒏𝒔𝒆𝒏𝒅 𝒌𝒐𝒓𝒆",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
     usages: "unsend",
     cooldowns: 0
 };
