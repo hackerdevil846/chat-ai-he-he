@@ -132,7 +132,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Users }) 
 	}
 };
 
-module.exports.run = async function({ api, event, args, Threads, Users }) {
+module.exports.onStart = async function({ api, event, args, Threads, Users }) {
 	try {
 		const { getTime, createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
 		const axios = global.nodemodule["axios"];
@@ -221,7 +221,7 @@ module.exports.run = async function({ api, event, args, Threads, Users }) {
 		});
 
 	} catch (error) {
-		console.error("❌ | Error in run:", error);
+		console.error("❌ | Error in onStart:", error);
 		api.sendMessage(
 			this.languages.en.errorOccurred, 
 			event.threadID, 
