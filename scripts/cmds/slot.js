@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "fair play",
-    commandCategory: "game-sp",
+    category: "game-sp",
     usages: "[number coin required]",
     cooldowns: 5
 };
