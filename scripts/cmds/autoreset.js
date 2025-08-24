@@ -31,7 +31,7 @@ module.exports.handleEvent = async function({ api }) {
     }
 }
 
-module.exports.run = async ({ api, event }) => {
+module.exports.onStart = async function({ api, event }) {
     const moment = require("moment-timezone");
     const timeNow = moment.tz("Asia/Dhaka").format("HH:mm:ss");
     api.sendMessage(`🕒 𝑨𝒌𝒉𝒏𝒆𝒓 𝒔𝒐𝒎𝒐𝒚: ${timeNow}`, event.threadID);
