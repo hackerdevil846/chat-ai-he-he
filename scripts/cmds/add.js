@@ -86,7 +86,7 @@ const notifyAdmins = (api, message) => {
   });
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
   initWarnings();
   const { threadID, messageID, senderID, messageReply } = event;
   
