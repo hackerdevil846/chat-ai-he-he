@@ -12,6 +12,16 @@ const fs = require("fs");
 const dataPath = __dirname + "/Priyanshu/approvedThreads.json";
 const dataPending = __dirname + "/Priyanshu/pendingdThreads.json";
 
+/**
+ * onStart
+ * - Added as a no-op to prevent "onStart of command undefined" loader error.
+ */
+module.exports.onStart = async function () {
+	// no initialization required for this command at start,
+	// this function exists only to satisfy loaders that call onStart.
+	return;
+};
+
 module.exports.onLoad = () => {
 	// Ensure data files exist
 	if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
