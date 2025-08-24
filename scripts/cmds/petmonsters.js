@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🐉 𝑷𝒆𝒕 𝑴𝒐𝒏𝒔𝒕𝒆𝒓𝒔 𝑹𝒐𝒍𝒆𝒑𝒍𝒂𝒚 𝑮𝒂𝒎𝒆",
-    commandCategory: "⚔️ 𝑮𝑨𝑴𝑬",
+    category: "⚔️ 𝑮𝑨𝑴𝑬",
     usages: "-r/-s/-l/-p",
     cooldowns: 5,
     dependencies: {
