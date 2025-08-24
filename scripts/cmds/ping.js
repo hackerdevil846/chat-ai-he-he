@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🌟 𝑺𝒐𝒃𝒂𝒊𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂 𝒘𝒊𝒕𝒉 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒅𝒆𝒔𝒊𝒈𝒏",
-  commandCategory: "system",
+  category: "system",
   usages: "[Text]",
   cooldowns: 80,
   dependencies: {
