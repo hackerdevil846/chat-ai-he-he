@@ -3,113 +3,63 @@ module.exports.config = {
     version: "1.0.1",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Text translation (Google Translate)",
-    category: "𝑴𝒆𝒅𝒊𝒂",
-    usages: "[text] -> [lang]\nOr reply to a message and send: -> [lang]",
+    description: "𝑻𝒆𝒙𝒕 𝒕𝒓𝒂𝒏𝒔𝒍𝒂𝒕𝒊𝒐𝒏 𝒘𝒊𝒕𝒉 𝒂𝒖𝒕𝒐-𝒅𝒆𝒕𝒆𝒄𝒕 𝒂𝒏𝒅 𝒎𝒖𝒍𝒕𝒊𝒍𝒊𝒏𝒈𝒖𝒂𝒍 𝒔𝒖𝒑𝒑𝒐𝒓𝒕",
+    category: "media",
+    usages: "[lang] [text] OR reply to message",
     cooldowns: 5,
     dependencies: {
         "request": ""
     }
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.run = async function({ api, event, args }) {
     const request = global.nodemodule["request"];
-    const content = args.join(" ").trim();
+    
+    let content;
+    let targetLang = args[0]?.toLowerCase();
 
-    // If no input and not a reply -> show usage
-    if (!content && event.type !== "message_reply") {
-        return api.sendMessage(
-            "❌ Usage:\n• Send: `text -> lang` (example: hello -> bn)\n• Or reply to a message and send: `-> bn` to translate the replied text.",
-            event.threadID,
-            event.messageID
-        );
-    }
-
-    // parse input for "->" (support both "->" and " -> ")
-    const arrowPattern = /\s*->\s*/;
-    let translateThis = "";
-    let lang = "";
-
-    if (event.type === "message_reply") {
-        // If replying: translate the replied message body
-        translateThis = event.messageReply && event.messageReply.body ? String(event.messageReply.body).trim() : "";
-        if (content && content.length) {
-            // user may have provided "-> lang" after reply
-            const parts = content.split(arrowPattern);
-            if (parts.length > 1) lang = parts[parts.length - 1].trim();
+    // Supported languages list
+    const supportedLangs = ["en", "es", "fr", "de", "ja", "ko", "zh", "vi", "ar", "hi", "bn", "ru"];
+    
+    if (event.messageReply) {
+        content = event.messageReply.body;
+        if (supportedLangs.includes(targetLang)) {
+            args.shift();
+        } else {
+            targetLang = "en"; // Default language
         }
     } else {
-        // Not a reply: try split by arrow to get text and lang
-        if (arrowPattern.test(content)) {
-            const parts = content.split(arrowPattern);
-            translateThis = parts.slice(0, parts.length - 1).join(" -> ").trim(); // in case text contains '->'
-            lang = parts[parts.length - 1].trim();
-            // if user only sent "-> lang" accidentally
-            if (!translateThis) {
-                return api.sendMessage("❌ কোনো টেক্সট দেওয়া নেই। অনুগ্রহ করে অনুবাদ করার জন্য কিছু টেক্সট লিখুন।", event.threadID, event.messageID);
-            }
+        if (supportedLangs.includes(targetLang)) {
+            args.shift();
+            content = args.join(" ");
         } else {
-            translateThis = content;
+            targetLang = "en";
+            content = args.join(" ");
         }
     }
 
-    // fallback: if still no text (shouldn't happen) -> notify
-    if (!translateThis || !translateThis.length) {
-        return api.sendMessage("❌ অনুবাদের জন্য কোনো টেক্সট পাওয়া যায়নি।", event.threadID, event.messageID);
-    }
+    if (!content) return api.sendMessage("❌ Please provide text or reply to a message to translate!", event.threadID);
 
-    // default language if not provided
-    if (!lang || !lang.length) {
-        lang = (global.config && global.config.language) ? global.config.language : "en";
-    }
+    return request(encodeURI(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${content}`), 
+        (err, response, body) => {
+            if (err) return api.sendMessage("❌ Translation error: " + err.message, event.threadID);
 
-    // build the Google Translate request (unchanged link logic)
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${encodeURIComponent(lang)}&dt=t&q=${encodeURIComponent(translateThis)}`;
+            try {
+                const result = JSON.parse(body);
+                const translation = result[0].map(item => item[0]).join('');
+                const sourceLang = result[2] || "auto";
 
-    return request(encodeURI(url), (err, response, body) => {
-        if (err || !body) {
-            return api.sendMessage("❌ সার্ভারে সমস্যা হয়েছে বা রেসপন্স পাওয়া যায়নি। আবার চেষ্টা করুন।", event.threadID, event.messageID);
-        }
-
-        try {
-            const retrieve = JSON.parse(body);
-            // build translated text from returned array
-            let text = "";
-            if (Array.isArray(retrieve[0])) {
-                retrieve[0].forEach(item => {
-                    if (item && item[0]) text += item[0];
-                });
+                api.sendMessage(
+                    `🌐 𝗧𝗥𝗔𝗡𝗦𝗟𝗔𝗧𝗜𝗢𝗡 𝗥𝗘𝗦𝗨𝗟𝗧:\n\n` +
+                    `📜 𝗢𝗿𝗶𝗴𝗶𝗻𝗮𝗹 (${sourceLang}):\n"${content}"\n\n` +
+                    `🔄 𝗧𝗿𝗮𝗻𝘀𝗹𝗮𝘁𝗲𝗱 (${targetLang}):\n"${translation}"\n\n` +
+                    `✨ 𝗧𝗿𝗮𝗻𝘀𝗹𝗮𝘁𝗲𝗱 𝗯𝘆: ${this.config.credits}`,
+                    event.threadID,
+                    event.messageID
+                );
+            } catch (e) {
+                api.sendMessage("❌ Translation failed. Please try again later.", event.threadID);
             }
-
-            // determine detected source language robustly
-            let fromLang = "auto";
-            if (typeof retrieve[2] === "string" && retrieve[2].length) {
-                fromLang = retrieve[2];
-            } else if (retrieve[8] && Array.isArray(retrieve[8]) && retrieve[8][0] && retrieve[8][0][0]) {
-                fromLang = retrieve[8][0][0];
-            }
-
-            // Prepare a pretty message with emojis
-            const msg =
-`🔤 𝑻𝒓𝒂𝒏𝒔𝒍𝒂𝒕𝒊𝒐𝒏 𝑹𝒆𝒔𝒖𝒍𝒕 🌍
-
-📥 𝐎𝐫𝐢𝐠𝐢𝐧𝐚𝐥: 
-${translateThis}
-
-📝 𝐓𝐫𝐚𝐧𝐬𝐥𝐚𝐭𝐞𝐝:
-${text || "— (কোনো অনুবাদ পাওয়া যায়নি)"}
-
-🔎 𝐅𝐫𝐨𝐦: ${fromLang}
-🔁 𝐓𝐨: ${lang}
-
-━━━━━━━━━━━━━━
-✨ Powered by Google Translate
-🧾 Credits: ${module.exports.config.credits}`;
-
-            return api.sendMessage(msg, event.threadID, event.messageID);
-        } catch (e) {
-            // parsing error
-            return api.sendMessage("❌ অনুবাদ প্রস্তুত করতে সমস্যা। আবার চেষ্টা করুন বা অন্য টেক্সট ব্যবহার করে দেখুন।", event.threadID, event.messageID);
         }
-    });
+    );
 };
