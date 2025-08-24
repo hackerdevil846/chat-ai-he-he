@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑸𝒖𝒊𝒛 𝒌𝒉𝒆𝒍𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 (𝑬𝒏𝒈𝒍𝒊𝒔𝒉)",
-  commandCategory: "khela",
+  category: "khela",
   cooldowns: 5,
   dependencies: {
     axios: ""
