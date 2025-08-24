@@ -90,7 +90,7 @@ async function makeImage({ one, two }) {
     return finalPath;
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
 
