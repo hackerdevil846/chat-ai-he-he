@@ -3,50 +3,51 @@ const fs = require("fs-extra");
 const path = require("path");
 const jimp = require("jimp");
 
-module.exports = {
-  config: {
-    name: "yaar",
-    version: "7.3.1",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    countDown: 5,
-    role: 0,
-    shortDescription: "Mention theke jodi paan",
-    longDescription: "Mention kore bondhutto themed image create korbe",
-    category: "png",
-    guide: {
-      en: "{p}{n} @mention"
-    }
-  },
-
-  onLoad: async function () {
-    const dirMaterial = path.join(__dirname, "cache", "canvas");
-    const imgPath = path.join(dirMaterial, "Bbro.png");
-
-    if (!fs.existsSync(dirMaterial)) {
-      fs.mkdirSync(dirMaterial, { recursive: true });
-    }
-
-    if (!fs.existsSync(imgPath)) {
-      const { data } = await axios.get("https://i.imgur.com/2bY5bSV.jpg", { responseType: "arraybuffer" });
-      fs.writeFileSync(imgPath, Buffer.from(data, "utf-8"));
-    }
-  },
-
-  run: async function ({ event, api }) {
-    const mention = Object.keys(event.mentions);
-    if (!mention[0]) {
-      return api.sendMessage("❔ | Doya kore kauke mention korun...", event.threadID, event.messageID);
-    }
-
-    const one = event.senderID;
-    const two = mention[0];
-
-    const imgPath = await makeImage({ one, two });
-    return api.sendMessage({
-      body: "✧•❁𝐁𝐨𝐧𝐝𝐡𝐮❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   𝗦𝗮𝗳𝗮𝗹 𝗝𝗼𝗱𝗶\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑𝗘𝗶 𝗻𝗮𝗼, 𝗽𝗲𝘆𝗲 𝗴𝗲𝗰𝗵𝗼❤\n\n𝗧𝗼𝗺𝗮𝗿 𝗝𝗶𝗴𝗿𝗶 𝗗𝗼𝘀𝘁 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶",
-      attachment: fs.createReadStream(imgPath)
-    }, event.threadID, () => fs.unlinkSync(imgPath), event.messageID);
+module.exports.config = {
+  name: "yaar",
+  version: "7.3.1",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "Mention kore bondhutto themed image create korbe",
+  category: "edit-img",
+  usages: "@mention",
+  cooldowns: 5,
+  dependencies: {
+    "axios": "",
+    "fs-extra": "",
+    "path": "",
+    "jimp": ""
   }
+};
+
+module.exports.onLoad = async function () {
+  const dirMaterial = path.join(__dirname, "cache", "canvas");
+  const imgPath = path.join(dirMaterial, "Bbro.png");
+
+  if (!fs.existsSync(dirMaterial)) {
+    fs.mkdirSync(dirMaterial, { recursive: true });
+  }
+
+  if (!fs.existsSync(imgPath)) {
+    const { data } = await axios.get("https://i.imgur.com/2bY5bSV.jpg", { responseType: "arraybuffer" });
+    fs.writeFileSync(imgPath, Buffer.from(data, "utf-8"));
+  }
+};
+
+module.exports.onStart = async function ({ api, event }) {
+  const mention = Object.keys(event.mentions);
+  if (!mention[0]) {
+    return api.sendMessage("❔ | Doya kore kauke mention korun...", event.threadID, event.messageID);
+  }
+
+  const one = event.senderID;
+  const two = mention[0];
+
+  const imgPath = await makeImage({ one, two });
+  return api.sendMessage({
+    body: "✧•❁ 𝐁𝐨𝐧𝐝𝐡𝐮 ❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   👬 𝗦𝗮𝗳𝗮𝗹 𝗝𝗼𝗱𝗶 👬\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑 𝗘𝗶 𝗻𝗮𝗼, 𝗽𝗲𝘆𝗲 𝗴𝗲𝗰𝗵𝗼 ❤\n\n💖 𝗧𝗼𝗺𝗮𝗿 𝗝𝗶𝗴𝗿𝗶 𝗗𝗼𝘀𝘁 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶",
+    attachment: fs.createReadStream(imgPath)
+  }, event.threadID, () => fs.unlinkSync(imgPath), event.messageID);
 };
 
 async function makeImage({ one, two }) {
