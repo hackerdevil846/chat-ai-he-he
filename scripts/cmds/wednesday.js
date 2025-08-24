@@ -7,7 +7,7 @@ module.exports = {
         hasPermssion: 0,
         credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
         description: "𝑾𝒆𝒅𝒏𝒆𝒔𝒅𝒂𝒚 𝒍𝒊𝒌𝒉𝒍𝒆 𝒆𝒌𝒕𝒊 𝒗𝒊𝒅𝒆𝒐 𝒑𝒂𝒕𝒉𝒂𝒃𝒆",
-        commandCategory: "no prefix",
+        category: "no prefix",
         usages: "𝒘𝒆𝒅𝒏𝒆𝒔𝒅𝒂𝒚",
         cooldowns: 5,
     },
