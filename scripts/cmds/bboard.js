@@ -57,7 +57,7 @@ async function wrapText(ctx, text, maxWidth) {
     });
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { senderID, threadID, messageID } = event;
     const text = args.join(' ');
     
