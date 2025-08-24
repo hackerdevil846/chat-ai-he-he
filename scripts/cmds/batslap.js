@@ -30,11 +30,11 @@ module.exports.onLoad = function() {
     // Runs when command is loaded
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
     try {
         const uid1 = event.senderID;
         const uid2 = Object.keys(event.mentions)[0];
-        if (!uid2) return api.sendMessage(global.GoatBot.getLang("en", "noTag"), event.threadID);
+        if (!uid2) return api.sendMessage(this.languages.en.noTag, event.threadID);
 
         const avatarURL1 = await Users.getAvatarUrl(uid1);
         const avatarURL2 = await Users.getAvatarUrl(uid2);
