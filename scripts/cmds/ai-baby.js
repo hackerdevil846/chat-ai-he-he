@@ -21,6 +21,12 @@ const API_URL = "https://gemini-k3rt.onrender.com/chat";
 const chatHistories = {};
 const autoReplyEnabled = {};
 
+// === FIX FOR onStart ERROR ===
+module.exports.onStart = async function() {
+    // Empty function just to satisfy bot loader
+};
+
+// Main command run
 module.exports.run = async function ({ api, event, args }) {
     const { threadID, messageID, senderID, messageReply } = event;
     let userMessage = args.join(" ");
@@ -83,6 +89,7 @@ module.exports.run = async function ({ api, event, args }) {
     }
 };
 
+// Auto-reply event handler
 module.exports.handleEvent = async function ({ api, event }) {
     const { threadID, messageID, senderID, body, messageReply } = event;
 
