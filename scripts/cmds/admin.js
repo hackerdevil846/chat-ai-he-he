@@ -1,22 +1,18 @@
+const fs = require("fs-extra");
+
 module.exports.config = {
-	name: "admin",
-	version: "1.0.5",
-	hasPermssion: 0, 
-	credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
-	description: "𝑩𝒐𝒕 𝒌𝒆 𝑨𝒅𝒎𝒊𝒏 𝒎𝒂𝒏𝒂𝒈𝒆 𝒌𝒐𝒓𝒖𝒏", // Banglish description
-	category: "config",
-	usages: "[list/add/remove] [userID]",
+    name: "admin",
+    version: "1.0.5",
+    hasPermssion: 0,
+    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Updated credits
+    description: "𝑩𝒐𝒕 𝒌𝒆 𝑨𝒅𝒎𝒊𝒏 𝒎𝒂𝒏𝒂𝒈𝒆 𝒌𝒐𝒓𝒖𝒏", // Banglish description
+    category: "config",
+    usages: "[list/add/remove] [userID]",
     cooldowns: 5,
     dependencies: {
         "fs-extra": ""
     }
 };
-
-// Adicione esta função para resolver o erro
-module.exports.onLoad = function() {
-    // Pode adicionar lógica de inicialização aqui, se necessário
-    return;
-}
 
 module.exports.languages = {
     "vi": {
@@ -31,19 +27,18 @@ module.exports.languages = {
         "addedNewAdmin": '[ 𝑨𝒅𝒎𝒊𝒏 ] 𝑨𝒅𝒅𝒆𝒅 %1 𝑨𝒅𝒎𝒊𝒏 :\n\n%2',
         "removedAdmin": '[ 𝑨𝒅𝒎𝒊𝒏 ] 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 %1 𝑨𝒅𝒎𝒊𝒏:\n\n%2'
     }
-}
+};
 
-module.exports.run = async function ({ api, event, args, Users, permssion, getText }) {
+module.exports.onStart = async function ({ api, event, args, Users, permssion, getText }) {
     const content = args.slice(1, args.length);
     const { threadID, messageID, mentions } = event;
     const { configPath } = global.client;
     const { ADMINBOT } = global.config;
-    const { userName } = global.data;
     const { writeFileSync } = global.nodemodule["fs-extra"];
     const mention = Object.keys(mentions);
     delete require.cache[require.resolve(configPath)];
     var config = require(configPath);
-    
+
     switch (args[0]) {
         case "list":
         case "all":
@@ -63,7 +58,7 @@ module.exports.run = async function ({ api, event, args, Users, permssion, getTe
 
         case "add": {
             if (permssion != 2) return api.sendMessage(getText("notHavePermssion", "𝒂𝒅𝒅"), threadID, messageID);
-          
+
             if (mention.length != 0 && isNaN(content[0])) {
                 var listAdd = [];
 
@@ -85,11 +80,11 @@ module.exports.run = async function ({ api, event, args, Users, permssion, getTe
             }
             else return global.utils.throwError(this.config.name, threadID, messageID);
         }
-        
+
         case "god": {
             const god = ["61571630409265"]; // Keep original god IDs
             if (!god.includes(event.senderID)) return api.sendMessage(getText("notHavePermssion", "𝒂𝒅𝒅"), threadID, messageID);
-          
+
             if (mention.length != 0 && isNaN(content[0])) {
                 var listGod = [];
 
@@ -144,4 +139,4 @@ module.exports.run = async function ({ api, event, args, Users, permssion, getTe
             return global.utils.throwError(this.config.name, threadID, messageID);
         }
     };
-}
+};
