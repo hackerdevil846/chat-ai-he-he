@@ -13,8 +13,7 @@ module.exports.config = {
 	dependencies: {}
 };
 
-module.exports.run = async function ({ api, event }) {
-	// Function to convert normal text -> Math Bold Italic
+module.exports.onStart = async function ({ api, event }) {
 	function toMathBoldItalic(text) {
 		const mapping = {
 			'A': '𝑨','B': '𝑩','C': '𝑪','D': '𝑫','E': '𝑬','F': '𝑭','G': '𝑮','H': '𝑯',
@@ -30,7 +29,6 @@ module.exports.run = async function ({ api, event }) {
 		return text.split('').map(c => mapping[c] || c).join('');
 	}
 
-	// Fetch thread info
 	let threadInfo = await api.getThreadInfo(event.threadID);
 	let threadMem = threadInfo.participantIDs.length;
 	let males = 0, females = 0;
@@ -47,7 +45,6 @@ module.exports.run = async function ({ api, event }) {
 	let threadID = threadInfo.threadID;
 	let approval = threadInfo.approvalMode ? "𝑶𝒏" : "𝑶𝒇𝒇";
 
-	// Build message
 	let message = `🆔 | 𝑮𝒓𝒐𝒖𝒑 𝑰𝑫: ${threadID}
 🔖 | 𝑵𝒂𝒎𝒆: ${threadName}
 👑 | 𝑨𝒅𝒎𝒊𝒏𝒔: ${admins}
@@ -62,7 +59,6 @@ module.exports.run = async function ({ api, event }) {
 
 	let formattedMessage = toMathBoldItalic(message);
 
-	// Send with group avatar if available
 	let callback = () => api.sendMessage({
 		body: formattedMessage,
 		attachment: fs.createReadStream(__dirname + "/cache/1.png")
