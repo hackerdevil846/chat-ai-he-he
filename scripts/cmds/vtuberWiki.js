@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝙃𝙤𝙡𝙤𝙙𝙚𝙭 𝘼𝙋𝙄 𝙙𝙞𝙮𝙚 𝙑𝙏𝙪𝙗𝙚𝙧 𝙠𝙝𝙪𝙣𝙟𝙪𝙣",
-    commandCategory: "𝙑𝙏𝙪𝙗𝙚𝙧",
+    category: "𝙑𝙏𝙪𝙗𝙚𝙧",
     usages: "vtuber_wiki [𝙑𝙏𝙪𝙗𝙚𝙧𝙚𝙧 𝙣𝙖𝙢]",
     cooldowns: 5,
 };
