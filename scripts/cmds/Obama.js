@@ -41,43 +41,50 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
     return lines;
 };
 
-module.exports.run = async function({ api, event, args }) {
+// Changed from module.exports.run to module.exports.onStart
+module.exports.onStart = async function({ api, event, args }) {
     const { senderID, threadID, messageID } = event;
     const { loadImage, createCanvas } = require("canvas");
     const fs = require("fs-extra");
     const axios = require("axios");
-
-    const pathImg = __dirname + '/cache/trump.png';
+    const pathImg = __dirname + '/cache/obama.png'; // Changed filename from trump.png to obama.png
     const text = args.join(" ");
+    
     if (!text) return api.sendMessage("❌ Please enter your message for Obama's tweet!", threadID, messageID);
-
-    // Download image template
-    const imageData = (await axios.get(`https://i.imgur.com/6fOxdex.png`, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(pathImg, Buffer.from(imageData, 'binary'));
-
-    const baseImage = await loadImage(pathImg);
-    const canvas = createCanvas(baseImage.width, baseImage.height);
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#000000";
-    ctx.textAlign = "start";
-
-    let fontSize = 250;
-    ctx.font = `400 ${fontSize}px Arial, sans-serif`;
-    while (ctx.measureText(text).width > 2600) {
-        fontSize--;
+    
+    try {
+        // Download image template
+        const imageData = (await axios.get(`https://i.imgur.com/6fOxdex.png`, { responseType: 'arraybuffer' })).data;
+        fs.writeFileSync(pathImg, Buffer.from(imageData, 'binary'));
+        
+        const baseImage = await loadImage(pathImg);
+        const canvas = createCanvas(baseImage.width, baseImage.height);
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "start";
+        let fontSize = 250;
         ctx.font = `400 ${fontSize}px Arial, sans-serif`;
+        
+        while (ctx.measureText(text).width > 2600) {
+            fontSize--;
+            ctx.font = `400 ${fontSize}px Arial, sans-serif`;
+        }
+        
+        const lines = await module.exports.wrapText(ctx, text, 1160);
+        ctx.fillText(lines.join('\n'), 60, 165);
+        
+        const imageBuffer = canvas.toBuffer();
+        fs.writeFileSync(pathImg, imageBuffer);
+        
+        return api.sendMessage({
+            body: `✅ Obama's tweet generated!`,
+            attachment: fs.createReadStream(pathImg)
+        }, threadID, () => fs.unlinkSync(pathImg), messageID);
+        
+    } catch (error) {
+        console.error("Error generating Obama tweet:", error);
+        return api.sendMessage("❌ An error occurred while generating the tweet. Please try again.", threadID, messageID);
     }
-
-    const lines = await this.wrapText(ctx, text, 1160);
-    ctx.fillText(lines.join('\n'), 60, 165);
-
-    const imageBuffer = canvas.toBuffer();
-    fs.writeFileSync(pathImg, imageBuffer);
-
-    return api.sendMessage({
-        body: `✅ Obama's tweet generated!`,
-        attachment: fs.createReadStream(pathImg)
-    }, threadID, () => fs.unlinkSync(pathImg), messageID);
 };
