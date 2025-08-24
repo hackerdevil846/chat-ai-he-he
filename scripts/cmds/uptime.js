@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑩𝒐𝒕𝒆𝒓 𝒖𝒑𝒕𝒊𝒎𝒆 𝒅𝒆𝒌𝒉𝒂𝒏𝒐𝒓 𝒖𝒑𝒂𝒚",
-    commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
     cooldowns: 3,
     dependencies: {
         "pidusage": ""
