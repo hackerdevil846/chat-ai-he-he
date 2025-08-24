@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "একজনকে অন্যজনকে spank করতে দেখানো 👋🍑",
-    commandCategory: "Edit-Image",
+    category: "Edit-Image",
     usages: "[mention1] [mention2]",
     cooldowns: 5,
     dependencies: {
