@@ -10,7 +10,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ Enhance and transform images using AI technology",
-	commandCategory: "image",
+	category: "image",
 	usages: "[prompt]",
 	cooldowns: 15,
 	dependencies: {
