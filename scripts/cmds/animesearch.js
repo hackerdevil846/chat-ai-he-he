@@ -11,6 +11,11 @@ module.exports.config = {
   cooldowns: 5
 };
 
+// Empty onStart to fix the error
+module.exports.onStart = async function() {
+  // This is intentionally empty to prevent onStart error
+};
+
 async function fetchAnimeData(searchTerm = "Fullmetal") {
   const options = {
     method: 'GET',
