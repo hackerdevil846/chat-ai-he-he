@@ -38,7 +38,7 @@ module.exports.circle = async (image) => {
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ api, event, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies }) {
     try {
         const { loadImage, createCanvas } = require("canvas");
         const request = require('request');
