@@ -4,7 +4,7 @@ module.exports.config = {
         Permssion: 0,
         credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
         description: "𝙓𝙖𝙫𝙞𝙚𝙧-𝙚𝙧 𝙢𝙚𝙢𝙚 𝙩𝙚𝙢𝙥𝙡𝙖𝙩𝙚 𝙚 𝙖𝙥𝙣𝙖𝙧 𝙩𝙚𝙭𝙩 𝙗𝙤𝙨𝙖𝙣.",
-        Category: "edit-img",
+        category: "edit-img",
         usages: "[𝒂𝒑𝒏𝒂𝒓 𝒕𝒆𝒙𝒕]",
         cooldowns: 5,
         dependencies: {
