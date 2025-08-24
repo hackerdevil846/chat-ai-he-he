@@ -11,6 +11,10 @@ module.exports.config = {
   cooldowns: 5, 
 };
 
+module.exports.onStart = async function() {
+  // খালি রাখা হলো, শুধু bot expect করার জন্য
+};
+
 module.exports.handleEvent = function({ api, event }) {
   const { threadID, messageID } = event;
   
