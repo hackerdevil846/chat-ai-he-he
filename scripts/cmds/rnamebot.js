@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 2,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "📛 | Change bot's nickname in all groups",
-	commandCategory: "⚙️ System",
+	category: "⚙️ System",
 	usages: "[name]",
 	cooldowns: 20,
 	dependencies: {}
