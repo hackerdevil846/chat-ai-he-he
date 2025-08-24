@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "♻️ Refresh information of group chat or user",
-    commandCategory: "box chat",
+    category: "box chat",
     usages: "[thread | group | user] [ID | @tag]",
     cooldowns: 60,
     dependencies: {
