@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "✨ 𝑺𝒕𝒚𝒍𝒊𝒔𝒉 𝑰𝒎𝒂𝒈𝒆 𝑺𝒆𝒂𝒓𝒄𝒉 𝒇𝒓𝒐𝒎 𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕",
-    commandCategory: "media",
+    category: "media",
     usePrefix: false,
     usages: "[keyword] - [number]",
     cooldowns: 15,
