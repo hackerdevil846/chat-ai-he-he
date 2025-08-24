@@ -4,7 +4,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑺𝒉𝒐𝒓𝒕𝒄𝒖𝒕 add, remove এবং list করার জন্য",
-	commandCategory: "𝑺𝒚𝒔𝒕𝒆𝒎",
+	category: "𝑺𝒚𝒔𝒕𝒆𝒎",
 	usages: "[all/delete/empty]",
 	cooldowns: 5,
 	dependencies: {
