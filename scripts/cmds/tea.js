@@ -7,7 +7,7 @@ module.exports.config = {
     hasPermssion: 0, // 0 = all members, 1 = admin+, 2 = owner
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Credit
     description: "Sends a tea video when triggered",
-    commandCategory: "no prefix", // Category
+    category: "no prefix", // Category
     usages: "", // Usage info
     cooldowns: 5,
     dependencies: {
