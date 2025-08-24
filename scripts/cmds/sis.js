@@ -4,7 +4,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝙈𝙚𝙣𝙩𝙞𝙤𝙣 𝙠𝙖𝙧𝙖 𝙟𝙖𝙮𝙚𝙧 𝙥𝙖𝙞𝙧 𝙥𝙖𝙬𝙖",
-    commandCategory: "𝙋𝙉𝙂",
+    category: "𝙋𝙉𝙂",
     usages: "[@𝙢𝙚𝙣𝙩𝙞𝙤𝙣]",
     cooldowns: 5,
     dependencies: {
