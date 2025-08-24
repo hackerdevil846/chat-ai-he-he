@@ -36,10 +36,8 @@ module.exports.handleEvent = async function({ event, api, Users }) {
 	try {
 		const { threadID, messageID, senderID, body } = event;
 		
-		// Ignore messages from the bot itself
 		if (senderID === api.getCurrentUserID()) return;
 		
-		// Check if auto-ban is enabled
 		if (!this.config.envConfig.autoBan) return;
 
 		const botTriggers = [
@@ -64,32 +62,27 @@ module.exports.handleEvent = async function({ event, api, Users }) {
 			"your keyboard hero level has reached level"
 		];
 
-		// Check if message contains any bot trigger
 		if (botTriggers.some(trigger => body && body.includes(trigger))) {
 			const userName = await Users.getNameUser(senderID);
 			const moment = require("moment-timezone");
 			const time = moment.tz("Asia/Dhaka").format("HH:MM:ss DD/MM/YYYY");
 
-			// Get user data and update ban status
 			const userData = await Users.getData(senderID);
 			userData.banned = 1;
 			userData.reason = "𝑶𝒕𝒉𝒆𝒓 𝑩𝒐𝒕 𝑫𝒆𝒕𝒆𝒄𝒕𝒆𝒅";
 			userData.dateAdded = time;
 			await Users.setData(senderID, userData);
 
-			// Update global banned list
 			if (!global.data.userBanned) global.data.userBanned = new Map();
 			global.data.userBanned.set(senderID, {
 				reason: userData.reason,
 				dateAdded: userData.dateAdded
 			});
 
-			// Send ban message to the group
 			api.sendMessage({
 				body: this.languages.en.banMessage.replace("%1", userName)
 			}, threadID, messageID);
 
-			// Notify admins if enabled
 			if (this.config.envConfig.notifyAdmins && global.config.ADMINBOT) {
 				global.config.ADMINBOT.forEach(adminID => {
 					api.sendMessage(
@@ -102,7 +95,6 @@ module.exports.handleEvent = async function({ event, api, Users }) {
 				});
 			}
 
-			// Log the ban if enabled
 			if (this.config.envConfig.logBans) {
 				console.log(`[🛡️ 𝑩𝑶𝑻 𝑩𝑨𝑵𝑵𝑬𝑫] ${userName} (${senderID}) at ${time}`);
 			}
@@ -112,7 +104,7 @@ module.exports.handleEvent = async function({ event, api, Users }) {
 	}
 };
 
-module.exports.run = function({ api, event, args }) {
+module.exports.onStart = function({ api, event, args }) {
 	try {
 		const status = this.config.envConfig.autoBan ? 
 			this.languages.en.statusActive : 
@@ -124,7 +116,7 @@ module.exports.run = function({ api, event, args }) {
 			event.messageID
 		);
 	} catch (error) {
-		console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒓𝒖𝒏:", error);
+		console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒐𝒏𝑺𝒕𝒂𝒓𝒕:", error);
 		api.sendMessage(
 			this.languages.en.errorMessage.replace("%1", error.message),
 			event.threadID,
