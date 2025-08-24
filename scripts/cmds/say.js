@@ -7,7 +7,7 @@ module.exports.config = {
 	hasPermssion: 0, // Permission: 0 = All
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
 	description: "🎤 Bot text ta bolbe Google TTS diye (Hindi, Hinglish, English)", // Description
-	commandCategory: "media", // Category
+	category: "media", // Category
 	usages: "[bn/en/auto] [Text]", // Usage
 	cooldowns: 5, // Cooldown time (seconds)
 	dependencies: {
