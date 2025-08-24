@@ -10,7 +10,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝒕𝒆𝒔𝒕",
-    commandCategory: "𝒃𝒐𝒙",
+    category: "𝒃𝒐𝒙",
     usages: "𝒕𝒆𝒔𝒕",
     prefix: "𝒇𝒂𝒍𝒔𝒆",
     dependencies: {},
