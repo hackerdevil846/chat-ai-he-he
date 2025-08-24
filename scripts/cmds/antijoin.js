@@ -9,6 +9,22 @@ module.exports.config = {
     cooldowns: 0
 };
 
+// Add onStart function to avoid error
+module.exports.onStart = async ({ Threads }) => {
+    try {
+        // ensure threadData exists for all threads
+        const allThreadIDs = await Threads.getAll();
+        for (const threadID of allThreadIDs) {
+            const threadData = (await Threads.getData(threadID)).data || {};
+            if (threadData.newMember === undefined) threadData.newMember = false;
+            await Threads.setData(threadID, { data: threadData });
+            global.data.threadData.set(parseInt(threadID), threadData);
+        }
+    } catch (err) {
+        console.error("AntiJoin onStart error:", err);
+    }
+};
+
 module.exports.run = async({ api, event, Threads}) => {
     try {
         const info = await api.getThreadInfo(event.threadID);
@@ -25,11 +41,7 @@ module.exports.run = async({ api, event, Threads}) => {
         const threadData = (await Threads.getData(event.threadID)).data || {};
         const currentStatus = threadData.newMember;
         
-        if (currentStatus === undefined || currentStatus === false) {
-            threadData.newMember = true;
-        } else {
-            threadData.newMember = false;
-        }
+        threadData.newMember = !currentStatus;
         
         await Threads.setData(event.threadID, { data: threadData });
         global.data.threadData.set(parseInt(event.threadID), threadData);
