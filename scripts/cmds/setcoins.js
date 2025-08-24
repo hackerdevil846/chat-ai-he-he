@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Manage user currency information",
-  commandCategory: "System",
+  category: "System",
   usages: "[add/set/clean] [amount] [user tag]",
   cooldowns: 5,
   dependencies: {
