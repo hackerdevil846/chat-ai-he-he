@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Change Messenger thread color using available theme list",
-  commandCategory: "system",
+  category: "system",
   usages: "[theme]",
   cooldowns: 5,
   dependencies: {},
