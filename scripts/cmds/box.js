@@ -19,12 +19,11 @@ module.exports.onLoad = async function () {
 	if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 };
 
-module.exports.run = async function ({ api, event, args, permssion }) {
+module.exports.onStart = async function ({ api, event, args, permssion }) {
 	const fs = global.nodemodule["fs-extra"];
 	const request = global.nodemodule["request"];
 
 	try {
-		// help menu shown when no args
 		if (!args[0]) {
 			const helpMsg =
 `╭───• 𝗚𝗥𝗢𝗨𝗣 𝗠𝗘𝗡𝗨 •───╮
@@ -39,7 +38,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			return api.sendMessage(helpMsg, event.threadID);
 		}
 
-		// ---------- group name ----------
 		if (args[0].toLowerCase() === "name") {
 			const newName = args.slice(1).join(" ") || (event.messageReply && event.messageReply.body);
 			if (!newName) return api.sendMessage("❌ 𝗡𝗮𝗺𝗲 𝗱𝗶𝗹𝗲 𝗵𝗼𝗯𝗲𝗻", event.threadID);
@@ -48,7 +46,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			});
 		}
 
-		// ---------- group emoji ----------
 		else if (args[0].toLowerCase() === "emoji") {
 			const emoji = args[1] || (event.messageReply && event.messageReply.body);
 			if (!emoji) return api.sendMessage("❌ 𝗘𝗺𝗼𝗷𝗶 𝗱𝗶𝗹𝗲 𝗵𝗼𝗯𝗲𝗻", event.threadID);
@@ -57,7 +54,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			});
 		}
 
-		// ---------- admin management ----------
 		else if (args[0].toLowerCase() === "admin") {
 			const threadInfo = await api.getThreadInfo(event.threadID);
 			const adminIDs = threadInfo.adminIDs || [];
@@ -65,7 +61,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			const isBotAdmin = adminIDs.some(ad => ad.id == botID);
 			const isUserAdmin = adminIDs.some(ad => ad.id == event.senderID);
 
-			// resolve target ID: mention > reply > arg
 			let targetID;
 			const mentions = event.mentions || {};
 			if (Object.keys(mentions).length > 0) targetID = Object.keys(mentions)[0];
@@ -83,13 +78,12 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 					return api.sendMessage("❌ 𝗣𝗮𝗿𝗶𝗯𝗮𝗿𝘁𝗼𝗻 𝗸𝗼𝗿𝘁𝗲 𝗯𝗵𝘂𝗹", event.threadID);
 				}
 				const userInfo = await api.getUserInfo(targetID);
-				const name = (userInfo && userInfo[targetID] && userInfo[targetID].name) ? userInfo[targetID].name : "𝗨𝗻𝗸𝗻𝗼𝘄𝗻";
+				const name = (userInfo && userInfo[targetID] && userInfo[targetID].name) ? userInfo[targetID].name : "𝗨𝗻𝗸𝗻𝗼𝗺𝗻";
 				const actionText = isTargetAdmin ? "𝗥𝗲𝗺𝗼𝘃𝗲𝗱 𝗮𝗱𝗺𝗶𝗻:" : "𝗔𝗱𝗺𝗶𝗻 𝗱𝗶𝗹𝗮𝗮𝗺:";
 				return api.sendMessage(`✅ ${actionText}\n╭─• ${name}\n╰─• @${targetID}`, event.threadID);
 			});
 		}
 
-		// ---------- group image ----------
 		else if (args[0].toLowerCase() === "image") {
 			if (!event.messageReply || !event.messageReply.attachments || event.messageReply.attachments.length === 0) {
 				return api.sendMessage("❌ 𝗜𝗺𝗮𝗴𝗲 𝗿𝗲𝗽𝗹𝘆 𝗸𝗼𝗿𝘂𝗻", event.threadID);
@@ -103,7 +97,7 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 					.pipe(fs.createWriteStream(cachePath))
 					.on("close", () => {
 						api.changeGroupImage(fs.createReadStream(cachePath), event.threadID, (err) => {
-							try { if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath); } catch (e) { /* ignore */ }
+							try { if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath); } catch (e) { }
 							if (err) {
 								console.error(err);
 								return api.sendMessage("❌ 𝗜𝗺𝗮𝗴𝗲 𝗽𝗮𝗿𝗶𝗯𝗮𝗿𝘁𝗼𝗻 𝗵𝗼𝗹𝗼𝗻𝗮", event.threadID);
@@ -120,7 +114,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			return downloadAndChange();
 		}
 
-		// ---------- group info ----------
 		else if (args[0].toLowerCase() === "info") {
 			const threadInfo = await api.getThreadInfo(event.threadID);
 			const threadName = threadInfo.threadName || "𝗡/𝗔";
@@ -131,7 +124,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 			const approvalMode = threadInfo.approvalMode || false;
 			const messageCount = threadInfo.messageCount || 0;
 
-			// Gender count (best-effort; some frameworks don't provide gender)
 			let genderCount = { male: 0, female: 0 };
 			if (threadInfo.userInfo) {
 				for (const uid in threadInfo.userInfo) {
@@ -143,7 +135,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 				}
 			}
 
-			// Admin list display
 			let adminList = "╭───• 𝗔𝗗𝗠𝗜𝗡𝗦 •───╮\n";
 			for (const admin of adminIDs) {
 				const name = (threadInfo.userInfo && threadInfo.userInfo[admin.id] && threadInfo.userInfo[admin.id].name) ? threadInfo.userInfo[admin.id].name : "𝗨𝗻𝗸𝗻𝗼𝘄𝗻";
@@ -165,18 +156,16 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 ├─• 𝗠𝗲𝘀𝘀𝗮𝗴𝗲𝘀: ${messageCount}
 ${adminList}`;
 
-			// try to fetch group image and send with it (if exists)
 			const cachePath = __dirname + "/cache/grpinfo.png";
 			if (imageSrc) {
 				return request(encodeURI(imageSrc))
 					.pipe(fs.createWriteStream(cachePath))
 					.on("close", () => {
 						api.sendMessage({ body: msg, attachment: fs.createReadStream(cachePath) }, event.threadID, () => {
-							try { if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath); } catch (e) { /* ignore */ }
+							try { if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath); } catch (e) { }
 						});
 					})
 					.on("error", () => {
-						// if image download fails, just send text info
 						return api.sendMessage(msg, event.threadID);
 					});
 			} else {
@@ -184,7 +173,6 @@ ${adminList}`;
 			}
 		}
 
-		// unknown subcommand
 		else {
 			return api.sendMessage("❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗼𝗽𝘁𝗶𝗼𝗻। 𝗗𝗼𝗻'𝘁 𝗳𝗼𝗿𝗴𝗲𝘁: name | emoji | admin | image | info", event.threadID);
 		}
