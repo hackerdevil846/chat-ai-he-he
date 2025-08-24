@@ -14,7 +14,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const { loadImage, createCanvas } = require("canvas");
 	const fs = global.nodemodule["fs-extra"];
 	const axios = global.nodemodule["axios"];
@@ -22,7 +22,7 @@ module.exports.run = async function({ api, event, args }) {
 	let pathImg = __dirname + '/cache/bang.png';
 	let text = args.join(" ");
 	
-	if (!text) return api.sendMessage("📝 𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒆𝒓 𝒄𝒐𝒏𝒕𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒆𝒏", threadID, messageID);
+	if (!text) return api.sendMessage("📝 𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒆𝒓 𝒄𝒐𝒏𝒕𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒆𝒏", event.threadID, event.messageID);
 
 	async function wrapText(ctx, text, maxWidth) {
 		return new Promise(resolve => {
