@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝘽𝙤𝙖𝙧𝙙 𝙚 𝙨𝙩𝙪𝙙𝙚𝙣𝙩𝙚𝙧 𝙢𝙚𝙧𝙖 𝙠𝙤𝙢𝙚𝙣𝙩 𝙠𝙤𝙧𝙖",
-    commandCategory: "𝙈𝙚𝙢𝙚𝙨",
+    category: "𝙈𝙚𝙢𝙚𝙨",
     usages: "[𝙩𝙚𝙭𝙩]",
     cooldowns: 5,
     dependencies: {
