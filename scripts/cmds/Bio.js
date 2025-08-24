@@ -23,6 +23,8 @@ module.exports.languages = {
     }
 };
 
+module.exports.onStart = function() {}; // Added empty onStart function
+
 module.exports.run = async function ({ api, event, args }) {
     try {
         const newBio = args.join(" ");
