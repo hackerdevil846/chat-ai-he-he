@@ -71,7 +71,7 @@ async function circle(image) {
 	return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function({ event, api, args, Users }) {
+module.exports.onStart = async function({ event, api, args, Users }) {
 	try {
 		const fs = global.nodemodule["fs-extra"];
 		const { threadID, messageID, senderID } = event;
