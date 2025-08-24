@@ -47,6 +47,16 @@ module.exports = {
     cooldowns: 5,
   },
 
+  // Added onStart to satisfy the loader and create cache dir if missing
+  onStart: async function () {
+    try {
+      const cacheDir = path.join(__dirname, "cache");
+      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+    } catch (e) {
+      console.error("archive.js onStart error:", e);
+    }
+  },
+
   run: async function ({ api, event, args }) {
     const type = args[0]?.toLowerCase();
     const query = args.slice(1).join(" ");
