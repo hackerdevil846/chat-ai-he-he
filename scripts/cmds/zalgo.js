@@ -7,7 +7,7 @@ module.exports = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑨𝒑𝒏𝒂𝒓 𝒕𝒆𝒙𝒕 𝒌𝒆 𝒁𝒂𝒍𝒈𝒐 𝒕𝒆 𝒄𝒐𝒏𝒗𝒆𝒓𝒕 𝒌𝒐𝒓𝒆",
-    commandCategory: "game",
+    category: "game",
     usages: "𝒛𝒂𝒍𝒈𝒐 [𝒂𝒑𝒏𝒂𝒓 𝒕𝒆𝒙𝒕]",
     cooldowns: 5,
     dependencies: {
