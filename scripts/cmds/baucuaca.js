@@ -9,7 +9,7 @@ module.exports.config = {
 	cooldowns: 5
 };
 
-module.exports.run = async function({ api, event, args, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Currencies }) {
 	const { threadID, messageID, senderID } = event;
 	const slotItems = ["🦀", "🐟", "🗳️"];
 	
