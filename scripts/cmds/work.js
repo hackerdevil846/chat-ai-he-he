@@ -4,7 +4,7 @@ module.exports.config = {
 	Permssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "𝑲𝒂𝒂𝒋 𝒌𝒐𝒓𝒆 𝒕𝒂𝒌𝒂 𝒖𝒑𝒂𝒓𝒋𝒐𝒏 𝒌𝒐𝒓𝒖𝒏!",
-	Category: "Entertainment",
+	category: "Entertainment",
     cooldowns: 5,
     envConfig: {
         cooldownTime: 1200000
