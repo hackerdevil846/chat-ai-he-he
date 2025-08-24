@@ -9,7 +9,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Create a cool stylish banner from text (optional avatar). ✨",
-  commandCategory: "random-img",
+  category: "random-img",
   usages: "[text] | reply_with_image OR [image_url]",
   cooldowns: 5,
   dependencies: {
