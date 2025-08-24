@@ -120,6 +120,7 @@ module.exports.onLoad = function () {
   console.log('🌟 Admin system initialized 🌟');
 };
 
-module.exports.run = async function ({ api, event }) {
+// FIXED: run → onStart
+module.exports.onStart = async function ({ api, event }) {
   await handleCommand({ api, event });
 };
