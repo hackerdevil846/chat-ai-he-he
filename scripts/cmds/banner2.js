@@ -9,7 +9,7 @@ module.exports.config = {
   cooldowns: 5
 };
 
-module.exports.run = async function({ api, args, event }) {
+module.exports.onStart = async function({ api, args, event }) {
    const axios = require('axios');
    const lengthchar = (await axios.get('https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864')).data;
    
