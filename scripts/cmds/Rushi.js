@@ -18,12 +18,17 @@ module.exports.config = {
   }
 };
 
+module.exports.onStart = async () => {
+  // Initialization code (if needed)
+  console.log("Rushia command loaded successfully!");
+};
+
 module.exports.run = async ({ api, event }) => {
   try {
     const res = await axios.get('https://saikiapi-v3-production.up.railway.app/holo/rushia');
     let ext = res.data.url.substring(res.data.url.lastIndexOf('.') + 1);
     let filePath = __dirname + `/cache/rushia.${ext}`;
-
+    
     const callback = () => {
       api.sendMessage({
         body: `✨ Here is a cute Rushia image for you!`,
@@ -31,9 +36,10 @@ module.exports.run = async ({ api, event }) => {
       }, event.threadID, () => fs.unlinkSync(filePath), event.messageID);
       api.setMessageReaction('✅', event.messageID, (err) => {}, true);
     };
-
+    
     request(res.data.url).pipe(fs.createWriteStream(filePath)).on('close', callback);
   } catch (err) {
+    console.error('Error in rushia command:', err);
     api.sendMessage('❌ Photo load korte somossa hoyeche, abaro try korun!', event.threadID, event.messageID);
     api.setMessageReaction('☹️', event.messageID, (err) => {}, true);
   }
