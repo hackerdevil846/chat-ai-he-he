@@ -22,12 +22,10 @@ module.exports.languages = {
   }
 };
 
-// Runs when the module is loaded: simple check to help avoid runtime crashes.
 module.exports.onLoad = function () {
   try {
     const filePath = __dirname + "/noprefix/xxx.mp3";
     if (!fs.existsSync(filePath)) {
-      // Do not throw — just warn in console so bot owner can fix the file.
       console.warn("[bruh] warning: sound file not found at:", filePath);
     }
   } catch (e) {
@@ -35,14 +33,12 @@ module.exports.onLoad = function () {
   }
 };
 
-// Handle global events (no-prefix trigger)
 module.exports.handleEvent = async function ({ event, api }) {
   try {
-    if (!event || !event.body) return; // ignore non-text events
+    if (!event || !event.body) return;
 
     const { threadID, messageID, senderID, body } = event;
 
-    // Guard: ensure OTHERBOT is an array so .includes won't crash
     let otherBots = [];
     try {
       if (global.config && Array.isArray(global.config.OTHERBOT)) otherBots = global.config.OTHERBOT;
@@ -50,25 +46,20 @@ module.exports.handleEvent = async function ({ event, api }) {
       otherBots = [];
     }
 
-    // Only trigger when message starts with "bruh" (case-insensitive)
     const firstWord = body.trim().split(/\s+/)[0] || "";
     if (firstWord.toLowerCase() !== "bruh") return;
 
-    // don't react to other bot accounts
     if (otherBots.includes(senderID)) return;
 
-    const filePath = __dirname + "/noprefix/xxx.mp3"; // <-- path preserved as requested
+    const filePath = __dirname + "/noprefix/xxx.mp3";
 
-    // Build message
     const msg = {
       body: module.exports.languages.en.success,
     };
 
     if (fs.existsSync(filePath)) {
-      // attach sound only if file exists to avoid crashes
       msg.attachment = fs.createReadStream(filePath);
     } else {
-      // If file missing, send fallback text (safe) and log a warning
       msg.body = module.exports.languages.en.fileMissing + "\n" + module.exports.languages.en.success;
       console.warn("[bruh] sound file missing, sending text fallback. Expected:", filePath);
     }
@@ -79,10 +70,7 @@ module.exports.handleEvent = async function ({ event, api }) {
   }
 };
 
-// Command run (not used for this no-prefix command, but kept for completeness)
-module.exports.run = function ({ api, event }) {
-  // No direct command execution required — this command is triggered via handleEvent (no-prefix)
-  // But keeping this function prevents potential errors if the framework expects it.
+module.exports.onStart = function ({ api, event }) {
   const { threadID, messageID } = event;
   return api.sendMessage(module.exports.languages.en.success, threadID, messageID);
 };
