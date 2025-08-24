@@ -13,6 +13,11 @@ module.exports.config = {
   }
 };
 
+// --- Required onStart function to avoid loader error ---
+module.exports.onStart = async function() {
+  return;
+};
+
 // --- Helper function to download and send an image ---
 async function sendImage(api, event, imageUrl, caption) {
   const axios = global.nodemodule["axios"];
@@ -43,13 +48,12 @@ async function sendImage(api, event, imageUrl, caption) {
     });
   } catch (error) {
     console.error("Failed to download or send image:", error);
-    throw error; // Propagate error to the main handler
+    throw error;
   }
 }
 
 // --- Main command logic ---
 module.exports.run = async ({ api, event, args }) => {
-  // --- API and Backup Configuration ---
   const primaryApi = "https://nekos.best/api/v2/";
   const secondaryApi = "https://api.waifu.pics/sfw/";
   const staticBackupLinks = [
@@ -80,43 +84,34 @@ module.exports.run = async ({ api, event, args }) => {
   const availableCategories = ["waifu", "neko", "shinobu", "megumin"];
   const axios = global.nodemodule["axios"];
 
-  // --- User Input Processing ---
-  let category = args[0] ? args[0].toLowerCase( ) : 'waifu';
+  let category = args[0] ? args[0].toLowerCase() : 'waifu';
   if (!availableCategories.includes(category)) {
     api.sendMessage(`❌ Invalid Category!\n\nAvailable: ${availableCategories.join(', ')}`, event.threadID, event.messageID);
     return;
   }
 
-  // --- Attempt to Fetch from APIs ---
   try {
-    // 1. Try Primary API (nekos.best)
-    console.log(`Attempting to fetch from primary API for category: ${category}`);
     const response = await axios.get(`${primaryApi}${category}`);
     const result = response.data.results[0];
     const caption = `🎀 Random ${result.anime_name || capitalize(category)} Picture 🎀\n\nArtist: ${result.artist_name}\n🔗 Source: ${result.source_url}`;
     await sendImage(api, event, result.url, caption);
-    return; // Success
+    return;
   } catch (error) {
     console.error(`Primary API failed for ${category}:`, error.message);
-    
+
     try {
-      // 2. Try Secondary API (waifu.pics) - Note: only supports 'waifu' and 'neko'
       if (category === 'waifu' || category === 'neko') {
-        console.log(`Attempting to fetch from secondary API for category: ${category}`);
         const response = await axios.get(`${secondaryApi}${category}`);
         const caption = `🎀 Random ${capitalize(category)} Picture 🎀\n\n(Backup API)`;
         await sendImage(api, event, response.data.url, caption);
-        return; // Success
+        return;
       }
     } catch (error2) {
       console.error(`Secondary API failed for ${category}:`, error2.message);
-      // Fall through to static backup
     }
   }
 
-  // --- 3. Use Static Backup Links as Last Resort ---
   try {
-    console.log("All APIs failed. Using static backup links.");
     const randomLink = staticBackupLinks[Math.floor(Math.random() * staticBackupLinks.length)];
     const caption = `🎀 Random Anime Picture 🎀\n\n(APIs are down, using a backup image)`;
     await sendImage(api, event, randomLink, caption);
@@ -126,7 +121,6 @@ module.exports.run = async ({ api, event, args }) => {
   }
 };
 
-// Helper function to capitalize the first letter
 function capitalize(str) {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1);
