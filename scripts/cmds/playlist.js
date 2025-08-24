@@ -1,14 +1,15 @@
-const http = require('https');
-const { createCanvas, loadImage } = require('canvas');
+const https = require('https');
+const { createCanvas } = require('canvas');
 const fs = require('fs');
+const path = require('path');
 
 module.exports.config = {
   name: "playlist",
   version: "2.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Get YouTube playlist information with visual display",
-  category: "Media",
+  description: "🎶 Get YouTube playlist information with a visual stylish display",
+  category: "media",
   usages: "[playlist ID]",
   cooldowns: 15,
   dependencies: {
@@ -21,6 +22,7 @@ module.exports.run = async function({ api, event, args }) {
   const { threadID, messageID } = event;
   const playlistId = args[0] || 'PLL8jFEKG82Z79hz1lbhWtUioO9fhVKUAr';
   
+  // Validate Playlist ID
   if (!/^[a-zA-Z0-9_-]{34}$/.test(playlistId)) {
     return api.sendMessage(
       "❌ Invalid playlist ID format. Please provide a valid YouTube playlist ID.",
@@ -29,6 +31,7 @@ module.exports.run = async function({ api, event, args }) {
     );
   }
 
+  // API Request Options
   const options = {
     method: 'GET',
     hostname: 'youtube-music-api-yt.p.rapidapi.com',
@@ -41,13 +44,15 @@ module.exports.run = async function({ api, event, args }) {
   };
 
   try {
+    // Processing Message
     const processingMsg = await api.sendMessage(
       `⌛ Fetching YouTube playlist data for ID: ${playlistId}...`,
       threadID
     );
 
+    // Fetch Playlist Data
     const playlistData = await new Promise((resolve, reject) => {
-      const request = http.request(options, (response) => {
+      const request = https.request(options, (response) => {
         let data = '';
         response.on('data', (chunk) => data += chunk);
         response.on('end', () => {
@@ -74,12 +79,26 @@ module.exports.run = async function({ api, event, args }) {
     const playlist = playlistData.data;
     const videos = playlist.videos.slice(0, 10);
     
-    // Create stylish canvas image
+    // Create Canvas
     const canvasWidth = 1000;
     const canvasHeight = 600;
     const canvas = createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
     
+    // Add roundRect function to ctx
+    ctx.roundRect = function (x, y, width, height, radius) {
+      if (width < 2 * radius) radius = width / 2;
+      if (height < 2 * radius) radius = height / 2;
+      this.beginPath();
+      this.moveTo(x + radius, y);
+      this.arcTo(x + width, y, x + width, y + height, radius);
+      this.arcTo(x + width, y + height, x, y + height, radius);
+      this.arcTo(x, y + height, x, y, radius);
+      this.arcTo(x, y, x + width, y, radius);
+      this.closePath();
+      return this;
+    };
+
     // Background gradient
     const gradient = ctx.createLinearGradient(0, 0, canvasWidth, canvasHeight);
     gradient.addColorStop(0, '#8A2BE2');
@@ -87,7 +106,7 @@ module.exports.run = async function({ api, event, args }) {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
-    // Decorative elements
+    // Decorative circles
     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     for (let i = 0; i < 20; i++) {
       const radius = Math.random() * 50 + 10;
@@ -98,7 +117,7 @@ module.exports.run = async function({ api, event, args }) {
       ctx.fill();
     }
     
-    // Playlist title
+    // Playlist Title
     ctx.font = 'bold 42px "Segoe UI"';
     ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
@@ -109,7 +128,7 @@ module.exports.run = async function({ api, event, args }) {
     ctx.roundRect(100, 100, 800, 150, 20);
     ctx.fill();
     
-    // Playlist info text
+    // Playlist Info
     ctx.font = 'bold 30px "Segoe UI"';
     ctx.fillStyle = '#FFD700';
     ctx.textAlign = 'left';
@@ -147,27 +166,27 @@ module.exports.run = async function({ api, event, args }) {
     ctx.textAlign = 'center';
     ctx.fillText(`🔗 Full Playlist: youtube.com/playlist?list=${playlistId}`, canvasWidth / 2, 570);
     
-    // Watermark
+    // Credit Watermark (Only your name)
     ctx.font = '16px "Segoe UI"';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.fillText('Powered by GoatBot • Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅', canvasWidth / 2, 595);
+    ctx.fillText('Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅', canvasWidth / 2, 595);
     
     // Save image
-    const buffer = canvas.toBuffer('image/png');
-    const path = __dirname + `/cache/playlist_${threadID}.png`;
-    fs.writeFileSync(path, buffer);
+    const imgPath = path.join(__dirname, `cache/playlist_${threadID}.png`);
+    fs.writeFileSync(imgPath, canvas.toBuffer('image/png'));
     
     // Send result
-    const msgBody = `🎶 Successfully retrieved playlist!\n` +
+    const msgBody = `✅ Playlist Retrieved Successfully!\n\n` +
                    `📛 Title: ${playlist.title}\n` +
                    `👤 Author: ${playlist.author}\n` +
                    `🎬 Total Videos: ${playlist.videoCount}`;
     
     api.sendMessage({
       body: msgBody,
-      attachment: fs.createReadStream(path)
-    }, threadID, () => fs.unlinkSync(path));
+      attachment: fs.createReadStream(imgPath)
+    }, threadID, () => fs.unlinkSync(imgPath));
     
+    // Remove processing message
     api.unsendMessage(processingMsg.messageID);
 
   } catch (error) {
@@ -184,21 +203,7 @@ module.exports.run = async function({ api, event, args }) {
   }
 };
 
-// Helper functions
+// Helper function
 function truncate(str, maxLength) {
   return str.length > maxLength ? str.substring(0, maxLength) + '...' : str;
 }
-
-// Add rounded rectangle function to Canvas
-CanvasRenderingContext2D.prototype.roundRect = function (x, y, width, height, radius) {
-  if (width < 2 * radius) radius = width / 2;
-  if (height < 2 * radius) radius = height / 2;
-  this.beginPath();
-  this.moveTo(x + radius, y);
-  this.arcTo(x + width, y, x + width, y + height, radius);
-  this.arcTo(x + width, y + height, x, y + height, radius);
-  this.arcTo(x, y + height, x, y, radius);
-  this.arcTo(x, y, x + width, y, radius);
-  this.closePath();
-  return this;
-};
