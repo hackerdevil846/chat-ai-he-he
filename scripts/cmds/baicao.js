@@ -114,7 +114,7 @@ module.exports.handleEvent = async ({ event, api, Users }) => {
 	}
 }
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
 	var { senderID, threadID, messageID } = event;
 
 	threadID = String(threadID);
