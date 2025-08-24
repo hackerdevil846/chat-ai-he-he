@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Simmike shikhano kaj - prosno o uttor add koro",
-  commandCategory: "𝙎𝙞𝙢",
+  category: "𝙎𝙞𝙢",
   usages: "",
   cooldowns: 2,
   dependencies: {
