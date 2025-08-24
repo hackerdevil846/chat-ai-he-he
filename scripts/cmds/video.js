@@ -39,7 +39,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒗𝒊𝒅𝒆𝒐 𝒅𝒂𝒖𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒖𝒏 𝑼𝑹𝑳 𝒃𝒂 𝒏𝒂𝒎 𝒅𝒊𝒚𝒆",
-  commandCategory: "media",
+  category: "media",
   usages: "[𝒖𝒓𝒍 | 𝒈𝒂𝒏𝒆𝒓 𝒏𝒂𝒎]",
   cooldowns: 5,
   usePrefix: true
