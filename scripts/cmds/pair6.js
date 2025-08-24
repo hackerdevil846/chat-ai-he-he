@@ -9,7 +9,7 @@ module.exports.config = {
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 	description: "✨ Tomader monorojoner jonno ekta moja-full pairing game ✨",
-	commandCategory: "🎭 Picture",
+	category: "🎭 Picture",
 	usages: "",
 	cooldowns: 5,
 	dependencies: {
