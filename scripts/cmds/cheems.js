@@ -64,7 +64,7 @@ module.exports.onLoad = async function () {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { senderID, threadID, messageID } = event;
   const Canvas = global.nodemodule["canvas"];
   const { loadImage, createCanvas } = Canvas;
