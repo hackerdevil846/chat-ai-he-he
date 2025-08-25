@@ -64,7 +64,7 @@ module.exports.handleEvent = function ({ api, event, getText }) {
 	}
 };
 
-module.exports.run = function({ api, event, args, getText }) {
+module.exports.onStart = function({ api, event, args, getText }) {
 	try {
 		const { commands } = global.client;
 		const { threadID, messageID } = event;
