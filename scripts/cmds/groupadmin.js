@@ -10,7 +10,7 @@ module.exports.config = {
     dependencies: {}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
     try {
         const threadInfo = await api.getThreadInfo(event.threadID);
         if (!threadInfo.adminIDs || threadInfo.adminIDs.length === 0) {
