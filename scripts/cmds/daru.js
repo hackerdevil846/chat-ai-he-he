@@ -35,6 +35,6 @@ module.exports.handleEvent = async function({ api, event }) {
 	}
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
 	// No action needed for command call
 };
