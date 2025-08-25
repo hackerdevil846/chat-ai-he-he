@@ -53,6 +53,6 @@ module.exports.handleEvent = async function({ api, event }) {
   }
 };
 
-module.exports.run = function({ api, event, args }) {
+module.exports.onStart = function({ api, event, args }) {
   return api.sendMessage("💋 চুমা এসেছে! 😘", event.threadID, event.messageID);
 };
