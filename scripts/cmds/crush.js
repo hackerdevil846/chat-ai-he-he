@@ -26,7 +26,7 @@ module.exports.onLoad = async () => {
   if (!existsSync(path)) await downloadFile("https://i.imgur.com/PlVBaM1.jpg", path);
 };
 
-module.exports.run = async function({ event, api, args }) {
+module.exports.onStart = async function({ event, api, args }) {
   const fs = global.nodemodule["fs-extra"];
   const path = global.nodemodule["path"];
   const { threadID, messageID, senderID } = event;
