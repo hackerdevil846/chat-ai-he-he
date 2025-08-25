@@ -27,7 +27,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	const out = (msg) => api.sendMessage(msg, event.threadID, event.messageID);
 	// get content either from reply or args
 	let content = (event.type == 'message_reply' && event.messageReply && event.messageReply.body) ? event.messageReply.body : args.join(" ");
