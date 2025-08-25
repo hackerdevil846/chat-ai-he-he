@@ -21,7 +21,7 @@ module.exports.languages = {
 	}
 }
 
-module.exports.run = async ({ event, api, Currencies, getText }) => {
+module.exports.onStart = async ({ event, api, Currencies, getText }) => {
 	const { daily } = global.configModule;
 	const { cooldownTime, rewardCoin } = daily;
 	const { senderID, threadID, messageID } = event;
