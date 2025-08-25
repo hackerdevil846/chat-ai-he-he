@@ -12,7 +12,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
 	try {
 		const threadList = await api.getThreadList(100, null, ["INBOX"]);
 		const currentThread = event.threadID;
