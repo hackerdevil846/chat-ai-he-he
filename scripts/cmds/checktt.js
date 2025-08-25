@@ -96,7 +96,7 @@ const getRankName = count => {
         : rankNames["Copper I"];
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.onStart = async function ({ api, event, args, Users }) {
     const fs = require("fs");
     const path = __dirname + '/count-by-thread/';
     const { messageID, threadID, senderID, mentions } = event;
