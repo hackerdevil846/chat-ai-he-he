@@ -19,7 +19,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function ({ event, api }) {
+module.exports.onStart = async function ({ event, api }) {
     const cachePath = __dirname + "/cache";
     if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath);
 
