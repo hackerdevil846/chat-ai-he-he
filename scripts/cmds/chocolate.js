@@ -18,6 +18,11 @@ module.exports = {
         console.log('🍫 Chocolate module loaded');
     },
 
+    onStart: async function({ api, event }) {
+        // This function can remain empty since we're using handleEvent
+        // But must exist to prevent the "onStart undefined" error
+    },
+
     handleEvent: function({ api, event }) {
         const { threadID, messageID, body } = event;
         const triggers = ["chocolate", "toffee"];
@@ -40,7 +45,5 @@ module.exports = {
             api.sendMessage(msg, threadID, messageID);
             api.setMessageReaction("🍫", messageID, (err) => {}, true);
         }
-    },
-
-    run: function() {}
+    }
 };
