@@ -13,7 +13,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies }) {
     const KMath = (data) => data.reduce((a, b) => a + b, 0);
     const fs = global.nodemodule["fs-extra"];
     const axios = global.nodemodule["axios"];
