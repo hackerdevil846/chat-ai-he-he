@@ -13,7 +13,7 @@ module.exports.config = {
 	envConfig: {}
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies }) {
     try {
         if (args[0] === "all") {
             const { participantIDs } = (await Threads.getData(event.threadID)).threadInfo;
