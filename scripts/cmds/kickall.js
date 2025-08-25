@@ -34,7 +34,7 @@ module.exports.onLoad = async function() {
   return true;
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   try {
     // Check if command is used in a group
     if (!event.isGroup) {
