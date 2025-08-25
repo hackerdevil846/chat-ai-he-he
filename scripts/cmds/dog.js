@@ -13,7 +13,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
 	const axios = require('axios');
 	const request = require('request');
 	const fs = require("fs");
