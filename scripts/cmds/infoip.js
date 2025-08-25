@@ -12,7 +12,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const axios = global.nodemodule["axios"];
 	
 	if (!args[0]) {
@@ -47,4 +47,3 @@ module.exports.run = async function({ api, event, args }) {
 		return api.sendMessage("❌ | An error occurred while fetching IP information. Please check the IP address format or try again later.", event.threadID, event.messageID);
 	}
 };
-
