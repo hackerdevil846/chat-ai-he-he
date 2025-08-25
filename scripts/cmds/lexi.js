@@ -51,7 +51,7 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
     });
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { threadID, messageID } = event;
     const pathImg = path.join(__dirname, 'cache/lexi_board.png');
 
