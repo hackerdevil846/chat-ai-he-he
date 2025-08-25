@@ -27,12 +27,11 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function () {
-  // Ensure handleReply array exists so push won't fail
   if (!global.client) global.client = {};
   if (!global.client.handleReply) global.client.handleReply = [];
 };
 
-module.exports.run = async function ({ api, event, Users, Threads, args }) {
+module.exports.onStart = async function ({ api, event, Users, Threads, args }) {
   const { threadID, messageID } = event;
   let listBanned = [];
   let i = 1;
@@ -45,12 +44,10 @@ module.exports.run = async function ({ api, event, Users, Threads, args }) {
         const threadBanned = Array.from(global.data.threadBanned.keys());
 
         for (const singleThread of threadBanned) {
-          // Try to get a readable thread name
           const dataThread = (await Threads.getData(singleThread)) || {};
           const threadInfo = dataThread.threadInfo || {};
           const nameT = threadInfo.threadName || "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑮𝒓𝒐𝒖𝒑";
 
-          // Include an ASCII ID line to guarantee reliable ID extraction later
           listBanned.push(`${i++}. ${nameT}\n🍂 𝑻𝑰𝑫: ${singleThread}\nID: ${singleThread}`);
         }
 
@@ -119,7 +116,6 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
   const { threadID, messageID, senderID, body } = event;
 
   try {
-    // Only the author who triggered the list can unban via reply
     if (parseInt(senderID) !== parseInt(handleReply.author)) {
       return api.sendMessage(this.languages.en.only_initiator, threadID, messageID);
     }
@@ -130,8 +126,6 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
     }
 
     const selectedItem = handleReply.listBanned[orderNumber - 1];
-
-    // Extract the first long digit sequence in the selected item (ID/TID)
     const idMatch = selectedItem.match(/(\d{4,})/);
     if (!idMatch) {
       return api.sendMessage("Failed to extract ID! ⚠️", threadID, messageID);
@@ -146,7 +140,6 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
         const threadInfo = await Threads.getInfo(targetID);
         targetName = (threadInfo && threadInfo.threadName) ? threadInfo.threadName : "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑮𝒓𝒐𝒖𝒑";
 
-        // Update stored thread data (if exists)
         const threadDataObj = (await Threads.getData(targetID)) || {};
         const threadData = threadDataObj.data || {};
         threadData.banned = false;
@@ -156,14 +149,13 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
         await Threads.setData(targetID, { data: threadData });
         if (global.data && global.data.threadBanned) global.data.threadBanned.delete(targetID);
 
-        // Notify the group and the admin who unbanned
         api.sendMessage(
           `» 𝑵𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 «\n━━━━━━━━━━━━━━━━━━\n${userName} 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅 𝒕𝒉𝒊𝒔 𝒃𝒐𝒕 𝒇𝒓𝒐𝒎 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑\n\n- 𝑻𝒉𝒆 𝒈𝒓𝒐𝒖𝒑 '${targetName}' 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅`,
           targetID
         );
 
         return api.sendMessage(
-          `✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔\n━━━━━━━━━━━━━━━━━━\n${userName} 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅 𝒈𝒓𝒐𝒖𝒑:\n→ ${targetName}`,
+          `✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔\n━━━━━━━━━━━━━━━━━━\n${userName} 𝒔𝒖𝒄𝒄𝒆𝒔𝒇𝒖𝒍𝒍𝒚 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅 𝒈𝒓𝒐𝒖𝒑:\n→ ${targetName}`,
           threadID,
           messageID
         );
@@ -172,7 +164,6 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
       case "unbanuser": {
         targetName = await Users.getNameUser(targetID) || "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑼𝒔𝒆𝒓";
 
-        // Update stored user data (if exists)
         const userDataObj = (await Users.getData(targetID)) || {};
         const userData = userDataObj.data || {};
         userData.banned = false;
@@ -182,7 +173,6 @@ module.exports.handleReply = async function ({ api, event, handleReply, Users, T
         await Users.setData(targetID, { data: userData });
         if (global.data && global.data.userBanned) global.data.userBanned.delete(targetID);
 
-        // Notify the user (if possible) and the admin who unbanned
         api.sendMessage(
           `» 𝑵𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 «\n━━━━━━━━━━━━━━━━━━\n${userName} 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅 𝒚𝒐𝒖 𝒇𝒓𝒐𝒎 𝒂𝒅𝒎𝒊𝒏\n\n- 𝒀𝒐𝒖'𝒗𝒆 𝒃𝒆𝒆𝒏 𝒖𝒏𝒃𝒂𝒏𝒏𝒆𝒅 𝒇𝒓𝒐𝒎 𝒕𝒉𝒆 𝒃𝒐𝒕`,
           targetID
