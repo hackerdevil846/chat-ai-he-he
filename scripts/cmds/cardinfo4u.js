@@ -46,7 +46,8 @@ module.exports.circleImage = async function(imagePath) {
   return await img.getBufferAsync("image/png");
 };
 
-module.exports.run = async function({ api, event, args, Threads, Users, Currencies, models }) {
+// === CHANGED: Export name fixed from `run` to `onStart` ===
+module.exports.onStart = async function({ api, event, args, Threads, Users, Currencies, models }) {
   const { createCanvas, loadImage, registerFont } = require("canvas");
   const fs = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
@@ -210,7 +211,7 @@ module.exports.run = async function({ api, event, args, Threads, Users, Currenci
     console.error("Card generation error:", error);
     // Friendly failure message in user's language fallback to English
     const lang = (global.config && global.config.language) || "en";
-    const failMsg = (this.languages && this.languages[lang] && this.languages[lang].fail) || this.languages["en"].fail;
+    const failMsg = (this.languages && this.languages[lang] && this.languages[lang].fail) || module.exports.languages["en"].fail;
     api.sendMessage(failMsg, event.threadID, event.messageID);
   }
 };
