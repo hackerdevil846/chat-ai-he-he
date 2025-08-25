@@ -14,14 +14,14 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const { createCanvas, loadImage } = require("canvas");
 	const fs = require("fs-extra");
 	const axios = require("axios");
 	
 	// Helper functions
 	const circle = async (image) => {
-		const jimp = global.nodemodule["jimp"];
+		const jimp = require("jimp");
 		image = await jimp.read(image);
 		image.circle();
 		return await image.getBufferAsync("image/png");
