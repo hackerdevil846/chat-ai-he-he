@@ -93,7 +93,7 @@ module.exports.handleEvent = async function({ event, api, Users, Threads }) {
   });
 };
 
-module.exports.run = async function({ api, event, Threads, getText }) {
+module.exports.onStart = async function({ api, event, Threads, getText }) {
   const { threadID, messageID } = event;
   const threadData = await Threads.getData(threadID);
   
@@ -109,4 +109,3 @@ module.exports.run = async function({ api, event, Threads, getText }) {
     messageID
   );
 };
-
