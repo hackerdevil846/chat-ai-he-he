@@ -24,7 +24,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args, Threads }) {
+module.exports.onStart = async function({ api, event, args, Threads }) {
     const fs = global.nodemodule["fs-extra"];
     const axios = global.nodemodule["axios"];
     const Canvas = global.nodemodule["canvas"];
