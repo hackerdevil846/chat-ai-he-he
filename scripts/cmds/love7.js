@@ -70,7 +70,7 @@ module.exports.onLoad = async function () {
  * Main command handler when user calls the command.
  * Usage: reply or tag one person -> bot generates love image between sender and mentioned user.
  */
-module.exports.run = async function ({ api, event, args, permssion }) {
+module.exports.onStart = async function ({ api, event, args, permssion }) {
   const { threadID, messageID, senderID } = event;
   const mentions = event.mentions || {};
 
@@ -95,7 +95,7 @@ module.exports.run = async function ({ api, event, args, permssion }) {
     const mentionNameRaw = mentions[mentionId] || "";
     const mentionName = mentionNameRaw.replace(/@/g, '');
 
-    // Inform user (no typing animations; simple message)
+    // Inform user
     api.sendMessage(this.languages.en.CREATING, threadID, messageID);
 
     // Generate image
@@ -115,7 +115,6 @@ module.exports.run = async function ({ api, event, args, permssion }) {
 
     // Send and then cleanup generated file
     api.sendMessage(msg, threadID, async (err, info) => {
-      // remove generated image after sending (best-effort)
       try {
         if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
       } catch (e) {
@@ -138,31 +137,23 @@ module.exports.generateLoveImage = async function (user1ID, user2ID) {
   const cacheDir = path.join(__dirname, 'cache');
   const baseImagePath = path.join(cacheDir, 'love_template.png');
 
-  // ensure base template exists
   if (!fs.existsSync(baseImagePath)) {
     throw new Error("Base template missing. Make sure onLoad has run and template is downloaded.");
   }
 
-  // Load base template
   const baseImage = await Jimp.read(baseImagePath);
 
-  // Get processed avatars
   const avatar1 = await this.processAvatar(user1ID);
   const avatar2 = await this.processAvatar(user2ID);
 
-  // Resize avatars (200x200) — keep as original behavior
   avatar1.resize(200, 200);
   avatar2.resize(200, 200);
 
-  // Compose onto base image at the specified positions (keep positions unchanged)
   baseImage
-    .composite(avatar1, 300, 300)  // first avatar position
-    .composite(avatar2, 600, 300); // second avatar position
+    .composite(avatar1, 300, 300)
+    .composite(avatar2, 600, 300);
 
-  // Output path
   const outputPath = path.join(cacheDir, `love7_${user1ID}_${user2ID}_${Date.now()}.png`);
-
-  // Save
   await baseImage.writeAsync(outputPath);
 
   return outputPath;
@@ -170,7 +161,6 @@ module.exports.generateLoveImage = async function (user1ID, user2ID) {
 
 /**
  * Download and process Facebook avatar for given userId.
- * Returns a Jimp image with circular crop and white border.
  */
 module.exports.processAvatar = async function (userId) {
   const avatarOptions = [
@@ -189,7 +179,6 @@ module.exports.processAvatar = async function (userId) {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         },
-        // follow redirects is default for axios; no extra needed
       });
 
       if (response && response.data) {
@@ -197,7 +186,6 @@ module.exports.processAvatar = async function (userId) {
         break;
       }
     } catch (error) {
-      // try next url
       continue;
     }
   }
@@ -206,20 +194,14 @@ module.exports.processAvatar = async function (userId) {
     throw new Error(`Failed to download avatar for user ${userId}`);
   }
 
-  // Read avatar into Jimp
   const avatar = await Jimp.read(avatarBuffer);
-
-  // Crop to square
   const size = Math.min(avatar.bitmap.width, avatar.bitmap.height);
   const cropped = avatar.crop(0, 0, size, size);
 
-  // Create white border canvas and composite the cropped avatar centered
   const borderSize = 5;
   const bordered = new Jimp(size + borderSize * 2, size + borderSize * 2, 0xFFFFFFFF);
   bordered.composite(cropped, borderSize, borderSize);
 
-  // Make circular (Jimp's circle() method used commonly)
-  // Note: circle() modifies the image to a circular mask.
   return bordered
     .crop(0, 0, size + borderSize * 2, size + borderSize * 2)
     .circle();
