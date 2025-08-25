@@ -11,7 +11,7 @@ module.exports.config = {
 	envConfig: {}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	try {
 		const expectedAuthor = "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅";
 		if (this.config.credits !== expectedAuthor) {
