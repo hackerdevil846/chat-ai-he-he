@@ -34,7 +34,8 @@ module.exports.onLoad = async function () {
 	}
 };
 
-module.exports.run = async function ({ api, event }) {
+// Note: Framework expects onStart export (user changed this). Keep same behavior as original run.
+module.exports.onStart = async function ({ api, event }) {
 	const { threadID, messageID } = event;
 	const cacheDir = path.join(__dirname, "cache");
 
