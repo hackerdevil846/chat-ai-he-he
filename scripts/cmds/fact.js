@@ -12,7 +12,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const axios = require("axios");
 	try {
 		const response = await axios.get('https://api.popcat.xyz/fact');
