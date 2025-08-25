@@ -2,9 +2,9 @@ module.exports = {
 	config: {
 		name: "fuckyou",
 		version: "2.0",
-		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // ✅ Fixed credits
+		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		hasPermssion: 0,
-		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // ✅ Added credits field
+		credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
 		description: "🖕 Auto-reply to 'fuck' trigger",
 		category: "no-prefix",
 		usages: "[auto-trigger]",
@@ -12,16 +12,16 @@ module.exports = {
 		envConfig: {}
 	},
 
-	onLoad: function() {}, // ✅ Added empty onLoad
+	onLoad: function() {},
 
-	handleEvent: async function({ event, message }) {
+	onStart: async function({ event, message }) {
 		try {
 			if (event.body?.toLowerCase().trim() === "fuck") {
 				message.reply({
 					body: "🖕 *𝑭𝒖𝒄𝒌 𝒚𝒐𝒖 𝒕𝒐𝒐!*",
 					attachment: [
 						await global.utils.getStreamFromURL(
-							"https://i.imgur.com/9bNeakd.gif" // ✅ Kept original link
+							"https://i.imgur.com/9bNeakd.gif"
 						)
 					]
 				});
