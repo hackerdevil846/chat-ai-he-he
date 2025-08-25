@@ -47,7 +47,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Threads }
   }
 };
 
-module.exports.run = async function({ api, event, Threads }) {
+module.exports.onStart = async function({ api, event, Threads }) {
   try {
     const inbox = await api.getThreadList(100, null, ['INBOX']);
     const list = inbox.filter(group => group.isSubscribed && group.isGroup);
