@@ -30,7 +30,7 @@ module.exports.languages = {
 	}
 }
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
 	const { threadID, messageID } = event;
 	
 	try {
@@ -56,7 +56,7 @@ module.exports.run = async function({ api, event, args, Users }) {
 		
 		// Show processing message
 		const processingMsg = await api.sendMessage(
-			global.module.exports.languages.en.processing.replace("%1", targetName),
+			module.exports.languages.en.processing.replace("%1", targetName),
 			threadID
 		);
 
@@ -65,7 +65,7 @@ module.exports.run = async function({ api, event, args, Users }) {
 		
 		// Send result
 		await api.sendMessage({
-			body: global.module.exports.languages.en.success.replace("%1", targetName),
+			body: module.exports.languages.en.success.replace("%1", targetName),
 			attachment: fs.createReadStream(outputPath)
 		}, threadID, messageID);
 		
@@ -78,7 +78,7 @@ module.exports.run = async function({ api, event, args, Users }) {
 	} catch (error) {
 		console.error("❌ Chor Command Error:", error);
 		api.sendMessage(
-			global.module.exports.languages.en.error,
+			module.exports.languages.en.error,
 			threadID,
 			messageID
 		);
