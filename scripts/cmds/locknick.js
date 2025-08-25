@@ -15,7 +15,7 @@ module.exports.config = {
 const OWNER_UID = "61571630409265";
 const NICKNAME_LOCK_FILE = path.join(__dirname, "../data/locked_nicknames.json");
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { threadID, senderID } = event;
 
     // Load locked nicknames data
