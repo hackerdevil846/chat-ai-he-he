@@ -58,7 +58,7 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
 	});
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	const { threadID, messageID } = event;
 	const text = args.join(" ");
 
@@ -123,7 +123,7 @@ module.exports.run = async function ({ api, event, args }) {
 		// Send result
 		await api.sendMessage(
 			{
-				body: "✅ Here’s your **Google Search Result** 🔎✨",
+				body: "✅ Here's your **Google Search Result** 🔎✨",
 				attachment: fs.createReadStream(outputPath)
 			},
 			threadID,
