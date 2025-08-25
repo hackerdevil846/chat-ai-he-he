@@ -58,7 +58,7 @@ module.exports.circle = async (image) => {
     return await image.getBufferAsync("image/png");
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
     const { loadImage, createCanvas, registerFont } = require("canvas");
     const request = require('request');
     const fs = global.nodemodule["fs-extra"];
