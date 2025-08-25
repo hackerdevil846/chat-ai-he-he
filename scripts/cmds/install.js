@@ -46,7 +46,7 @@ async function wrapText(ctx, name, maxWidth) {
   return lines;
 }
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.onStart = async function ({ api, event, args, Users }) {
   try {
     let pathImg = __dirname + "/cache/playstore_card.png";
     let pathAvt = __dirname + "/cache/user_avatar.png";
