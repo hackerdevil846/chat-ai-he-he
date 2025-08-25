@@ -62,7 +62,7 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
 	});
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const { threadID, messageID } = event;
 	const fs = global.nodemodule["fs-extra"];
 	const axios = global.nodemodule["axios"];
@@ -99,7 +99,7 @@ module.exports.run = async function({ api, event, args }) {
 		}
 
 		// wrap text into lines
-		const lines = await this.wrapText(ctx, text, 440) || [text];
+		const lines = await module.exports.wrapText(ctx, text, 440) || [text];
 
 		// draw each line with proper line height (multiline support)
 		const startX = 95;
