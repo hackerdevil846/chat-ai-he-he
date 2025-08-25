@@ -77,7 +77,7 @@ function extractVideoId(url) {
   return match ? match[1] : null;
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   try {
     // Use user-provided URL if available, else default
     const inputUrl = args[0] ? args[0] : DEFAULT_URL;
