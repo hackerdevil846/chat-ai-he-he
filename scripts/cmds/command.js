@@ -14,9 +14,6 @@ module.exports.config = {
     }
 };
 
-//
-// Utility: convert plain text -> Mathematical Bold Italic (used for bot messages)
-// (keeps your original stylistic choice)
 function toMathBoldItalic(text) {
     const map = {
         'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴',
@@ -29,11 +26,6 @@ function toMathBoldItalic(text) {
     return String(text).split('').map(char => map[char] || char).join('');
 }
 
-//
-// Load a list of modules (synchronously, installs deps if needed)
-// - Keeps original behavior and paths
-// - Fixed require cache handling, typeof checks, parentheses, and error handling
-//
 const loadCommand = function ({ moduleList, threadID, messageID }) {
     const { execSync } = global.nodemodule['child_process'];
     const { writeFileSync, readFileSync, unlinkSync } = global.nodemodule['fs-extra'];
@@ -43,16 +35,14 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
 
     const errorList = [];
 
-    // reload config file safely
     try {
         delete require.cache[require.resolve(configPath)];
-    } catch (e) { /* ignore if not cached */ }
+    } catch (e) { }
 
     let configValue;
     try {
         configValue = require(configPath);
     } catch (e) {
-        // If config cannot be required, stop
         api.sendMessage(toMathBoldItalic('❌ Config file load korte problem: ' + e.message), threadID, messageID);
         return;
     }
@@ -63,23 +53,19 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
         try {
             const dirModule = __dirname + '/' + nameModule + '.js';
 
-            // clear module cache
-            try { delete require.cache[require.resolve(dirModule)]; } catch (e) { /* ignore */ }
+            try { delete require.cache[require.resolve(dirModule)]; } catch (e) { }
 
             const command = require(dirModule);
 
-            // delete from global.commands map before resetting
             if (global.client && global.client.commands && global.client.commands.has(nameModule))
                 global.client.commands.delete(nameModule);
 
             if (!command.config || !command.run || !command.config.commandCategory) 
                 throw new Error('𝑴𝒐𝒅𝒖𝒍𝒆 𝒎𝒂𝒍𝒇𝒐𝒓𝒎𝒆𝒅!');
 
-            // remove event registration if present
             if (Array.isArray(global.client.eventRegistered))
                 global.client.eventRegistered = global.client.eventRegistered.filter(info => info != command.config.name);
 
-            // handle dependencies: auto install if missing
             if (command.config.dependencies && typeof command.config.dependencies === 'object') {
                 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies || {};
                 const listbuiltinModules = require('module').builtinModules || [];
@@ -96,7 +82,6 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                             global.nodemodule[packageName] = require(moduleDir);
                         loadSuccess = true;
                     } catch (err) {
-                        // try to install
                         logger.loader(toMathBoldItalic('⚠️ Package not found: ' + packageName + ' — installing for command ' + command.config.name + '...'), 'warn');
                         const insPack = { stdio: 'inherit', env: process.env, shell: true, cwd: join(global.client.mainPath, 'nodemodules') };
                         try {
@@ -105,7 +90,6 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                             lastError = e;
                         }
 
-                        // try loading up to 3 times
                         for (let tryLoadCount = 1; tryLoadCount <= 3; tryLoadCount++) {
                             try {
                                 require.cache = {};
@@ -129,7 +113,6 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                 logger.loader(toMathBoldItalic('✅ Successfully installed/loaded packages for command ' + command.config.name + '!'));
             }
 
-            // load envConfig properly (if command provides defaults)
             if (command.config.envConfig && typeof command.config.envConfig === 'object') {
                 try {
                     global.configModule = global.configModule || {};
@@ -153,7 +136,6 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                 }
             }
 
-            // call onLoad if exists
             if (command.onLoad) {
                 try {
                     const onLoads = { configValue };
@@ -163,14 +145,12 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                 }
             }
 
-            // if the command handles events, register name
             if (command.handleEvent) {
                 global.client.eventRegistered = global.client.eventRegistered || [];
                 if (!global.client.eventRegistered.includes(command.config.name))
                     global.client.eventRegistered.push(command.config.name);
             }
 
-            // if the module was disabled in config arrays, remove it
             try {
                 if ((global.config && Array.isArray(global.config.commandDisabled) && global.config.commandDisabled.includes(nameModule + '.js')) ||
                     (configValue && Array.isArray(configValue.commandDisabled) && configValue.commandDisabled.includes(nameModule + '.js'))) {
@@ -182,10 +162,8 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
                     }
                 }
             } catch (e) {
-                // non-fatal
             }
 
-            // finally set command into client's command map
             global.client.commands = global.client.commands || new Map();
             global.client.commands.set(command.config.name, command);
             logger.loader(toMathBoldItalic('✅ Loaded command ' + command.config.name + '!'));
@@ -200,21 +178,15 @@ const loadCommand = function ({ moduleList, threadID, messageID }) {
 
     api.sendMessage(toMathBoldItalic(`✅ Safollo vabe load kora holo ${moduleList.length - errorList.length} ti command 🎉`), threadID, messageID);
 
-    // persist updated config
     try {
         writeFileSync(configPath, JSON.stringify(configValue, null, 4), 'utf8');
     } catch (e) {
-        // if write fails, notify but don't crash
         api.sendMessage(toMathBoldItalic('⚠️ Config save korte problem: ' + e.message), threadID, messageID);
     }
 
-    // remove temp file if exists
-    try { unlinkSync(configPath + '.temp'); } catch (e) { /* ignore */ }
+    try { unlinkSync(configPath + '.temp'); } catch (e) { }
 };
 
-//
-// Unload modules: disables them in config and removes from maps
-//
 const unloadModule = function ({ moduleList, threadID, messageID }) {
     const { writeFileSync, unlinkSync, readFileSync } = global.nodemodule["fs-extra"];
     const { configPath, mainPath, api } = global.client;
@@ -222,7 +194,7 @@ const unloadModule = function ({ moduleList, threadID, messageID }) {
 
     try {
         delete require.cache[require.resolve(configPath)];
-    } catch (e) { /* ignore */ }
+    } catch (e) { }
 
     let configValue;
     try {
@@ -236,14 +208,12 @@ const unloadModule = function ({ moduleList, threadID, messageID }) {
 
     for (const nameModule of moduleList) {
         try {
-            // remove from commands and event registry
             if (global.client && global.client.commands && global.client.commands.has(nameModule))
                 global.client.commands.delete(nameModule);
 
             if (Array.isArray(global.client.eventRegistered))
                 global.client.eventRegistered = global.client.eventRegistered.filter(item => item !== nameModule);
 
-            // add to disabled list (preserve arrays)
             if (!Array.isArray(configValue.commandDisabled)) configValue.commandDisabled = [];
             if (!Array.isArray(global.config.commandDisabled)) global.config.commandDisabled = [];
 
@@ -252,37 +222,30 @@ const unloadModule = function ({ moduleList, threadID, messageID }) {
 
             logger(toMathBoldItalic(`🗑️ Unloaded command ${nameModule}!`));
         } catch (e) {
-            // non-fatal: log and continue
             logger(toMathBoldItalic(`⚠️ Error unloading ${nameModule}: ${e.message}`));
         }
     }
 
-    // persist config
     try {
         writeFileSync(configPath, JSON.stringify(configValue, null, 4), 'utf8');
     } catch (e) {
         api.sendMessage(toMathBoldItalic('⚠️ Config save korte problem: ' + e.message), threadID, messageID);
     }
 
-    try { unlinkSync(configPath + ".temp"); } catch (e) { /* ignore */ }
+    try { unlinkSync(configPath + ".temp"); } catch (e) { }
 
     api.sendMessage(toMathBoldItalic(`✅ Safollo vabe unload kora holo ${moduleList.length} ti command 🧾`), threadID, messageID);
 };
 
-//
-// Main command entrypoint
-//
-module.exports.run = function ({ api, event, args, client }) {
+module.exports.onStart = function ({ api, event, args, client }) {
     const { readdirSync } = global.nodemodule["fs-extra"];
     const { threadID, messageID } = event;
     const permission = global.config && global.config.GOD ? global.config.GOD : [];
 
-    // permission check: only GOD allowed (bot owners)
     if (!Array.isArray(permission) || !permission.includes(event.senderID)) {
         return api.sendMessage(toMathBoldItalic("⚠️ Apni ei command use korar permission paen na!"), threadID, messageID);
     }
 
-    // prepare module list (everything after the first argument)
     let moduleList = args.slice(1);
 
     switch (args[0]) {
