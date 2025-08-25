@@ -21,7 +21,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event }) {
+module.exports.onStart = async function ({ api, event }) {
 	const { threadID, messageID, messageReply } = event;
 	const cacheDir = path.join(__dirname, 'cache', 'hd-images');
 	const imagePath = path.join(cacheDir, `enhanced_${Date.now()}.jpg`);
@@ -43,8 +43,7 @@ module.exports.run = async function ({ api, event }) {
 					"❷ Wait for processing\n" +
 					"❸ Receive enhanced HD version\n\n" +
 					"✨ 𝗡𝗼𝘁𝗲: Works best with clear images\n" +
-					"⏳ 𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗧𝗶𝗺𝗲: 10-30 seconds",
-				attachment: fs.createReadStream(path.join(__dirname, 'assets', 'hd-demo.jpg')) // You can add a demo image in assets folder
+					"⏳ 𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗧𝗶𝗺𝗲: 10-30 seconds"
 			}, threadID, messageID);
 		}
 
