@@ -18,7 +18,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     try {
         if (!args.length) {
             return api.sendMessage("🎬 | Please provide a movie/series name!\nUsage: imdb <movie/series name>", event.threadID, event.messageID);
