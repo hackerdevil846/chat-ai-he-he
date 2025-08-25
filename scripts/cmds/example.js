@@ -42,7 +42,7 @@ module.exports.handleSchedule = function({ scheduleItem }) {
 	// 𝑺𝒄𝒉𝒆𝒅𝒖𝒍𝒆𝒅 𝒕𝒂𝒔𝒌𝒔
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	try {
 		const { message } = this.languages["en"];
 		api.sendMessage(`🎉 ${message}\n📦 𝑨𝒓𝒈𝒖𝒎𝒆𝒏𝒕𝒔: ${args.join(" ")}\n🆔 𝑻𝒉𝒓𝒆𝒂𝒅𝑰𝑫: ${event.threadID}`, event.threadID, event.messageID);
