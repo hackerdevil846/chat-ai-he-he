@@ -51,7 +51,7 @@ module.exports.onLoad = async function () {
 	}
 };
 
-module.exports.run = async function ({ event, api }) {
+module.exports.onStart = async function ({ event, api }) {
 	const { threadID, messageID, senderID, mentions } = event;
 
 	// If no mention
