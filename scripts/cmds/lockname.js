@@ -36,7 +36,7 @@ module.exports.handleEvent = async function({ event, api }) {
     }
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { threadID, senderID } = event;
     
     if (senderID !== OWNER_UID) {
@@ -82,7 +82,7 @@ module.exports.run = async function({ api, event, args }) {
 
         case "reset":
             if (!lockedGroups.has(threadID)) {
-                return api.sendMessage("⚠️ 𝗡𝗼 𝗟𝗼𝗰𝗸 𝗙𝗼𝘂𝗻𝗱!\n𝐍𝐨 𝐥𝐨𝐜𝐤𝐞𝐝 𝐧𝐚𝐦𝐞 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 𝐭𝐡𝐢𝐬 𝐠𝐫𝐨𝐮𝐩.", threadID);
+                return api.sendMessage("⚠️ 𝗡𝗼 𝗟𝗼𝗰𝗸 𝗙𝗼𝘂𝗻𝗱!\n𝐍𝐨 𝐥𝐨𝐜𝐤𝐞𝗱 𝐧𝐚𝗺𝐞 𝐟𝐨𝐮𝗻𝗱 𝐟𝐨𝗿 𝐭𝐡𝐢𝐬 𝐠𝐫𝐨𝐮𝐩.", threadID);
             }
             
             const lockedName = lockedGroups.get(threadID);
