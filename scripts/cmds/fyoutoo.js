@@ -46,7 +46,7 @@ module.exports.handleEvent = function({ api, event }) {
 	}
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
 	// This command is event-based only, no run functionality needed
 	api.sendMessage("⚠️ This command is triggered automatically when someone says specific words.", event.threadID, event.messageID);
 };
