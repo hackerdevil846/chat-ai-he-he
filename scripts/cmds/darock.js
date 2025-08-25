@@ -39,6 +39,6 @@ module.exports.handleEvent = function({ api, event }) {
 	}
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
 	api.sendMessage("✨ 𝑻𝒉𝒊𝒔 𝒊𝒔 𝒂𝒏 𝒂𝒖𝒕𝒐-𝒕𝒓𝒊𝒈𝒈𝒆𝒓𝒆𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅\n\n𝑱𝒖𝒔𝒕 𝒕𝒚𝒑𝒆: '𝒗𝒊𝒏𝒆𝒃𝒐𝒐𝒎' 𝒐𝒓 '𝒕𝒉𝒆 𝒓𝒐𝒄𝒌' 𝒊𝒏 𝒄𝒉𝒂𝒕!", event.threadID);
 };
