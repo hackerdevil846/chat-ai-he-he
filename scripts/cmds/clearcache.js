@@ -22,7 +22,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { readdirSync } = require("fs-extra");
     const path = __dirname + "/cache";
     const allowedUIDs = ["61571630409265"]; // Only allowed UID
