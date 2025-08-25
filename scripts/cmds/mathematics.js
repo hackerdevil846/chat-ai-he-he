@@ -11,7 +11,7 @@ module.exports.config = {
 	envConfig: {}
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
 	return api.sendMessage(`📚 𝑴𝒂𝒕𝒉𝒆𝒎𝒂𝒕𝒊𝒄𝒔 𝑭𝒐𝒓𝒎𝒖𝒍𝒂 𝑺𝒉𝒆𝒆𝒕
 
 ━━━━━━━━━━━━━━━━━━━━
