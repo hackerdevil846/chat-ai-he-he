@@ -24,7 +24,7 @@ module.exports.onLoad = function() {
   // No special onLoad actions required for this module.
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies, permssion }) {
   // List of image URLs (UNCHANGED)
   const allLinks = [
     "https://i.imgur.com/ahKcoO3.jpg",
