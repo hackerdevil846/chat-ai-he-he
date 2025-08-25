@@ -42,6 +42,6 @@ module.exports.handleEvent = function({ api, event, envConfig }) {
   }
 };
 
-module.exports.run = async function({}) {
+module.exports.onStart = async function({}) {
   // Intentionally empty
 };
