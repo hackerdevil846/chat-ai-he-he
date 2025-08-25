@@ -14,7 +14,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
   const axios = global.nodemodule["axios"];
   const request = global.nodemodule["request"];
   const fs = global.nodemodule["fs-extra"];
@@ -39,6 +39,6 @@ module.exports.run = async function({ api, event }) {
       .on("close", callback);
       
   } catch (error) {
-    api.sendMessage("⚠️ 𝗘𝗿𝗿𝗼𝗿 𝗳𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝗺𝗲𝗺𝗲! 𝗣𝗹𝗲𝗮𝘀𝗲 �𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻.", event.threadID);
+    api.sendMessage("⚠️ 𝗘𝗿𝗿𝗼𝗿 𝗳𝗲𝘁𝗰𝗵𝗶𝗻𝗴 𝗺𝗲𝗺𝗲! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻.", event.threadID);
   }
 };
