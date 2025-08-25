@@ -26,7 +26,7 @@ module.exports.onLoad = async function() {
     if (!existsSync(path)) await downloadFile("https://i.imgur.com/7lPqHjw.jpg", path);
 }
 
-module.exports.run = async function({ event, api, args }) {
+module.exports.onStart = async function({ event, api, args }) {
     const fs = global.nodemodule["fs-extra"];
     const axios = global.nodemodule["axios"];
     const jimp = global.nodemodule["jimp"];
