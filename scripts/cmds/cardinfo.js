@@ -43,7 +43,7 @@ module.exports = {
     }
   },
 
-  run: async function ({ api, event, args, Users }) {
+  onStart: async function ({ api, event, args, Users }) {
     const { loadImage, createCanvas } = require("canvas");
     const request = require('request');
     const fs = global.nodemodule["fs-extra"];
