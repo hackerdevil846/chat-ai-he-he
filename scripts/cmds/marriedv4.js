@@ -36,7 +36,7 @@ module.exports = {
         if (!existsSync(path)) await downloadFile("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", path);
     },
 
-    run: async function({ event, api, args, Users }) {
+    onStart: async function({ event, api, args, Users }) {
         const fs = global.nodemodule["fs-extra"];
         const path = global.nodemodule["path"];
         const { threadID, messageID, senderID } = event;
