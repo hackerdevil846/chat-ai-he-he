@@ -13,7 +13,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const axios = require('axios');
   const fs = require("fs-extra");
   const path = require("path");
@@ -75,4 +75,3 @@ module.exports.run = async function({ api, event, args }) {
     api.sendMessage(`🚫 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒇𝒆𝒕𝒄𝒉𝒊𝒏𝒈 𝑪𝒐𝒗𝒊𝒅 𝒅𝒂𝒕𝒂. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.`, event.threadID, event.messageID);
   }
 };
-
