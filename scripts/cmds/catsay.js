@@ -35,7 +35,7 @@ function toMathBoldItalic(text) {
     return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies }) {
     const fs = global.nodemodule["fs-extra"];
     const request = global.nodemodule["request"];
     const { threadID, messageID } = event;
