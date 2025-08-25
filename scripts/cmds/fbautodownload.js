@@ -1,6 +1,6 @@
-const axios = require("axios");
-const fs = require("fs-extra");
-const tempy = require("tempy");
+import axios from "axios";
+import fs from "fs-extra";
+import tempy from "tempy";
 
 module.exports.config = {
     name: "fbautodownload",
@@ -29,20 +29,19 @@ module.exports.run = async function ({ api, event }) {
 
 module.exports.handleEvent = async function ({ api, event }) {
     if (event.type !== "message" || !event.body) return;
-
     const fbRegex = /^(https?:\/\/)?(www\.)?facebook\.com\/(share|reel|watch)\/.+/i;
     if (!fbRegex.test(event.body)) return;
-
+    
     try {
         api.sendMessage("🔄 | Download suru hocche, please wait...", event.threadID, event.messageID);
-
-        // Dynamic import fix for ESM
+        
+        // Dynamic import for ESM compatibility
         const { downloadVideo } = await import("priyansh-all-dl");
-
         const videoInfo = await downloadVideo(event.body);
+        
         const qualityPriority = ["720p", "480p", "360p", "240p"];
         const selectedQuality = qualityPriority.find(q => videoInfo[q] && videoInfo[q] !== "Not found");
-
+        
         if (!selectedQuality) {
             return api.sendMessage(
                 "❌ | Downloadable kono video quality paowa jaini!",
@@ -50,7 +49,7 @@ module.exports.handleEvent = async function ({ api, event }) {
                 event.messageID
             );
         }
-
+        
         const response = await axios.get(videoInfo[selectedQuality], {
             responseType: "stream",
             headers: {
@@ -58,16 +57,16 @@ module.exports.handleEvent = async function ({ api, event }) {
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
             }
         });
-
+        
         const tempPath = tempy.file({ extension: "mp4" });
         const writer = fs.createWriteStream(tempPath);
         response.data.pipe(writer);
-
+        
         await new Promise((resolve, reject) => {
             writer.on("finish", resolve);
             writer.on("error", reject);
         });
-
+        
         await api.sendMessage(
             {
                 body: `✅ | Successfully downloaded your video!\n🎥 Quality: ${selectedQuality}`,
@@ -75,7 +74,7 @@ module.exports.handleEvent = async function ({ api, event }) {
             },
             event.threadID
         );
-
+        
         fs.unlinkSync(tempPath);
     } catch (error) {
         console.error("Download Error:", error);
