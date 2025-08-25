@@ -13,14 +13,13 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const axios = global.nodemodule['axios'];  
     const fs = global.nodemodule["fs-extra"];
     
     if (!event.attachments || !event.attachments[0] || !event.attachments[0].playableUrl) {
         return api.sendMessage("❌ 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒗𝒊𝒅𝒆𝒐 𝒂𝒕𝒕𝒂𝒄𝒉 𝒌𝒐𝒓𝒆𝒏 𝒏𝒂𝒊! 𝑨𝒓 𝒌𝒐𝒏𝒐 𝒇𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒗𝒊𝒅𝒆𝒐 𝒂𝒕𝒕𝒂𝒄𝒉 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
     }
-
     try { 
         const downloadType = args[0]?.toLowerCase();
         
