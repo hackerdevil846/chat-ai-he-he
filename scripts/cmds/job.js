@@ -177,7 +177,7 @@ module.exports.handleReply = async function({ event, api, handleReply, Currencie
   }
 };
 
-module.exports.run = async function({ event, api, Currencies, getText }) {
+module.exports.onStart = async function({ event, api, Currencies, getText }) {
   const { threadID, senderID } = event;
   const cooldownTime = this.config.envConfig.cooldownTime;
   
