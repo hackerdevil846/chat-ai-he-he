@@ -33,17 +33,15 @@ module.exports.onLoad = function () {
   try {
     if (!fs.existsSync(cacheDir)) fs.mkdirsSync(cacheDir);
   } catch (e) {
-    // If creating cache fails, we can't do much; log error.
     console.error("Failed to create cache directory:", e);
   }
 };
 
-module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
   const axios = global.nodemodule["axios"];
   const fs = global.nodemodule["fs-extra"];
   const path = require("path");
 
-  // Preserve original links exactly as provided (no changes)
   const links = [
 "https://i.imgur.com/fwUBSqv.jpg",
 "https://i.imgur.com/Yj6ZHiL.jpg",
@@ -232,27 +230,21 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
 "https://i.imgur.com/FhC4jXa.jpg",
      ];
 
-  // Choose a random link
   const randomIndex = Math.floor(Math.random() * links.length);
   const randomLink = links[randomIndex];
 
   const outPath = path.join(__dirname, "cache", "cosplay.jpg");
 
   try {
-    // Informational message (silent in chat clients that don't support edits; used for logging)
     console.log(`Downloading image (${randomIndex + 1}/${links.length}): ${randomLink}`);
 
-    // Download image
     const res = await axios.get(randomLink, { responseType: "arraybuffer", timeout: 20000 });
 
-    // Ensure cache directory exists
     const cacheDir = path.join(__dirname, "cache");
     if (!fs.existsSync(cacheDir)) fs.mkdirsSync(cacheDir);
 
-    // Write file
     fs.writeFileSync(outPath, Buffer.from(res.data, "binary"));
 
-    // Prepare nicely formatted message body
     const body = [
       `🌸 𝑪𝒐𝒔𝒑𝒍𝒂𝒚 𝑷𝒉𝒐𝒕𝒐 🌸`,
       `━━━━━━━━━━━━━━━━━━━━`,
@@ -264,12 +256,10 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
       `━━━━━━━━━━━━━━━━━━━━`
     ].join("\n");
 
-    // Send message with attachment
     api.sendMessage({
       body: body,
       attachment: fs.createReadStream(outPath)
     }, event.threadID, (err, info) => {
-      // Callback after send
       try {
         if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
       } catch (e) {
@@ -284,14 +274,12 @@ module.exports.run = async function ({ api, event, args, Users, Threads, Currenc
 
   } catch (error) {
     console.error("Error in japan command:", error);
-    // Attempt to remove file if it exists
     try {
       if (fs.existsSync(outPath)) fs.unlinkSync(outPath);
     } catch (e) {
       console.error("Cleanup after error failed:", e);
     }
 
-    // Send localized error message (use bn if thread language is bn; otherwise en)
     const lang = (global && global.data && global.data.threadData && global.data.threadData[event.threadID] && global.data.threadData[event.threadID].language) ? global.data.threadData[event.threadID].language : "en";
     const errMsg = (module.exports.languages[lang] && module.exports.languages[lang].err) ? module.exports.languages[lang].err : module.exports.languages["en"].err;
 
