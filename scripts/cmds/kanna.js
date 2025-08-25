@@ -27,7 +27,7 @@ module.exports.onLoad = function() {
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir);
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
     try {
         // Get random Kanna image data
         const response = await axios.get('https://apikanna.khoahoang2.repl.co');
