@@ -48,7 +48,7 @@ module.exports.onLoad = async function () {
 	}
 };
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.onStart = async function ({ event, api, args }) {
 	const { threadID, messageID, senderID, mentions } = event;
 
 	// যদি mention না করে
