@@ -34,7 +34,7 @@ module.exports.onLoad = function () {
 	console.log("[✅] Fun Meme command loaded successfully!");
 };
 
-module.exports.run = async function ({ event, api, getText }) {
+module.exports.onStart = async function ({ event, api, getText }) {
 	const { threadID, messageID, senderID } = event;
 	const mentions = Object.keys(event.mentions);
 	const targetID = mentions[0] || senderID;
