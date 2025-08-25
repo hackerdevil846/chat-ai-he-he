@@ -83,7 +83,7 @@ module.exports.handleReaction = async function({ api, event, handleReaction, Use
 	}
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies, permssion, getText }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies, permssion, getText }) {
 	const { threadID, messageID, senderID } = event;
 	const { existsSync, writeFileSync } = global.nodemodule["fs-extra"];
 	const path = __dirname + "/cache/giveaways.json";
@@ -100,7 +100,7 @@ module.exports.run = async function({ api, event, args, Users, Threads, Currenci
 	switch (args[0]) {
 		case "create": {
 			const reward = args.slice(1).join(" ");
-			if (!reward) return api.sendMessage(getText("missingReward"), threadID, messageID);
+			if (!reward) return api.sendMessage(getLang("missingReward"), threadID, messageID);
 
 			const giveawayID = Math.floor(10000 + Math.random() * 90000);
 			const userInfo = await Users.getInfo(senderID);
@@ -140,19 +140,19 @@ module.exports.run = async function({ api, event, args, Users, Threads, Currenci
 				ID: giveawayID.toString()
 			});
 
-			return api.sendMessage(getText("createSuccess"), threadID, messageID);
+			return api.sendMessage(getLang("createSuccess"), threadID, messageID);
 		}
 
 		case "details": {
-			if (!args[1]) return api.sendMessage(getText("missingID"), threadID, messageID);
+			if (!args[1]) return api.sendMessage(getLang("missingID"), threadID, messageID);
 			
 			const giveawayID = args[1].replace("#", "");
 			const data = global.data.GiveAway.get(giveawayID);
 			
-			if (!data) return api.sendMessage(getText("notFound"), threadID, messageID);
+			if (!data) return api.sendMessage(getLang("notFound"), threadID, messageID);
 
 			return api.sendMessage({
-				body: `📊====== ${getText("detailsTitle")} ======📊\n` +
+				body: `📊====== ${getLang("detailsTitle")} ======📊\n` +
 					`👤 Creator: ${data.author}\n` +
 					`🎁 Reward: ${data.reward}\n` +
 					`🆔 ID: #${data.ID}\n` +
@@ -163,31 +163,31 @@ module.exports.run = async function({ api, event, args, Users, Threads, Currenci
 		}
 
 		case "join": {
-			if (!args[1]) return api.sendMessage(getText("missingID"), threadID, messageID);
+			if (!args[1]) return api.sendMessage(getLang("missingID"), threadID, messageID);
 			
 			const giveawayID = args[1].replace("#", "");
 			const data = global.data.GiveAway.get(giveawayID);
 			
-			if (!data) return api.sendMessage(getText("notFound"), threadID, messageID);
-			if (data.joined.includes(senderID)) return api.sendMessage(getText("alreadyJoined"), threadID, messageID);
+			if (!data) return api.sendMessage(getLang("notFound"), threadID, messageID);
+			if (data.joined.includes(senderID)) return api.sendMessage(getLang("alreadyJoined"), threadID, messageID);
 
 			data.joined.push(senderID);
 			global.data.GiveAway.set(giveawayID, data);
 			saveData();
 
 			const userInfo = await Users.getInfo(senderID);
-			return api.sendMessage(`✅ ${userInfo.name} ${getText("joinSuccess")}`, threadID);
+			return api.sendMessage(`✅ ${userInfo.name} ${getLang("joinSuccess")}`, threadID);
 		}
 
 		case "roll": {
-			if (!args[1]) return api.sendMessage(getText("missingID"), threadID, messageID);
+			if (!args[1]) return api.sendMessage(getLang("missingID"), threadID, messageID);
 			
 			const giveawayID = args[1].replace("#", "");
 			const data = global.data.GiveAway.get(giveawayID);
 			
-			if (!data) return api.sendMessage(getText("notFound"), threadID, messageID);
-			if (data.authorID !== senderID) return api.sendMessage(getText("notOwner"), threadID, messageID);
-			if (data.joined.length === 0) return api.sendMessage(getText("noParticipants"), threadID, messageID);
+			if (!data) return api.sendMessage(getLang("notFound"), threadID, messageID);
+			if (data.authorID !== senderID) return api.sendMessage(getLang("notOwner"), threadID, messageID);
+			if (data.joined.length === 0) return api.sendMessage(getLang("noParticipants"), threadID, messageID);
 
 			const winnerID = data.joined[Math.floor(Math.random() * data.joined.length)];
 			const userInfo = await Users.getInfo(winnerID);
@@ -205,13 +205,13 @@ module.exports.run = async function({ api, event, args, Users, Threads, Currenci
 		}
 
 		case "end": {
-			if (!args[1]) return api.sendMessage(getText("missingID"), threadID, messageID);
+			if (!args[1]) return api.sendMessage(getLang("missingID"), threadID, messageID);
 			
 			const giveawayID = args[1].replace("#", "");
 			const data = global.data.GiveAway.get(giveawayID);
 			
-			if (!data) return api.sendMessage(getText("notFound"), threadID, messageID);
-			if (data.authorID !== senderID) return api.sendMessage(getText("notOwner"), threadID, messageID);
+			if (!data) return api.sendMessage(getLang("notFound"), threadID, messageID);
+			if (data.authorID !== senderID) return api.sendMessage(getLang("notOwner"), threadID, messageID);
 
 			data.status = "ended";
 			global.data.GiveAway.set(giveawayID, data);
