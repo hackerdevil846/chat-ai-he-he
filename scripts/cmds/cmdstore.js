@@ -16,7 +16,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const availableCmdsUrl = "https://raw.githubusercontent.com/Mostakim0978/D1PT0/refs/heads/main/availableCmds.json";
 	const cmdUrlsJson = "https://raw.githubusercontent.com/Mostakim0978/D1PT0/refs/heads/main/cmdUrls.json";
 	const ITEMS_PER_PAGE = 10;
@@ -96,8 +96,8 @@ module.exports.handleReply = async function({ event, api, handleReply }) {
 
 	const { cmdName, page } = handleReply;
 	const reply = parseInt(event.body);
-	const startIndex = (page - 1) * ITEMS_PER_PAGE;
-	const endIndex = startIndex + ITEMS_PER_PAGE;
+	const startIndex = (page - 1) * 10;
+	const endIndex = startIndex + 10;
 
 	if (isNaN(reply) || reply < startIndex + 1 || reply > endIndex) {
 		return api.sendMessage(
