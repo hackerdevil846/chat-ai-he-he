@@ -22,7 +22,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, config }) {
+module.exports.onStart = async function({ api, event, args, config }) {
 	try {
 		const { createCanvas, loadImage, registerFont } = require("canvas");
 		const fs = global.nodemodule["fs-extra"];
