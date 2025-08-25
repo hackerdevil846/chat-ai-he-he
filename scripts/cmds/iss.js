@@ -14,7 +14,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
     try {
         request(`http://api.open-notify.org/iss-now.json`, (err, response, body) => {
             if (err) {
