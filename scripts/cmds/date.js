@@ -67,7 +67,7 @@ async function circle(imagePath) {
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.onStart = async function ({ event, api, args }) {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions)[0];
     
