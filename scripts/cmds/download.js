@@ -14,7 +14,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const fs = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
   const rq = global.nodemodule["request"];
@@ -55,4 +55,3 @@ module.exports.run = async function({ api, event, args }) {
     return api.sendMessage("❌ Download failed! Please check the link and try again", event.threadID, event.messageID);
   }
 };
-
