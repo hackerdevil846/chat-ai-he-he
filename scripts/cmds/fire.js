@@ -23,7 +23,7 @@ const toMathBoldItalic = (text) => {
     return text.split('').map(char => boldItalicMap[char] || char).join('');
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads }) {
     const mention = Object.keys(event.mentions)[0];
     if (!mention) return api.sendMessage(`❌ ${toMathBoldItalic("Please tag someone to use this command")}`, event.threadID);
     
