@@ -20,14 +20,14 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, Threads, Users }) {
+module.exports.onStart = async function({ api, event, Threads, Users }) {
     const { threadID, messageID } = event;
 
     try {
         // Fetch thread info
         const threadInfo = await api.getThreadInfo(threadID);
         const adminIDs = threadInfo.adminIDs.map(admin => admin.id);
-        const botID = api.getCurrentUserID(); // Only declare once
+        const botID = api.getCurrentUserID();
 
         // Check if bot is admin
         if (!adminIDs.includes(botID)) {
