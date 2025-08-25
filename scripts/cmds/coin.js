@@ -16,7 +16,7 @@ module.exports.languages = {
         "own_balance": "💰 𝗬𝗢𝗨𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n🪙 | You currently have: %1 coins\n\n💹 | Keep earning more coins through activities!",
         "other_balance": "💰 𝗨𝗦𝗘𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n👤 | User: %1\n🪙 | Balance: %2 coins",
         "no_user": "⚠️ 𝗨𝗦𝗘𝗥 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗\n━━━━━━━━━━━━━━\nPlease mention a valid user to check their balance",
-        "error": "❌ 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗘𝗥𝗥𝗢𝗥\n━━━━━━━━━━━━━━\nFailed to fetch balance. Please try again later.",
+        "error": "❌ 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗘𝗥𝗥𝗢𝗿\n━━━━━━━━━━━━━━\nFailed to fetch balance. Please try again later.",
         "help": "💎 𝗖𝗢𝗜𝗡 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗛𝗘𝗟𝗣\n━━━━━━━━━━━━━━\n\n" +
                 "📌 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗨𝘀𝗮𝗴𝗲:\n" +
                 "• {p}coin - Check your own balance\n" +
@@ -31,24 +31,20 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function() {
-    // This runs when the command is loaded
     console.log("✅ Coin command loaded successfully!");
 };
 
-module.exports.run = async function({ api, event, args, Users, Currencies, getText }) {
+module.exports.onStart = async function({ api, event, args, Users, Currencies, getText }) {
     try {
         const { threadID, messageID, senderID, mentions } = event;
 
-        // Show help if requested
         if (args[0]?.toLowerCase() === "help") {
             return api.sendMessage(getText("help"), threadID, messageID);
         }
 
-        // If no mention, show own balance
         if (args.length === 0 || Object.keys(mentions).length === 0) {
             const userData = await Currencies.getData(senderID);
             const balance = userData.money || 0;
-
             return api.sendMessage(
                 getText("own_balance", balance.toLocaleString()), 
                 threadID,
@@ -56,20 +52,15 @@ module.exports.run = async function({ api, event, args, Users, Currencies, getTe
             );
         }
 
-        // If user is mentioned, get their balance
         const targetID = Object.keys(mentions)[0];
         const targetName = mentions[targetID].replace(/@/g, "");
-
         const targetData = await Currencies.getData(targetID);
 
-        // Handle invalid user
         if (!targetData) {
             return api.sendMessage(getText("no_user"), threadID, messageID);
         }
 
         const targetBalance = targetData.money || 0;
-
-        // Send balance info with mention
         return api.sendMessage(
             {
                 body: getText("other_balance", targetName, targetBalance.toLocaleString()),
