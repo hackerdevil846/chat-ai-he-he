@@ -52,7 +52,7 @@ module.exports.handleEvent = function ({ api, event, getText }) {
 	);
 }
 
-module.exports.run = function({ api, event, args, getText }) {
+module.exports.onStart = function({ api, event, args, getText }) {
 	const { commands } = global.client;
 	const { threadID, messageID } = event;
 	const command = commands.get((args[0] || "").toLowerCase());
