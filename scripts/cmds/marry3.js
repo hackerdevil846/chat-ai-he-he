@@ -30,7 +30,7 @@ module.exports.onLoad = function () {
   // No special setup needed
 };
 
-module.exports.run = async function ({ api, event, args, Users, Threads, message }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads, message }) {
   try {
     const mention = Object.keys(event.mentions);
     if (mention.length === 0) return message.reply(global.getText("noMention"));
