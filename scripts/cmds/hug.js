@@ -29,7 +29,7 @@ module.exports.onLoad = async () => {
     }
 };
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.onStart = async function ({ event, api, args }) {
     const fs = require("fs-extra");
     const path = require("path");
     const axios = require("axios");
