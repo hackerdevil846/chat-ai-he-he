@@ -22,7 +22,7 @@ module.exports.config = {
   envConfig: {}
 };
 
-module.exports.run = async function ({ message, event }) {
+module.exports.onStart = async function ({ message, event }) {
   try {
     const mention = Object.keys(event.mentions);
     if (mention.length === 0) {
