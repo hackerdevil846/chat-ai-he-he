@@ -551,7 +551,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Users, Th
     else if (type == 'commentPost') {
       const { postIDs, isGroup } = handleReply;
 
-      if (!body) return reply('📝 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒄𝒐𝒏𝒕𝒆𝒏𝒕', (e, info) => {
+      if (!body) return reply('📝 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒄𝒐𝒏𝒕𝒆𝒏𝒕', (e, info) => {
         global.client.handleReply.push({
           name: this.config.name,
           messageID: info.messageID,
@@ -632,7 +632,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Users, Th
           })).data;
     		}
     		catch (err) {
-    		  reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒐𝒔𝒕 𝑰𝒟");
+    		  reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒐𝒔𝒕 𝑰𝑫");
           continue;
     		}
 
@@ -672,7 +672,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Users, Th
 
     // --- choiceIdReactionPost & reactionPost ---
     else if (type == 'choiceIdReactionPost') {
-      if (!body) return reply(`🎭 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒑𝒐𝒔𝒕 𝑰𝒟𝒔`, (e, info) => {
+      if (!body) return reply(`🎭 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒑𝒐𝒔𝒕 𝑰𝑫𝒔`, (e, info) => {
         global.client.handleReply.push({
           name: this.config.name,
           messageID: info.messageID,
@@ -848,10 +848,10 @@ module.exports.handleReply = async function({ api, event, handleReply, Users, Th
 };
 
 /**
- * run
+ * onStart
  * Shows the main menu (same content and links preserved).
  */
-module.exports.run = async function({ event, api, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function({ event, api, args, Users, Threads, Currencies }) {
   const { threadID, messageID, senderID } = event;
 
   // Permission check - kept original allowedUID
@@ -877,14 +877,14 @@ module.exports.run = async function({ event, api, args, Users, Threads, Currenci
      + "\n[𝟬𝟵] 𝑼𝒏𝒃𝒍𝒐𝒄𝒌 𝒖𝒔𝒆𝒓𝒔 (𝒎𝒆𝒔𝒔𝒆𝒏𝒈𝒆𝒓)"
      + "\n[𝟭𝟬] 𝑪𝒓𝒆𝒂𝒕𝒆 𝒑𝒐𝒔𝒕"
      + "\n[𝟭𝟭] 𝑫𝒆𝒍𝒆𝒕𝒆 𝒑𝒐𝒔𝒕"
-     + "\n[𝟭𝟮] 𝑪𝒐𝒎𝒎𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒖𝒔𝒆𝒓)"
-     + "\n[𝟭𝟯] 𝑪𝒐𝒎𝒎𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒈𝒓𝒐𝒖𝒑)"
+     + "\n[𝟭𝟮] 𝑪𝒐𝒎𝒚𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒖𝒔𝒆𝒓)"
+     + "\n[𝟭𝟯] 𝑪𝒐𝒎𝒚𝒆𝒏𝒕 𝒐𝒏 𝒑𝒐𝒔𝒕 (𝒈𝒓𝒐𝒖𝒑)"
      + "\n[𝟭𝟰] 𝑹𝒆𝒂𝒄𝒕 𝒕𝒐 𝒑𝒐𝒔𝒕"
-     + "\n[𝟭𝟓] 𝑺𝒆𝒏𝒅 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
-     + "\n[𝟭𝟔] 𝑨𝒄𝒄𝒆𝒑𝒕 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
-     + "\n[𝟭𝟕] 𝑫𝒆𝒄𝒍𝒊𝒏𝒆 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
-     + "\n[𝟭𝟴] 𝑹𝒆𝒎𝒐𝒗𝒆 𝒇𝒓𝒊𝒆𝒏𝒅𝒔"
-     + "\n[𝟭𝟿] 𝑺𝒆𝒏𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒃𝒚 𝑰𝑫"
+     + "\n[𝟭𝟱] 𝑺𝒆𝒏𝒅 𝒇𝒓𝒊𝒆𝒏𝒅 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
+     + "\n[𝟭𝟲] 𝑨𝒄𝒄𝒆𝒑𝒕 𝒇𝒓𝒊𝒆𝒏𝒑 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
+     + "\n[𝟭𝟳] 𝑫𝒆𝒄𝒍𝒊𝒏𝒆 𝒇𝒓𝒊𝒆𝒏𝒑 𝒓𝒆𝒒𝒖𝒆𝒔𝒕"
+     + "\n[𝟭𝟴] 𝑹𝒆𝒎𝒐𝒗𝒆 𝒇𝒓𝒊𝒆𝒏𝒑𝒔"
+     + "\n[𝟭𝟵] 𝑺𝒆𝒏𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒃𝒚 𝑰𝑫"
      + "\n[𝟮𝟬] 𝑪𝒓𝒆𝒂𝒕𝒆 𝒏𝒐𝒕𝒆"
      + "\n[𝟮𝟭] 𝑳𝒐𝒈 𝒐𝒖𝒕"
      + "\n══════════════════════"
