@@ -2,7 +2,7 @@ import { createWriteStream } from "fs";
 import fsExtra from "fs-extra";
 import axios from "axios";
 import tempy from "tempy";
-import { downloadVideo } from "priyansh-all-dl";
+import igdl from "@sasmeee/igdl";
 
 export const config = {
     name: "igautodownload",
@@ -14,7 +14,7 @@ export const config = {
     usages: "[instagram-link]",
     cooldowns: 5,
     dependencies: {
-        "priyansh-all-dl": "",
+        "@sasmeee/igdl": "",
         "axios": "",
         "fs-extra": "",
         "tempy": ""
@@ -38,14 +38,34 @@ export async function handleEvent({ api, event }) {
     if (!instaMatch) return;
 
     for (const url of instaMatch) {
+        let tempFilePath = null;
         try {
             api.sendMessage("⬇️ | Downloading your video...", event.threadID, event.messageID);
 
-            const videoInfo = await downloadVideo(url);
-            const hdLink = videoInfo.video;
+            let results;
+            try {
+                results = await igdl(url);
+            } catch (libError) {
+                console.error("igdl library failed:", libError);
+                return api.sendMessage(
+                    "⚠️ | Instagram downloader library error. Try again later.",
+                    event.threadID,
+                    event.messageID
+                );
+            }
+
+            if (!results || results.length === 0) {
+                return api.sendMessage(
+                    "❌ | No video found at this link!",
+                    event.threadID,
+                    event.messageID
+                );
+            }
+
+            const hdLink = results[0].url;
 
             const response = await axios.get(hdLink, { responseType: "stream" });
-            const tempFilePath = tempy.file({ extension: "mp4" });
+            tempFilePath = tempy.file({ extension: "mp4" });
 
             const writer = createWriteStream(tempFilePath);
             response.data.pipe(writer);
@@ -62,8 +82,6 @@ export async function handleEvent({ api, event }) {
                 },
                 event.threadID
             );
-
-            fsExtra.unlinkSync(tempFilePath);
         } catch (error) {
             console.error("Error:", error);
             api.sendMessage(
@@ -71,6 +89,14 @@ export async function handleEvent({ api, event }) {
                 event.threadID,
                 event.messageID
             );
+        } finally {
+            if (tempFilePath && fsExtra.existsSync(tempFilePath)) {
+                try {
+                    fsExtra.unlinkSync(tempFilePath);
+                } catch (cleanupError) {
+                    console.error("Cleanup failed:", cleanupError);
+                }
+            }
         }
     }
 }
