@@ -39,7 +39,7 @@ module.exports.onLoad = async function() {
     }
 };
 
-module.exports.run = async function({ event, api, args, Users }) {
+module.exports.onStart = async function({ event, api, args, Users }) {
     try {
         const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
         const { resolve } = global.nodemodule["path"];
