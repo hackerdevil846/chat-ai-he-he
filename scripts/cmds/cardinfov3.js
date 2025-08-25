@@ -45,7 +45,7 @@ function toMathBoldItalic(text) {
 	return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	if (this.config.credits !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
 		return api.sendMessage("⚠️ Credits has been changed!", event.threadID, event.messageID);
 	}
@@ -149,4 +149,3 @@ module.exports.run = async function ({ api, event, args }) {
 		messageID
 	);
 };
-
