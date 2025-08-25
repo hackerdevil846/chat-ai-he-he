@@ -21,7 +21,7 @@ module.exports.onLoad = function() {
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
   try {
     const request = global.nodemodule["request"];
     const fs = global.nodemodule["fs-extra"];
