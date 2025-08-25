@@ -1,14 +1,14 @@
 const axios = require("axios");
 
 module.exports.config = {
-	name: "emojimix", // Command name
-	version: "1.4", // Version
-	hasPermssion: 0, // Permission: 0 = all
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
-	description: "Mix 2 emoji together 🎭", // Description
-	category: "fun", // Category
-	usages: "{pn} <emoji1> <emoji2>\nExample: {pn} 🤣 🥰", // Usage
-	cooldowns: 5, // Cooldown (seconds)
+	name: "emojimix",
+	version: "1.4",
+	hasPermssion: 0,
+	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+	description: "Mix 2 emoji together 🎭",
+	category: "fun",
+	usages: "{pn} <emoji1> <emoji2>\nExample: {pn} 🤣 🥰",
+	cooldowns: 5,
 	dependencies: {
 		"axios": ""
 	}
@@ -35,7 +35,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args, getText }) {
+module.exports.onStart = async function ({ api, event, args, getText }) {
 	const emoji1 = args[0];
 	const emoji2 = args[1];
 	const attachments = [];
