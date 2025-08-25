@@ -3,14 +3,14 @@ const fs = require("fs-extra");
 const axios = require("axios");
 
 module.exports.config = {
-  name: "fluxpro", // Command name
-  version: "2.1", // Module version
-  hasPermssion: 0, // 0 = all users can use
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
+  name: "fluxpro",
+  version: "2.1",
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🎨 Generate high-quality images using Flux.1 Pro AI",
-  category: "IMAGE GENERATOR", // Category
+  category: "IMAGE GENERATOR",
   usages: "[prompt] --style [style_id] --size [dimensions]",
-  cooldowns: 20, // 20s cooldown
+  cooldowns: 20,
   dependencies: {
     axios: "",
     "fs-extra": ""
@@ -31,7 +31,7 @@ module.exports.languages = {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
   const tempPath = __dirname + `/cache/fluxpro_${Date.now()}_${senderID}.jpg`;
 
@@ -47,7 +47,6 @@ module.exports.run = async function ({ api, event, args }) {
   let styleId = 4;
   let size = "1024x1024";
 
-  // Function to extract flags (--style, --size)
   function extractFlag(input, flag) {
     const regex = new RegExp(`--${flag}\\s+(\\S+)`);
     const match = input.match(regex);
@@ -58,19 +57,16 @@ module.exports.run = async function ({ api, event, args }) {
     return { input, value: null };
   }
 
-  // Extract style
   let res = extractFlag(fullInput, "style");
   fullInput = res.input;
   if (res.value && !isNaN(res.value)) styleId = parseInt(res.value);
 
-  // Extract size
   res = extractFlag(fullInput, "size");
   fullInput = res.input;
   if (res.value) size = res.value;
 
   const prompt = fullInput;
 
-  // Size map conversion
   const sizeMap = {
     "1024x1024": "1-1",
     "1024x768": "4-3",
@@ -81,7 +77,6 @@ module.exports.run = async function ({ api, event, args }) {
   const apiSize = sizeMap[size] || "1-1";
 
   try {
-    // Send processing message
     const processingMsg = await api.sendMessage(
       module.exports.languages.en.generating(prompt),
       threadID,
@@ -90,7 +85,6 @@ module.exports.run = async function ({ api, event, args }) {
 
     api.setMessageReaction("⏳", messageID, () => {}, true);
 
-    // Request payload
     const postData = JSON.stringify({
       prompt: prompt,
       style_id: styleId,
@@ -112,7 +106,6 @@ module.exports.run = async function ({ api, event, args }) {
 
     const startTime = Date.now();
 
-    // Get image URL
     const imageUrl = await new Promise((resolve, reject) => {
       const req = https.request(options, (res) => {
         let data = "";
@@ -140,7 +133,6 @@ module.exports.run = async function ({ api, event, args }) {
       req.end();
     });
 
-    // Download image
     const imageResponse = await axios.get(imageUrl, {
       responseType: "arraybuffer",
       timeout: 60000
@@ -150,7 +142,6 @@ module.exports.run = async function ({ api, event, args }) {
 
     const generationTime = ((Date.now() - startTime) / 1000).toFixed(1);
 
-    // Send final result
     await api.sendMessage(
       {
         body: module.exports.languages.en.success(prompt, styleId, size, generationTime),
