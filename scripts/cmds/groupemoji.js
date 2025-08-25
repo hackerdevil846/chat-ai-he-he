@@ -10,7 +10,7 @@ module.exports.config = {
 	dependencies: {} 
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	try {
 		const emoji = args.join(" ");
 		
