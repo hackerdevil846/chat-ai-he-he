@@ -22,7 +22,7 @@ module.exports.config = {
   cooldowns: 5
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const songName = args.join(" ").trim();
   if (!songName) {
     return api.sendMessage("🎵 𝑮𝒂𝒏𝒆𝒓 𝒆𝒓 𝒏𝒂𝒎 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏!\nউদাহরণ: lyrics Tum Hi Ho", event.threadID, event.messageID);
@@ -35,7 +35,7 @@ module.exports.run = async function({ api, event, args }) {
   api.sendMessage(`🔍 \"${songName}\" 𝒆𝒓 𝒍𝒚𝒓𝒊𝒄𝒔 𝒌𝒉𝒖𝒏𝒄𝒉𝒊... ⏳`, event.threadID, event.messageID);
 
   // Helpers
-    const sendResult = async ({ title, artist, lyrics }) => {
+  const sendResult = async ({ title, artist, lyrics }) => {
     const header = [
       "━━━━━━━━━━━━━━━",
       "🎶 𝐋𝐲𝐫𝐢𝐜𝐬 𝐅𝐢𝐧𝐝𝐞𝐫",
@@ -90,7 +90,7 @@ module.exports.run = async function({ api, event, args }) {
     const artist = (song.artist && song.artist.name) ? song.artist.name : 'Unknown';
     const image = song.thumbnail || (song.raw && (song.raw.song_art_image_url || song.raw.header_image_url)) || null;
 
-        return await sendResult({ title, artist, lyrics });
+    return await sendResult({ title, artist, lyrics });
   } catch (e) {
     // Final error
     return api.sendMessage(
@@ -100,5 +100,3 @@ module.exports.run = async function({ api, event, args }) {
     );
   }
 };
-
-
