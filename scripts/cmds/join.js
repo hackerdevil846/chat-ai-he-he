@@ -54,7 +54,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Threads }
     }
 };
 
-module.exports.run = async function({ api, event, Threads }) {
+module.exports.onStart = async function({ api, event, Threads }) {
     const { threadID, messageID, senderID } = event;
     let msg = `🎯 𝗔𝗩𝗔𝗜𝗟𝗔𝗕𝗟𝗘 𝗚𝗥𝗢𝗨𝗣𝗦 𝗟𝗜𝗦𝗧\n\n`;
     const ID = [];
