@@ -17,7 +17,7 @@ module.exports.onLoad = function () {
   // No special loading needed for this command
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   try {
     const { threadID, messageID, mentions } = event;
 
