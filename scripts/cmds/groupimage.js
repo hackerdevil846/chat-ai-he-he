@@ -26,7 +26,9 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function({ api, event, languages }) {
+module.exports.onStart = async function({ api, event, getText }) {
+	const languages = this.languages.en;
+	
 	if (event.type !== "message_reply") {
 		return api.sendMessage(languages.noReply, event.threadID, event.messageID);
 	}
