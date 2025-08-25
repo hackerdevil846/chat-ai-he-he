@@ -22,7 +22,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.onStart = async function ({ api, event, args, Users }) {
   try {
     const targetID = Object.keys(event.mentions)[0] || event.senderID;
     const targetName = await Users.getNameUser(targetID);
