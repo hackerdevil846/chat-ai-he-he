@@ -105,7 +105,7 @@ function _getLang(moduleLangs, eventLang, key, ...params) {
   return str;
 }
 
-module.exports.run = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
+module.exports.onStart = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
   const threadID = event.threadID || event.message?.threadID;
   const threadData = await _getThreadData(Threads, threadID);
   threadData.data = threadData.data || {};
