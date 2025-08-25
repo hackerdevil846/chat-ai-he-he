@@ -9,7 +9,7 @@ module.exports.config = {
 	cooldowns: 0
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     try {
         if (args[0] == "all") {
             const threadList = await api.getThreadList(1000, null, ["INBOX"]);
