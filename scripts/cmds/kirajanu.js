@@ -65,7 +65,7 @@ module.exports.handleEvent = async function({ api, event }) {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { threadID, messageID } = event;
     const { DEEPSEEK_API_KEY } = global.configModule.kirajanu;
 
