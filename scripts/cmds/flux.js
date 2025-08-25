@@ -17,7 +17,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	const apiUrl = "https://www.noobs-api.rf.gd/dipto/flux";
 	const { maxPromptLength } = module.exports.config.envConfig;
 	
