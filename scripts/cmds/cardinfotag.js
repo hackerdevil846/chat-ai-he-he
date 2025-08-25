@@ -31,7 +31,7 @@ module.exports.circle = async (image) => {
   return await image.getBufferAsync("image/png");
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.onStart = async function ({ api, event, args, Users }) {
   if ((this.config.credits) !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
     return api.sendMessage(
       `⚠️ Credits change kora hoyeche!\nAbar change korle ami block korbo!`,
