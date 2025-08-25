@@ -17,7 +17,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	try {
 		const bdTime = moment.tz("Asia/Dhaka");
 		const date = bdTime.format("DD MMMM YYYY");
@@ -42,12 +42,8 @@ module.exports.run = async function ({ api, event, args }) {
 		
 🇧🇩 𝗦𝗛𝗢𝗡𝗔𝗥 𝗕𝗔𝗡𝗚𝗟𝗔 𝗗𝗘𝗦𝗛 𝗧𝗜𝗠𝗘 🇧🇩`;
 
-		// You can add an optional image attachment here if you want
-		// const attachment = await global.utils.getStreamFromURL("image-url");
-		
 		return api.sendMessage({
 			body: response,
-			// attachment: attachment // uncomment if you want to send an image
 		}, event.threadID, event.messageID);
 	} 
 	catch (error) {
@@ -57,9 +53,8 @@ module.exports.run = async function ({ api, event, args }) {
 };
 
 module.exports.handleEvent = async function ({ event, api }) {
-	// Auto-response to keywords
 	const lowerBody = event.body.toLowerCase();
 	if (lowerBody.includes("time") && lowerBody.includes("bd")) {
-		this.run({ api, event, args: [] });
+		this.onStart({ api, event, args: [] });
 	}
 };
