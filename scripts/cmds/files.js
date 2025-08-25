@@ -69,7 +69,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const fs = require("fs-extra");
     let files = fs.readdirSync(__dirname + "/");
     let message = "";
