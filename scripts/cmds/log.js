@@ -20,11 +20,11 @@ module.exports.onLoad = async function () {
 };
 
 /**
- * Main run function
+ * Main onStart function
  * Receives the Threads controller if the bot framework passes it.
  * If not passed, it will attempt to fall back to common global locations safely.
  */
-module.exports.run = async function ({ api, event, args, models, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function ({ api, event, args, models, Users, Threads, Currencies, permssion }) {
   const { threadID, messageID } = event;
 
   // Safe resolution of Threads controller (accept passed Threads or fallback)
