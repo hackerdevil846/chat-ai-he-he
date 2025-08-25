@@ -30,7 +30,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
     try {
         const mentions = Object.keys(event.mentions);
         let uid;
