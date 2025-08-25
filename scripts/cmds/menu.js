@@ -129,8 +129,8 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
     }
 };
 
-// Main run function
-module.exports.run = async function ({ api, event, args }) {
+// Main start function
+module.exports.onStart = async function ({ api, event, args }) {
     const { commands } = global.client;
     const { threadID, messageID } = event;
     const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
