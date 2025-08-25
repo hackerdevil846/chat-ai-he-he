@@ -14,9 +14,9 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+// Add onStart function
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
-
   if (!args[0]) {
     api.sendMessage(`🎨 | 𝑨𝒑𝒏𝒊 𝒄𝒐𝒏𝒕𝒊𝒏𝒖𝒆 𝒌𝒐𝒓𝒕𝒆 𝒄𝒂𝒊𝒔𝒐𝒏? 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒊𝒋𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝑯𝒂𝒏`, threadID, (err, info) => {
       global.client.handleReply.push({
@@ -38,9 +38,7 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
   const info = await api.getUserInfo(senderID);
   const nameSender = info[senderID].name;
   const arraytag = [{ id: senderID, tag: nameSender }];
-
   if (handleReply.author !== senderID) return;
-
   switch (handleReply.type) {
     case "characters": {
       api.unsendMessage(handleReply.messageID);
@@ -55,7 +53,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "subname": {
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`✅ | 𝑨𝒑𝒏𝒊 𝒆𝒓 𝒑𝒓𝒊𝒎𝒂𝒓𝒚 𝒏𝒂𝒎𝒆: ${body}\n📛 | 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒊𝒋𝒆𝒓 𝒔𝒆𝒄𝒐𝒏𝒅𝒂𝒓𝒚 𝒏𝒂𝒎𝒆 𝒍𝒊𝒌𝒉𝒂𝒏`, threadID, (err, info) => {
@@ -70,7 +67,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "number": {
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`✅ | 𝑨𝒑𝒏𝒊 𝒆𝒓 𝒔𝒆𝒄𝒐𝒏𝒅𝒂𝒓𝒚 𝒏𝒂𝒎𝒆: ${body}\n📞 | 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒊𝒋𝒆𝒓 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒍𝒊𝒌𝒉𝒂𝒏`, threadID, (err, info) => {
@@ -86,7 +82,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "address": {
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`✅ | 𝑨𝒑𝒏𝒊 𝒆𝒓 𝒑𝒉𝒐𝒏𝒆 𝒏𝒖𝒎𝒃𝒆𝒓: ${body}\n🏠 | 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒊𝒋𝒆𝒓 𝒂𝒅𝒅𝒓𝒆𝒔𝒔 𝒍𝒊𝒌𝒉𝒂𝒏`, threadID, (err, info) => {
@@ -103,7 +98,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "email": {
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`✅ | 𝑨𝒑𝒏𝒊 𝒆𝒓 𝒂𝒅𝒅𝒓𝒆𝒔𝒔: ${body}\n📧 | 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒏𝒊𝒋𝒆𝒓 𝒆𝒎𝒂𝒊𝒍 𝒍𝒊𝒌𝒉𝒂𝒏`, threadID, (err, info) => {
@@ -121,7 +115,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "color": {
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`✅ | 𝑨𝒑𝒏𝒊 𝒆𝒓 𝒆𝒎𝒂𝒊𝒍: ${body}\n🎨 | 𝑹𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒆 𝒃𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝒄𝒐𝒍𝒐𝒓 𝒆𝒓 𝒏𝒂𝒎 𝒍𝒊𝒌𝒉𝒂𝒏 - 𝑱𝒐𝒅𝒊 𝒏𝒂 𝒄𝒉𝒂𝒊𝒍𝒆 "𝒏𝒐" 𝒍𝒊𝒌𝒉𝒂𝒏`, threadID, (err, info) => {
@@ -140,12 +133,10 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
       }, messageID);
       break;
     }
-
     case "create": {
       const { characters, name_s, subname, number, address, email } = handleReply;
       const color = body;
       const uid = senderID;
-
       api.unsendMessage(handleReply.messageID);
       api.sendMessage(`🔄 | 𝑰𝒏𝒊𝒕𝒊𝒂𝒍𝒊𝒛𝒊𝒏𝒈...`, threadID, (err, info) => {
         setTimeout(() => {
@@ -155,7 +146,6 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
             mentions: arraytag,
             attachment: fs.createReadStream(__dirname + "/cache/fbcover.png")
           }, threadID, () => fs.unlinkSync(__dirname + "/cache/fbcover.png"), messageID);
-
           request(encodeURI(`https://api.phamvandien.xyz/fbcover/v1?name=${name_s}&uid=${uid}&address=${address}&email=${email}&subname=${subname}&sdt=${number}&color=${color}&apikey=KeyTest`))
             .pipe(fs.createWriteStream(__dirname + '/cache/fbcover.png'))
             .on('close', () => callback());
