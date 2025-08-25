@@ -79,11 +79,11 @@ function makeGetLang(providedGetLang, threadDataLang) {
 }
 
 /**
- * MAIN run function. Flexible parameters to support different GoatBot variants.
+ * MAIN onStart function. Flexible parameters to support different GoatBot variants.
  * Accepts an object which may contain:
  *  - api, event, args, message, threadsData, Threads, getLang, commandName
  */
-module.exports.run = async function (params) {
+module.exports.onStart = async function (params) {
 	// Flexible extraction
 	const api = params.api;
 	const event = params.event || {};
