@@ -91,7 +91,7 @@ module.exports.handleReply = async function({ api, event, handleReply, getText }
   }
 };
 
-module.exports.run = async function({ api, event, args, getText }) {
+module.exports.onStart = async function({ api, event, args, getText }) {
   const { threadID, senderID } = event;
 
   try {
