@@ -14,13 +14,14 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const { loadImage, createCanvas } = require("canvas");
   const fs = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
   
   let pathImg = __dirname + '/cache/mbbank.png';
   let text = args.join(" ");
+  const { threadID, messageID } = event;
   
   if (!text) return api.sendMessage("💸 | 𝑴𝒃𝒃𝒂𝒏𝒌 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏!", threadID, messageID);
   
