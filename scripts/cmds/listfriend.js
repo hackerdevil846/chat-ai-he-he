@@ -45,7 +45,7 @@ module.exports.handleReply = async function({ api, event, handleReply, Users, Th
 	);
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads }) {
 	const { threadID, messageID, senderID } = event;
 	try {
 		const listFriend = (await api.getFriendsList()).map(friend => ({
