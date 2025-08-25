@@ -33,7 +33,7 @@ module.exports.onLoad = async function() {
     if (!existsSync(path)) await downloadFile("https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg", path);
 }
 
-module.exports.run = async function({ event, api, args, Users }) {
+module.exports.onStart = async function({ event, api, args, Users }) {
     const { threadID, messageID, senderID } = event;
     const { readFileSync, unlinkSync, writeFileSync } = global.nodemodule["fs-extra"];
     const { resolve } = global.nodemodule["path"];
