@@ -12,7 +12,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, envConfig }) {
+module.exports.onStart = async function({ api, event, envConfig }) {
 	try {
 		api.sendMessage("🔒 | 𝑩𝒐𝒕 𝒊𝒔 𝒍𝒐𝒈𝒈𝒊𝒏𝒈 𝒐𝒖𝒕...\n\n🔄 𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕 𝒎𝒐𝒎𝒆𝒏𝒕𝒊𝒍𝒚...", event.threadID, event.messageID);
 		
