@@ -27,7 +27,7 @@ module.exports.circle = async (image) => {
   return await image.getBufferAsync("image/png");
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
   if (this.config.credits !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
     return api.sendMessage(`⚠️ 𝗗𝗲𝘁𝗲𝗰𝘁𝗲𝗱 𝗰𝗿𝗲𝗱𝗶𝘁𝘀 𝗰𝗵𝗮𝗻𝗴𝗲! 𝗣𝗹𝗲𝗮𝘀𝗲 𝘂𝘀𝗲 𝗼𝗿𝗶𝗴𝗶𝗻𝗮𝗹 𝗰𝗼𝗺𝗺𝗮𝗻𝗱.`, event.threadID, event.messageID);
   }
@@ -128,11 +128,10 @@ module.exports.run = async function({ api, event, args, Users }) {
     return api.sendMessage({
       body: "✅ 𝗨𝘀𝗲𝗿 𝗶𝗻𝗳𝗼 𝗰𝗮𝗿𝗱 𝗴𝗲𝗻𝗲𝗿𝗮𝘁𝗲𝗱 𝘀𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆!",
       attachment: fs.createReadStream(pathImg)
-    }, threadID, () => fs.unlinkSync(pathImg), messageID);
+    }, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
 
   } catch (error) {
     console.error(error);
-    return api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗶𝗺𝗮𝗴𝗲", threadID, messageID);
+    return api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗶𝗺𝗮𝗴𝗲", event.threadID, event.messageID);
   }
 };
-
