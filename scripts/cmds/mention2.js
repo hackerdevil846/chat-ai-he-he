@@ -48,4 +48,4 @@ module.exports.handleEvent = function({ api, event }) {
   }
 };
 
-module.exports.run = function() {};
+module.exports.onStart = function() {};
