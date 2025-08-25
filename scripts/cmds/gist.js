@@ -38,7 +38,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	const { threadID, messageID, messageReply } = event;
 	const lang = module.exports.languages["en"];
 
