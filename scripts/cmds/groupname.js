@@ -10,7 +10,7 @@ module.exports.config = {
 	dependencies: {}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	try {
 		const { threadID, messageID, senderID } = event;
 		const newName = args.join(" ");
@@ -18,11 +18,9 @@ module.exports.run = async function({ api, event, args }) {
 		if (!newName) {
 			return api.sendMessage(`🎯 | 𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐧𝐞𝐰 𝐧𝐚𝐦𝐞 𝐟𝐨𝐫 𝐭𝐡𝐞 𝐠𝐫𝐨𝐮𝐩!\n💡 | 𝐔𝐬𝐚𝐠𝐞: 𝐠𝐫𝐨𝐮𝐩𝐧𝐚𝐦𝐞 [𝐧𝐞𝐰 𝐧𝐚𝐦𝐞]`, threadID, messageID);
 		}
-
 		if (newName.length > 200) {
 			return api.sendMessage("❌ | 𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐜𝐚𝐧𝐧𝐨𝐭 𝐞𝐱𝐜𝐞𝐞𝐝 𝟐𝟎𝟎 𝐜𝐡𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐬!", threadID, messageID);
 		}
-
 		await api.setTitle(newName, threadID);
 		
 		return api.sendMessage({
@@ -32,7 +30,6 @@ module.exports.run = async function({ api, event, args }) {
 				id: senderID
 			}]
 		}, threadID, messageID);
-
 	} catch (error) {
 		console.error("Group Name Error:", error);
 		return api.sendMessage(`❌ | 𝐄𝐫𝐫𝐨𝐫 𝐜𝐡𝐚𝐧𝐠𝐢𝐧𝐠 𝐠𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞!\n🔧 | 𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐬𝐮𝐫𝐞 𝐈 𝐡𝐚𝐯𝐞 𝐚𝐝𝐦𝐢𝐧 𝐩𝐞𝐫𝐦𝐢𝐬𝐬𝐢𝐨𝐧 𝐚𝐧𝐝 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧!`, event.threadID, event.messageID);
