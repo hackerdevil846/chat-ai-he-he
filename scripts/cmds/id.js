@@ -14,7 +14,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
 	const { threadID, messageID, type, messageReply, mentions } = event;
 	const fs = global.nodemodule["fs-extra"];
 	const request = global.nodemodule["request"];
