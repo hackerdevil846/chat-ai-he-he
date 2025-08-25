@@ -29,7 +29,7 @@ module.exports.onLoad = function () {
 	// Runs when the command is loaded
 };
 
-module.exports.run = async function({ api, event, args, Currencies, getText }) {
+module.exports.onStart = async function({ api, event, args, Currencies, getText }) {
 	const axios = global.nodemodule["axios"];
 	const request = global.nodemodule["request"];
 	const fs = global.nodemodule["fs-extra"];
