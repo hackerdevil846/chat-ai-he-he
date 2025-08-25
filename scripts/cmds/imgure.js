@@ -14,7 +14,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
 	try {
 		const link = event.messageReply?.attachments[0]?.url || event.attachments[0]?.url;
 		
