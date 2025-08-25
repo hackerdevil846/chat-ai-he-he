@@ -1,8 +1,8 @@
 // customrankcard.js
-const { createCanvas, loadImage } = global.nodemodule['canvas'];
-const fs = global.nodemodule['fs-extra'];
-const path = global.nodemodule['path'];
-const os = global.nodemodule['os'];
+const { createCanvas, loadImage } = require('canvas');
+const fs = require('fs-extra');
+const path = require('path');
+const os = require('os');
 const { uploadImgbb } = global.utils || {};
 
 const checkUrlRegex = /https?:\/\/.*\.(?:png|jpg|jpeg|gif)/gi;
@@ -70,7 +70,6 @@ module.exports.languages = {
   }
 };
 
-// Provide onStart in case loader expects it (avoid "onStart of command undefined" error)
 module.exports.onStart = function () {
   // Nothing needed here for now — placeholder to satisfy loader.
 };
