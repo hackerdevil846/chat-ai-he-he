@@ -20,9 +20,9 @@ module.exports.languages = {
 	"en": {
 		"error": "❌ Sorry, couldn't fetch jokes at the moment. Please try again later."
 	}
-}
+};
 
-module.exports.run = async function ({ api, event, getText }) {
+module.exports.onStart = async function ({ api, event, getText }) {
 	try {
 		const response = await axios.get("https://official-joke-api.appspot.com/random_joke");
 		const { setup, punchline } = response.data;
