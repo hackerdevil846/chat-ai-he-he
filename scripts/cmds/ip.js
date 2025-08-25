@@ -1,16 +1,16 @@
 module.exports.config = {
-	name: "ip",
-	version: "1.0.0", 
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑨𝒑𝒏𝒂𝒓 𝑰𝑷 𝒃𝒂 𝒂𝒏𝒏𝒐 𝑰𝑷 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏", 
-	category: "utility",
-	usages: "[ip address]",
-	cooldowns: 5,
-	dependencies: {"axios": ""}
+  name: "ip",
+  version: "1.0.0", 
+  hasPermssion: 0,
+  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  description: "𝑨𝒑𝒏𝒂𝒓 𝑰𝑷 𝒃𝒂 𝒂𝒏𝒏𝒐 𝑰𝑷 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏", 
+  category: "utility",
+  usages: "[ip address]",
+  cooldowns: 5,
+  dependencies: {"axios": ""}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const axios = require('axios');
   const timeStart = Date.now();
   
