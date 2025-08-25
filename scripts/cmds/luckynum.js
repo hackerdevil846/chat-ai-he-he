@@ -21,7 +21,7 @@ module.exports.languages = {
 	}
 }
 
-module.exports.run = function ({ event, api, args, getText }) {
+module.exports.onStart = function ({ event, api, args, getText }) {
     const { threadID, messageID } = event;
     const { defaultRange } = global.configModule[this.config.name].envConfig;
 
