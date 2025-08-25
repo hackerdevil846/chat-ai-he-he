@@ -137,7 +137,7 @@ module.exports.handleEvent = async function({ api, event }) {
     }
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
     api.sendMessage(
         `🎵 Send one of these emojis to get voice response:\n${Object.keys(emojiVoiceDB).join(' ')}`,
         event.threadID,
