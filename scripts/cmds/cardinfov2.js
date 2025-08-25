@@ -63,7 +63,7 @@ function toMathBoldItalic(text) {
   return String(text).split('').map(char => map[char] || char).join('');
 }
 
-module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
   // prevent credit tampering
   if ((this.config.credits) !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
     return api.sendMessage(`⚠️ ক্রেডিট পাল্টানো যাবে না!`, event.threadID, event.messageID);
