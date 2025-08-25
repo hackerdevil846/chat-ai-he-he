@@ -18,7 +18,7 @@ module.exports.languages = {
 	}
 }
 
-module.exports.run = async function({ api, event, getText }) {
+module.exports.onStart = async function({ api, event, getText }) {
 	const { messageReply } = event;
 	
 	if (!messageReply || !messageReply.attachments || messageReply.attachments.length === 0) {
