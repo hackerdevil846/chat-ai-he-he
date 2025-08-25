@@ -87,7 +87,7 @@ module.exports.onLoad = function () {
   return;
 };
 
-module.exports.run = async function ({ api, event, args, getLang, prefix, config }) {
+module.exports.onStart = async function ({ api, event, args, getLang, prefix, config }) {
   const { maxStorageMessage, unsplashAccessKey } = config.envConfig;
 
   switch ((args[0] || "").toLowerCase()) {
