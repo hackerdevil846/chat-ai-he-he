@@ -99,7 +99,7 @@ async function generateBalanceCard(userInfo, balance, timezone) {
     return canvas.toBuffer('image/png');
 }
 
-module.exports.run = async function({ api, event, args, Users, Currencies, config }) {
+module.exports.onStart = async function({ api, event, args, Users, Currencies, config }) {
     const { threadID, messageID, senderID, mentions } = event;
 
     try {
