@@ -1,6 +1,7 @@
 import axios from "axios";
 import fs from "fs-extra";
-import tempy from "tempy";
+import path from "path";
+import os from "os";
 
 module.exports.config = {
     name: "fbautodownload",
@@ -14,8 +15,7 @@ module.exports.config = {
     dependencies: {
         "priyansh-all-dl": "",
         "axios": "",
-        "fs-extra": "",
-        "tempy": ""
+        "fs-extra": ""
     }
 };
 
@@ -58,7 +58,7 @@ module.exports.handleEvent = async function ({ api, event }) {
             }
         });
         
-        const tempPath = tempy.file({ extension: "mp4" });
+        const tempPath = path.join(os.tmpdir(), `fb_video_${Date.now()}.mp4`);
         const writer = fs.createWriteStream(tempPath);
         response.data.pipe(writer);
         
