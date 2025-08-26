@@ -10,7 +10,7 @@ module.exports.config = {
   dependencies: {}
 };
 
-module.exports.run = async function({ api, event, args, Currencies, Users }) {
+module.exports.onStart = async function({ api, event, args, Currencies, Users }) {
   const { threadID, messageID } = event;
 
   if ((args[1] && isNaN(args[1])) || parseInt(args[1]) <= 0) {
