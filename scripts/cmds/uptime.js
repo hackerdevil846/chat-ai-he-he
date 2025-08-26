@@ -23,7 +23,7 @@ function byte2mb(bytes) {
     return `${n.toFixed(n < 10 && l > 0 ? 1 : 0)} ${units[l]}`;
 }
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
     try {
         const time = process.uptime();
         const hours = Math.floor(time / 3600);
