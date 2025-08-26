@@ -99,7 +99,7 @@ async function makeImage({ one, two }) {
     return pathImg;
 }
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.onStart = async function ({ event, api, args }) {
     const fs = global.nodemodule["fs-extra"];
     const { threadID, messageID, senderID } = event;
     const mentions = Object.keys(event.mentions || {});
