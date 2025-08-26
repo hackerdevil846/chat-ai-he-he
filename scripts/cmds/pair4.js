@@ -17,7 +17,7 @@ module.exports.config = {
 
 module.exports.onLoad = async function() {
 	const path = require("path");
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+	const { existsSync, mkdirSync } = require("fs-extra");
 	const { downloadFile } = global.utils;
 	const dirMaterial = __dirname + `/cache/canvas/`;
 	const pathFile = path.resolve(__dirname, 'cache/canvas', 'pairing.png');
@@ -30,10 +30,10 @@ module.exports.onLoad = async function() {
 }
 
 async function makeImage({ one, two }) {
-	const fs = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	const path = require("path");
-	const axios = global.nodemodule["axios"]; 
-	const jimp = global.nodemodule["jimp"];
+	const axios = require("axios"); 
+	const jimp = require("jimp");
 	const __root = path.resolve(__dirname, "cache", "canvas");
 
 	let pairing_img = await jimp.read(__root + "/pairing.png");
@@ -65,7 +65,7 @@ async function makeImage({ one, two }) {
 }
 
 async function circle(image) {
-	const jimp = global.nodemodule["jimp"];
+	const jimp = require("jimp");
 	image = await jimp.read(image);
 	image.circle();
 	return await image.getBufferAsync("image/png");
@@ -73,7 +73,7 @@ async function circle(image) {
 
 module.exports.onStart = async function({ api, event }) {
 	const { threadID, messageID, senderID } = event;
-	const fs = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	
 	// Compatibility percentages
 	const tl = ['21%', '11%', '55%', '89%', '22%', '45%', '1%', '4%', 
