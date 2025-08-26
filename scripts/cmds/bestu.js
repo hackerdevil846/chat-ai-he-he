@@ -16,20 +16,20 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-  const { resolve } = global.nodemodule["path"];
-  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+  const path = require("path");
+  const fs = require("fs-extra");
   const { downloadFile } = global.utils;
   const dirMaterial = __dirname + `/cache/canvas/`;
-  const pathFile = resolve(__dirname, 'cache/canvas', 'bestu.png');
-  if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-  if (!existsSync(pathFile)) await downloadFile("https://i.imgur.com/RloX16v.jpg", pathFile);
+  const pathFile = path.resolve(__dirname, 'cache/canvas', 'bestu.png');
+  if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+  if (!fs.existsSync(pathFile)) await downloadFile("https://i.imgur.com/RloX16v.jpg", pathFile);
 };
 
 async function makeImage({ one, two }) {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
-  const axios = global.nodemodule["axios"];
-  const jimp = global.nodemodule["jimp"];
+  const fs = require("fs-extra");
+  const path = require("path");
+  const axios = require("axios");
+  const jimp = require("jimp");
   const __root = path.resolve(__dirname, "cache", "canvas");
 
   const baseImage = await jimp.read(__root + "/bestu.png");
@@ -82,7 +82,7 @@ function toMathBoldItalic(text) {
 }
 
 module.exports.onStart = async function ({ api, event, args }) {
-  const fs = global.nodemodule["fs-extra"];
+  const fs = require("fs-extra");
   const { threadID, messageID, senderID } = event;
   const mention = Object.keys(event.mentions);
 
