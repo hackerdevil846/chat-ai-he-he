@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "ban",
+  name: "listban",
   version: "1.0.3",
   hasPermssion: 2,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -102,7 +102,7 @@ module.exports.onStart = async function ({ api, event, Users, Threads, args }) {
       }
 
       default: {
-        const helpMessage = `» 𝑩𝒂𝒏 𝑴𝒐𝒅𝒖𝒍𝒆 «\n━━━━━━━━━━━━━━━━━━\n🔹 𝑼𝒔𝒂𝒈𝒆: ${global.config.PREFIX || "!"}ban [option]\n\n🔸 𝑶𝒑𝒕𝒊𝒐𝒏𝒔:\n  • thread / t - Show banned groups\n  • user / u   - Show banned users\n\n📝 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒍𝒊𝒔𝒕𝒆𝒅 𝒊𝒕𝒆𝒎 𝒘𝒊𝒕𝒉 𝒊𝒕𝒔 𝒐𝒓𝒅𝒆𝒓 𝒏𝒖𝒎𝒃𝒆𝒓 𝒕𝒐 𝒖𝒏𝒃𝒂𝒏`;
+        const helpMessage = `» 𝑩𝒂𝒏 𝑴𝒐𝒅𝒖𝒍𝒆 «\n━━━━━━━━━━━━━━━━━━\n🔹 𝑼𝒔𝒂𝒈𝒆: ${global.config.PREFIX || "!"}listban [option]\n\n🔸 𝑶𝒑𝒕𝒊𝒐𝒏𝒔:\n  • thread / t - Show banned groups\n  • user / u   - Show banned users\n\n📝 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒍𝒊𝒔𝒕𝒆𝒅 𝒊𝒕𝒆𝒎 𝒘𝒊𝒕𝒉 𝒊𝒕𝒔 𝒐𝒓𝒅𝒆𝒓 𝒏𝒖𝒎𝒃𝒆𝒓 𝒕𝒐 𝒖𝒏𝒃𝒂𝒏`;
         return api.sendMessage(helpMessage, threadID, messageID);
       }
     }
