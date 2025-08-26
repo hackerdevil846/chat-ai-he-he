@@ -13,7 +13,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
   try {
     const { threadID, mentions } = event;
 
