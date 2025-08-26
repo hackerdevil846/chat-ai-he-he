@@ -27,7 +27,7 @@ module.exports.onLoad = async function() {
   if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const { threadID, messageID } = event;
 
   const sendMessage = (msg) => api.sendMessage(msg, threadID, messageID);
