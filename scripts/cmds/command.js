@@ -1,5 +1,5 @@
 module.exports.config = {
-    name: "cmd",
+    name: "cmdbackup",
     version: "1.0.0",
     hasPermssion: 2,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -300,7 +300,7 @@ module.exports.onStart = function ({ api, event, args, client }) {
             return api.sendMessage(infoMsg, threadID, messageID);
         }
         default: {
-            return api.sendMessage(toMathBoldItalic("❌ Vul command! Usage: cmd [load/unload/loadAll/unloadAll/info] [module name]"), threadID, messageID);
+            return api.sendMessage(toMathBoldItalic("❌ Vul command! Usage: cmdbackup [load/unload/loadAll/unloadAll/info] [module name]"), threadID, messageID);
         }
     }
 };
