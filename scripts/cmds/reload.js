@@ -20,7 +20,7 @@ module.exports.languages = {
 	"bn": {}
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
 	const { threadID, messageID, senderID } = event;
 	const GOD = global.config.GOD || [];
 
