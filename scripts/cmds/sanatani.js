@@ -1,4 +1,3 @@
-
 /*
 // ====================== COMMENTED SANATANI MODULE ====================== //
 // Keep this section as is - do not remove but also do not use
@@ -44,7 +43,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "Rudra Modified",
   description: "Sanatani auto reply with image/video",
-  commandCategory: "spiritual",
+  category: "spiritual",
   usages: "auto",
   cooldowns: 2
 };
@@ -85,6 +84,8 @@ module.exports.handleEvent = async ({ api, event }) => {
   }
 };
 
-module.exports.run = async () => {};
+module.exports.onStart = async () => {
+  // Empty function to prevent errors
+};
 // ====================== END OF COMMENTED SECTION ====================== //
 */
