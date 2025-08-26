@@ -23,21 +23,21 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = async function() {
-	const { resolve } = global.nodemodule["path"];
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+	const path = require("path");
+	const { existsSync, mkdirSync } = require("fs-extra");
 	const { downloadFile } = global.utils;
 	const dirMaterial = __dirname + `/cache/canvas/`;
-	const path = resolve(__dirname, 'cache/canvas', 'sis.png');
+	const filePath = path.resolve(__dirname, 'cache/canvas', 'sis.png');
 	
 	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(path)) await downloadFile("https://i.imgur.com/n2FGJFe.jpg", path);
+	if (!existsSync(filePath)) await downloadFile("https://i.imgur.com/n2FGJFe.jpg", filePath);
 }
 
 async function makeImage({ one, two }) {
-	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
-	const axios = global.nodemodule["axios"];
-	const jimp = global.nodemodule["jimp"];
+	const fs = require("fs-extra");
+	const path = require("path");
+	const axios = require("axios");
+	const jimp = require("jimp");
 	const __root = path.resolve(__dirname, "cache", "canvas");
 
 	let batgiam_img = await jimp.read(__root + "/sis.png");
@@ -73,7 +73,7 @@ async function circle(image) {
 
 module.exports.onStart = async function({ event, api, args, Users }) {
 	try {
-		const fs = global.nodemodule["fs-extra"];
+		const fs = require("fs-extra");
 		const { threadID, messageID, senderID } = event;
 		const mention = Object.keys(event.mentions);
 		
