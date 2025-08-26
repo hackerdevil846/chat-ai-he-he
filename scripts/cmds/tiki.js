@@ -1,6 +1,6 @@
-const fs = global.nodemodule["fs-extra"];
-const axios = global.nodemodule["axios"];
-const { loadImage, createCanvas } = global.nodemodule["canvas"];
+const fs = require("fs-extra");
+const axios = require("axios");
+const { loadImage, createCanvas } = require("canvas");
 
 module.exports.config = {
   name: "tiki",
@@ -8,7 +8,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🎨 Bord kaj likho _(ツ)_/¯",
-  commandCategory: "System",
+  category: "System",
   usages: "tiki [text]",
   cooldowns: 10,
   dependencies: {
@@ -47,7 +47,7 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
   return lines;
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID } = event;
   const pathImg = __dirname + '/cache/tiki.png';
   const text = args.join(" ");
