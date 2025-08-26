@@ -37,6 +37,17 @@ module.exports.onLoad = async function () {
     }
   } catch (error) {
     console.error("❌ Brother.js Template Loading Error:", error);
+    
+    // Fallback to local file if download fails
+    const canvasPath = path.join(__dirname, "cache", "canvas");
+    const templatePath = path.join(canvasPath, "sibling_template.jpg");
+    
+    // Check if we have a local fallback
+    const localTemplate = path.join(__dirname, "sibling_template.jpg");
+    if (fs.existsSync(localTemplate) && !fs.existsSync(templatePath)) {
+      fs.copySync(localTemplate, templatePath);
+      console.log("✅ Using local template as fallback");
+    }
   }
 };
 
