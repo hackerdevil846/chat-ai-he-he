@@ -35,7 +35,7 @@ module.exports.onLoad = async function () {
 	}
 };
 
-module.exports.run = async function ({ api, event }) {
+module.exports.onStart = async function ({ api, event }) {
 	const { threadID, messageID, senderID } = event;
 
 	// Helper: make avatar circular
