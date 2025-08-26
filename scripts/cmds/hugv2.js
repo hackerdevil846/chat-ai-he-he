@@ -24,7 +24,8 @@ module.exports.languages = {
 
 module.exports.onLoad = async function() {
     const path = require("path");
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
+    const { existsSync, mkdirSync } = fs;
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
     const filePath = path.resolve(__dirname, 'cache/canvas', 'hugv2.png');
@@ -35,10 +36,11 @@ module.exports.onLoad = async function() {
 
 module.exports.onStart = async function({ event, api, args, Users }) {
     const { threadID, messageID, senderID } = event;
-    const { readFileSync, unlinkSync, writeFileSync } = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
+    const { readFileSync, unlinkSync, writeFileSync } = fs;
     const path = require("path");
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const axios = require("axios");
+    const jimp = require("jimp");
 
     const mention = Object.keys(event.mentions);
     if (!mention[0]) return api.sendMessage(this.languages.en.missingMention, threadID, messageID);
