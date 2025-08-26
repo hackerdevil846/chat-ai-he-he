@@ -105,7 +105,7 @@ module.exports.handleReply = async ({ api, event, handleReply }) => {
 	}
 };
 
-module.exports.run = async ({ api, event }) => {
+module.exports.onStart = async ({ api, event }) => {
 	try {
 		const { threadID, messageID, senderID } = event;
 		const gifPath = __dirname + "/noprefix/solar.gif";
