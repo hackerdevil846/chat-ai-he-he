@@ -16,7 +16,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { threadID, messageID } = event;
 
     // Check if user provided text
