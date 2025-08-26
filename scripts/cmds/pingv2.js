@@ -13,7 +13,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args, Threads }) {
+module.exports.onStart = async function({ api, event, args, Threads }) {
   try {
     const { createCanvas, loadImage } = require("canvas");
     const fs = require("fs-extra");
