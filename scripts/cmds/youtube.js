@@ -31,7 +31,7 @@ const MAX_RESULTS = 7;
 
 let searchResults = {}; // store per threadID
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   try {
     const threadID = event.threadID;
 
