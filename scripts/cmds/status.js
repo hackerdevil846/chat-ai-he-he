@@ -12,7 +12,7 @@ module.exports.config = {
     dependencies: {}
 };
 
-module.exports.run = async function({ api, event, Threads }) {
+module.exports.onStart = async function({ api, event, Threads }) {
     try {
         const { threadID, messageID } = event;
 
