@@ -19,9 +19,29 @@ module.exports.config = {
     }
 };
 
+// Custom download function to replace the problematic global.utils.downloadFile
+async function downloadFile(url, filePath) {
+    try {
+        const response = await axios({
+            method: 'GET',
+            url: url,
+            responseType: 'stream'
+        });
+        
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
+        
+        return new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
+    } catch (error) {
+        throw new Error(`Failed to download file: ${error.message}`);
+    }
+}
+
 module.exports.onLoad = async () => {
     const { existsSync, mkdirSync } = fs;
-    const { downloadFile } = global.utils;
     const dirMaterial = path.resolve(__dirname, "cache", "canvas");
     
     if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
