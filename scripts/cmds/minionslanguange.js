@@ -14,8 +14,8 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args }) {
-  const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
+module.exports.onStart = async function({ api, event, args }) {
+  const { createReadStream, unlinkSync, createWriteStream } = global.nodemodule["fs-extra"];
   const axios = global.nodemodule["axios"];
   const request = global.nodemodule["request"];
   
