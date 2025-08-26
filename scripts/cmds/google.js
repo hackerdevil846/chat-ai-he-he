@@ -3,13 +3,13 @@ const axios = require("axios");
 const fs = require("fs-extra");
 
 module.exports.config = {
-	name: "googlebar", // Command name
+	name: "googlesearch", // Changed command name to avoid conflict
 	version: "1.0.0", 
 	hasPermssion: 0, // Anyone can use
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
 	description: "Create Google search bar images with custom text", 
 	category: "edit-img", 
-	usages: "googlebar [text]", 
+	usages: "googlesearch [text]", // Updated usage
 	cooldowns: 10, 
 	dependencies: {
 		"canvas": "",
@@ -65,7 +65,7 @@ module.exports.onStart = async function ({ api, event, args }) {
 	// Validation
 	if (!text) {
 		return api.sendMessage(
-			"⚠️ Please enter text for the Google search bar\n\n📌 Example: googlebar how to code",
+			"⚠️ Please enter text for the Google search bar\n\n📌 Example: googlesearch how to code",
 			threadID,
 			messageID
 		);
