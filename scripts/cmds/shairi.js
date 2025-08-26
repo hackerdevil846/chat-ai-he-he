@@ -3,7 +3,7 @@ const path = require("path");
 const axios = require("axios");
 
 module.exports.config = {
-  name: "shairi",
+  name: "shairi2",
   version: "3.0.3",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 (Updated by Manus AI)",
