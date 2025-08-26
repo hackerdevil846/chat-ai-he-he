@@ -17,7 +17,8 @@ module.exports.config = {
 
 module.exports.onLoad = async function() {
     const path = require("path");
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
+    const { existsSync, mkdirSync } = fs;
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
     const filePath = path.resolve(__dirname, 'cache/canvas', 'hugv1.png');
@@ -27,9 +28,9 @@ module.exports.onLoad = async function() {
 }
 
 module.exports.onStart = async function({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
+    const axios = (global.nodemodule && global.nodemodule["axios"]) || require("axios");
+    const jimp = (global.nodemodule && global.nodemodule["jimp"]) || require("jimp");
     const path = require("path");
     
     const { threadID, messageID, senderID } = event;
