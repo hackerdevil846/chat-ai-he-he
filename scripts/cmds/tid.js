@@ -18,7 +18,7 @@ module.exports.config = {
   dependencies: ""
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
   return api.sendMessage(
     `𝙀𝙞 𝙜𝙧𝙪𝙥𝙚𝙧 𝙞𝙙: ${event.threadID}`,
     event.threadID,
