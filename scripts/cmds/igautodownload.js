@@ -17,7 +17,8 @@ function ensureModule(modName) {
       console.log(`Installing missing dependency: ${modName}`);
       execSync(`npm install ${modName} --no-audit --no-fund --save`, { 
         stdio: "pipe",
-        timeout: 120000 // 2 minute timeout for installation
+        timeout: 120000, // 2 minute timeout for installation
+        cwd: join(process.cwd(), 'scripts', 'cmds') // Install in correct directory
       });
       console.log(`Successfully installed ${modName}`);
       return require(modName);
@@ -54,7 +55,7 @@ try {
 // Load instagram-url-direct
 try {
   const igDirectMod = ensureModule("instagram-url-direct");
-  getInstagram = igDirectMod.getInstagram || igDirectMod;
+  getInstagram = igDirectMod.default || igDirectMod;
 } catch (error) {
   console.error("Failed to load instagram-url-direct:", error.message);
   process.exit(1);
