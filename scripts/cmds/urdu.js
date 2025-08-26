@@ -14,7 +14,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	const content = args.join(" ");
 
 	if (content.length === 0 && event.type !== "message_reply") {
