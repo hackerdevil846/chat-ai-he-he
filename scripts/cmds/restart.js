@@ -24,7 +24,7 @@ module.exports.onLoad = function () {
     console.log("✅ Restart command loaded successfully.");
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { threadID, messageID } = event;
 
     // Create canvas
