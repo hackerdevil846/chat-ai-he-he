@@ -34,7 +34,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args, models, Users, Threads, Currencies, permssion, envConfig }) {
+module.exports.onStart = async function({ api, event, args, models, Users, Threads, Currencies, permssion, envConfig }) {
     try {
         // Validate reply
         if (event.type !== 'message_reply' || !event.messageReply.attachments || !event.messageReply.attachments.length) {
