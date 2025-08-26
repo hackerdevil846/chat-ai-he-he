@@ -29,7 +29,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args, getLang }) {
+module.exports.onStart = async function ({ api, event, args, getLang }) {
 	const { delayPerGroup } = this.config.envConfig;
 
 	if (!args[0]) {
