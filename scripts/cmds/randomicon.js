@@ -37,7 +37,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, Currencies, getText }) {
+module.exports.onStart = async function({ api, event, args, Currencies, getText }) {
 	const { threadID, messageID, senderID } = event;
 	const minBet = 100;
 	const slotItems = ["🚀","⏳","👓","🔦","💡","🕯️","🥽","🎲","🔥","🔔","🏺","🍆","🐣"];
