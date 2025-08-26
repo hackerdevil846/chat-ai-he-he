@@ -17,24 +17,24 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function () {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const path = require("path");
+    const fs = require("fs-extra");
     const dirMaterial = __dirname + `/cache/canvas/`;
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
 };
 
 async function circle(imagePath) {
-    const jimp = global.nodemodule["jimp"];
+    const jimp = require("jimp");
     let image = await jimp.read(imagePath);
     image.circle();
     return await image.getBufferAsync("image/png");
 }
 
 async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = require("fs-extra");
+    const path = require("path");
+    const axios = require("axios");
+    const jimp = require("jimp");
     const __root = path.resolve(__dirname, "cache", "canvas");
 
     const templatePath = __root + "/batmanslap.jpg";
@@ -72,11 +72,11 @@ async function makeImage({ one, two }) {
 }
 
 module.exports.onStart = async function ({ api, event, args }) {
-    const fs = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
     const { threadID, messageID, senderID, mentions } = event;
 
     if (!mentions || Object.keys(mentions).length === 0) {
-        return api.sendMessage("❌ দয়া করে ১ জনকে ট্যাগ করো!", threadID, messageID);
+        return api.sendMessage("❌ দয়া করে ১ জনকে ট্যাগ করো!", threadID, messageID);
     }
 
     const mentionID = Object.keys(mentions)[0];
