@@ -42,15 +42,20 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function() {
-	const { existsSync, readFileSync, writeFileSync } = global.nodemodule["fs-extra"];
-	const path = __dirname + "/cache/giveaways.json";
-	
-	if (!existsSync(path)) {
-		writeFileSync(path, JSON.stringify({}), "utf-8");
+	try {
+		const fs = require('fs-extra');
+		const path = __dirname + "/cache/giveaways.json";
+		
+		if (!fs.existsSync(path)) {
+			fs.writeFileSync(path, JSON.stringify({}), "utf-8");
+		}
+		
+		const data = JSON.parse(fs.readFileSync(path, "utf-8"));
+		global.data.GiveAway = new Map(Object.entries(data));
+	} catch (error) {
+		console.error("Giveaway onLoad error:", error);
+		global.data.GiveAway = new Map();
 	}
-	
-	const data = JSON.parse(readFileSync(path, "utf-8"));
-	global.data.GiveAway = new Map(Object.entries(data));
 };
 
 module.exports.handleReaction = async function({ api, event, handleReaction, Users }) {
@@ -73,8 +78,9 @@ module.exports.handleReaction = async function({ api, event, handleReaction, Use
 		}
 
 		global.data.GiveAway.set(handleReaction.ID, data);
+		const fs = require('fs-extra');
 		const path = __dirname + "/cache/giveaways.json";
-		global.nodemodule["fs-extra"].writeFileSync(
+		fs.writeFileSync(
 			path, 
 			JSON.stringify(Object.fromEntries(global.data.GiveAway), null, 2)
 		);
@@ -85,7 +91,7 @@ module.exports.handleReaction = async function({ api, event, handleReaction, Use
 
 module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies, permssion, getText }) {
 	const { threadID, messageID, senderID } = event;
-	const { existsSync, writeFileSync } = global.nodemodule["fs-extra"];
+	const fs = require('fs-extra');
 	const path = __dirname + "/cache/giveaways.json";
 
 	const getLang = (key) => {
@@ -94,7 +100,7 @@ module.exports.onStart = async function({ api, event, args, Users, Threads, Curr
 	};
 
 	const saveData = () => {
-		writeFileSync(path, JSON.stringify(Object.fromEntries(global.data.GiveAway), null, 2));
+		fs.writeFileSync(path, JSON.stringify(Object.fromEntries(global.data.GiveAway), null, 2));
 	};
 
 	switch (args[0]) {
