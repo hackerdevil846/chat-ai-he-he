@@ -18,29 +18,39 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-  const { resolve } = global.nodemodule["path"];
-  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-  const { downloadFile } = global.utils;
+  const path = require("path");
+  const { existsSync, mkdirSync } = require("fs-extra");
+  const axios = require("axios");
 
   const dirMaterial = __dirname + "/cache/";
-  const templatePath = resolve(__dirname, "cache", "toilet.png");
+  const templatePath = path.resolve(__dirname, "cache", "toilet.png");
 
   if (!existsSync(dirMaterial)) {
     mkdirSync(dirMaterial, { recursive: true });
   }
   if (!existsSync(templatePath)) {
-    await downloadFile(
-      "https://i.imgur.com/BtSlsSS.jpg",
-      templatePath
-    );
+    const response = await axios({
+      method: 'GET',
+      url: 'https://i.imgur.com/BtSlsSS.jpg',
+      responseType: 'stream'
+    });
+    
+    const fs = require("fs-extra");
+    const writer = fs.createWriteStream(templatePath);
+    response.data.pipe(writer);
+    
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve);
+      writer.on('error', reject);
+    });
   }
 };
 
 async function makeImage({ one, two }) {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
-  const axios = global.nodemodule["axios"];
-  const jimp = global.nodemodule["jimp"];
+  const fs = require("fs-extra");
+  const path = require("path");
+  const axios = require("axios");
+  const jimp = require("jimp");
 
   const cacheDir = path.resolve(__dirname, "cache");
   const baseImg = await jimp.read(cacheDir + "/toilet.png");
@@ -93,7 +103,7 @@ async function circle(imagePath) {
 }
 
 module.exports.onStart = async function ({ event, api }) {
-  const fs = global.nodemodule["fs-extra"];
+  const fs = require("fs-extra");
   const { threadID, messageID, senderID, mentions } = event;
   const tagged = Object.keys(mentions);
 
