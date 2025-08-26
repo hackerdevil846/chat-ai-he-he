@@ -45,7 +45,7 @@ module.exports.handleReaction = async function({ api, event, Threads, handleReac
     }
 };
 
-module.exports.run = async function({ api, event, args, Threads, getText }) {
+module.exports.onStart = async function({ api, event, args, Threads, getText }) {
     const { threadID, messageID, senderID } = event;
 
     if (!args[0]) {
