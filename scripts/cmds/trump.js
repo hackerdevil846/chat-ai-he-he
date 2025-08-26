@@ -5,13 +5,13 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "trump",
+    name: "trumptweet",
     version: "1.1.0",
     hasPermission: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "Create realistic Trump-style tweets",
     category: "image",
-    usages: "trump [tweet text]",
+    usages: "trumptweet [tweet text]",
     cooldowns: 15,
     dependencies: {
       "canvas": "",
@@ -22,7 +22,7 @@ module.exports = {
 
   onStart: async function ({ api, event }) {
     api.sendMessage(
-      "🇺🇸 Trump Tweet command ready! Use 'trump [text]' to create presidential tweets",
+      "🇺🇸 Trump Tweet command ready! Use 'trumptweet [text]' to create presidential tweets",
       event.threadID
     );
   },
@@ -59,7 +59,7 @@ module.exports = {
 
     if (!text) {
       return api.sendMessage(
-        "✍️ Please enter text for Trump's tweet\nExample: trump Make America Great Again!",
+        "✍️ Please enter text for Trump's tweet\nExample: trumptweet Make America Great Again!",
         threadID,
         messageID
       );
