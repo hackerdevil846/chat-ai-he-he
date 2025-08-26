@@ -2,7 +2,7 @@ const DIG = require("discord-image-generation");
 const fs = require("fs-extra");
 
 module.exports.config = {
-    name: "batslap",
+    name: "bslap",
     version: "1.1",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
