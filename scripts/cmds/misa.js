@@ -89,7 +89,7 @@ module.exports.handleEvent = async function({ api, event }) {
     api.sendMessage(response, threadID, messageID);
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { threadID, messageID, senderID } = event;
     const command = args[0]?.toLowerCase();
 
