@@ -124,7 +124,7 @@ module.exports.handleReaction = async ({ event, api, Users, handleReaction, getT
 	}
 };
 
-module.exports.run = async ({ event, api, args, Users, getText, client }) => {
+module.exports.onStart = async ({ event, api, args, Users, getText, client }) => {
 	const { threadID, messageID } = event;
 	const type = args[0];
 	var targetID = String(args[1]);
