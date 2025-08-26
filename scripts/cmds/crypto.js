@@ -178,9 +178,15 @@ module.exports.handleEvent = async function({ api, event }) {
 };
 
 module.exports.onLoad = function() {
-	// Create cache directory on load
-	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
-	const cachePath = path.join(__dirname, 'cache', 'crypto');
-	if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
+	// Create cache directory on load - with proper error handling
+	try {
+		if (global.nodemodule && global.nodemodule["fs-extra"] && global.nodemodule["path"]) {
+			const fs = global.nodemodule["fs-extra"];
+			const path = global.nodemodule["path"];
+			const cachePath = path.join(__dirname, 'cache', 'crypto');
+			if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
+		}
+	} catch (error) {
+		console.log("Cache directory will be created when needed");
+	}
 };
