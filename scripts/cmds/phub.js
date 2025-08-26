@@ -58,7 +58,7 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
  * The main function that runs the command.
  * @param {object} context - The context object provided by the bot.
  */
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const { senderID, threadID, messageID } = event;
     const { loadImage, createCanvas } = require("canvas");
     const fs = require("fs-extra");
