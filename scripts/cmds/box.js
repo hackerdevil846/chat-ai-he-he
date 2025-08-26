@@ -14,14 +14,14 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function () {
-	const fs = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	const dir = __dirname + "/cache";
 	if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 };
 
 module.exports.onStart = async function ({ api, event, args, permssion }) {
-	const fs = global.nodemodule["fs-extra"];
-	const request = global.nodemodule["request"];
+	const fs = require("fs-extra");
+	const request = require("request");
 
 	try {
 		if (!args[0]) {
