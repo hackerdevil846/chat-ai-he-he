@@ -16,22 +16,22 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-	const { resolve } = global.nodemodule["path"];
+	const path = require("path");
 	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
 	const { downloadFile } = global.utils;
 	const dirMaterial = __dirname + `/cache/canvas/`;
-	const path = resolve(__dirname, 'cache/canvas', 'pairing.png');
+	const pathFile = path.resolve(__dirname, 'cache/canvas', 'pairing.png');
 	
 	if (!existsSync(dirMaterial)) 
 		mkdirSync(dirMaterial, { recursive: true });
 	
-	if (!existsSync(path)) 
-		await downloadFile("https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png", path);
+	if (!existsSync(pathFile)) 
+		await downloadFile("https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png", pathFile);
 }
 
 async function makeImage({ one, two }) {
 	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
+	const path = require("path");
 	const axios = global.nodemodule["axios"]; 
 	const jimp = global.nodemodule["jimp"];
 	const __root = path.resolve(__dirname, "cache", "canvas");
