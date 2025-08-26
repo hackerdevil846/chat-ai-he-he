@@ -30,7 +30,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, getText }) {
+module.exports.onStart = async function({ api, event, args, getText }) {
 	try {
 		const input = args.join(" ");
 		
