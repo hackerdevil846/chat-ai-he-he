@@ -25,7 +25,7 @@ module.exports.languages = {
     }
 }
 
-module.exports.run = async ({ api, event, args, getText }) => {
+module.exports.onStart = async ({ api, event, args, getText }) => {
     const { threadID, messageID } = event;
     
     if (!args[0]) {
