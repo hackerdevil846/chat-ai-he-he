@@ -19,24 +19,34 @@ module.exports.config = {
     }
 };
 
-// Custom download function to replace the problematic global.utils.downloadFile
-async function downloadFile(url, filePath) {
-    try {
-        const response = await axios({
-            method: 'GET',
-            url: url,
-            responseType: 'stream'
-        });
-        
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
-        
-        return new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-    } catch (error) {
-        throw new Error(`Failed to download file: ${error.message}`);
+// Custom download function with retry logic
+async function downloadFile(url, filePath, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await axios({
+                method: 'GET',
+                url: url,
+                responseType: 'stream',
+                timeout: 30000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            });
+            
+            const writer = fs.createWriteStream(filePath);
+            response.data.pipe(writer);
+            
+            return new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+        } catch (error) {
+            if (attempt === maxRetries) {
+                throw new Error(`Failed to download file after ${maxRetries} attempts: ${error.message}`);
+            }
+            // Wait before retry (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+        }
     }
 }
 
@@ -48,7 +58,11 @@ module.exports.onLoad = async () => {
     
     const bgPath = path.resolve(dirMaterial, "araa2.jpg");
     if (!existsSync(bgPath)) {
-        await downloadFile("https://imgur.com/D35mTwa.jpg", bgPath);
+        try {
+            await downloadFile("https://imgur.com/D35mTwa.jpg", bgPath);
+        } catch (error) {
+            console.log("Background image download failed, will use fallback during execution");
+        }
     }
 };
 
@@ -60,20 +74,49 @@ async function circle(image) {
 
 async function makeImage({ one, two, three }) {
     const __root = path.resolve(__dirname, "cache", "canvas");
-    const pairingImg = await jimp.read(path.resolve(__root, "araa2.jpg"));
+    let pairingImg;
+    
+    // Try to load background image, create fallback if not available
+    const bgPath = path.resolve(__root, "araa2.jpg");
+    try {
+        if (fs.existsSync(bgPath)) {
+            pairingImg = await jimp.read(bgPath);
+        } else {
+            // Create a simple fallback background
+            pairingImg = new jimp(400, 600, '#f0f0f0');
+        }
+    } catch (error) {
+        // Create fallback background if image is corrupted
+        pairingImg = new jimp(400, 600, '#f0f0f0');
+    }
+    
     const pathImg = path.resolve(__root, `araa_${one}_${two}_${three}.png`);
     
-    // Download and process avatars
+    // Download and process avatars with retry logic
     const avatarPaths = [];
     const users = [one, two, three];
     
     for (let i = 0; i < users.length; i++) {
         const avatarPath = path.resolve(__root, `avt_${users[i]}.png`);
         const avatarUrl = `https://graph.facebook.com/${users[i]}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-        const avatarData = (await axios.get(avatarUrl, { responseType: 'arraybuffer' })).data;
         
-        fs.writeFileSync(avatarPath, Buffer.from(avatarData, 'utf-8'));
-        avatarPaths.push(avatarPath);
+        try {
+            const avatarData = (await axios.get(avatarUrl, { 
+                responseType: 'arraybuffer',
+                timeout: 15000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            })).data;
+            
+            fs.writeFileSync(avatarPath, Buffer.from(avatarData, 'utf-8'));
+            avatarPaths.push(avatarPath);
+        } catch (error) {
+            // Create a fallback avatar if download fails
+            const fallbackAvatar = new jimp(512, 512, '#cccccc');
+            await fallbackAvatar.writeAsync(avatarPath);
+            avatarPaths.push(avatarPath);
+        }
     }
     
     // Create circular avatars
