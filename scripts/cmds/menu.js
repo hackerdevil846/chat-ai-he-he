@@ -37,7 +37,7 @@ module.exports.config = {
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "𝑺𝒐𝒃 𝒌𝒐𝒎𝒂𝒏𝒅 𝒆𝒓 𝒍𝒊𝒔𝒕 𝒅𝒆𝒌𝒉𝒂𝒏𝒐",
     usages: "[all/-a] [page number]",
-    commandCategory: "system",
+    category: "system",
     cooldowns: 5,
     dependencies: {
         "canvas": "^2.11.0",
