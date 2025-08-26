@@ -37,7 +37,7 @@ module.exports.onLoad = function() {
 	}
 };
 
-module.exports.run = async function({ api, event, args, permssion }) {
+module.exports.onStart = async function({ api, event, args, permssion }) {
 	const { threadID, messageID } = event;
 	const { readFileSync, writeFileSync } = fs;
 	const filePath = path.join(__dirname, "cache", "notes.json");
