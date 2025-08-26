@@ -162,7 +162,7 @@ function findNearestIndex(timeArray, targetIso) {
   return nearest;
 }
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID } = event;
   const area = args.length > 0 ? args.join(" ") : "Dhaka";
   let loadingMsg = null;
