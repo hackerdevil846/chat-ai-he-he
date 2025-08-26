@@ -16,19 +16,19 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-  const { resolve } = global.nodemodule["path"];
-  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+  const path = require("path");
+  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"] || require("fs-extra");
   const { downloadFile } = global.utils;
   const dirMaterial = __dirname + `/cache/canvas/`;
-  const path = resolve(__dirname, 'cache/canvas', 'crush.png');
+  const filePath = path.resolve(__dirname, 'cache/canvas', 'crush.png');
   
   if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-  if (!existsSync(path)) await downloadFile("https://i.imgur.com/PlVBaM1.jpg", path);
+  if (!existsSync(filePath)) await downloadFile("https://i.imgur.com/PlVBaM1.jpg", filePath);
 };
 
 module.exports.onStart = async function({ event, api, args }) {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
+  const fs = global.nodemodule["fs-extra"] || require("fs-extra");
+  const path = global.nodemodule["path"] || require("path");
   const { threadID, messageID, senderID } = event;
   const mention = Object.keys(event.mentions);
   
@@ -40,8 +40,8 @@ module.exports.onStart = async function({ event, api, args }) {
     const userName = (await global.utils.getUserInfo(two))[two].name;
     
     const makeImage = async ({ one, two }) => {
-      const jimp = global.nodemodule["jimp"];
-      const axios = global.nodemodule["axios"];
+      const jimp = global.nodemodule["jimp"] || require("jimp");
+      const axios = global.nodemodule["axios"] || require("axios");
       const __root = path.resolve(__dirname, "cache", "canvas");
       
       const crushImg = await jimp.read(__root + "/crush.png");
