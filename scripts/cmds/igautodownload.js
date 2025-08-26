@@ -7,30 +7,50 @@ import { createRequire } from "module";
 
 // Helper to require or auto-install a dependency
 const require = createRequire(import.meta.url);
+
 async function ensureModule(modName) {
   try {
+    console.log(`Checking for ${modName}...`);
     return require(modName);
   } catch (err) {
     try {
-      execSync(`npm install ${modName} --no-audit --no-fund`, { stdio: "inherit" });
+      console.log(`Installing missing dependency: ${modName}`);
+      execSync(`npm install ${modName} --no-audit --no-fund --save`, { 
+        stdio: "pipe",
+        timeout: 120000 // 2 minute timeout for installation
+      });
+      console.log(`Successfully installed ${modName}`);
       return require(modName);
     } catch (installErr) {
-      throw new Error(`Auto-install failed for ${modName}: ${installErr?.message || installErr}`);
+      console.error(`Auto-install failed for ${modName}:`, installErr.message);
+      throw new Error(`Dependency installation failed: ${modName}. Please install manually.`);
     }
   }
 }
 
-// Ensure and load dependencies
+// Ensure and load dependencies with proper error handling
 let fsExtra, axios, getInstagram;
+
 try {
-  fsExtra = (await ensureModule("fs-extra")).default || (await ensureModule("fs-extra"));
+  console.log("Loading dependencies...");
+  
+  // Load fs-extra
+  const fsExtraMod = await ensureModule("fs-extra");
+  fsExtra = fsExtraMod.default || fsExtraMod;
+  
+  // Load axios
   const axiosMod = await ensureModule("axios");
   axios = axiosMod.default || axiosMod;
+  
+  // Load instagram-url-direct
   const igDirectMod = await ensureModule("instagram-url-direct");
   getInstagram = igDirectMod.getInstagram || igDirectMod;
+  
+  console.log("All dependencies loaded successfully");
 } catch (error) {
-  console.error("Dependency loading failed:", error);
-  throw error;
+  console.error("Critical error: Failed to load dependencies:", error.message);
+  // We can't continue without dependencies
+  process.exit(1);
 }
 
 export const config = {
@@ -39,7 +59,7 @@ export const config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🟦 | Automatically download Instagram videos",
-  category: "𝗨𝗧𝗜𝗟𝗜𝗧𝗬",
+  commandCategory: "𝗨𝗧𝗜𝗟𝗜𝗧𝗬",
   usages: "[instagram-link]",
   cooldowns: 5,
   dependencies: {
@@ -62,52 +82,87 @@ export async function handleEvent({ api, event }) {
 
   const instaRegex = /https?:\/\/(?:www\.)?instagram\.com\/(?:reel|p|stories)\/([^\/\s?]+)/gi;
   const instaMatch = event.body.match(instaRegex);
+  
   if (!instaMatch) return;
 
   for (const url of instaMatch) {
     let tempFilePath = null;
     try {
-      api.sendMessage("⬇️ | Downloading your video...", event.threadID, event.messageID);
+      await api.sendMessage("⬇️ | Downloading your video...", event.threadID);
 
       let results;
       try {
+        console.log(`Processing Instagram URL: ${url}`);
         results = await getInstagram(url);
+        
+        if (!results || !results.results) {
+          throw new Error("Invalid response from Instagram API");
+        }
+        
+        console.log(`Found ${results.results.length} media items`);
       } catch (libError) {
-        console.error("Instagram downloader library error:", libError);
+        console.error("Instagram downloader library error:", libError.message);
         await api.sendMessage(
-          "⚠️ | Instagram downloader library error. Try again later.",
-          event.threadID,
-          event.messageID
+          "⚠️ | Failed to process this Instagram link. It might be private or unavailable.",
+          event.threadID
         );
         continue;
       }
 
-      if (!results || !results.results || results.results.length === 0) {
+      if (results.results.length === 0) {
         await api.sendMessage(
-          "❌ | No video found at this link!",
-          event.threadID,
-          event.messageID
+          "❌ | No downloadable content found at this link!",
+          event.threadID
         );
         continue;
       }
 
       // Get the highest quality video
-      const videoResult = results.results.find(r => r.type === 'video') || results.results[0];
-      const hdLink = videoResult.url;
+      const videoResults = results.results.filter(r => r.type === 'video');
+      const bestResult = videoResults.length > 0 ? videoResults[0] : results.results[0];
+      
+      if (!bestResult.url) {
+        throw new Error("No download URL available");
+      }
 
-      const response = await axios.get(hdLink, { responseType: "stream", timeout: 30000 });
+      const hdLink = bestResult.url;
+      console.log("Downloading from:", hdLink);
 
+      // Download the video with timeout and proper headers
+      const response = await axios.get(hdLink, { 
+        responseType: "stream", 
+        timeout: 60000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': '*/*',
+          'Accept-Encoding': 'identity',
+          'Connection': 'keep-alive'
+        }
+      });
+
+      // Create temporary file
       const randomName = randomBytes(16).toString("hex");
       tempFilePath = join(tmpdir(), `ig_video_${randomName}.mp4`);
 
       const writer = createWriteStream(tempFilePath);
       response.data.pipe(writer);
 
+      // Wait for download to complete
       await new Promise((resolve, reject) => {
         writer.on("finish", resolve);
         writer.on("error", reject);
+        response.data.on("error", reject);
       });
 
+      // Verify the downloaded file
+      const stats = fsExtra.statSync(tempFilePath);
+      if (stats.size === 0) {
+        throw new Error("Downloaded file is empty");
+      }
+
+      console.log(`Download completed. File size: ${stats.size} bytes`);
+
+      // Send the video
       await api.sendMessage(
         {
           body: "✅ | Successfully downloaded your video!\nCredits: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -115,21 +170,23 @@ export async function handleEvent({ api, event }) {
         },
         event.threadID
       );
+
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error processing Instagram video:", error.message);
       await api.sendMessage(
         "❌ | Download failed! Please try again later.",
-        event.threadID,
-        event.messageID
+        event.threadID
       );
     } finally {
+      // Clean up temporary file
       if (tempFilePath) {
         try {
           if (fsExtra.existsSync(tempFilePath)) {
             fsExtra.unlinkSync(tempFilePath);
+            console.log("Temporary file cleaned up");
           }
         } catch (cleanupError) {
-          console.error("Cleanup failed:", cleanupError);
+          console.error("Cleanup failed:", cleanupError.message);
         }
       }
     }
