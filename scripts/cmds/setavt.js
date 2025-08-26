@@ -42,7 +42,7 @@ module.exports.onLoad = function () {
  * run - main command handler
  * params: object destructured by GoatBot framework. We expect at least api, event, args, and getLang to be available.
  */
-module.exports.run = async function ({ api, event, args, getLang }) {
+module.exports.onStart = async function ({ api, event, args, getLang }) {
 	const threadID = event.threadID || event.senderID;
 	// Determine language helper (getLang may not be provided by some GoatBot variants)
 	const lang = (typeof getLang === "function") ? getLang : (key => {
