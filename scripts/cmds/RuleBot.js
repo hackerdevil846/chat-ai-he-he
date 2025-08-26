@@ -38,7 +38,7 @@ module.exports.handleEvent = function({ api, event }) {
     }
 };
 
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
     const { threadID } = event;
     api.sendMessage(this.languages.en.message, threadID);
 };
