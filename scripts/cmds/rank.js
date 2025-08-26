@@ -19,7 +19,7 @@ const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(
 global.client.makeRankCard = makeRankCard;
 
 module.exports.config = {
-	name: "rankcard", // Changed from "rank" to "rankcard" to avoid conflict
+	name: "rank",
 	version: "1.7",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
