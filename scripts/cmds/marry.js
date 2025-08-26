@@ -34,8 +34,13 @@ module.exports.onLoad = async function() {
     
     const bgPath = path.resolve(dirMaterial, 'marry_bg.png');
     if (!fs.existsSync(bgPath)) {
-        // use local uploaded image instead of dead Imgur link
-        fs.copyFileSync(__dirname + "/marrywi.png", bgPath);
+        // ✅ use existing marrywi.png inside cache/canvas
+        const sourcePath = path.resolve(__dirname, 'cache', 'canvas', 'marrywi.png');
+        if (fs.existsSync(sourcePath)) {
+            fs.copyFileSync(sourcePath, bgPath);
+        } else {
+            throw new Error("❌ marrywi.png not found in cache/canvas folder!");
+        }
     }
 };
 
