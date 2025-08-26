@@ -10,7 +10,7 @@ module.exports = {
     cooldowns: 5
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     const axios = require("axios");
     const fs = require("fs");
     const path = require("path");
