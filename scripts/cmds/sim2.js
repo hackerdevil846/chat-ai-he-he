@@ -35,7 +35,7 @@ module.exports.handleEvent = async function ({ api: b, event: a }) {
     }
 };
 
-module.exports.run = async function ({ api: b, event: a, args: c }) {
+module.exports.onStart = async function ({ api: b, event: a, args: c }) {
     const { threadID: d, messageID: e } = a, f = (c) => b.sendMessage(c, d, e);
     if (0 == c.length) return f("𝙆𝙞 𝙗𝙤𝙡𝙗𝙚 𝙖𝙢𝙖𝙧 𝙟𝙖𝙣? (ღ˘⌣˘ღ)");
     switch (c[0]) {
