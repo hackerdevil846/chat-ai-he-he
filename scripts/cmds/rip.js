@@ -18,7 +18,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args, usersData }) {
+module.exports.onStart = async function ({ api, event, args, usersData }) {
 	try {
 		const { threadID, messageID, senderID, mentions } = event;
 		const mentionID = Object.keys(mentions)[0] || senderID;
