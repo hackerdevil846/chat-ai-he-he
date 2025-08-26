@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "job",
+  name: "jobcenter",
   version: "2.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -122,7 +122,7 @@ const jobTypes = {
 };
 
 module.exports.onLoad = function () {
-  console.log("🔄 Job command loaded successfully");
+  console.log("🔄 Job Center command loaded successfully");
 };
 
 module.exports.handleReply = async function({ event, api, handleReply, Currencies, getText }) {
