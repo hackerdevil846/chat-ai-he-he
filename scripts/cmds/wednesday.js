@@ -23,7 +23,7 @@ module.exports = {
         }
     },
 
-    run: async function({ api, event }) {
+    onStart: async function({ api, event }) {
         
     }
 };
