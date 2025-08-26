@@ -5,7 +5,7 @@ const request = require("node-superfetch");
 const Canvas = require("canvas");
 
 module.exports.config = {
-    name: "rank",
+    name: "rankcard",
     version: "2.2.0",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
