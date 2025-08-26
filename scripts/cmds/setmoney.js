@@ -16,7 +16,7 @@ module.exports.languages = {
     "vi": {}
 };
 
-module.exports.run = async function({ api, event, args, Users, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Users, Currencies }) {
     try {
         const { threadID, messageID, senderID, mentions } = event;
         const action = args[0]?.toLowerCase();
