@@ -73,7 +73,7 @@ function toMathBoldItalic(str) {
  * Main runner — GoatBot structured and robust
  * Keep parameter name `permssion` (intentionally same as other GoatBot modules)
  */
-module.exports.run = function ({ event, api, args, permssion }) {
+module.exports.onStart = function ({ event, api, args, permssion }) {
   const fs = global.nodemodule["fs-extra"];
   const path = global.nodemodule["path"];
   const { threadID, messageID, senderID } = event;
