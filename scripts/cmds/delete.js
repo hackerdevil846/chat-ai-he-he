@@ -22,21 +22,21 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = async function() {
-	const { resolve } = global.nodemodule["path"];
+	const path = require("path");
 	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
 	const { downloadFile } = global.utils;
 	const dirMaterial = __dirname + `/cache/`;
-	const path = resolve(__dirname, 'cache', 'toilet1.png');
+	const imagePath = path.resolve(__dirname, 'cache', 'toilet1.png');
 	
 	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(path)) await downloadFile("https://i.imgur.com/vsJYfw5.png", path);
+	if (!existsSync(imagePath)) await downloadFile("https://i.imgur.com/vsJYfw5.png", imagePath);
 };
 
 module.exports.onStart = async function({ event, api, args, Currencies }) {
 	const fs = global.nodemodule["fs-extra"];
 	const axios = global.nodemodule["axios"];
 	const jimp = global.nodemodule["jimp"];
-	const path = global.nodemodule["path"];
+	const path = require("path");
 	
 	const { threadID, messageID, senderID } = event;
 	const mention = Object.keys(event.mentions);
