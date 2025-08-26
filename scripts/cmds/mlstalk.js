@@ -13,7 +13,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
 	const axios = global.nodemodule["axios"];
 	const Canvas = global.nodemodule["canvas"];
 	const DIG = global.nodemodule["discord-image-generation"];
@@ -82,4 +82,3 @@ module.exports.run = async ({ api, event, args }) => {
     api.sendMessage("❌ 𝑺𝒐𝒓𝒓𝒚, 𝒂𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒕𝒉𝒆 𝒑𝒍𝒂𝒚𝒆𝒓 𝒊𝒏𝒇𝒐 𝒄𝒂𝒓𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.", event.threadID);
   }
 };
-
