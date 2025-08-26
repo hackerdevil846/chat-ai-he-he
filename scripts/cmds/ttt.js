@@ -76,7 +76,7 @@ module.exports.config = {
   cooldowns: 2
 };
 
-module.exports.run = async function ({ event, api, args }) {
+module.exports.onStart = async function ({ event, api, args }) {
   const id = event.senderID;
   const threadID = event.threadID;
   const sub = args[0]?.toLowerCase();
