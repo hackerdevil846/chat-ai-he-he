@@ -16,47 +16,52 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
-    const path = resolve(dirMaterial, 'ar1r2.png');
+    const path = require('path');
+    const fs = require('fs-extra');
+    const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
+    const imagePath = path.resolve(dirMaterial, 'ar1r2.png');
     
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
     
-    if (!existsSync(path)) {
-        const { downloadFile } = global.utils;
-        await downloadFile("https://i.imgur.com/iaOiAXe.jpeg", path);
+    if (!fs.existsSync(imagePath)) {
+        const axios = require('axios');
+        try {
+            const response = await axios.get("https://i.imgur.com/iaOiAXe.jpeg", { responseType: 'arraybuffer' });
+            fs.writeFileSync(imagePath, Buffer.from(response.data));
+        } catch (error) {
+            console.error("Error downloading template image:", error);
+        }
     }
 };
 
 async function circle(imagePath) {
-    const jimp = global.nodemodule["jimp"];
+    const jimp = require('jimp');
     const image = await jimp.read(imagePath);
     image.circle();
     return await image.getBufferAsync("image/png");
 }
 
 async function makeImage({ one, two }) {
-    const { resolve } = global.nodemodule["path"];
-    const { createReadStream, unlinkSync, writeFileSync } = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"]; 
-    const jimp = global.nodemodule["jimp"];
+    const path = require('path');
+    const fs = require('fs-extra');
+    const axios = require('axios');
+    const jimp = require('jimp');
     
-    const __root = resolve(__dirname, "cache", "canvas");
-    const templatePath = resolve(__root, 'ar1r2.png');
-    const outputPath = resolve(__root, `pair_${one}_${two}.png`);
-    const avatarOnePath = resolve(__root, `avt_${one}.png`);
-    const avatarTwoPath = resolve(__root, `avt_${two}.png`);
+    const __root = path.resolve(__dirname, "cache", "canvas");
+    const templatePath = path.resolve(__root, 'ar1r2.png');
+    const outputPath = path.resolve(__root, `pair_${one}_${two}.png`);
+    const avatarOnePath = path.resolve(__root, `avt_${one}.png`);
+    const avatarTwoPath = path.resolve(__root, `avt_${two}.png`);
 
     // Download and process first avatar
     const avatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
         { responseType: 'arraybuffer' })).data;
-    writeFileSync(avatarOnePath, Buffer.from(avatarOne, 'binary'));
+    fs.writeFileSync(avatarOnePath, Buffer.from(avatarOne, 'binary'));
     
     // Download and process second avatar
     const avatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
         { responseType: 'arraybuffer' })).data;
-    writeFileSync(avatarTwoPath, Buffer.from(avatarTwo, 'binary'));
+    fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwo, 'binary'));
     
     // Process images
     const template = await jimp.read(templatePath);
@@ -71,8 +76,8 @@ async function makeImage({ one, two }) {
     await template.writeAsync(outputPath);
     
     // Cleanup temp files
-    unlinkSync(avatarOnePath);
-    unlinkSync(avatarTwoPath);
+    fs.unlinkSync(avatarOnePath);
+    fs.unlinkSync(avatarTwoPath);
     
     return outputPath;
 }
@@ -90,18 +95,20 @@ module.exports.onStart = async function({ event, api, args }) {
         const two = mention[0];
         const pairedImage = await makeImage({ one, two });
         
-        const userName = (await global.nodemodule["axios"].get(
+        const axios = require('axios');
+        const userName = (await axios.get(
             `https://graph.facebook.com/${two}?fields=name&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
         )).data.name;
         
+        const fs = require('fs-extra');
         api.sendMessage({
             body: `✨╭──•◈•───✮───•◈•──╮\n\n  「 𝐒𝐚𝐩𝐡𝐚𝐥 𝐉𝐮𝐭𝐢𝐛𝐚𝐧𝐝𝐡𝐚𝐧 」\n\n╰──•◈•───✮───•◈•──╯\n\n🥀 | 𝐏𝐚𝐢𝐫𝐞𝐝 𝐰𝐢𝐭𝐡: @${userName}`,
             mentions: [{
                 tag: userName,
                 id: two
             }],
-            attachment: global.nodemodule["fs-extra"].createReadStream(pairedImage)
-        }, threadID, () => global.nodemodule["fs-extra"].unlinkSync(pairedImage), messageID);
+            attachment: fs.createReadStream(pairedImage)
+        }, threadID, () => fs.unlinkSync(pairedImage), messageID);
         
     } catch (error) {
         console.error(error);
