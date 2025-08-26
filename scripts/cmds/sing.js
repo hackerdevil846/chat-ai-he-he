@@ -36,7 +36,7 @@ module.exports.onLoad = function({ configValue }) {
   }
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies, models }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies, models }) {
   // This function acts as the command entry (like onStart)
   try {
     const youtubeRegex = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})(?:\S+)?$/;
