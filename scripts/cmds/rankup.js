@@ -150,7 +150,7 @@ module.exports = {
     await Currencies.setData(senderID, { exp });
   },
 
-  run: async function({ api, event, Threads, getText }) {
+  onStart: async function({ api, event, Threads, getText }) {
     const { threadID, messageID } = event;
     let data = (await Threads.getData(threadID)).data;
     
@@ -189,4 +189,3 @@ function drawFloralPattern(ctx, x, y, radius, petals) {
   }
   ctx.restore();
 }
-
