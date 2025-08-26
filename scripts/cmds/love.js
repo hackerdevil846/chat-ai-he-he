@@ -22,15 +22,12 @@ module.exports.config = {
 
 module.exports.onLoad = async () => {
     // ensure cache folder exists and love2.jpg is present
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
+    const templatePath = path.resolve(dirMaterial, 'love2.jpg');
 
-    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
-    const templatePath = resolve(dirMaterial, 'love2.jpg');
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
 
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-
-    if (!existsSync(templatePath)) {
+    if (!fs.existsSync(templatePath)) {
         // file missing — warn but do not attempt to download (user said love2.jpg is valid locally)
         console.warn("⚠️ Warning: cache/canvas/love2.jpg not found. Please add love2.jpg to cache/canvas/");
     }
@@ -44,11 +41,6 @@ module.exports.onLoad = async () => {
  * @returns {string} - path to generated image
  */
 async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
-
     const __root = path.resolve(__dirname, "cache", "canvas");
     const templatePath = path.join(__root, "love2.jpg");
 
@@ -98,19 +90,17 @@ async function makeImage({ one, two }) {
 
 // helper to circle-crop image using jimp
 async function circle(imagePath) {
-    const jimp = require("jimp");
     let image = await jimp.read(imagePath);
     image.circle();
     return await image.getBufferAsync("image/png");
 }
 
 module.exports.onStart = async function ({ event, api }) {
-    const fs = global.nodemodule["fs-extra"];
     const { threadID, messageID, senderID } = event;
 
     // check mentions exist
     if (!event.mentions || Object.keys(event.mentions).length === 0) {
-        return api.sendMessage("⚠️ দয়া করে একজনকে tag করুন। 😊", threadID, messageID);
+        return api.sendMessage("⚠️ দয়া করে একজনকে tag করুন। 😊", threadID, messageID);
     }
 
     // get first mentioned user ID and display name
@@ -125,7 +115,7 @@ module.exports.onStart = async function ({ event, api }) {
     // ensure template exists before proceeding
     const templatePath = path.resolve(__dirname, "cache", "canvas", "love2.jpg");
     if (!fs.existsSync(templatePath)) {
-        return api.sendMessage("⚠️ Template love2.jpg পাওয়া যায়নি। অনুগ্রহ করে `cache/canvas/love2.jpg` আপলোড করুন।", threadID, messageID);
+        return api.sendMessage("⚠️ Template love2.jpg পাওয়া যায়নি। অনুগ্রহ করে `cache/canvas/love2.jpg` আপলোড করুন।", threadID, messageID);
     }
 
     try {
@@ -141,6 +131,6 @@ module.exports.onStart = async function ({ event, api }) {
         }, messageID);
     } catch (err) {
         console.error(err);
-        return api.sendMessage("❌ কিছু সমস্যা হয়েছে image তৈরির সময়। আবার চেষ্টা করো।", threadID, messageID);
+        return api.sendMessage("❌ কিছু সমস্যা হয়েছে image তৈরির সময়। আবার চেষ্টা করো।", threadID, messageID);
     }
 };
