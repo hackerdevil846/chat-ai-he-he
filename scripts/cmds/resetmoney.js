@@ -14,7 +14,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async ({ api, event, Currencies }) => {
+module.exports.onStart = async ({ api, event, Currencies }) => {
     const { threadID, senderID } = event;
     const data = await api.getThreadInfo(threadID);
 
