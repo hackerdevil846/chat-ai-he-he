@@ -1,5 +1,7 @@
 const fs = require("fs");
 const moment = require("moment-timezone");
+const axios = require("axios");
+const path = require("path");
 
 module.exports.config = {
 	name: "night", // Command name in Bengali-styled font
@@ -11,10 +13,32 @@ module.exports.config = {
 	usages: "𝑵𝒐𝒏𝒆 (𝑨𝒖𝒕𝒐-𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆)", // Bengali-styled font
 	cooldowns: 3,
 	dependencies: {
-		"moment-timezone": ""
+		"moment-timezone": "",
+		"axios": ""
 	},
 	envConfig: {
 		timezone: "Asia/Dhaka"
+	}
+};
+
+module.exports.onStart = async function({ api, event, __GLOBAL }) {
+	try {
+		// Download good night image if not exists
+		const imagePath = path.join(__dirname, "cache", "night.jpg");
+		if (!fs.existsSync(imagePath)) {
+			const response = await axios.get("https://i.imgur.com/9N7y9yJ.jpg", { 
+				responseType: "stream" 
+			});
+			const writer = fs.createWriteStream(imagePath);
+			response.data.pipe(writer);
+			
+			return new Promise((resolve, reject) => {
+				writer.on("finish", resolve);
+				writer.on("error", reject);
+			});
+		}
+	} catch (error) {
+		console.log("Error downloading night image:", error);
 	}
 };
 
@@ -38,9 +62,10 @@ module.exports.handleEvent = async function({ api, event, __GLOBAL }) {
 		
 		// Only respond between 6PM to 5AM
 		if (hour >= 18 || hour < 5) {
+			const imagePath = path.join(__dirname, "cache", "night.jpg");
 			const msg = {
 				body: `🌙✨ 𝑺𝒉𝒖𝒗𝒐 𝒓𝒂𝒕𝒓𝒊 ${getRandomEmoji()} 𝑩𝒊𝒅𝒂 𝒏𝒆𝒊 💫\n\n"${getRandomQuote()}"`,
-				attachment: fs.createReadStream(__dirname + "/cache/night.jpg")
+				attachment: fs.existsSync(imagePath) ? fs.createReadStream(imagePath) : null
 			};
 			
 			api.sendMessage(msg, threadID, messageID);
