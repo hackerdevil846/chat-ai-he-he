@@ -57,7 +57,7 @@ module.exports.handleEvent = async function({ event, api }) {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     // For command-style execution (optional)
     const { threadID, messageID } = event;
     try {
