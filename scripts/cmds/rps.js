@@ -19,7 +19,7 @@ module.exports.onLoad = function () {
     // Nothing required on load
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const textChoices = ["rock", "paper", "scissors"];
     const emojiChoices = ["✊", "✋", "✌️"];
 
