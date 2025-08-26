@@ -47,7 +47,7 @@ module.exports.wrapText = (ctx, name, maxWidth) => {
 	});
 };
 
-module.exports.run = async function ({ api, event, Users }) {
+module.exports.onStart = async function ({ api, event, Users }) {
 	try {
 		let pathImg = __dirname + "/cache/background.png";
 		let pathAvt1 = __dirname + "/cache/Avtmot.png";
