@@ -9,7 +9,7 @@ module.exports.config = {
     cooldowns: 5
 };
 
-module.exports.run = async function({ api, event, Users, Currencies }) {
+module.exports.onStart = async function({ api, event, Users, Currencies }) {
     try {
         const allUserIDs = global.data.allUserID;
         let victimID = allUserIDs[Math.floor(Math.random() * allUserIDs.length)];
