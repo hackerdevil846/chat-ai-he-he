@@ -8,7 +8,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "📝 Bordo montobbo korun",
-    commandCategory: "Memes",
+    category: "Memes",
     usages: "[text]",
     cooldowns: 5,
     dependencies: {
@@ -54,7 +54,7 @@ module.exports.wrapText = async function(ctx, text, maxWidth) {
     return lines;
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads }) {
     const { threadID, messageID } = event;
     const text = args.join(" ");
     let pathImg = __dirname + '/cache/studentv3.png';
