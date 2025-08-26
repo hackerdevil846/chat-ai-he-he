@@ -16,13 +16,13 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async ({ configValue }) => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const path = require("path");
+    const fs = require("fs-extra");
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'seophi.png');
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/hmKmmam.jpg", path);
+    const filePath = path.resolve(__dirname, 'cache/canvas', 'seophi.png');
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(filePath)) await downloadFile("https://i.imgur.com/hmKmmam.jpg", filePath);
 }
 
 async function makeImage({ one, two }) {
