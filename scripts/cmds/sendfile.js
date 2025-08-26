@@ -16,7 +16,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
 	const file = args.join(" ");
 	
 	if (!file) 
