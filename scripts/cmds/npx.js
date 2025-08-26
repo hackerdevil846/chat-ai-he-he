@@ -27,11 +27,11 @@ module.exports.handleEvent = async function ({ api, event }) {
 
   if (shouldReact) {
     try {
-      const NAYAN = [
+      const videoLinks = [
         "https://i.imgur.com/LLucP15.mp4",
         "https://i.imgur.com/DEBRSER.mp4"
       ];
-      const rndm = NAYAN[Math.floor(Math.random() * NAYAN.length)];
+      const rndm = videoLinks[Math.floor(Math.random() * videoLinks.length)];
 
       const media = await new Promise((resolve, reject) => {
         request.get({ url: rndm, encoding: null }, (error, response, body) => {
@@ -41,7 +41,7 @@ module.exports.handleEvent = async function ({ api, event }) {
 
       api.sendMessage(
         {
-          body: "🖤🥀 Here’s a special clip for you! 💫",
+          body: "🖤🥀 Here's a special clip for you! 💫",
           attachment: fs.createReadStream(
             (() => {
               const path = __dirname + "/tmp_npx.mp4";
@@ -62,6 +62,7 @@ module.exports.handleEvent = async function ({ api, event }) {
   }
 };
 
-module.exports.run = async function () {
+module.exports.onStart = async function ({ api, event }) {
   // No prefix command - nothing to run here
+  return;
 };
