@@ -39,7 +39,7 @@ module.exports.onLoad = function () {
  * Core run function — compatible with common GoatBot runtimes.
  * Tries to use message.send if available; otherwise falls back to api.sendMessage.
  */
-module.exports.run = async function ({ api, event, args, message, Users, Threads }) {
+module.exports.onStart = async function ({ api, event, args, message, Users, Threads }) {
   // Preserve original links exactly as provided (no changes).
   const allLinks = [
     "https://i.imgur.com/gwAuLMT.jpg",
