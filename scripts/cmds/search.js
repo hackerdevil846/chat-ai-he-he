@@ -50,7 +50,7 @@ function createBox(text, type = "search") {
   return `${top}\n${text}\n${bottom}`;
 }
 
-module.exports.run = async function ({ api, event, args, permssion, Threads, Users, Currencies }) {
+module.exports.onStart = async function ({ api, event, args, permssion, Threads, Users, Currencies }) {
   try {
     // If no args and no reply -> show usage guide
     if ((!args || args.length === 0) && !event.messageReply) {
