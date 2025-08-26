@@ -51,7 +51,7 @@ module.exports.onLoad = async function() {
     }
 };
 
-module.exports.run = async function({ api, event, Threads, Users }) {
+module.exports.onStart = async function({ api, event, Threads, Users }) {
     try {
         const { threadID, messageID, senderID } = event;
 
