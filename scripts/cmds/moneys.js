@@ -32,69 +32,155 @@ module.exports.languages = {
 };
 
 async function generateBalanceCard(userInfo, balance, timezone) {
-    const canvas = createCanvas(800, 400);
+    const canvas = createCanvas(900, 450);
     const ctx = canvas.getContext('2d');
 
-    // Background gradient
+    // Premium gradient background with multiple colors
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, '#2c3e50');
-    gradient.addColorStop(1, '#4ca1af');
+    gradient.addColorStop(0, '#0c0c0c');
+    gradient.addColorStop(0.3, '#142850');
+    gradient.addColorStop(0.6, '#27496d');
+    gradient.addColorStop(1, '#0c7b93');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Decorative elements
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-    for (let i = 0; i < 15; i++) {
+    // Add luxury pattern overlay
+    ctx.fillStyle = 'rgba(255, 215, 0, 0.05)';
+    for (let i = 0; i < 100; i++) {
+        const size = Math.random() * 15 + 5;
         ctx.beginPath();
         ctx.arc(
             Math.random() * canvas.width,
             Math.random() * canvas.height,
-            Math.random() * 30 + 10,
+            size,
             0,
             Math.PI * 2
         );
         ctx.fill();
     }
 
-    // User avatar
+    // Add decorative geometric shapes
+    ctx.strokeStyle = 'rgba(255, 215, 0, 0.2)';
+    ctx.lineWidth = 2;
+    
+    // Diamond shapes
+    for (let i = 0; i < 8; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 25 + 15;
+        
+        ctx.beginPath();
+        ctx.moveTo(x, y - size);
+        ctx.lineTo(x + size, y);
+        ctx.lineTo(x, y + size);
+        ctx.lineTo(x - size, y);
+        ctx.closePath();
+        ctx.stroke();
+    }
+
+    // User avatar with gold border
     try {
         const response = await axios.get(userInfo.avatar, { responseType: 'arraybuffer' });
         const avatar = await loadImage(Buffer.from(response.data, 'binary'));
 
+        // Draw gold border circle
+        ctx.beginPath();
+        ctx.arc(150, 225, 85, 0, Math.PI * 2);
+        ctx.strokeStyle = '#FFD700';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        
+        // Draw avatar
         ctx.save();
         ctx.beginPath();
-        ctx.arc(150, 200, 80, 0, Math.PI * 2);
+        ctx.arc(150, 225, 80, 0, Math.PI * 2);
         ctx.closePath();
         ctx.clip();
-        ctx.drawImage(avatar, 70, 120, 160, 160);
+        ctx.drawImage(avatar, 70, 145, 160, 160);
         ctx.restore();
     } catch (e) {
         console.error("Avatar error:", e);
     }
 
-    // User name
-    ctx.font = 'bold 38px "Segoe UI"';
-    ctx.fillStyle = '#ffffff';
+    // Luxury divider line
+    ctx.beginPath();
+    ctx.moveTo(250, 180);
+    ctx.lineTo(650, 180);
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // User name with shadow effect
+    ctx.font = 'bold 42px "Segoe UI"';
+    ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'center';
-    ctx.fillText(userInfo.name, 400, 120);
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.fillText(userInfo.name, 450, 130);
 
-    // Balance information
-    ctx.font = 'bold 60px "Segoe UI"';
-    ctx.fillStyle = '#f1c40f';
-    ctx.fillText(`$${balance}`, 400, 220);
+    // Balance label
+    ctx.font = '28px "Segoe UI"';
+    ctx.fillStyle = '#CCCCCC';
+    ctx.fillText('Current Balance', 450, 250);
 
-    // Decorative balance icon
+    // Balance amount with luxurious gold color
+    ctx.font = 'bold 72px "Segoe UI"';
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(`$${balance.toLocaleString()}`, 450, 310);
+
+    // Decorative money bag icon
     ctx.font = 'bold 80px "Segoe UI"';
-    ctx.fillText('💰', 650, 220);
+    ctx.fillText('💰', 750, 230);
 
-    // Footer with date
-    ctx.font = 'italic 20px "Segoe UI"';
+    // Footer with date and decorative elements
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.font = 'italic 18px "Segoe UI"';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.fillText(
         `Checked on ${moment().tz(timezone).format('YYYY-MM-DD hh:mm:ss A')}`,
-        400,
-        350
+        450,
+        420
     );
+
+    // Add decorative corner elements
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 2;
+    
+    // Top-left corner
+    ctx.beginPath();
+    ctx.moveTo(20, 20);
+    ctx.lineTo(50, 20);
+    ctx.moveTo(20, 20);
+    ctx.lineTo(20, 50);
+    ctx.stroke();
+    
+    // Top-right corner
+    ctx.beginPath();
+    ctx.moveTo(880, 20);
+    ctx.lineTo(850, 20);
+    ctx.moveTo(880, 20);
+    ctx.lineTo(880, 50);
+    ctx.stroke();
+    
+    // Bottom-left corner
+    ctx.beginPath();
+    ctx.moveTo(20, 430);
+    ctx.lineTo(50, 430);
+    ctx.moveTo(20, 430);
+    ctx.lineTo(20, 400);
+    ctx.stroke();
+    
+    // Bottom-right corner
+    ctx.beginPath();
+    ctx.moveTo(880, 430);
+    ctx.lineTo(850, 430);
+    ctx.moveTo(880, 430);
+    ctx.lineTo(880, 400);
+    ctx.stroke();
 
     return canvas.toBuffer('image/png');
 }
@@ -133,14 +219,14 @@ module.exports.onStart = async function({ api, event, args, Users, Currencies, c
             }, balance, config.envConfig.timezone);
 
             return api.sendMessage({
-                body: `💳 𝗕𝗮𝗹𝗮𝗻𝗰𝗲 𝗖𝗮𝗿𝗱\n\n👤 User: ${targetName}\n💰 Balance: $${balance}`,
+                body: `💎 𝗟𝗨𝗫𝗨𝗥𝗬 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗖𝗔𝗥𝗗\n\n👤 User: ${targetName}\n💰 Balance: $${balance.toLocaleString()}\n\n✨ Checked at: ${moment().tz(config.envConfig.timezone).format('hh:mm:ss A')}`,
                 attachment: card
             }, threadID, messageID);
 
         } catch (cardError) {
             console.error("Card generation error:", cardError);
             return api.sendMessage(
-                `💳 𝗕𝗮𝗹𝗮𝗻𝗰𝗲 𝗜𝗻𝗳𝗼\n\n👤 User: ${targetName}\n💰 Balance: $${balance}\n\n✨ Checked at: ${moment().tz(config.envConfig.timezone).format('hh:mm:ss A')}`,
+                `💎 𝗟𝗨𝗫𝗨𝗥𝗬 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗖𝗔𝗥𝗗\n\n👤 User: ${targetName}\n💰 Balance: $${balance.toLocaleString()}\n\n✨ Checked at: ${moment().tz(config.envConfig.timezone).format('hh:mm:ss A')}`,
                 threadID,
                 messageID
             );
