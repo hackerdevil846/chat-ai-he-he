@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0, // 0 = all members
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "𝑺𝒚𝒔𝒕𝒆𝒎 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒏",
-  commandCategory: "system",
+  category: "system",
   usages: "",
   cooldowns: 3,
   dependencies: {}
