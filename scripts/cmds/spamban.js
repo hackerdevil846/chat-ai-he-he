@@ -14,7 +14,7 @@ module.exports.config = {
   cooldowns: 5
 };
 
-module.exports.run = async function ({ api, event }) {
+module.exports.onStart = async function ({ api, event }) {
   try {
     const text = `𝘼𝙪𝙩𝙤𝙢𝙖𝙩𝙞𝙘 𝙗𝙖𝙣 𝙪𝙨𝙚𝙧 𝙟𝙤𝙙𝙞 𝙠𝙚𝙪 ${num} 𝘽𝘼𝙍/${timee} 𝙎𝙀𝘾𝙊𝙉𝘿 𝙢𝙖𝙟𝙝𝙚 𝙨𝙥𝙖𝙢 𝙠𝙤𝙧𝙚`;
     return api.sendMessage(text, event.threadID, event.messageID);
