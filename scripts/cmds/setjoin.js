@@ -47,7 +47,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function ({ api, event, args, Threads, getText }) {
+module.exports.onStart = async function ({ api, event, args, Threads, getText }) {
     try {
         const { existsSync, unlinkSync, createReadStream } = global.nodemodule["fs-extra"];
         const { join } = global.nodemodule["path"];
