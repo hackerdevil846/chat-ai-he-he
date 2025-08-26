@@ -20,18 +20,21 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function () {
-	const { resolve } = global.nodemodule["path"];
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-	const { downloadFile } = global.utils;
+	const { existsSync, mkdirSync } = fs;
 	const dirMaterial = __dirname + `/cache/canvas/`;
-	const path = resolve(__dirname, "cache/canvas", "pairing.png");
+	const imagePath = path.resolve(__dirname, "cache/canvas", "pairing.png");
 
 	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(path)) {
-		await downloadFile(
-			"https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png",
-			path
-		);
+	if (!existsSync(imagePath)) {
+		try {
+			const response = await axios.get(
+				"https://i.postimg.cc/X7R3CLmb/267378493-3075346446127866-4722502659615516429-n.png",
+				{ responseType: 'arraybuffer' }
+			);
+			fs.writeFileSync(imagePath, response.data);
+		} catch (error) {
+			console.error("Failed to download pairing image:", error);
+		}
 	}
 };
 
