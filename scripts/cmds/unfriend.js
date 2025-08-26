@@ -10,7 +10,7 @@ module.exports = {
     cooldowns: 5
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     const uid = args[0];
     if (!uid) return api.sendMessage("𝒅𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒌𝒊𝒔𝒖 𝑼𝑰𝑫 𝒃𝒂 '𝒂𝒍𝒍' 𝒍𝒊𝒌𝒉𝒖𝒏", event.threadID, event.messageID);
 
