@@ -40,7 +40,7 @@ module.exports.onLoad = async () => {
 	}
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
 	const fs = global.nodemodule["fs-extra"];
 	const path = global.nodemodule["path"];
 	const url = global.nodemodule["url"];
