@@ -40,7 +40,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args, Threads, Users, getLang, message }) {
+module.exports.onStart = async function({ api, event, args, Threads, Users, getLang, message }) {
 
     // Function to generate stylish canvas message
     async function sendCanvasMessage(text) {
