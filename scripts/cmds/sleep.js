@@ -19,7 +19,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = function({ api, event, args, getText }) {
+module.exports.onStart = function({ api, event, args, getText }) {
 	const { threadID, messageID } = event;
 	const { throwError } = global.utils;
 	const moment = global.nodemodule["moment-timezone"];
