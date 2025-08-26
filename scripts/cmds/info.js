@@ -38,19 +38,19 @@ module.exports.onStart = async function({ api, event }) {
     // Current date/time in Dhaka
     const date = moment.tz("Asia/Dhaka").format("D/MM/YYYY [at] hh:mm:ss A");
 
-    // Prepare cache folder & image path
+    // Prepare cache folder & video path
     const cacheDir = path.join(__dirname, "cache");
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-    const imagePath = path.join(cacheDir, "elegant_info.png");
+    const videoPath = path.join(cacheDir, "info_video.mp4");
 
-    // Download bot avatar
+    // Download video from provided URL
     await new Promise((resolve, reject) => {
       request({
         method: "GET",
-        url: "https://graph.facebook.com/61571630409265/picture?height=720&width=720",
+        url: "https://files.catbox.moe/op5iay.mp4",
         encoding: null
       })
-      .pipe(fs.createWriteStream(imagePath))
+      .pipe(fs.createWriteStream(videoPath))
       .on("error", reject)
       .on("finish", resolve);
     });
@@ -81,14 +81,14 @@ module.exports.onStart = async function({ api, event }) {
 ┃ ✦ 𝗗𝗮𝘁𝗲: ${date}
 ╰────────────────────────────────────╯`;
 
-    // Send message with attachment
+    // Send message with video attachment
     api.sendMessage({
       body: infoBody,
-      attachment: fs.createReadStream(imagePath)
+      attachment: fs.createReadStream(videoPath)
     }, event.threadID, (err) => {
       if (err) console.error(err);
-      // Delete cached image
-      fs.unlink(imagePath).catch(console.error);
+      // Delete cached video after sending
+      fs.unlink(videoPath).catch(console.error);
     }, event.messageID);
 
   } catch (error) {
