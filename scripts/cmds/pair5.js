@@ -14,7 +14,7 @@ module.exports.config = {
   cooldowns: 15
 };
 
-module.exports.run = async function ({ event, api, Users }) {
+module.exports.onStart = async function ({ event, api, Users }) {
   try {
     const { createCanvas, loadImage } = require("canvas");
     const fs = require("fs-extra");
