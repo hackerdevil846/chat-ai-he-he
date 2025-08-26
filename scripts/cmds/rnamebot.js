@@ -10,7 +10,7 @@ module.exports.config = {
 	dependencies: {}
 };
 
-module.exports.run = async ({ event, api, args, Threads }) => {
+module.exports.onStart = async ({ event, api, args, Threads }) => {
     const customName = args.join(" ");
     const allThread = await Threads.getAll(["threadID"]);
     const botID = api.getCurrentUserID();
