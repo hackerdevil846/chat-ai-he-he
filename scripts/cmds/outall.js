@@ -17,7 +17,7 @@ module.exports.config = {
   ]
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   try {
     const botID = api.getCurrentUserID();
     const list = await api.getThreadList(100, null, ["INBOX"]);
