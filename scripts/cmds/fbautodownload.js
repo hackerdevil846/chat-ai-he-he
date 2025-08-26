@@ -3,7 +3,7 @@ import fs from "fs-extra";
 import path from "path";
 import os from "os";
 
-module.exports.config = {
+export const config = {
     name: "fbautodownload",
     version: "1.0.0",
     hasPermssion: 0,
@@ -19,7 +19,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function ({ api, event }) {
+export const run = async function ({ api, event }) {
     return api.sendMessage(
         `🎭 | Ei command directly use korte hobe na!\n✦ Just ekta Facebook video link pathao, ar ami automatically download kore pathai dibo ✨`,
         event.threadID,
@@ -27,7 +27,7 @@ module.exports.run = async function ({ api, event }) {
     );
 };
 
-module.exports.handleEvent = async function ({ api, event }) {
+export const handleEvent = async function ({ api, event }) {
     if (event.type !== "message" || !event.body) return;
     const fbRegex = /^(https?:\/\/)?(www\.)?facebook\.com\/(share|reel|watch)\/.+/i;
     if (!fbRegex.test(event.body)) return;
