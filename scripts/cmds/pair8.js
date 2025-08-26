@@ -77,7 +77,7 @@ async function makeImage({ one, two }) {
     return outputPath;
 }
 
-module.exports.run = async function({ event, api, args }) {
+module.exports.onStart = async function({ event, api, args }) {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
     
