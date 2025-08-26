@@ -28,8 +28,8 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = async function() {
-  const fs = global.nodemodule["fs-extra"];
   try {
+    const fs = require("fs-extra");
     // Ensure cache folder exists
     const cacheDir = __dirname + "/cache";
     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
@@ -40,18 +40,17 @@ module.exports.onLoad = async function() {
 };
 
 module.exports.circleImage = async function(imagePath) {
-  const jimp = global.nodemodule["jimp"];
+  const jimp = require("jimp");
   const img = await jimp.read(imagePath);
   img.circle();
   return await img.getBufferAsync("image/png");
 };
 
-// === CHANGED: Export name fixed from `run` to `onStart` ===
 module.exports.onStart = async function({ api, event, args, Threads, Users, Currencies, models }) {
   const { createCanvas, loadImage, registerFont } = require("canvas");
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
-  const jimp = global.nodemodule["jimp"];
+  const fs = require("fs-extra");
+  const axios = require("axios");
+  const jimp = require("jimp");
 
   try {
     // Resolve target UID: reply -> mention -> arg numeric -> sender
