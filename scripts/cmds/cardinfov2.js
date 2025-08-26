@@ -26,16 +26,28 @@ module.exports.languages = {
     "success": "✅ Your info card is ready!"
   },
   "bn": {
-    "success": "✅ তোমার ইনফো কার্ড তৈরি হয়ে গেছে!"
+    "success": "✅ তোমার ইনফো কার্ড তৈরি হয়ে গেছে!"
   }
 };
 
 module.exports.onLoad = function () {
-  // ensure cache dir exists
-  const fs = global.nodemodule["fs-extra"];
+  // ensure cache dir exists with proper error handling
   try {
-    fs.ensureDirSync(__dirname + "/cache");
-  } catch (e) { /* ignore */ }
+    const fs = require('fs-extra') || (global.nodemodule && global.nodemodule["fs-extra"]);
+    if (fs) {
+      fs.ensureDirSync(__dirname + "/cache");
+    }
+  } catch (e) { 
+    // fallback to regular fs if fs-extra not available
+    try {
+      const fs = require('fs');
+      if (!fs.existsSync(__dirname + "/cache")) {
+        fs.mkdirSync(__dirname + "/cache", { recursive: true });
+      }
+    } catch (err) { 
+      /* ignore */ 
+    }
+  }
 };
 
 /**
@@ -193,7 +205,7 @@ module.exports.onStart = async function ({ api, event, args, Users, Threads, Cur
 
   } catch (error) {
     // graceful error message with emoji
-    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error && error.message ? error.message : String(error)}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
+    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error && error.message ? error.message : String(error)}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
     return api.sendMessage(errText, threadID, messageID);
   }
 };
