@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports.config = {
-    name: "tea", // Command name
+    name: "teatime", // Command name
     version: "1.0.2",
     hasPermssion: 0, // 0 = all members, 1 = admin+, 2 = owner
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Credit
