@@ -14,10 +14,12 @@ module.exports.config = {
 };
 
 module.exports.onLoad = function () {
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { join } = global.nodemodule["path"];
-    const path = join(__dirname, "..", "events", "cache", "joinGif");
-    if (!existsSync(path)) mkdirSync(path, { recursive: true });
+    const fs = require("fs-extra");
+    const path = require("path");
+    const { existsSync, mkdirSync } = fs;
+    const { join } = path;
+    const cachePath = join(__dirname, "..", "events", "cache", "joinGif");
+    if (!existsSync(cachePath)) mkdirSync(cachePath, { recursive: true });
 };
 
 module.exports.languages = {
@@ -49,8 +51,10 @@ module.exports.languages = {
 
 module.exports.onStart = async function ({ api, event, args, Threads, getText }) {
     try {
-        const { existsSync, unlinkSync, createReadStream } = global.nodemodule["fs-extra"];
-        const { join } = global.nodemodule["path"];
+        const fs = require("fs-extra");
+        const path = require("path");
+        const { existsSync, unlinkSync, createReadStream } = fs;
+        const { join } = path;
         const { threadID } = event;
         const msg = args.slice(1).join(" ");
         const data = (await Threads.getData(threadID)).data;
