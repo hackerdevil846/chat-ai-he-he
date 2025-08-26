@@ -29,7 +29,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args, Users, Threads, Currencies, permssion }) {
+module.exports.onStart = async function({ api, event, args, Users, Threads, Currencies, permssion }) {
     try {
         const { senderID, threadID, messageID, mentions } = event;
 
