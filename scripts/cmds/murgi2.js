@@ -11,7 +11,7 @@ module.exports.config = {
 	envConfig: {}
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event }) {
 	try {
 		const mention = Object.keys(event.mentions)[0];
 		if (!mention) {
