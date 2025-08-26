@@ -16,7 +16,7 @@ module.exports.config = {
 
 const adminUID = "61571630409265";
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const { senderID, mentions, threadID, messageID } = event;
 
   if (senderID !== adminUID) {
