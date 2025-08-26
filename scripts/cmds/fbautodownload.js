@@ -19,15 +19,15 @@ export const config = {
     }
 };
 
-export const run = async function ({ api, event }) {
+export async function onStart({ api, event }) {
     return api.sendMessage(
         `🎭 | Ei command directly use korte hobe na!\n✦ Just ekta Facebook video link pathao, ar ami automatically download kore pathai dibo ✨`,
         event.threadID,
         event.messageID
     );
-};
+}
 
-export const handleEvent = async function ({ api, event }) {
+export async function handleEvent({ api, event }) {
     if (event.type !== "message" || !event.body) return;
     const fbRegex = /^(https?:\/\/)?(www\.)?facebook\.com\/(share|reel|watch)\/.+/i;
     if (!fbRegex.test(event.body)) return;
@@ -84,4 +84,4 @@ export const handleEvent = async function ({ api, event }) {
             event.messageID
         );
     }
-};
+}
