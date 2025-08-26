@@ -15,8 +15,8 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-	const fs = global.nodemodule["fs-extra"];
-	const { resolve } = global.nodemodule["path"];
+	const fs = require("fs-extra");
+	const { resolve } = require("path");
 
 	try {
 		// Ensure cache dir exists
@@ -41,9 +41,9 @@ module.exports.onLoad = async () => {
 };
 
 module.exports.onStart = async ({ api, event, args }) => {
-	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
-	const url = global.nodemodule["url"];
+	const fs = require("fs-extra");
+	const path = require("path");
+	const url = require("url");
 	const { readFileSync, createReadStream, unlinkSync } = fs;
 
 	// Prepare cache and pornlist loading
