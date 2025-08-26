@@ -27,7 +27,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args, Currencies, getText }) {
+module.exports.onStart = async function({ api, event, args, Currencies, getText }) {
     try {
         const { threadID, messageID, senderID } = event;
         const { getData, increaseMoney, decreaseMoney } = Currencies;
