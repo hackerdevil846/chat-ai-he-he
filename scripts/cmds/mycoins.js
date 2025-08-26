@@ -16,7 +16,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, Users, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Users, Currencies }) {
 	const { threadID, messageID, senderID, mentions } = event;
 	
 	async function createCoinImage(name, money, avatarURL) {
