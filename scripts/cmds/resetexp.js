@@ -23,7 +23,7 @@ module.exports.onLoad = async function () {
     console.log("✅ resetexp command loaded!");
 };
 
-module.exports.run = async function ({ api, event, Currencies }) {
+module.exports.onStart = async function ({ api, event, Currencies }) {
     try {
         const threadInfo = await api.getThreadInfo(event.threadID);
         let resetCount = 0;
