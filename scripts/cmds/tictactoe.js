@@ -215,8 +215,8 @@ module.exports.handleReply = async function ({ api, event, handleReply }) {
 	}
 };
 
-/* run — start / continue / delete game */
-module.exports.run = async function ({ api, event, args }) {
+
+module.exports.onStart = async function ({ api, event, args }) {
 	if (!global.client.handleReply) global.client.handleReply = new Map();
 	let { threadID, messageID, senderID } = event;
 	const threadSetting = global.data.threadData.get(threadID) || {};
