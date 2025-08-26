@@ -73,7 +73,7 @@ module.exports.wrapText = function(ctx, text, maxWidth) {
   });
 };
 
-module.exports.run = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
+module.exports.onStart = async function({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
   const lang = (this.languages && this.languages.en) ? this.languages.en : { no_text: "Enter text", error: "Error", done: "Done" };
   let text = args.join(' ').trim();
