@@ -47,7 +47,7 @@ module.exports.handleReaction = async ({ event, api, Threads, handleReaction }) 
 	}
 };
 
-module.exports.run = async ({ event, api, args, Threads }) => {
+module.exports.onStart = async ({ event, api, args, Threads }) => {
 	const name = module.exports.config.name;
 	try {
 		if (!args || args.length === 0) return global.utils.throwError(name, event.threadID, event.messageID);
