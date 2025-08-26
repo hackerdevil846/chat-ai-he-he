@@ -1,5 +1,5 @@
 module.exports.config = {
-  name: "search",
+  name: "gsearch",
   version: "2.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
