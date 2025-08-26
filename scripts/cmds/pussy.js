@@ -15,7 +15,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
   const { createCanvas, loadImage } = require("canvas");
   const fs = require("fs-extra");
   const axios = require("axios");
