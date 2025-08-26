@@ -84,7 +84,7 @@ async function generateWelcomeImage(name) {
     return canvas.toBuffer('image/jpeg');
 }
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
     const userInfo = await Users.getData(event.senderID);
     const userName = userInfo.name || "𝑨𝒅𝒗𝒆𝒏𝒕𝒖𝒓𝒆𝒓";
 
