@@ -113,7 +113,7 @@ async function generateReceipt(api, senderID, receiverID, amount, tax, net) {
     }
 }
 
-module.exports.run = async function ({ api, event, args, Currencies, Users, getText }) {
+module.exports.onStart = async function ({ api, event, args, Currencies, Users, getText }) {
     try {
         const { threadID, messageID, senderID } = event;
         const { taxRate } = global.configModule[this.config.name].envConfig;
