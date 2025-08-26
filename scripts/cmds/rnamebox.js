@@ -10,7 +10,7 @@ module.exports.config = {
 	dependencies: {}
 };
 
-module.exports.run = async function({ event, api, args, Threads }) {
+module.exports.onStart = async function({ event, api, args, Threads }) {
     try {
         const customName = args.join(" ");
         
