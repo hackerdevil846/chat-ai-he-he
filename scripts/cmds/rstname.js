@@ -24,13 +24,13 @@ module.exports = {
   },
 
   /**
-   * run - main entry
+   * onStart - main entry
    * @param {Object} param0
    * @param {Object} param0.api - bot api
    * @param {Object} param0.event - event data
    * @param {Array}  param0.args - command args (not used)
    */
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     const { threadID, senderID } = event;
 
     // Only allow in groups
