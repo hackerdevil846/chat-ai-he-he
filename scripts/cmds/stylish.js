@@ -168,7 +168,7 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath();
 }
 
-module.exports.run = async function ({ api, event, args, Threads, Users, Currencies, handleReply, handleReaction, models }) {
+module.exports.onStart = async function ({ api, event, args, Threads, Users, Currencies, handleReply, handleReaction, models }) {
   try {
     const lang = (this.languages && this.languages.en) ? this.languages.en : module.exports.languages.en;
     const text = args && args.length ? args.join(' ') : (event.messageReply && event.messageReply.body ? event.messageReply.body : null);
