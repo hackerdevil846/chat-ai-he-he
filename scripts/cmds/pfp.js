@@ -63,7 +63,7 @@ function drawGlowText(ctx, text, x, y, fontSize = 40, color = "#fff") {
   ctx.restore();
 }
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
   const { senderID, threadID, mentions, messageReply } = event;
   const lang = module.exports.languages.bn;
 
