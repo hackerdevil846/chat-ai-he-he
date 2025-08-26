@@ -22,7 +22,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, args, client }) {
+module.exports.onStart = async function({ api, event, args, client }) {
     const fs = require("fs-extra");
     const { exec } = require("child_process");
     const configPath = client.dirConfig;
