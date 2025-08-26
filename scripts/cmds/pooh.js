@@ -13,7 +13,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     const fs = global.nodemodule["fs-extra"];
     const request = global.nodemodule["request"];
     const { threadID, messageID } = event;
