@@ -25,7 +25,7 @@ module.exports.languages = {
   }
 };
 
-module.exports.run = async function({ api, event, args, Currencies, Users, language }) {
+module.exports.onStart = async function({ api, event, args, Currencies, Users, language }) {
   try {
     const { threadID, messageID, senderID } = event;
     const action = args[0]?.toLowerCase();
@@ -101,4 +101,5 @@ module.exports.run = async function({ api, event, args, Currencies, Users, langu
     api.sendMessage("❌ An error occurred while processing your request", event.threadID, event.messageID);
   }
 };
+
 
