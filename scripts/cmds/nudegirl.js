@@ -13,7 +13,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
   const axios = global.nodemodule["axios"];
   const fs = global.nodemodule["fs-extra"];
   const path = __dirname + "/cache/nudegirl.jpg";
