@@ -33,7 +33,7 @@ module.exports.languages = {
     }
 }
 
-module.exports.run = async function({ event, api, Currencies, getText }) {
+module.exports.onStart = async function({ event, api, Currencies, getText }) {
     const { threadID, messageID, senderID } = event;
     
     const cooldown = global.configModule[this.config.name].cooldownTime;
