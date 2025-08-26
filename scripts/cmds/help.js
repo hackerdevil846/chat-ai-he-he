@@ -65,9 +65,12 @@ module.exports.handleEvent = function ({ api, event, getText }) {
 };
 
 module.exports.onStart = function({ api, event, args, getText }) {
+    // Extract threadID and messageID from event at the beginning
+    const threadID = event.threadID;
+    const messageID = event.messageID;
+    
 	try {
 		const { commands } = global.client;
-		const { threadID, messageID } = event;
 		const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
 		const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
 
@@ -141,6 +144,7 @@ module.exports.onStart = function({ api, event, args, getText }) {
 		}, messageID);
 	} catch (err) {
 		if (global && global.logger && typeof global.logger.error === "function") global.logger.error(err);
+		// Fixed: Using the threadID and messageID variables defined at the top
 		return api.sendMessage("❗ 𝐇𝐚𝐨: An error occurred while processing help command.", threadID, messageID);
 	}
 };
