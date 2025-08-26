@@ -12,7 +12,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
   const request = global.nodemodule["request"];
   let content = (args.join(" ") || "").trim();
 
