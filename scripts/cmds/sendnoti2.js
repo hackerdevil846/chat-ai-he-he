@@ -24,7 +24,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async ({ api, event, args, getText }) => {
+module.exports.onStart = async ({ api, event, args, getText }) => {
 	const fs = require("fs");
 	const axios = require("axios");
 	const { threadID, messageReply } = event;
