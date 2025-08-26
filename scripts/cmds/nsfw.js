@@ -18,7 +18,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function ({ event, api, Threads, getText }) {
+module.exports.onStart = async function ({ event, api, Threads, getText }) {
     const { threadID, messageID } = event;
     const { getData, setData } = Threads;
     let type;
