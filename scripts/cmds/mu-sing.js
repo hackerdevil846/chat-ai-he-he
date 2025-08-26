@@ -4,6 +4,7 @@ const path = require("path");
 const ytdl = require("ytdl-core");
 const ffmpegPath = require("ffmpeg-static");
 const cp = require("child_process");
+const ytSearch = require("yt-search");
 
 module.exports = {
   config: {
@@ -23,7 +24,7 @@ module.exports = {
     },
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     let query, type;
 
     if (args.length > 1 && (args[args.length - 1] === "audio" || args[args.length - 1] === "video")) {
@@ -70,7 +71,7 @@ module.exports = {
 
       if (type === "audio") {
         const audio = ytdl(videoId, { quality: 'highestaudio' });
-        cp.exec(`"${ffmpegPath}" -i pipe:0 -b:a 192K ${downloadPath}`, { windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] }, (err) => {
+        cp.exec(`"${ffmpegPath}" -i pipe:0 -b:a 192K "${downloadPath}"`, { windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] }, (err) => {
           if (err) {
             console.error(`FFmpeg error: ${err.message}`);
             api.unsendMessage(processingMessage.messageID);
@@ -125,4 +126,3 @@ module.exports = {
     }
   },
 };
-
