@@ -13,7 +13,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async ({ event, api, args }) => {
+module.exports.onStart = async ({ event, api, args }) => {
   const { threadID, messageID, senderID } = event;
   const botID = api.getCurrentUserID();
   
