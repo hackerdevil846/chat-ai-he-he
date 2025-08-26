@@ -61,7 +61,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
   const { loadImage, createCanvas, registerFont } = global.nodemodule["canvas"];
   const axios = global.nodemodule["axios"];
