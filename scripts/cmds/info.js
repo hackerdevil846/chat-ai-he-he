@@ -15,7 +15,7 @@ module.exports.config = {
 };
 
 module.exports.onLoad = function() {
-  const fs = global.nodemodule["fs-extra"];
+  const fs = require("fs-extra");
   const path = require("path");
   const cacheDir = path.join(__dirname, "cache");
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
@@ -23,9 +23,9 @@ module.exports.onLoad = function() {
 
 module.exports.onStart = async function({ api, event }) {
   try {
-    const request = global.nodemodule["request"];
-    const fs = global.nodemodule["fs-extra"];
-    const moment = global.nodemodule["moment-timezone"];
+    const request = require("request");
+    const fs = require("fs-extra");
+    const moment = require("moment-timezone");
     const path = require("path");
 
     // Calculate uptime
