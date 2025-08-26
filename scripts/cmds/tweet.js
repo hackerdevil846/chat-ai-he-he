@@ -4,7 +4,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "🐦 𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒔𝒕𝒚𝒍𝒆 𝒕𝒆𝒙𝒕 𝒄𝒓𝒆𝒂𝒕𝒐𝒓 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆 🖼️",
-  commandCategory: "edit-img",
+  category: "edit-img",
   usages: "[text]",
   cooldowns: 5,
   dependencies: {
