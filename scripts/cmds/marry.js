@@ -25,26 +25,26 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync, copyFileSync } = global.nodemodule["fs-extra"];
-    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
+    const path = require("path");
+    const fs = require("fs-extra");
+    const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
     
-    if (!existsSync(dirMaterial)) 
-        mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) 
+        fs.mkdirSync(dirMaterial, { recursive: true });
     
-    const path = resolve(dirMaterial, 'marry_bg.png');
-    if (!existsSync(path)) {
+    const bgPath = path.resolve(dirMaterial, 'marry_bg.png');
+    if (!fs.existsSync(bgPath)) {
         // use local uploaded image instead of dead Imgur link
-        copyFileSync(__dirname + "/marrywi.png", path);
+        fs.copyFileSync(__dirname + "/marrywi.png", bgPath);
     }
 };
 
 module.exports.onStart = async function({ event, api, args, Users }) {
     try {
-        const { createReadStream, unlinkSync } = global.nodemodule["fs-extra"];
-        const { resolve } = global.nodemodule["path"];
-        const axios = global.nodemodule["axios"];
-        const jimp = global.nodemodule["jimp"];
+        const fs = require("fs-extra");
+        const path = require("path");
+        const axios = require("axios");
+        const jimp = require("jimp");
         const { threadID, messageID, senderID } = event;
 
         // Function to create circular profile images
@@ -57,11 +57,11 @@ module.exports.onStart = async function({ event, api, args, Users }) {
         // Process mentions
         const mention = Object.keys(event.mentions);
         if (!mention[0]) 
-            return api.sendMessage("🌸 প্রিয়জনের ট্যাগ দিন 💍", threadID, messageID);
+            return api.sendMessage("🌸 প্রিয়জনের ট্যাগ দিন 💍", threadID, messageID);
 
         const targetID = mention[0];
-        const bgPath = resolve(__dirname, 'cache', 'canvas', 'marry_bg.png');
-        const outputPath = resolve(__dirname, 'cache', 'canvas', `marry_${senderID}_${targetID}.png`);
+        const bgPath = path.resolve(__dirname, 'cache', 'canvas', 'marry_bg.png');
+        const outputPath = path.resolve(__dirname, 'cache', 'canvas', `marry_${senderID}_${targetID}.png`);
         
         // Get names for certificate
         const senderName = await Users.getNameUser(senderID);
@@ -93,11 +93,11 @@ module.exports.onStart = async function({ event, api, args, Users }) {
         
         return api.sendMessage({
             body: `💞 ${senderName} - ${targetName} এর বিবাহ সনদপত্র\n\n"আমার জীবনের প্রতিটি মুহূর্ত তোমার সাথে কাটাতে চাই 💍"`,
-            attachment: createReadStream(outputPath)
-        }, threadID, () => unlinkSync(outputPath), messageID);
+            attachment: fs.createReadStream(outputPath)
+        }, threadID, () => fs.unlinkSync(outputPath), messageID);
 
     } catch (error) {
         console.error('Marry command error:', error);
-        return api.sendMessage("❌ প্রেমের প্রস্তাব পাঠাতে সমস্যা হয়েছে! পরে আবার চেষ্টা করুন", event.threadID, event.messageID);
+        return api.sendMessage("❌ প্রেমের প্রস্তাব পাঠাতে সমস্যা হয়েছে! পরে আবার চেষ্টা করুন", event.threadID, event.messageID);
     }
 };
