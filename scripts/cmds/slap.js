@@ -24,7 +24,7 @@ module.exports.onLoad = function () {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const axios = global.nodemodule && global.nodemodule["axios"] ? global.nodemodule["axios"] : require("axios");
   const request = global.nodemodule && global.nodemodule["request"] ? global.nodemodule["request"] : require("request");
   const fs = global.nodemodule && global.nodemodule["fs-extra"] ? global.nodemodule["fs-extra"] : require("fs");
