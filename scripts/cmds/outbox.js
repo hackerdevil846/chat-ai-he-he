@@ -130,7 +130,7 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
 };
 
 // This is the main function that runs when the command is called
-module.exports.run = function({ api, event }) {
+module.exports.onStart = function({ api, event }) {
 	return api.sendMessage("🆔 | [𝒐𝒖𝒕𝒃𝒐𝒙]\n\nআপনি কোন গ্রুপ থেকে বটকে বের করতে চান তার আইডি দিন।", event.threadID, (err, info) => {
 		global.client.handleReply.push({
 			type: "inputThreadID",
