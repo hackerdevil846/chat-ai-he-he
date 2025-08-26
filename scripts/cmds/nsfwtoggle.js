@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "nsfw",
+	name: "nsfwtoggle",
 	version: "1.0.1",
 	hasPermssion: 1,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
