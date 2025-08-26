@@ -42,7 +42,7 @@ module.exports.handleSchedule = function({ event, api, models, Users, Threads, C
 	// Handle scheduled tasks (cron jobs, timers, etc.)
 }
 
-module.exports.run = async function({ api, event, args, models, Users, Threads, Currencies, permssion, message }) {
+module.exports.onStart = async function({ api, event, args, models, Users, Threads, Currencies, permssion, message }) {
 	const axios = require("axios");
 	const fs = require("fs-extra");
 	
