@@ -30,7 +30,7 @@ module.exports.onLoad = function () {
   if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
 };
 
-module.exports.run = async function ({ api, event, args, Users, Threads }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads }) {
   const fs = global.nodemodule['fs-extra'] || require('fs-extra');
   const axios = global.nodemodule['axios'] || require('axios');
   const path = require('path');
