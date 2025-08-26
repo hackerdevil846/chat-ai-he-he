@@ -10,7 +10,7 @@ module.exports.config = {
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "✨ গ্রুপ মেম্বারদের স্টাইলিশ ও গেম-স্টাইল র‍্যাঙ্ক দেখার জন্য",
-    commandCategory: "𝑮𝒓𝒐𝒖𝒑",
+    category: "𝑮𝒓𝒐𝒖𝒑",
     usages: "[user] বা [tag]",
     cooldowns: 5,
     dependencies: {
@@ -188,8 +188,8 @@ module.exports.onLoad = async function() {
     }
 };
 
-// Run command
-module.exports.run = async function({ event, api, args, Currencies, Users }) {
+
+module.exports.onStart = async function({ event, api, args, Currencies, Users }) {
     try {
         const { threadID, messageID, senderID } = event;
         const dataAll = (await Currencies.getAll(["userID", "exp"])).filter(item => item.exp > 0);
