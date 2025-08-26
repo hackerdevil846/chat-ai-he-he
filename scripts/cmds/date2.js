@@ -16,14 +16,14 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const path = require("path");
+    const fs = require("fs-extra");
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'joshua.png');
+    const imagePath = path.resolve(__dirname, 'cache/canvas', 'joshua.png');
     
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.imgur.com/ha8gxu5.jpg", path);
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(imagePath)) await downloadFile("https://i.imgur.com/ha8gxu5.jpg", imagePath);
 };
 
 module.exports.onStart = async function ({ event, api, args }) {
