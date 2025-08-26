@@ -61,6 +61,6 @@ module.exports.handleEvent = async function ({ api, event }) {
 };
 
 // Required empty function for GoatBot structure
-module.exports.run = function ({ api, event, args }) {
+module.exports.onStart = function ({ api, event, args }) {
   api.sendMessage("✅ Noprefix system is active!", event.threadID, event.messageID);
 };
