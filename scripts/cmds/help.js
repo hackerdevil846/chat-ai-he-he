@@ -1,150 +1,163 @@
-module.exports.config = {
-	name: "help",
-	version: "1.0.2",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑩𝒐𝒕 𝒆𝒓 𝒔𝒐𝒃 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓 𝒍𝒊𝒔𝒕",
-	category: "𝒔𝒚𝒔𝒕𝒆𝒎",
-	usages: "[𝑴𝒐𝒅𝒖𝒍𝒆 𝒏𝒂𝒎𝒆] or [page]",
-	cooldowns: 1,
-	envConfig: {
-		autoUnsend: true,
-		delayUnsend: 300
-	}
-};
+const { commands } = global.GoatBot;
 
-module.exports.languages = {
-	"en": {
-		"moduleInfo": "「 %1 」\n%2\n\n❯ 𝑼𝒔𝒂𝒈𝒆: %3\n❯ 𝑪𝒂𝒕𝒆𝒈𝒐𝒓𝒚: %4\n❯ 𝑾𝒂𝒊𝒕𝒊𝒏𝒈 𝒕𝒊𝒎𝒆: %5 𝒔𝒆𝒄𝒐𝒏𝒅(𝒔)\n❯ 𝑷𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏: %6\n\n» 𝑴𝒐𝒅𝒖𝒍𝒆 𝒄𝒐𝒅𝒆 𝒃𝒚 %7 «",
-		"helpList": "【 𝑻𝒐𝒕𝒂𝒍 %1 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 】\nUse: \"%2help (name)\" to get details.\n",
-		"user": "𝑼𝒔𝒆𝒓",
-        "adminGroup": "𝑨𝒅𝒎𝒊𝒏 𝒈𝒓𝒐𝒖𝒑",
-        "adminBot": "𝑨𝒅𝒎𝒊𝒏 𝒃𝒐𝒕"
-	}
-};
+const ADMIN_UID = "61571630409265";
+const IMAGE_URL = "https://files.catbox.moe/e7bozl.jpg";
+const ITEMS_PER_PAGE = 10;
 
-module.exports.handleEvent = function ({ api, event, getText }) {
-	try {
-		const { commands } = global.client;
-		const { threadID, messageID, body } = event;
+module.exports = {
+  config: {
+    name: "help",
+    version: "1.4",
+    author: "Asif",
+    role: 0,
+    category: "info",
+    priority: 1,
+  },
 
-		if (!body || typeof body === "undefined") return;
-		// Only respond to messages that start with "help"
-		// (keeps original behavior — do not change)
-		if (body.indexOf("help") !== 0) return;
+  onChat: async function ({ event, message }) {
+    let text = (message.body || "").trim();
+    if (!text) return;
+    const parts = text.toLowerCase().split(/\s+/);
+    const cmd = parts.shift();
+    const args = parts;
 
-		const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);
-		if (splitBody.length === 1) return; // just "help" — leave to run() to show list
-		const cmdName = splitBody[1].toLowerCase();
+    if (cmd !== "help" && cmd !== "menu") return;
+    if (event.senderID !== ADMIN_UID) return;
 
-		if (!commands.has(cmdName)) return;
+    return this.onStart({ message, args, event, role: 2 });
+  },
 
-		const command = commands.get(cmdName);
-		const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-		const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+  onStart: async function ({ message, args, event, role }) {
+    // Knight theme design elements
+    const top = "╭──═━┈ { ✧  I-AM-ATOMIC  ✧ } ┈━═──╮";
+    const sep = "┠──────────────────────────────";
+    const bottom = "╰──═━┈  [  𝐊 𝐍 𝐈 𝐆 𝐇 𝐓  ]  ┈━═──╯";
+    const mid = "┃";
+    const section = "┠━─⊰ ✦ ⊱─━";
 
-		// build and send module info message
-		const msg = getText(
-			"moduleInfo",
-			command.config.name,
-			command.config.description || "No description.",
-			`${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`,
-			command.config.commandCategory || "system",
-			command.config.cooldowns != null ? command.config.cooldowns : "0",
-			command.config.credits || "Unknown"
-		);
+    const arg = args[0]?.toLowerCase();
 
-		// keep the same send signature as original (threadID, messageID)
-		return api.sendMessage(msg, threadID, messageID);
-	} catch (err) {
-		// avoid throwing — original request: do not create problems
-		// Log silently if available
-		if (global && global.logger && typeof global.logger.error === "function") global.logger.error(err);
-		return;
-	}
-};
+    // Group commands
+    const categories = {};
+    for (const [name, cmd] of commands.entries()) {
+      if (cmd.config?.role <= role) {
+        const cat = (cmd.config.category || "Uncategorized").trim().toUpperCase();
+        if (!categories[cat]) categories[cat] = [];
+        categories[cat].push(name);
+      }
+    }
 
-module.exports.onStart = function({ api, event, args, getText }) {
-    // Extract threadID and messageID from event at the beginning
-    const threadID = event.threadID;
-    const messageID = event.messageID;
-    
-	try {
-		const { commands } = global.client;
-		const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-		const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+    // Pagination view
+    if (!arg || /^\d+$/.test(arg)) {
+      const page = arg ? Math.max(1, parseInt(arg)) : 1;
+      const catNames = Object.keys(categories).sort((a, b) => a.localeCompare(b));
+      const totalPages = Math.ceil(catNames.length / ITEMS_PER_PAGE);
 
-		// safe module config read (fall back to defaults)
-		const moduleConfig = (global.configModule && global.configModule[this.config.name]) ? global.configModule[this.config.name] : {};
-		const autoUnsend = (typeof moduleConfig.autoUnsend === "boolean") ? moduleConfig.autoUnsend : false;
-		const delayUnsend = (typeof moduleConfig.delayUnsend === "number") ? moduleConfig.delayUnsend : 300;
+      if (page > totalPages)
+        return message.reply(`❌ Invalid page! Only ${totalPages} pages available`);
 
-		// if user asked for a specific module's help: show moduleInfo
-		if (args && args.length >= 1) {
-			const possibleName = args[0].toLowerCase();
-			if (commands.has(possibleName)) {
-				const command = commands.get(possibleName);
-				const msg = getText(
-					"moduleInfo",
-					command.config.name,
-					command.config.description || "No description.",
-					`${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`,
-					command.config.commandCategory || "system",
-					command.config.cooldowns != null ? command.config.cooldowns : "0",
-					command.config.credits || "Unknown"
-				);
-				return api.sendMessage(msg, threadID, messageID);
-			}
-		}
+      const startIndex = (page - 1) * ITEMS_PER_PAGE;
+      const selectedCats = catNames.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-		// Otherwise: show paginated command list
-		const arrayInfo = [];
-		for (const [name] of commands) {
-			arrayInfo.push(name);
-		}
+      let body = `${top}\n`;
+      body += `${mid} 🔰 𝗛𝗘𝗟𝗣 𝗠𝗘𝗡𝗨 » [${page}/${totalPages}]\n`;
+      body += `${mid} ═══════════════════\n`;
+      body += `${mid} ➠ Prefix: -\n`;
+      body += `${mid} ➠ Commands: ${commands.size}\n`;
+      body += `${sep}\n`;
 
-		// sort alphabetically
-		arrayInfo.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      selectedCats.forEach((cat) => {
+        const cmds = categories[cat];
+        body += `${section}\n`;
+        body += `${mid} ❯ ${cat} [${cmds.length}]\n`;
+        body += `${mid} ╰──────────────\n`;
+        
+        // Split commands into chunks of 3 for better layout
+        const chunkSize = 3;
+        for (let i = 0; i < cmds.length; i += chunkSize) {
+          const chunk = cmds.slice(i, i + chunkSize);
+          const cmdLine = chunk.map(cmd => `✦ ${cmd}`).join("  •  ");
+          body += `${mid}  ${cmdLine}\n`;
+        }
+      });
 
-		const page = Math.max(1, parseInt(args[0]) || 1);
-		const numberOfOnePage = 10;
-		const totalPages = Math.max(1, Math.ceil(arrayInfo.length / numberOfOnePage));
-		const startSlice = numberOfOnePage * (page - 1);
-		let i = startSlice;
-		const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
+      body += `${sep}\n`;
+      body += `${mid} 🌐 » Type "help -[category]"\n`;
+      body += `${mid} 🔍 » Example: help -utility\n`;
+      body += `${bottom}`;
 
-		let msgList = "";
-		for (let item of returnArray) {
-			msgList += `🔹 「 ${++i} 」 ${prefix}${item}\n`;
-		}
+      return message.reply({ 
+        body, 
+        attachment: await global.utils.getStreamFromURL(IMAGE_URL)
+      });
+    }
 
-		const header = `📚 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒍𝒊𝒔𝒕\n${getText("helpList", arrayInfo.length, prefix)}\n✨ 𝑷𝒂𝒈𝒆: (${page}/${totalPages})\n────────────────────\n`;
-		const footer = `\n────────────────────\n🔎 Type: ${prefix}help (command name) to see details\n👑 Module credits: ${this.config.credits}`;
+    // Category view
+    if (arg.startsWith("-")) {
+      const catName = arg.slice(1).toUpperCase();
+      const cmdsInCat = [];
 
-		const finalMessage = header + (msgList.length ? msgList : "No commands found.") + footer;
+      for (const [name, cmd] of commands.entries()) {
+        const cat = (cmd.config.category || "Uncategorized").trim().toUpperCase();
+        if (cat === catName && cmd.config.role <= role) {
+          cmdsInCat.push(name);
+        }
+      }
 
-		// Send and optionally unsend (autoUnsend)
-		return api.sendMessage(finalMessage, threadID, async (err, info) => {
-			if (err) {
-				// if send error, log silently and return
-				if (global && global.logger && typeof global.logger.error === "function") global.logger.error(err);
-				return;
-			}
-			// info.messageID is expected by many GoatBot wrappers — keep behavior
-			if (autoUnsend) {
-				await new Promise(resolve => setTimeout(resolve, delayUnsend * 1000));
-				try {
-					return api.unsendMessage(info.messageID);
-				} catch (e) {
-					// ignore unsend errors
-					if (global && global.logger && typeof global.logger.error === "function") global.logger.error(e);
-					return;
-				}
-			} else return;
-		}, messageID);
-	} catch (err) {
-		if (global && global.logger && typeof global.logger.error === "function") global.logger.error(err);
-		// Fixed: Using the threadID and messageID variables defined at the top
-		return api.sendMessage("❗ 𝐇𝐚𝐨: An error occurred while processing help command.", threadID, messageID);
-	}
+      if (!cmdsInCat.length) {
+        return message.reply(`❌ No commands in "${catName}" category`);
+      }
+
+      let body = `${top}\n`;
+      body += `${mid} 🗂️ 𝗖𝗔𝗧𝗘𝗚𝗢𝗥𝗬 » ${catName}\n`;
+      body += `${mid} ═══════════════════\n`;
+      body += `${mid} ➠ Commands: ${cmdsInCat.length}\n`;
+      body += `${sep}\n`;
+      
+      // Display in 3-column format
+      const chunkSize = 3;
+      for (let i = 0; i < cmdsInCat.length; i += chunkSize) {
+        const chunk = cmdsInCat.slice(i, i + chunkSize);
+        const cmdLine = chunk.map(cmd => `✦ ${cmd}`).join("  •  ");
+        body += `${mid} ${cmdLine}\n`;
+      }
+      
+      body += `${sep}\n`;
+      body += `${mid} 🌐 » Type "help [command]" for details\n`;
+      body += `${bottom}`;
+
+      return message.reply(body);
+    }
+
+    // Single command view
+    const cmdObj = commands.get(arg) || commands.get(global.GoatBot.aliases.get(arg));
+    if (!cmdObj || cmdObj.config.role > role) {
+      return message.reply(`❌ Command "${arg}" not available`);
+    }
+
+    const cfg = cmdObj.config;
+    const shortDesc = cfg.shortDescription?.en || "No description";
+    const longDesc = cfg.longDescription?.en || "No details available";
+    const usage = cfg.guide?.en || "No usage provided";
+
+    const details = 
+      `${top}\n` +
+      `${mid} 🛡️ 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 » ${cfg.name.toUpperCase()}\n` +
+      `${mid} ═══════════════════\n` +
+      `${mid} ➠ Category: ${cfg.category || "General"}\n` +
+      `${mid} ➠ Version: v${cfg.version}\n` +
+      `${sep}\n` +
+      `${mid} 📝 Description:\n` +
+      `${mid}   ${shortDesc}\n\n` +
+      `${mid} 📖 Details:\n` +
+      `${mid}   ${longDesc.replace(/\n/g, `\n${mid}   `)}\n` +
+      `${sep}\n` +
+      `${mid} 🧩 Usage:\n` +
+      `${mid}   ${usage.replace(/{p}/g, "-").replace(/{n}/g, cfg.name)}\n` +
+      `${sep}\n` +
+      `${mid} 👤 Author: ${cfg.author || "Anonymous"}\n` +
+      `${bottom}`;
+
+    return message.reply(details);
+  },
 };
