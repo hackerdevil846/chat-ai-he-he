@@ -1,4 +1,4 @@
-const request = global.nodemodule["request"];
+const request = require("request");
 
 module.exports.config = {
 	name: "urdu",
