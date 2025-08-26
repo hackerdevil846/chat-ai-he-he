@@ -4,6 +4,7 @@ const path = require("path");
 const ytdl = require("ytdl-core");
 const ffmpegPath = require("ffmpeg-static");
 const cp = require("child_process");
+const ytSearch = require("yt-search");
 
 module.exports = {
   config: {
@@ -11,7 +12,7 @@ module.exports = {
     version: "1.0.4",
     hasPermssion: 0,
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🎶 𝙆𝙚𝙮𝙬𝙤𝙧𝙙 𝙙𝙞𝙮𝙚 𝙗𝙖 𝙡𝙞𝙣𝙠 𝙩𝙝𝙚𝙠𝙚 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙜𝙖𝙖𝙣 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙠𝙤𝙧𝙪𝙣 🎧",
+    description: "🎶 𝙆𝙚𝙮𝙬𝙤𝙧𝙙 𝙙𝙞𝙮𝙚 𝙗𝙖 𝙡𝙞𝙣𝙠 𝙩𝙝𝙚𝙠𝙚 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙜𝙖𝙖𝙣 𝙙𝙤𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙠𝙤𝙧𝙪𝙣 🎧",
     category: "Media",
     usages: "[song_name_or_link] [audio/video]",
     cooldowns: 5,
@@ -23,7 +24,7 @@ module.exports = {
     },
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     let query, type;
 
     if (args.length > 1 && (args[args.length - 1] === "audio" || args[args.length - 1] === "video")) {
@@ -125,4 +126,3 @@ module.exports = {
     }
   },
 };
-
