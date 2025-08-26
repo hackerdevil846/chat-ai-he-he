@@ -17,7 +17,7 @@ module.exports.config = {
 
 module.exports.onLoad = async () => {
     const path = require("path");
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { existsSync, mkdirSync } = require("fs-extra");
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
     const pathFile = path.resolve(__dirname, 'cache/canvas', 'marriedv5.png');
@@ -30,10 +30,10 @@ module.exports.onLoad = async () => {
 };
 
 module.exports.onStart = async function ({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = require("fs-extra");
+    const path = require("path");
+    const axios = require("axios");
+    const jimp = require("jimp");
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
     
