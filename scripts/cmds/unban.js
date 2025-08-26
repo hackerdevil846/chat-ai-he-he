@@ -10,7 +10,7 @@ module.exports.config = {
   dependencies: {}
 };
 
-module.exports.run = async ({ event, api, Users, Threads, args }) => {
+module.exports.onStart = async ({ event, api, Users, Threads, args }) => {
   const { threadID, messageID } = event;
 
   // credit check (preserve exactly the credit string requested)
