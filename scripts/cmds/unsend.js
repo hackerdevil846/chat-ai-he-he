@@ -16,7 +16,7 @@ module.exports.languages = {
     }
 };
 
-module.exports.run = async function({ api, event, getText }) {
+module.exports.onStart = async function({ api, event, getText }) {
     // ensure it's a reply
     if (event.type !== "message_reply" || !event.messageReply) {
         return api.sendMessage(getText("missingReply"), event.threadID, event.messageID);
