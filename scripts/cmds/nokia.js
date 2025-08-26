@@ -25,7 +25,7 @@ module.exports.languages = {
 	}
 };
 
-module.exports.run = async function({ api, event, args, models, Users }) {
+module.exports.onStart = async function({ api, event, args, models, Users }) {
 	try {
 		const { threadID, messageID, messageReply, mentions } = event;
 		let targetID;
