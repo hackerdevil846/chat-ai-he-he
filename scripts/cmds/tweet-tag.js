@@ -45,7 +45,7 @@ async function circle(image) {
 }
 
 module.exports.config = {
-  name: "tweet-tag",
+  name: "tweetmaker",
   version: "1.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -69,7 +69,7 @@ module.exports.onStart = async function ({ api, event, args }) {
 
   if (!args[0]) {
     return api.sendMessage(
-      `📝 Please enter text for your tweet\n\nExample: ${global.config?.PREFIX || ""}tweet-tag Hello Twitter world!`,
+      `📝 Please enter text for your tweet\n\nExample: ${global.config?.PREFIX || ""}tweetmaker Hello Twitter world!`,
       threadID,
       messageID
     );
