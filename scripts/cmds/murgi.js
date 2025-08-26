@@ -10,7 +10,7 @@ module.exports.config = {
 	dependencies: {}
 };
 
-module.exports.run = async function({ api, event }) {
+module.exports.onStart = async function({ api, event }) {
 	try {
 		const mention = Object.keys(event.mentions);
 		if (!mention.length) 
