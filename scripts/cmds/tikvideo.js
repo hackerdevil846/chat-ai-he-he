@@ -17,7 +17,7 @@ module.exports.onLoad = function () {
   console.log("=== 𝙏𝙞𝙠𝙏𝙤𝙠 𝘿𝙖𝙪𝙣𝙡𝙤𝙖𝙙 𝙉𝙤 𝙒𝙖𝙩𝙚𝙧𝙢𝙖𝙧𝙠 ===");
 };
 
-module.exports.run = async function ({ args, event, api }) {
+module.exports.onStart = async function ({ args, event, api }) {
   const axios = require("axios");
   const fs = require("fs-extra");
   const request = require("request");
