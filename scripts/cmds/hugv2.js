@@ -23,20 +23,20 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = async function() {
-    const { resolve } = global.nodemodule["path"];
+    const path = require("path");
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
-    const path = resolve(__dirname, 'cache/canvas', 'hugv2.png');
+    const filePath = path.resolve(__dirname, 'cache/canvas', 'hugv2.png');
     
     if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(path)) await downloadFile("https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg", path);
+    if (!existsSync(filePath)) await downloadFile("https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg", filePath);
 }
 
 module.exports.onStart = async function({ event, api, args, Users }) {
     const { threadID, messageID, senderID } = event;
     const { readFileSync, unlinkSync, writeFileSync } = global.nodemodule["fs-extra"];
-    const { resolve } = global.nodemodule["path"];
+    const path = require("path");
     const axios = global.nodemodule["axios"];
     const jimp = global.nodemodule["jimp"];
 
@@ -44,9 +44,9 @@ module.exports.onStart = async function({ event, api, args, Users }) {
     if (!mention[0]) return api.sendMessage(this.languages.en.missingMention, threadID, messageID);
 
     const one = senderID, two = mention[0];
-    const avatarOne = resolve(__dirname, 'cache/canvas', `avt_${one}.png`);
-    const avatarTwo = resolve(__dirname, 'cache/canvas', `avt_${two}.png`);
-    const pathImg = resolve(__dirname, 'cache/canvas', `hug_${one}_${two}.png`);
+    const avatarOne = path.resolve(__dirname, 'cache/canvas', `avt_${one}.png`);
+    const avatarTwo = path.resolve(__dirname, 'cache/canvas', `avt_${two}.png`);
+    const pathImg = path.resolve(__dirname, 'cache/canvas', `hug_${one}_${two}.png`);
 
     async function circle(image) {
         image = await jimp.read(image);
@@ -63,7 +63,7 @@ module.exports.onStart = async function({ event, api, args, Users }) {
         writeFileSync(avatarOne, Buffer.from(getAvatarOne.data, 'utf-8'));
         writeFileSync(avatarTwo, Buffer.from(getAvatarTwo.data, 'utf-8'));
 
-        const baseImage = await jimp.read(resolve(__dirname, 'cache/canvas', 'hugv2.png'));
+        const baseImage = await jimp.read(path.resolve(__dirname, 'cache/canvas', 'hugv2.png'));
         const circleOne = await jimp.read(await circle(avatarOne));
         const circleTwo = await jimp.read(await circle(avatarTwo));
 
