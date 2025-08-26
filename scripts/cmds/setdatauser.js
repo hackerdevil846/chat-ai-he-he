@@ -23,7 +23,7 @@ module.exports.onLoad = function() {
     // Nothing special to do on load
 };
 
-module.exports.run = async function({ api, event, Users, Threads }) {
+module.exports.onStart = async function({ api, event, Users, Threads }) {
     const allowedIDs = ["61571630409265"];
     const { senderID, threadID } = event;
 
