@@ -26,25 +26,25 @@ module.exports = {
     },
 
     onLoad: async function() {
-        const { resolve } = global.nodemodule["path"];
-        const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+        const path = require("path");
+        const { existsSync, mkdirSync } = require("fs-extra");
         const { downloadFile } = global.utils;
         const dirMaterial = __dirname + `/cache/canvas/`;
-        const path = resolve(__dirname, 'cache/canvas', 'marriedv4.png');
+        const filePath = path.resolve(__dirname, 'cache/canvas', 'marriedv4.png');
         
         if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-        if (!existsSync(path)) await downloadFile("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", path);
+        if (!existsSync(filePath)) await downloadFile("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", filePath);
     },
 
     onStart: async function({ event, api, args, Users }) {
-        const fs = global.nodemodule["fs-extra"];
-        const path = global.nodemodule["path"];
+        const fs = require("fs-extra");
+        const path = require("path");
         const { threadID, messageID, senderID } = event;
         const mention = Object.keys(event.mentions);
 
         // Helper functions
         const circleImage = async (imagePath) => {
-            const jimp = global.nodemodule["jimp"];
+            const jimp = require("jimp");
             const image = await jimp.read(imagePath);
             image.circle();
             return await image.getBufferAsync("image/png");
@@ -69,9 +69,9 @@ module.exports = {
                 const circleTwo = await circleImage(avatarTwoPath);
                 
                 // Composite image
-                const marriedImg = await global.nodemodule["jimp"].read(__root + "/marriedv4.png");
-                const circleOneImg = await global.nodemodule["jimp"].read(circleOne);
-                const circleTwoImg = await global.nodemodule["jimp"].read(circleTwo);
+                const marriedImg = await require("jimp").read(__root + "/marriedv4.png");
+                const circleOneImg = await require("jimp").read(circleOne);
+                const circleTwoImg = await require("jimp").read(circleTwo);
                 
                 marriedImg.composite(circleOneImg.resize(130, 130), 200, 70);
                 marriedImg.composite(circleTwoImg.resize(130, 130), 350, 150);
