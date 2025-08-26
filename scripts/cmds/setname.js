@@ -18,7 +18,7 @@ module.exports.onLoad = function () {
   // Nothing special on load
 };
 
-module.exports.run = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
+module.exports.onStart = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
   try {
     // Check if name argument is provided
     if (!args || args.length === 0) {
