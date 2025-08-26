@@ -48,7 +48,7 @@ module.exports = {
     cooldowns: 5,
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     if (!args[0]) return api.sendMessage("🎵 Please enter a song name!", event.threadID);
 
     const isVideo = args[0].toLowerCase() === "video";
