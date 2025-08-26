@@ -10,7 +10,7 @@ module.exports.config = {
     hasPermssion: 0, // 0 = all users
     credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     description: "🎮 Nijer Messenger e catchphrase dhorar khela! Fun with letters and pictures!",
-    commandCategory: "Entertainment",
+    category: "Entertainment",
     usages: "Dui dhoroner moddhe ekta beche nin [1/2]",
     cooldowns: 5,
     dependencies: {
@@ -79,7 +79,7 @@ module.exports.handleReply = async function({ event, api, handleReply, Currencie
             // User selects game mode
             if (["1", "2"].includes(event.body)) {
                 api.unsendMessage(handleReply.messageID);
-                return this.run({ 
+                return module.exports.onStart({ 
                     api, 
                     event, 
                     args: [event.body], 
@@ -106,7 +106,7 @@ module.exports.handleReply = async function({ event, api, handleReply, Currencie
 };
 
 // ---------- RUN COMMAND ----------
-module.exports.run = async function({ api, event, args, getText, Currencies }) {
+module.exports.onStart = async function({ api, event, args, getText, Currencies }) {
     // Ensure credits are not tampered
     if (this.config.credits !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
         return api.sendMessage("⚠️ Credit tampering detected! ❌", event.threadID);
@@ -133,6 +133,7 @@ module.exports.run = async function({ api, event, args, getText, Currencies }) {
 
             const imageResponse = await axios.get(gameData.link1, { responseType: "arraybuffer" });
             const cachePath = path.join(__dirname, `cache/game_${Date.now()}.png`);
+            await fs.ensureDir(path.dirname(cachePath));
             await fs.writeFile(cachePath, imageResponse.data);
 
             await createClueImage(cachePath, `🔤 Clue: ${gameData.sokitu}`, cachePath);
@@ -170,7 +171,10 @@ module.exports.run = async function({ api, event, args, getText, Currencies }) {
             const images = await Promise.all(imageTasks);
             const cachePaths = images.map((_, i) => path.join(__dirname, `cache/game_${Date.now()}_${i}.png`));
 
-            await Promise.all(images.map((img, i) => fs.writeFile(cachePaths[i], img.data)));
+            await Promise.all(images.map((img, i) => {
+                fs.ensureDir(path.dirname(cachePaths[i]));
+                return fs.writeFile(cachePaths[i], img.data);
+            }));
             await Promise.all(cachePaths.map(p => createClueImage(p, `🖼️ Clue: ${gameData.sokitu}`, p)));
 
             return api.sendMessage({
