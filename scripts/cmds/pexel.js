@@ -21,7 +21,7 @@ module.exports.config = {
     }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const isVideo = args[0] && args[0].toLowerCase() === "video";
     const query = isVideo ? args.slice(1).join(" ") : args.join(" ");
     
