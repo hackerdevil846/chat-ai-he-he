@@ -12,7 +12,7 @@ module.exports.config = {
 	envConfig: {}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     try {
         const { createCanvas } = require('canvas');
         const fs = require('fs');
