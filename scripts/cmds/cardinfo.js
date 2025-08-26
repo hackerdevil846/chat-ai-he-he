@@ -38,8 +38,13 @@ module.exports = {
   },
 
   onLoad: function ({ configValue }) {
-    if (!global.nodemodule["canvas"]) {
-      console.error("Please install canvas module");
+    try {
+      const canvas = require("canvas");
+      if (!canvas) {
+        console.error("Please install canvas module");
+      }
+    } catch (error) {
+      console.error("Canvas module not found, please install it");
     }
   },
 
@@ -48,7 +53,7 @@ module.exports = {
     const request = require('request');
     const fs = global.nodemodule["fs-extra"];
     const axios = global.nodemodule["axios"];
-    const Canvas = global.nodemodule["canvas"];
+    const Canvas = require("canvas");
     
     let { senderID, threadID, messageID } = event;
     
