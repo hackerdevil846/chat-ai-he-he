@@ -23,19 +23,19 @@ module.exports.languages = {
 
 module.exports.onLoad = async function() {
 	const path = require("path");
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	const { downloadFile } = global.utils;
 	const dirMaterial = __dirname + `/cache/`;
 	const imagePath = path.resolve(__dirname, 'cache', 'toilet1.png');
 	
-	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(imagePath)) await downloadFile("https://i.imgur.com/vsJYfw5.png", imagePath);
+	if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+	if (!fs.existsSync(imagePath)) await downloadFile("https://i.imgur.com/vsJYfw5.png", imagePath);
 };
 
 module.exports.onStart = async function({ event, api, args, Currencies }) {
-	const fs = global.nodemodule["fs-extra"];
-	const axios = global.nodemodule["axios"];
-	const jimp = global.nodemodule["jimp"];
+	const fs = require("fs-extra");
+	const axios = require("axios");
+	const jimp = require("jimp");
 	const path = require("path");
 	
 	const { threadID, messageID, senderID } = event;
