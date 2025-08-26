@@ -9,7 +9,7 @@ module.exports = {
     cooldowns: 5
   },
 
-  run: async function ({ api, event }) {
+  onStart: async function ({ api, event }) {
     if (Object.keys(event.mentions).length === 0) {
       return api.sendMessage(
         `𝘼𝙥𝙣𝙖𝙧 𝙐𝙨𝙚𝙧 𝙄𝘿: ${event.senderID}`,
