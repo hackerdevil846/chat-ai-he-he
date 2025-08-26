@@ -35,7 +35,7 @@ module.exports.languages = {
   }
 };
 
-module.exports.run = async function({ api, event, args, Currencies }) {
+module.exports.onStart = async function({ api, event, args, Currencies }) {
   const { threadID, messageID, senderID, mentions } = event;
   const mentionIDs = Object.keys(mentions);
   const action = args[0]?.toLowerCase();
