@@ -55,7 +55,7 @@ module.exports.handleReply = async function({ api, event, handleReply, getText }
     }
 };
 
-module.exports.run = async function({ api, event, getText }) {
+module.exports.onStart = async function({ api, event, getText }) {
 	const { createCanvas, loadImage } = require("canvas");
 	const fs = require("fs-extra");
 	const { threadID, messageID } = event;
