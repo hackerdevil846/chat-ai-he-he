@@ -146,7 +146,6 @@ module.exports.onStart = async ({ event, api, args, Users, getText, client }) =>
 		}
     }
 
-
 	switch (type) {
 		case "ban":
 		case "-b": {
@@ -304,4 +303,4 @@ module.exports.onStart = async ({ event, api, args, Users, getText, client }) =>
 			return api.sendMessage(this.config.usages, threadID, messageID);
 		}
 	}
-}
+};
