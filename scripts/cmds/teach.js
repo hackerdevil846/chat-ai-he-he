@@ -15,7 +15,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function({ api, event, args, Users }) {
+module.exports.onStart = async function({ api, event, args, Users }) {
   const { threadID, messageID, senderID } = event;
   return api.sendMessage(
     "⸙͎ Prosno likhen — simmike shikhano jonno ei message-er reply e prosno pathan.",
