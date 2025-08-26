@@ -28,7 +28,7 @@ module.exports.onLoad = async function() {
 	);
 };
 
-module.exports.run = async function({ api, event, Users, Threads, Currencies }) {
+module.exports.onStart = async function({ api, event, Users, Threads, Currencies }) {
 	const { resolve } = global.nodemodule["path"];
 	const fs = global.nodemodule["fs-extra"];
 	const axios = global.nodemodule["axios"];
