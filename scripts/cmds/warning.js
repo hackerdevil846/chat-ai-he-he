@@ -1,5 +1,5 @@
-const fs = global.nodemodule["fs-extra"];
-const path = global.nodemodule["path"];
+const fs = require("fs-extra");
+const path = require("path");
 
 module.exports.config = {
     name: "warning",
