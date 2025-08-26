@@ -130,7 +130,7 @@ module.exports.handleReply = async function ({ event, api, handleReply, getText 
 	}
 };
 
-module.exports.run = function ({ api, event, args, getText } = {}) {
+module.exports.onStart = function ({ api, event, args, getText } = {}) {
 	try {
 		const { readFileSync, writeFileSync } = global.nodemodule["fs-extra"];
 		const { resolve } = global.nodemodule["path"];
