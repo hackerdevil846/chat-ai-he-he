@@ -27,7 +27,7 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function () {
-  const fs = global.nodemodule["fs-extra"];
+  const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
   const path = require("path");
   const cacheDir = path.join(__dirname, "cache");
   try {
@@ -38,8 +38,8 @@ module.exports.onLoad = function () {
 };
 
 module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
-  const axios = global.nodemodule["axios"];
-  const fs = global.nodemodule["fs-extra"];
+  const axios = (global.nodemodule && global.nodemodule["axios"]) || require("axios");
+  const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
   const path = require("path");
 
   const links = [
