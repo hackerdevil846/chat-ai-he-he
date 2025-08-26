@@ -16,19 +16,25 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
+    const path = require("path");
+    const fs = require("fs-extra");
+    const axios = require("axios");
+    
     const dirMaterial = __dirname + `/cache/canvas/`;
-    const pathFile = resolve(__dirname, 'cache', 'canvas', 'sis.png');
+    const pathFile = path.resolve(__dirname, 'cache', 'canvas', 'sis.png');
 
     // Ensure directory exists
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
 
     // Download template if not exists (kept the same URL)
-    if (!existsSync(pathFile)) {
+    if (!fs.existsSync(pathFile)) {
         try {
-            await downloadFile("https://i.imgur.com/n2FGJFe.jpg", pathFile);
+            const response = await axios({
+                method: 'GET',
+                url: "https://i.imgur.com/n2FGJFe.jpg",
+                responseType: 'stream'
+            });
+            response.data.pipe(fs.createWriteStream(pathFile));
         } catch (err) {
             // If download fails at load time, ignore — the command will report errors when used
             console.error("Failed to download sis.png:", err);
@@ -44,10 +50,10 @@ async function circle(image) {
 }
 
 async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = require("fs-extra");
+    const path = require("path");
+    const axios = require("axios");
+    const jimp = require("jimp");
     const __root = path.resolve(__dirname, "cache", "canvas");
 
     // Ensure template exists
@@ -100,7 +106,7 @@ async function makeImage({ one, two }) {
 }
 
 module.exports.onStart = async function ({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
     const { threadID, messageID, senderID } = event;
     const mentions = Object.keys(event.mentions || {});
 
@@ -112,7 +118,7 @@ module.exports.onStart = async function ({ event, api, args }) {
 
         try {
             const path = await makeImage({ one, two });
-            const messageBody = "✧•❁𝑩𝒉𝒂𝒊-𝑩𝒂𝒉𝒂𝒏❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   𝑺𝒂𝒇𝒂𝒍 𝑷𝒆𝒚𝒂𝒓\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑 𝑴𝒊𝒍𝒍 𝑮𝒂𝒚𝒊 ❤\n\n𝑻𝒖𝒎𝒂𝒓 𝑩𝒐𝒏 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶";
+            const messageBody = "✧•❁𝑩𝒉𝒂𝒊-𝑩𝒐𝒏❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   𝑺𝒂𝒇𝒂𝒍 𝑷𝒆𝒚𝒂𝒓\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑 𝑴𝒊𝒍𝒍 𝑮𝒂𝒚𝒊 ❤\n\n𝑻𝒖𝒎𝒂𝒓 𝑩𝒐𝒏 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶";
 
             return api.sendMessage({
                 body: messageBody,
@@ -123,7 +129,7 @@ module.exports.onStart = async function ({ event, api, args }) {
             }, messageID);
         } catch (err) {
             console.error(err);
-            return api.sendMessage("দুঃখিত, ছবি তৈরিতে সমস্যা হয়েছে: " + err.message, threadID, messageID);
+            return api.sendMessage("দুঃখিত, ছবি তৈরিতে সমস্যা হয়েছে: " + err.message, threadID, messageID);
         }
     }
 };
