@@ -1,61 +1,80 @@
-const weatherModule = require('./weather.js');
+const axios = require('axios');
 
-// Mock api object
-const mockApi = {
-    sendMessage: (message, threadID, messageID) => {
-        console.log("API Message:", message.body);
-        if (message.location) {
-            console.log("Location:", message.location);
+module.exports = {
+    config: {
+        name: "weather",
+        version: "1.0",
+        author: "Your Name",
+        countDown: 5,
+        role: 0,
+        shortDescription: {
+            en: "Get weather information",
+            bn: "আবহাওয়ার তথ্য পান"
+        },
+        longDescription: {
+            en: "Get current weather information for a location",
+            bn: "একটি অবস্থানের জন্য বর্তমান আবহাওয়ার তথ্য পান"
+        },
+        category: "utility",
+        guide: {
+            en: "{pn} [location]",
+            bn: "{pn} [অবস্থান]"
         }
+    },
+    
+    languages: {
+        en: {
+            missingLocation: "Please provide a location. Usage: {pn} [location]",
+            error: "Failed to get weather information. Please try again later.",
+            notFound: "Location not found. Please check the spelling and try again.",
+            weatherInfo: "🌤️ Weather Information for %1:\n\n🌡️ Temperature: %2°C (%3°F)\n📝 Condition: %4\n💧 Humidity: %5%\n💨 Wind Speed: %6 km/h\n🌫️ Pressure: %7 hPa\n👁️ Visibility: %8 km"
+        },
+        bn: {
+            missingLocation: "একটি অবস্থান প্রদান করুন। ব্যবহার: {pn} [অবস্থান]",
+            error: "আবহাওয়ার তথ্য পাওয়া যায়নি। পরে আবার চেষ্টা করুন।",
+            notFound: "অবস্থান পাওয়া যায়নি। বানান পরীক্ষা করে আবার চেষ্টা করুন।",
+            weatherInfo: "🌤️ %1-এর জন্য আবহাওয়ার তথ্য:\n\n🌡️ তাপমাত্রা: %2°C (%3°F)\n📝 অবস্থা: %4\n💧 আর্দ্রতা: %5%\n💨 বাতাসের গতি: %6 km/h\n🌫️ চাপ: %7 hPa\n👁️ দৃশ্যমানতা: %8 km"
+        }
+    },
+    
+    onStart: async function({ api, event, args, getText }) {
+        const { threadID, messageID } = event;
+        
+        if (args.length === 0) {
+            return api.sendMessage(getText("missingLocation").replace(/{pn}/g, this.config.name), threadID, messageID);
+        }
+        
+        const location = args.join(" ");
+        
+        try {
+            const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=YOUR_API_KEY&units=metric`);
+            const data = response.data;
+            
+            if (data.cod !== 200) {
+                return api.sendMessage(getText("notFound"), threadID, messageID);
+            }
+            
+            const weatherInfo = getText(
+                "weatherInfo",
+                data.name,
+                Math.round(data.main.temp),
+                Math.round((data.main.temp * 9/5) + 32),
+                data.weather[0].description,
+                data.main.humidity,
+                Math.round(data.wind.speed * 3.6), // Convert m/s to km/h
+                data.main.pressure,
+                (data.visibility / 1000).toFixed(1)
+            );
+            
+            api.sendMessage(weatherInfo, threadID, messageID);
+        } catch (error) {
+            console.error(error);
+            api.sendMessage(getText("error"), threadID, messageID);
+        }
+    },
+    
+    // For backward compatibility
+    run: async function({ api, event, args, getText }) {
+        return this.onStart({ api, event, args, getText });
     }
 };
-
-// Mock event object
-const mockEvent = {
-    threadID: "12345",
-    messageID: "67890"
-};
-
-// Mock getText function
-const mockGetText = (key, ...args) => {
-    const languages = weatherModule.languages;
-    const lang = "en"; // Test with English first
-    let text = languages[lang][key];
-    args.forEach((arg, index) => {
-        text = text.replace(`%${index + 1}`, arg);
-    });
-    return text;
-};
-
-// Test cases
-async function runTests() {
-    console.log("\n--- Testing with English (Dhaka) ---");
-    await weatherModule.run({ api: mockApi, event: mockEvent, args: ["Dhaka"], getText: mockGetText });
-
-    console.log("\n--- Testing with English (Invalid Location) ---");
-    await weatherModule.run({ api: mockApi, event: mockEvent, args: ["asdfghjkl"], getText: mockGetText });
-
-    // Test with Bangla
-    const mockGetTextBn = (key, ...args) => {
-        const languages = weatherModule.languages;
-        const lang = "bn"; // Test with Bangla
-        let text = languages[lang][key];
-        args.forEach((arg, index) => {
-            text = text.replace(`%${index + 1}`, arg);
-        });
-        return text;
-    };
-
-    console.log("\n--- Testing with Bangla (Dhaka) ---");
-    await weatherModule.run({ api: mockApi, event: mockEvent, args: ["Dhaka"], getText: mockGetTextBn });
-
-    console.log("\n--- Testing with Bangla (Invalid Location) ---");
-    await weatherModule.run({ api: mockApi, event: mockEvent, args: ["asdfghjkl"], getText: mockGetTextBn });
-
-    console.log("\n--- Testing with no location ---");
-    await weatherModule.run({ api: mockApi, event: mockEvent, args: [], getText: mockGetText });
-}
-
-runTests();
-
-
