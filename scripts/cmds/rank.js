@@ -38,7 +38,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, Users, Threads, args, permssion }) {
+module.exports.onStart = async function ({ api, event, Users, Threads, args, permssion }) {
 	deltaNext = global.config.rank.deltaNext;
 	let targetUsers;
 	const arrayMentions = Object.keys(event.mentions);
