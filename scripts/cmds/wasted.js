@@ -13,7 +13,7 @@ module.exports.config = {
   },
 };
 
-module.exports.run = async function ({ api, event, args, Users }) {
+module.exports.onStart = async function ({ api, event, args, Users }) {
   const { senderID, threadID, messageID } = event;
   const { loadImage, createCanvas } = require("canvas");
   const fs = global.nodemodule["fs-extra"];
