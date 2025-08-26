@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports.config = {
-	name: "coin",
+	name: "mycoins",
 	version: "1.1.0",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
