@@ -29,7 +29,7 @@ module.exports.languages = {
 const fs = require("fs");
 const path = require("path");
 
-module.exports.run = async function ({ api, event, args, Users, Threads, Currencies, models }) {
+module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies, models }) {
 	try {
 		// Only allow specific sender IDs to run this command (keeps original behaviour)
 		const permission = ["61571630409265"];
