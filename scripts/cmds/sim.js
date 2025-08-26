@@ -61,7 +61,7 @@ module.exports.handleEvent = async function ({ api, event }) {
 };
 
 // Command handler
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { threadID, messageID } = event;
     const send = msg => api.sendMessage(msg, threadID, messageID);
 
