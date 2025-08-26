@@ -51,7 +51,7 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
     return lines;
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
     const { senderID, threadID, messageID } = event;
     const pathImg = __dirname + '/cache/student.png';
     const text = args.join(" ");
