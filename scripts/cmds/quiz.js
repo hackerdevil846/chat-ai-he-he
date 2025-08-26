@@ -63,7 +63,7 @@ async function fetchTheTriviaAPIQuestion(difficulty) {
   return null;
 }
 
-module.exports.run = async ({ api, event, args }) => {
+module.exports.onStart = async ({ api, event, args }) => {
   const axios = global.nodemodule["axios"];
 
   let difficulties = ["easy", "medium", "hard"];
