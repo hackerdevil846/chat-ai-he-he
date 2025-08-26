@@ -23,7 +23,7 @@ module.exports.languages = {
   },
 };
 
-module.exports.run = async function ({ api, event }) {
+module.exports.onStart = async function ({ api, event }) {
   try {
     // Notify user
     await api.sendMessage(
