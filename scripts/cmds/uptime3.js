@@ -17,7 +17,7 @@ module.exports = {
     cooldowns: 5
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     try {
       const uptimeInSeconds = (new Date() - startTime) / 1000;
 
