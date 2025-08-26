@@ -18,7 +18,7 @@ module.exports.config = {
   envConfig: {}
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
   const { threadID, messageID } = event;
   const playlistId = args[0] || 'PLL8jFEKG82Z79hz1lbhWtUioO9fhVKUAr';
   
