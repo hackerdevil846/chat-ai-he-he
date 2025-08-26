@@ -31,5 +31,5 @@ module.exports = {
     }
   },
 
-  run: function () {}
+  onStart: function () {}
 };
