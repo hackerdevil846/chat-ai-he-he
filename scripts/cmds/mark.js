@@ -28,7 +28,7 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function() {
-	const fs = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	const dir = __dirname + "/cache";
 	if (!fs.existsSync(dir)) fs.mkdirSync(dir);
 };
@@ -64,9 +64,9 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
 
 module.exports.onStart = async function({ api, event, args }) {
 	const { threadID, messageID } = event;
-	const fs = global.nodemodule["fs-extra"];
-	const axios = global.nodemodule["axios"];
-	const { loadImage, createCanvas } = global.nodemodule["canvas"];
+	const fs = require("fs-extra");
+	const axios = require("axios");
+	const { loadImage, createCanvas } = require("canvas");
 	const pathImg = __dirname + '/cache/markngu.png';
 	const text = args.join(" ");
 
