@@ -28,7 +28,7 @@ module.exports.languages = {
 };
 
 module.exports.onLoad = function () {
-	const fs = global.nodemodule["fs-extra"];
+	const fs = require("fs-extra");
 	const cacheDir = path.join(__dirname, "cache");
 	if (!fs.existsSync(cacheDir)) fs.ensureDirSync(cacheDir);
 };
@@ -65,9 +65,9 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
 };
 
 module.exports.onStart = async function ({ api, event, args }) {
-	const fs = global.nodemodule["fs-extra"];
-	const axios = global.nodemodule["axios"];
-	const { loadImage, createCanvas } = global.nodemodule["canvas"];
+	const fs = require("fs-extra");
+	const axios = require("axios");
+	const { loadImage, createCanvas } = require("canvas");
 
 	const { threadID, messageID } = event;
 	const text = args.join(" ").trim();
@@ -137,6 +137,6 @@ module.exports.onStart = async function ({ api, event, args }) {
 
 	} catch (error) {
 		console.error("markcmt error:", error);
-		return api.sendMessage("⚠️ এরর হয়েছে — আবার চেষ্টা করুন। (Error occurred, please try again.)", threadID, messageID);
+		return api.sendMessage("⚠️ এরর হয়েছে — আবার চেষ্টা করুন। (Error occurred, please try again.)", threadID, messageID);
 	}
 };
