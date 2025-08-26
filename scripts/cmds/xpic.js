@@ -17,7 +17,7 @@ module.exports = {
     }
   },
 
-  run: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args }) {
     const { threadID, messageID } = event;
 
     if (args.length === 0) {
