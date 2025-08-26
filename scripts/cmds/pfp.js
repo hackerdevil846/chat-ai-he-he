@@ -14,7 +14,7 @@ module.exports.config = {
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
   description: "Ultra-stylish, colorful profile card generate kore",
-  commandCategory: "random-img",
+  category: "random-img",
   usages: "[@mention|UID]",
   cooldowns: 5,
   dependencies: {
