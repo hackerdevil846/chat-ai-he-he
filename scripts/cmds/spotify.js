@@ -19,7 +19,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { threadID, messageID, senderID } = event;
   const tempPath = path.join(__dirname, `cache/spotify_${Date.now()}_${senderID}.mp3`);
 
