@@ -27,7 +27,7 @@ module.exports.languages = {
 
 module.exports.onLoad = function() {};
 
-module.exports.run = async function({ api, event, args, languages }) {
+module.exports.onStart = async function({ api, event, args, languages }) {
 	const { createCanvas, loadImage } = require("canvas");
 	const axios = require("axios");
 	const fs = require("fs-extra");
