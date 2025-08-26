@@ -114,7 +114,7 @@ module.exports = {
     if (!await threadsData.get(event.threadID, "data.translate.autoTranslateWhenReaction"))
       return;
     global.GoatBot.onReaction.set(event.messageID, {
-      commandName: 'translate',
+      commandName: 'translator',
       messageID: event.messageID,
       body: event.body,
       type: "translate"
