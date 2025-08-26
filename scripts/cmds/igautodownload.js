@@ -8,7 +8,7 @@ import { createRequire } from "module";
 // Helper to require or auto-install a dependency
 const require = createRequire(import.meta.url);
 
-async function ensureModule(modName) {
+function ensureModule(modName) {
   try {
     console.log(`Checking for ${modName}...`);
     return require(modName);
@@ -28,30 +28,39 @@ async function ensureModule(modName) {
   }
 }
 
-// Ensure and load dependencies with proper error handling
+// Load dependencies without top-level await
 let fsExtra, axios, getInstagram;
 
+console.log("Loading dependencies...");
+
+// Load fs-extra
 try {
-  console.log("Loading dependencies...");
-  
-  // Load fs-extra
-  const fsExtraMod = await ensureModule("fs-extra");
+  const fsExtraMod = ensureModule("fs-extra");
   fsExtra = fsExtraMod.default || fsExtraMod;
-  
-  // Load axios
-  const axiosMod = await ensureModule("axios");
-  axios = axiosMod.default || axiosMod;
-  
-  // Load instagram-url-direct
-  const igDirectMod = await ensureModule("instagram-url-direct");
-  getInstagram = igDirectMod.getInstagram || igDirectMod;
-  
-  console.log("All dependencies loaded successfully");
 } catch (error) {
-  console.error("Critical error: Failed to load dependencies:", error.message);
-  // We can't continue without dependencies
+  console.error("Failed to load fs-extra:", error.message);
   process.exit(1);
 }
+
+// Load axios
+try {
+  const axiosMod = ensureModule("axios");
+  axios = axiosMod.default || axiosMod;
+} catch (error) {
+  console.error("Failed to load axios:", error.message);
+  process.exit(1);
+}
+
+// Load instagram-url-direct
+try {
+  const igDirectMod = ensureModule("instagram-url-direct");
+  getInstagram = igDirectMod.getInstagram || igDirectMod;
+} catch (error) {
+  console.error("Failed to load instagram-url-direct:", error.message);
+  process.exit(1);
+}
+
+console.log("All dependencies loaded successfully");
 
 export const config = {
   name: "igautodownload",
