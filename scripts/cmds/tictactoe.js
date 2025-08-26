@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "game",
+	name: "tictactoe",
 	version: "1.0.1",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
