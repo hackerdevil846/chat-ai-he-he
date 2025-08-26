@@ -14,24 +14,25 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-	const { resolve } = global.nodemodule["path"];
-	const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-	const { downloadFile } = global.utils;
+	const path = require("path");
+	const fs = require("fs-extra");
+	const axios = require("axios");
 	const dirMaterial = __dirname + `/cache/canvas/`;
-	const path = resolve(__dirname, 'cache/canvas', 'pairing.jpg');
+	const filePath = path.resolve(__dirname, 'cache/canvas', 'pairing.jpg');
 	
-	if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-	if (!existsSync(path)) {
-		await downloadFile("https://i.pinimg.com/736x/15/fa/9d/15fa9d71cdd07486bb6f728dae2fb264.jpg", path);
+	if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+	if (!fs.existsSync(filePath)) {
+		const response = await axios.get("https://i.pinimg.com/736x/15/fa/9d/15fa9d71cdd07486bb6f728dae2fb264.jpg", { responseType: 'arraybuffer' });
+		fs.writeFileSync(filePath, Buffer.from(response.data, 'binary'));
 	}
 };
 
 module.exports.onStart = async function({ api, event, Users }) {
 	try {
-		const fs = global.nodemodule["fs-extra"];
-		const axios = global.nodemodule["axios"];
-		const jimp = global.nodemodule["jimp"];
-		const path = global.nodemodule["path"];
+		const fs = require("fs-extra");
+		const axios = require("axios");
+		const jimp = require("jimp");
+		const path = require("path");
 		
 		const { threadID, messageID, senderID } = event;
 		const __root = path.resolve(__dirname, "cache", "canvas");
@@ -70,10 +71,10 @@ module.exports.onStart = async function({ api, event, Users }) {
 };
 
 async function createPairImage(uid1, uid2) {
-	const fs = global.nodemodule["fs-extra"];
-	const path = global.nodemodule["path"];
-	const axios = global.nodemodule["axios"];
-	const jimp = global.nodemodule["jimp"];
+	const fs = require("fs-extra");
+	const path = require("path");
+	const axios = require("axios");
+	const jimp = require("jimp");
 	const __root = path.resolve(__dirname, "cache", "canvas");
 	
 	const outputPath = path.join(__root, `pairing_${uid1}_${uid2}.png`);
@@ -103,8 +104,8 @@ async function createPairImage(uid1, uid2) {
 }
 
 async function downloadAvatar(uid, savePath) {
-	const axios = global.nodemodule["axios"];
-	const fs = global.nodemodule["fs-extra"];
+	const axios = require("axios");
+	const fs = require("fs-extra");
 	
 	const url = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 	const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -114,7 +115,7 @@ async function downloadAvatar(uid, savePath) {
 }
 
 async function createCircularImage(imagePath) {
-	const jimp = global.nodemodule["jimp"];
+	const jimp = require("jimp");
 	const image = await jimp.read(imagePath);
 	image.circle();
 	return await image.getBufferAsync("image/png");
