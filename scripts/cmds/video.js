@@ -45,7 +45,7 @@ module.exports.config = {
   usePrefix: true
 };
 
-module.exports.run = async function ({ api, args, event }) {
+module.exports.onStart = async function ({ api, args, event }) {
   try {
     let videoID;
     const url = args[0];
