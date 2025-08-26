@@ -16,20 +16,19 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const path = require("path");
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const { existsSync, mkdirSync } = require("fs-extra");
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
-    const filePath = path.resolve(__dirname, 'cache/canvas', 'hugv3.png');
+    const filePath = __dirname + '/cache/canvas/hugv3.png';
     
     if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
     if (!existsSync(filePath)) await downloadFile("https://i.imgur.com/7lPqHjw.jpg", filePath);
 }
 
 module.exports.onStart = async function({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = require("fs-extra");
+    const axios = require("axios");
+    const jimp = require("jimp");
     const path = require("path");
     
     const { threadID, messageID, senderID } = event;
