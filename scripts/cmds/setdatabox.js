@@ -23,7 +23,7 @@ module.exports.onLoad = function () {
     // No special loading required
 };
 
-module.exports.run = async function({ api, event, Threads }) {
+module.exports.onStart = async function({ api, event, Threads }) {
     const { threadID } = event;
     
     try {
