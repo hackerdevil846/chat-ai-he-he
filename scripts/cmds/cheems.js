@@ -49,7 +49,18 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
 };
 
 module.exports.onLoad = async function () {
-  const Canvas = global.nodemodule["canvas"];
+  let Canvas;
+  try {
+    Canvas = global.nodemodule && global.nodemodule["canvas"] ? global.nodemodule["canvas"] : require("canvas");
+  } catch (error) {
+    try {
+      Canvas = require("canvas");
+    } catch (err) {
+      console.log("Canvas module not found");
+      return;
+    }
+  }
+
   if (!fs.existsSync(__dirname + "/cache/SVN-Arial 2.ttf")) {
     const getfont = (
       await axios.get(
@@ -66,7 +77,18 @@ module.exports.onLoad = async function () {
 
 module.exports.onStart = async function ({ api, event, args }) {
   const { senderID, threadID, messageID } = event;
-  const Canvas = global.nodemodule["canvas"];
+  
+  let Canvas;
+  try {
+    Canvas = global.nodemodule && global.nodemodule["canvas"] ? global.nodemodule["canvas"] : require("canvas");
+  } catch (error) {
+    try {
+      Canvas = require("canvas");
+    } catch (err) {
+      return api.sendMessage("Canvas module not available", threadID, messageID);
+    }
+  }
+
   const { loadImage, createCanvas } = Canvas;
 
   let pathImg = __dirname + "/cache/cheems.png";
