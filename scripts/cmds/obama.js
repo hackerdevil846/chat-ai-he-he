@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "obama",
+	name: "obamatweet",
 	version: "1.1.0",
 	hasPermssion: 0,
 	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
@@ -17,9 +17,9 @@ module.exports.config = {
 
 module.exports.languages = {
 	"en": {
-		"missingText": "✍️ Please provide text for Obama's tweet\nExample: obama Yes we can! Change is coming.",
+		"missingText": "✍️ Please provide text for Obama's tweet\nExample: obamatweet Yes we can! Change is coming.",
 		"processing": "🔄 President Obama is composing your tweet...",
-		"readyMessage": "🇺🇸 Obama Tweet command ready! Type 'obama [text]' to create your presidential tweet",
+		"readyMessage": "🇺🇸 Obama Tweet command ready! Type 'obamatweet [text]' to create your presidential tweet",
 		"resultMessage": "🇺🇸 Presidential Tweet:",
 		"error": "❌ Failed to create tweet. Error: %1"
 	}
