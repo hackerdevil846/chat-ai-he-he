@@ -28,7 +28,7 @@ module.exports.onLoad = function () {
   // Optional: Initialization logic here if needed
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   try {
     // Fetch API config
     const apiConfig = await axios.get(
