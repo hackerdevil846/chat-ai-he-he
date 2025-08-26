@@ -16,26 +16,36 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const { createCanvas, loadImage } = global.nodemodule["canvas"];
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-    const { downloadFile } = global.utils;
-    
-    const dirMaterial = resolve(__dirname, 'cache', 'canvas');
-    const bgPath = resolve(dirMaterial, 'hand_bg.png');
-    
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(bgPath)) {
-        await downloadFile("https://i.imgur.com/vcG4det.jpg", bgPath);
+    try {
+        const canvas = require("canvas");
+        const { createCanvas, loadImage } = canvas;
+        const { resolve } = require("path");
+        const { existsSync, mkdirSync } = require("fs-extra");
+        const axios = require("axios");
+        
+        const dirMaterial = resolve(__dirname, 'cache', 'canvas');
+        const bgPath = resolve(dirMaterial, 'hand_bg.png');
+        
+        if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+        if (!existsSync(bgPath)) {
+            const response = await axios({
+                method: 'GET',
+                url: "https://i.imgur.com/vcG4det.jpg",
+                responseType: 'stream'
+            });
+            response.data.pipe(require("fs").createWriteStream(bgPath));
+        }
+    } catch (error) {
+        console.log("Canvas module loading error:", error.message);
     }
 };
 
 async function makeImage(one, two) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"]; 
-    const jimp = global.nodemodule["jimp"];
-    const { createCanvas, loadImage } = global.nodemodule["canvas"];
+    const fs = require("fs-extra");
+    const path = require("path");
+    const axios = require("axios"); 
+    const jimp = require("jimp");
+    const { createCanvas, loadImage } = require("canvas");
     
     const __root = path.resolve(__dirname, "cache", "canvas");
     const bgPath = path.resolve(__root, 'hand_bg.png');
@@ -58,11 +68,13 @@ async function makeImage(one, two) {
     // Draw circular profile pictures
     const drawAvatar = async (img, x, y, size) => {
         const avatar = await loadImage(img);
+        ctx.save();
         ctx.beginPath();
         ctx.arc(x + size/2, y + size/2, size/2, 0, Math.PI * 2);
         ctx.closePath();
         ctx.clip();
         ctx.drawImage(avatar, x, y, size, size);
+        ctx.restore();
     };
 
     await drawAvatar(Buffer.from(avatarOne.data), 280, 90, 60); // Position 1
@@ -76,7 +88,7 @@ async function makeImage(one, two) {
 }
 
 module.exports.onStart = async function({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
     const { threadID, messageID, senderID } = event;
     
     if (!args[0]) return api.sendMessage("🌸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒔𝒐𝒎𝒆𝒐𝒏𝒆 𝒕𝒐 𝒉𝒐𝒍𝒅 𝒉𝒂𝒏𝒅𝒔!", threadID, messageID);
