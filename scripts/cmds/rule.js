@@ -41,8 +41,8 @@ module.exports.languages = {
  * Ensure cache folder + file exist when module loads
  */
 module.exports.onLoad = () => {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
+  const fs = require("fs-extra");
+  const path = require("path");
   const cacheDir = path.join(__dirname, "cache");
   const pathData = path.join(cacheDir, "rules.json");
 
@@ -74,8 +74,8 @@ function toMathBoldItalic(str) {
  * Keep parameter name `permssion` (intentionally same as other GoatBot modules)
  */
 module.exports.onStart = function ({ event, api, args, permssion }) {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
+  const fs = require("fs-extra");
+  const path = require("path");
   const { threadID, messageID, senderID } = event;
 
   const cachePath = path.join(__dirname, "cache", "rules.json");
