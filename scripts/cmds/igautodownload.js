@@ -1,7 +1,9 @@
 import { createWriteStream } from "fs";
 import fsExtra from "fs-extra";
 import axios from "axios";
-import tempy from "tempy";
+import { tmpdir } from "os";
+import { join } from "path";
+import { randomBytes } from "crypto";
 import igdl from "@sasmeee/igdl";
 
 export const config = {
@@ -16,8 +18,7 @@ export const config = {
     dependencies: {
         "@sasmeee/igdl": "",
         "axios": "",
-        "fs-extra": "",
-        "tempy": ""
+        "fs-extra": ""
     }
 };
 
@@ -65,7 +66,10 @@ export async function handleEvent({ api, event }) {
             const hdLink = results[0].url;
 
             const response = await axios.get(hdLink, { responseType: "stream" });
-            tempFilePath = tempy.file({ extension: "mp4" });
+            
+            // Create temporary file path using Node.js built-in modules
+            const randomName = randomBytes(16).toString('hex');
+            tempFilePath = join(tmpdir(), `ig_video_${randomName}.mp4`);
 
             const writer = createWriteStream(tempFilePath);
             response.data.pipe(writer);
