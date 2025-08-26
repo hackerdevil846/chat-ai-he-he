@@ -16,13 +16,13 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const { resolve } = global.nodemodule["path"];
-    const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
+    const path = require("path");
+    const fs = require("fs-extra");
     const dirMaterial = __dirname + `/cache/`;
-    const pathFile = resolve(__dirname, 'cache', 'hon0.jpeg');
+    const pathFile = path.resolve(__dirname, 'cache', 'hon0.jpeg');
 
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(pathFile)) {
+    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(pathFile)) {
         console.warn("💡 Please put 'hon0.jpeg' in the cache folder!");
     }
 };
@@ -35,10 +35,10 @@ async function circle(imagePath) {
 }
 
 async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
+    const fs = require("fs-extra");
+    const path = require("path");
+    const axios = require("axios");
+    const jimp = require("jimp");
     const __root = path.resolve(__dirname, "cache");
 
     const hon_img = await jimp.read(__root + "/hon0.jpeg");
@@ -73,7 +73,7 @@ async function makeImage({ one, two }) {
 }
 
 module.exports.onStart = async function({ api, event, args, Currencies }) {
-    const fs = global.nodemodule["fs-extra"];
+    const fs = require("fs-extra");
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
 
