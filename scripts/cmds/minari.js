@@ -49,7 +49,7 @@ function setMinariStatus(threadID, status) {
 	}
 }
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
 	const threadID = event.threadID;
 	const userID = event.senderID;
 	
@@ -99,7 +99,7 @@ module.exports.run = async function({ api, event, args }) {
 	}
 	
 	// Auto-install dependencies if missing
-	if (!global.nodemodule["discord-chatbot"]) {
+	if (!global.nodemodule || !global.nodemodule["discord-chatbot"]) {
 		try {
 			api.sendMessage("🌸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕, 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒊𝒏𝒈 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅 𝒑𝒂𝒄𝒌𝒂𝒈𝒆𝒔... ⏳", threadID);
 			
@@ -108,6 +108,7 @@ module.exports.run = async function({ api, event, args }) {
 			
 			// Refresh modules
 			delete require.cache[require.resolve("discord-chatbot")];
+			if (!global.nodemodule) global.nodemodule = {};
 			global.nodemodule["discord-chatbot"] = require("discord-chatbot");
 			
 			api.sendMessage("🌸 𝑷𝒂𝒄𝒌𝒂𝒈𝒆𝒔 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚! 𝑨𝒔𝒌 𝒎𝒆 𝒂𝒈𝒂𝒊𝒏 💫", threadID);
