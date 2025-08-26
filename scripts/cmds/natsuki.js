@@ -16,7 +16,7 @@ module.exports.config = {
   }
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
   const { createCanvas, loadImage, registerFont } = require('canvas');
   const { threadID, messageID } = event;
   const fetch = global.nodemodule["node-superfetch"];
