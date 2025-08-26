@@ -1,4 +1,4 @@
-const request = global.nodemodule["request"];
+const request = require("request");
 
 module.exports.config = {
 	name: "trans-english",
@@ -14,7 +14,7 @@ module.exports.config = {
 	}
 };
 
-module.exports.run = async function ({ api, event, args }) {
+module.exports.onStart = async function ({ api, event, args }) {
 	try {
 		let content = args.join(" ");
 		if (content.length == 0 && event.type != "message_reply") {
