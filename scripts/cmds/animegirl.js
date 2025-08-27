@@ -1,127 +1,215 @@
-module.exports.config = {
-  name: "animegirl",
-  version: "5.0.0",
-  hasPermssion: 0,
-  credits: "Asif",
-  description: "Fetches a random anime picture from various categories with multiple fallbacks.",
-  category: "media",
-  usages: "animegirl [category]\n\nAvailable Categories:\n- waifu (default)\n- neko\n- shinobu\n- megumin",
-  cooldowns: 3,
-  dependencies: {
-    "axios": "",
-    "fs-extra": ""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
-// --- Required onStart function to avoid loader error ---
-module.exports.onStart = async function() {
-  return;
-};
+module.exports = {
+  config: {
+    name: "animegirl",
+    version: "5.0.0",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
+    category: "media",
+    shortDescription: {
+      en: "𝑭𝒆𝒕𝒄𝒉𝒆𝒔 𝒓𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎𝒆 𝒑𝒊𝒄𝒕𝒖𝒓𝒆𝒔"
+    },
+    longDescription: {
+      en: "𝑮𝒆𝒕 𝒓𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎𝒆 𝒑𝒊𝒄𝒕𝒖𝒓𝒆𝒔 𝒇𝒓𝒐𝒎 𝒗𝒂𝒓𝒊𝒐𝒖𝒔 𝒄𝒂𝒕𝒆𝒈𝒐𝒓𝒊𝒆𝒔"
+    },
+    guide: {
+      en: "{p}animegirl [category]\n\n𝑨𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆 𝑪𝒂𝒕𝒆𝒈𝒐𝒓𝒊𝒆𝒔:\n• waifu (default)\n• neko\n• shinobu\n• megumin"
+    },
+    cooldowns: 3
+  },
 
-// --- Helper function to download and send an image ---
-async function sendImage(api, event, imageUrl, caption) {
-  const axios = global.nodemodule["axios"];
-  const fs = global.nodemodule["fs-extra"];
-  const path = __dirname + "/cache/anime.jpg";
-
-  try {
-    const imageResponse = await axios({
-      url: imageUrl,
-      method: 'GET',
-      responseType: 'stream'
-    });
-
-    const writer = fs.createWriteStream(path);
-    imageResponse.data.pipe(writer);
-
-    return new Promise((resolve, reject) => {
-      writer.on('finish', () => {
-        api.sendMessage({
-          body: caption,
-          attachment: fs.createReadStream(path)
-        }, event.threadID, () => {
-          fs.unlinkSync(path);
-          resolve();
-        }, event.messageID);
-      });
-      writer.on('error', reject);
-    });
-  } catch (error) {
-    console.error("Failed to download or send image:", error);
-    throw error;
-  }
-}
-
-// --- Main command logic ---
-module.exports.run = async ({ api, event, args }) => {
-  const primaryApi = "https://nekos.best/api/v2/";
-  const secondaryApi = "https://api.waifu.pics/sfw/";
-  const staticBackupLinks = [
-    "https://i.imgur.com/2iXk7mU.jpg", "https://i.imgur.com/OQQeOP3.jpg", "https://i.imgur.com/bMM8iJZ.jpg",
-    "https://i.imgur.com/vJBXAhy.jpg", "https://i.imgur.com/C3b91UO.jpg", "https://i.imgur.com/iQbs8eX.jpg",
-    "https://i.imgur.com/ZkpN7kz.jpg", "https://i.imgur.com/rfzt2WQ.jpg", "https://i.imgur.com/KSJQf1f.jpg",
-    "https://i.imgur.com/BJ6yXNe.jpg", "https://i.imgur.com/IMubWyZ.jpg", "https://i.imgur.com/bXHiz1E.jpg",
-    "https://i.imgur.com/6TF2Xft.jpg", "https://i.imgur.com/ZLCFLkt.jpg", "https://i.imgur.com/dfBFRCY.jpg",
-    "https://i.imgur.com/8hEm7Ib.jpg", "https://i.imgur.com/VjrmG8l.jpg", "https://i.imgur.com/g0rKS8v.jpg",
-    "https://i.imgur.com/pwIiuie.jpg", "https://i.imgur.com/3JSCTMb.jpg", "https://i.imgur.com/cwaipdJ.jpg",
-    "https://i.imgur.com/6YrFPL6.jpg", "https://i.imgur.com/hefR6oA.jpg", "https://i.imgur.com/IEellAV.jpg",
-    "https://i.imgur.com/sIIKN0X.jpg", "https://i.imgur.com/U1dHNbT.jpg", "https://i.imgur.com/fWsdzoT.jpg",
-    "https://i.imgur.com/9rwW06s.jpg", "https://i.imgur.com/kCtN9ET.jpg", "https://i.imgur.com/IfdtKRK.jpg",
-    "https://i.imgur.com/YQQ4OSq.jpg", "https://i.imgur.com/byXallB.jpg", "https://i.imgur.com/COb8HI9.jpg",
-    "https://i.imgur.com/xFIa63u.jpg", "https://i.imgur.com/7JKSRQi.jpg", "https://i.imgur.com/EADdeTw.jpg",
-    "https://i.imgur.com/zW5Yjr6.jpg", "https://i.imgur.com/i0lZw0Z.jpg", "https://i.imgur.com/COu7WrN.jpg",
-    "https://i.imgur.com/z7RmDnI.jpg", "https://i.imgur.com/owd3yEE.jpg", "https://i.imgur.com/g5zU3Mg.jpg",
-    "https://i.imgur.com/1M8Qo3e.jpg", "https://i.imgur.com/vVynRQK.jpg", "https://i.imgur.com/RHoJdo4.jpg",
-    "https://i.imgur.com/NhnPV3T.jpg", "https://i.imgur.com/i9C8TaY.jpg", "https://i.imgur.com/JL99iUN.jpg",
-    "https://i.imgur.com/4sZxV7H.jpg", "https://i.imgur.com/9ij2ZBZ.jpg", "https://i.imgur.com/qEJ1Bac.jpg",
-    "https://i.imgur.com/TaxJ5C0.jpg", "https://i.imgur.com/yAr7DHH.jpg", "https://i.imgur.com/dYZ3Fvm.jpg",
-    "https://i.imgur.com/EteGnuY.jpg", "https://i.imgur.com/E5axqu9.jpg", "https://i.imgur.com/hZxona6.jpg",
-    "https://i.imgur.com/5HsEx6v.jpg", "https://i.imgur.com/r4G6tQi.jpg", "https://i.imgur.com/3eMPpUl.jpg",
-    "https://i.imgur.com/tasryGt.jpg", "https://i.imgur.com/rzlJZst.jpg", "https://i.imgur.com/4gx3rnh.jpg",
-    "https://i.imgur.com/j4WDARE.jpg", "https://i.imgur.com/J9rhsQn.jpg", "https://i.imgur.com/tMwtFht.jpg",
-    "https://i.imgur.com/AXmBgGk.jpg"
-  ];
-  const availableCategories = ["waifu", "neko", "shinobu", "megumin"];
-  const axios = global.nodemodule["axios"];
-
-  let category = args[0] ? args[0].toLowerCase() : 'waifu';
-  if (!availableCategories.includes(category)) {
-    api.sendMessage(`❌ Invalid Category!\n\nAvailable: ${availableCategories.join(', ')}`, event.threadID, event.messageID);
-    return;
-  }
-
-  try {
-    const response = await axios.get(`${primaryApi}${category}`);
-    const result = response.data.results[0];
-    const caption = `🎀 Random ${result.anime_name || capitalize(category)} Picture 🎀\n\nArtist: ${result.artist_name}\n🔗 Source: ${result.source_url}`;
-    await sendImage(api, event, result.url, caption);
-    return;
-  } catch (error) {
-    console.error(`Primary API failed for ${category}:`, error.message);
-
+  onStart: async function({ message, event, args }) {
     try {
-      if (category === 'waifu' || category === 'neko') {
-        const response = await axios.get(`${secondaryApi}${category}`);
-        const caption = `🎀 Random ${capitalize(category)} Picture 🎀\n\n(Backup API)`;
-        await sendImage(api, event, response.data.url, caption);
-        return;
+      const availableCategories = ["waifu", "neko", "shinobu", "megumin"];
+      const category = args[0] ? args[0].toLowerCase() : 'waifu';
+      
+      if (!availableCategories.includes(category)) {
+        return message.reply(`❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒄𝒂𝒕𝒆𝒈𝒐𝒓𝒚!\n\n𝑨𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆: ${availableCategories.join(', ')}`);
       }
-    } catch (error2) {
-      console.error(`Secondary API failed for ${category}:`, error2.message);
-    }
-  }
 
-  try {
-    const randomLink = staticBackupLinks[Math.floor(Math.random() * staticBackupLinks.length)];
-    const caption = `🎀 Random Anime Picture 🎀\n\n(APIs are down, using a backup image)`;
-    await sendImage(api, event, randomLink, caption);
-  } catch (finalError) {
-    console.error("Fatal: All backup systems failed.", finalError);
-    api.sendMessage("I'm sorry, but all image sources, including the static backups, are currently unavailable. Please try again later.", event.threadID, event.messageID);
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, 'cache');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      const imagePath = path.join(cacheDir, `anime_${Date.now()}.jpg`);
+
+      // Primary API
+      try {
+        const response = await axios.get(`https://nekos.best/api/v2/${category}`);
+        const result = response.data.results[0];
+        const caption = `🎀 𝑹𝒂𝒏𝒅𝒐𝒎 ${result.anime_name || this.capitalize(category)} 𝑷𝒊𝒄𝒕𝒖𝒓𝒆 🎀\n\n𝑨𝒓𝒕𝒊𝒔𝒕: ${result.artist_name}\n🔗 𝑺𝒐𝒖𝒓𝒄𝒆: ${result.source_url}`;
+        
+        // Download image
+        const imageResponse = await axios.get(result.url, {
+          responseType: 'arraybuffer'
+        });
+        fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+        
+        await message.reply({
+          body: caption,
+          attachment: fs.createReadStream(imagePath)
+        });
+        
+        fs.unlinkSync(imagePath);
+        return;
+        
+      } catch (error) {
+        console.error(`Primary API failed for ${category}:`, error.message);
+      }
+
+      // Secondary API
+      try {
+        if (category === 'waifu' || category === 'neko') {
+          const response = await axios.get(`https://api.waifu.pics/sfw/${category}`);
+          const caption = `🎀 𝑹𝒂𝒏𝒅𝒐𝒎 ${this.capitalize(category)} 𝑷𝒊𝒄𝒕𝒖𝒓𝒆 🎀\n\n(𝑩𝒂𝒄𝒌𝒖𝒑 𝑨𝑷𝑰)`;
+          
+          const imageResponse = await axios.get(response.data.url, {
+            responseType: 'arraybuffer'
+          });
+          fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+          
+          await message.reply({
+            body: caption,
+            attachment: fs.createReadStream(imagePath)
+          });
+          
+          fs.unlinkSync(imagePath);
+          return;
+        }
+      } catch (error) {
+        console.error(`Secondary API failed for ${category}:`, error.message);
+      }
+
+      // Static backup APIs
+      const backupApis = [
+        "https://nekos.best/api/v2/happy",
+        "https://nekos.best/api/v2/dance",
+        "https://api.otakugifs.xyz/gif?reaction=kiss",
+        "https://api.otakugifs.xyz/gif/allreactions",
+        "https://nekos.best/api/v2/cry",
+        "https://nekos.best/api/v2/bite",
+        "https://nekos.best/api/v2/blush",
+        "https://nekos.best/api/v2/cuddle",
+        "https://nekos.best/api/v2/dance",
+        "https://nekos.best/api/v2/facepalm",
+        "https://nekos.best/api/v2/handhold",
+        "https://nekos.best/api/v2/hug",
+        "https://nekos.best/api/v2/kiss",
+        "https://nekos.best/api/v2/laugh",
+        "https://nekos.best/api/v2/nom",
+        "https://nekos.best/api/v2/pat",
+        "https://nekos.best/api/v2/poke",
+        "https://nekos.best/api/v2/pout",
+        "https://nekos.best/api/v2/punch",
+        "https://nekos.best/api/v2/run",
+        "https://nekos.best/api/v2/shrug",
+        "https://nekos.best/api/v2/slap",
+        "https://nekos.best/api/v2/sleep",
+        "https://nekos.best/api/v2/smile",
+        "https://nekos.best/api/v2/smug",
+        "https://nekos.best/api/v2/stare",
+        "https://nekos.best/api/v2/thumbsup",
+        "https://nekos.best/api/v2/tickle",
+        "https://nekos.best/api/v2/wave",
+        "https://nekos.best/api/v2/wink",
+        "https://nekos.best/api/v2/yawn",
+        "https://api.waifu.pics/sfw/happy",
+        "https://api.waifu.pics/sfw/wink",
+        "https://api.waifu.pics/sfw/wave",
+        "https://api.waifu.pics/sfw/smug",
+        "https://api.waifu.pics/sfw/smile",
+        "https://api.waifu.pics/sfw/slap",
+        "https://api.waifu.pics/sfw/poke",
+        "https://api.waifu.pics/sfw/pat",
+        "https://api.waifu.pics/sfw/nom",
+        "https://api.waifu.pics/sfw/lick",
+        "https://api.waifu.pics/sfw/kiss",
+        "https://api.waifu.pics/sfw/hug",
+        "https://api.waifu.pics/sfw/happy",
+        "https://api.waifu.pics/sfw/handhold",
+        "https://api.waifu.pics/sfw/dance",
+        "https://api.waifu.pics/sfw/cuddle",
+        "https://api.waifu.pics/sfw/cry",
+        "https://api.waifu.pics/sfw/blush",
+        "https://api.waifu.pics/sfw/bite",
+        "https://nekos.life/api/v2/img/neko",
+        "https://nekos.life/api/v2/img/lewd",
+        "https://nekobot.xyz/api/image?type=neko",
+        "https://nekos.moe/api/v1/random/image?tags=neko",
+        // 18+ APIs (kept as backup but won't be used for SFW command)
+        "https://api.waifu.pics/nsfw/neko",
+        "https://api.waifu.pics/nsfw/waifu",
+        "https://api.waifu.pics/nsfw/blowjob",
+        "https://nekobot.xyz/api/image?type=hentai",
+        // Human NSFW GIF
+        "https://nekobot.xyz/api/image?type=pgif"
+      ];
+
+      try {
+        // Filter out NSFW APIs for this SFW command
+        const sfwApis = backupApis.filter(api => 
+          !api.includes('nsfw') && 
+          !api.includes('hentai') && 
+          !api.includes('pgif') &&
+          !api.includes('lewd')
+        );
+
+        const randomApi = sfwApis[Math.floor(Math.random() * sfwApis.length)];
+        const caption = `🎀 𝑹𝒂𝒏𝒅𝒐𝒎 𝑨𝒏𝒊𝒎𝒆 𝑷𝒊𝒄𝒕𝒖𝒓𝒆 🎀\n\n(𝑼𝒔𝒊𝒏𝒈 𝒃𝒂𝒄𝒌𝒖𝒑 𝑨𝑷𝑰)`;
+        
+        let imageUrl;
+        
+        if (randomApi.includes('nekos.best') || randomApi.includes('nekos.life')) {
+          const response = await axios.get(randomApi);
+          imageUrl = response.data.url || response.data.message;
+        } else if (randomApi.includes('waifu.pics')) {
+          const response = await axios.get(randomApi);
+          imageUrl = response.data.url;
+        } else if (randomApi.includes('otakugifs.xyz')) {
+          const response = await axios.get(randomApi);
+          imageUrl = response.data.url;
+        } else if (randomApi.includes('nekobot.xyz')) {
+          const response = await axios.get(randomApi);
+          imageUrl = response.data.message;
+        } else if (randomApi.includes('nekos.moe')) {
+          const response = await axios.get(randomApi);
+          imageUrl = `https://nekos.moe/image/${response.data.images[0].id}`;
+        }
+
+        if (imageUrl) {
+          const imageResponse = await axios.get(imageUrl, {
+            responseType: 'arraybuffer'
+          });
+          fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+          
+          await message.reply({
+            body: caption,
+            attachment: fs.createReadStream(imagePath)
+          });
+          
+          fs.unlinkSync(imagePath);
+        } else {
+          throw new Error("Could not extract image URL from backup API");
+        }
+        
+      } catch (finalError) {
+        console.error("All backup systems failed:", finalError);
+        await message.reply("❌ 𝑰'𝒎 𝒔𝒐𝒓𝒓𝒚, 𝒃𝒖𝒕 𝒂𝒍𝒍 𝒊𝒎𝒂𝒈𝒆 𝒔𝒐𝒖𝒓𝒄𝒆𝒔 𝒂𝒓𝒆 𝒄𝒖𝒓𝒓𝒆𝒏𝒕𝒍𝒚 𝒖𝒏𝒂𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+      }
+
+    } catch (error) {
+      console.error("Animegirl command error:", error);
+      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+    }
+  },
+
+  capitalize: function(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
   }
 };
-
-function capitalize(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
