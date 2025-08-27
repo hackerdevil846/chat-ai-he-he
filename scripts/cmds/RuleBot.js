@@ -1,44 +1,59 @@
 const fs = require("fs");
 
-module.exports.config = {
-    name: "RuleBot",
+module.exports = {
+  config: {
+    name: "rulebot", // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑛𝑎𝑚𝑒 𝑠ℎ𝑜𝑢𝑙𝑑 𝑏𝑒 𝑙𝑜𝑤𝑒𝑟𝑐𝑎𝑠𝑒
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "Asif Mahmud",
-    description: "Bot er bebohar er niyomali",
-    category: "group",
-    usages: "RuleBot",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐴𝑢𝑡ℎ𝑜𝑟 𝑛𝑎𝑚𝑒
+    role: 0, // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 0 = 𝑎𝑙𝑙 𝑢𝑠𝑒𝑟𝑠, 1 = 𝑎𝑑𝑚𝑖𝑛, 2 = 𝑏𝑜𝑡 𝑜𝑤𝑛𝑒𝑟
+    category: "group", // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐶𝑎𝑡𝑒𝑔𝑜𝑟𝑦 𝑜𝑓 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑
+    shortDescription: {
+      en: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐵𝑜𝑡 𝑢𝑠𝑎𝑔𝑒 𝑟𝑢𝑙𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑡ℎ𝑒 𝑟𝑢𝑙𝑒𝑠 𝑓𝑜𝑟 𝑢𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡𝑏𝑜𝑡."
+    },
+    guide: {
+      en: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: {𝑝}𝑟𝑢𝑙𝑒𝑏𝑜𝑡 𝑜𝑟 𝑠𝑖𝑚𝑝𝑙𝑦 𝑡𝑦𝑝𝑒 '𝑏𝑜𝑡 𝑟𝑢𝑙𝑒𝑠'"
+    },
+    priority: 0,
     cooldowns: 5,
     dependencies: {}
-};
+  },
 
-module.exports.languages = {
+  languages: {
     "en": {
-        "message": "💌 Chatbot babohar niyom:\n" +
-                  "▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n" +
-                  "❯ Source Code By Asif Mahmud\n" +
-                  "❯ Userdera bot ke 20 bar/diner ceye spam na korben\n" +
-                  "▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n" +
-                  "💖 Powered by Asif Mahmud"
+      "message": "💌 𝐶ℎ𝑎𝑡𝑏𝑜𝑡 𝑏𝑎𝑏𝑜ℎ𝑎𝑟 𝑛𝑖𝑦𝑜𝑚:\n" +
+                 "▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n" +
+                 "❯ 𝑆𝑜𝑢𝑟𝑐𝑒 𝐶𝑜𝑑𝑒 𝐵𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑\n" +
+                 "❯ 𝑈𝑠𝑒𝑟𝑑𝑒𝑟𝑎 𝑏𝑜𝑡 𝑘𝑒 20 𝑏𝑎𝑟/𝑑𝑖𝑛𝑒𝑟 𝑐ℎ𝑒𝑦𝑒 𝑠𝑝𝑎𝑚 𝑛𝑎 𝑘𝑜𝑟𝑏𝑒𝑛\n" +
+                 "▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n" +
+                 "💖 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑"
     }
-};
+  },
 
-module.exports.onLoad = function() {
-    console.log("✅ RuleBot loaded successfully!");
-};
+  onLoad: function() {
+    console.log("✅ 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝑅𝑢𝑙𝑒𝐵𝑜𝑡 𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!");
+  },
 
-module.exports.handleEvent = function({ api, event }) {
-    const { threadID, messageID } = event;
+  onStart: async function({ message, event }) {
+    try {
+      // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝑇ℎ𝑖𝑠 𝑝𝑎𝑟𝑡 ℎ𝑎𝑛𝑑𝑙𝑒𝑠 𝑑𝑖𝑟𝑒𝑐𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑐𝑎𝑙𝑙𝑠 𝑙𝑖𝑘𝑒 `{p}rulebot`
+      await message.reply(this.languages.en.message);
+    } catch (error) {
+      console.error("𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝑅𝑢𝑙𝑒𝐵𝑜𝑡 𝑜𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+      await message.reply("❌ 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠ℎ𝑜𝑤 𝑟𝑢𝑙𝑒𝑠.");
+    }
+  },
+
+  onChat: async function({ event, message }) {
+    // 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑: 𝑇ℎ𝑖𝑠 𝑝𝑎𝑟𝑡 ℎ𝑎𝑛𝑑𝑙𝑒𝑠 𝑡𝑟𝑖𝑔𝑔𝑒𝑟 𝑝ℎ𝑟𝑎𝑠𝑒𝑠 𝑖𝑛 𝑐ℎ𝑎𝑡
     const triggers = ["rulebot", "bot rules", "rules"];
-    
-    if (event.body && triggers.some(trigger => 
+
+    if (event.body && triggers.some(trigger =>
         event.body.toLowerCase().includes(trigger.toLowerCase())
     )) {
-        api.sendMessage(this.languages.en.message, threadID, messageID);
+      await message.reply(this.languages.en.message);
     }
-};
-
-module.exports.onStart = function({ api, event }) {
-    const { threadID } = event;
-    api.sendMessage(this.languages.en.message, threadID);
+  }
 };
