@@ -1,3 +1,107 @@
+const axios = require("axios");
+
+module.exports = {
+  config: {
+    name: "anime",
+    version: "1.0.0",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "𝑨𝒏𝒊𝒎𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒘𝒊𝒕𝒉 𝒆𝒎𝒐𝒋𝒊"
+    },
+    longDescription: {
+      en: "𝑺𝒆𝒏𝒅𝒔 𝒂𝒏𝒊𝒎𝒆 𝒓𝒆𝒂𝒄𝒕𝒊𝒐𝒏𝒔 𝒃𝒂𝒔𝒆𝒅 𝒐𝒏 𝒆𝒎𝒐𝒋𝒊"
+    },
+    cooldowns: 5
+  },
+
+  onChat: async function({ message, event }) {
+    try {
+      const emojiReactions = {
+        "😄": { apis: ["https://nekos.best/api/v2/happy", "https://api.waifu.pics/sfw/happy"], description: "happy" },
+        "💃": { apis: ["https://nekos.best/api/v2/dance", "https://api.waifu.pics/sfw/dance"], description: "dance" },
+        "😘": { apis: ["https://api.otakugifs.xyz/gif?reaction=kiss", "https://nekos.best/api/v2/kiss", "https://api.waifu.pics/sfw/kiss"], description: "kiss" },
+        "😢": { apis: ["https://nekos.best/api/v2/cry", "https://api.waifu.pics/sfw/cry"], description: "cry" },
+        "😬": { apis: ["https://nekos.best/api/v2/bite", "https://api.waifu.pics/sfw/bite"], description: "bite" },
+        "😊": { apis: ["https://nekos.best/api/v2/blush", "https://api.waifu.pics/sfw/blush"], description: "blush" },
+        "🤗": { apis: ["https://nekos.best/api/v2/cuddle", "https://api.waifu.pics/sfw/cuddle"], description: "cuddle" },
+        "🤦": { apis: ["https://nekos.best/api/v2/facepalm"], description: "facepalm" },
+        "🧑‍🤝‍🧑": { apis: ["https://nekos.best/api/v2/handhold", "https://api.waifu.pics/sfw/handhold"], description: "handhold" },
+        "🫂": { apis: ["https://nekos.best/api/v2/hug", "https://api.waifu.pics/sfw/hug"], description: "hug" },
+        "😂": { apis: ["https://nekos.best/api/v2/laugh"], description: "laugh" },
+        "🍖": { apis: ["https://nekos.best/api/v2/nom", "https://api.waifu.pics/sfw/nom"], description: "nom" },
+        "👋": { apis: ["https://nekos.best/api/v2/pat", "https://api.waifu.pics/sfw/pat"], description: "pat" },
+        "👉": { apis: ["https://nekos.best/api/v2/poke", "https://api.waifu.pics/sfw/poke"], description: "poke" },
+        "😤": { apis: ["https://nekos.best/api/v2/pout"], description: "pout" },
+        "👊": { apis: ["https://nekos.best/api/v2/punch"], description: "punch" },
+        "🏃": { apis: ["https://nekos.best/api/v2/run"], description: "run" },
+        "🤷": { apis: ["https://nekos.best/api/v2/shrug"], description: "shrug" },
+        "👋": { apis: ["https://nekos.best/api/v2/slap", "https://api.waifu.pics/sfw/slap"], description: "slap" },
+        "😴": { apis: ["https://nekos.best/api/v2/sleep"], description: "sleep" },
+        "😊": { apis: ["https://nekos.best/api/v2/smile", "https://api.waifu.pics/sfw/smile"], description: "smile" },
+        "😏": { apis: ["https://nekos.best/api/v2/smug", "https://api.waifu.pics/sfw/smug"], description: "smug" },
+        "👀": { apis: ["https://nekos.best/api/v2/stare"], description: "stare" },
+        "👍": { apis: ["https://nekos.best/api/v2/thumbsup"], description: "thumbsup" },
+        "🤣": { apis: ["https://nekos.best/api/v2/tickle"], description: "tickle" },
+        "👋": { apis: ["https://nekos.best/api/v2/wave", "https://api.waifu.pics/sfw/wave"], description: "wave" },
+        "😉": { apis: ["https://nekos.best/api/v2/wink", "https://api.waifu.pics/sfw/wink"], description: "wink" },
+        "🥱": { apis: ["https://nekos.best/api/v2/yawn"], description: "yawn" },
+        "👅": { apis: ["https://api.waifu.pics/sfw/lick"], description: "lick" },
+        "🐱": { apis: ["https://nekos.life/api/v2/img/neko", "https://nekobot.xyz/api/image?type=neko"], description: "neko" },
+        "🔥": { apis: ["https://nekos.life/api/v2/img/lewd"], description: "lewd" },
+        "🎲": { apis: ["https://nekos.moe/api/v1/random/image?tags=neko"], description: "random" }
+      };
+
+      const body = event.body?.trim();
+      
+      if (body && emojiReactions[body]) {
+        const reaction = emojiReactions[body];
+        
+        for (const apiUrl of reaction.apis) {
+          try {
+            const response = await axios.get(apiUrl);
+            let imageUrl;
+
+            if (apiUrl.includes("nekos.best")) {
+              imageUrl = response.data.results[0]?.url;
+            } else if (apiUrl.includes("waifu.pics")) {
+              imageUrl = response.data.url;
+            } else if (apiUrl.includes("nekos.life")) {
+              imageUrl = response.data.url;
+            } else if (apiUrl.includes("nekobot.xyz")) {
+              imageUrl = response.data.message;
+            } else if (apiUrl.includes("otakugifs")) {
+              imageUrl = response.data.url;
+            } else if (apiUrl.includes("nekos.moe")) {
+              imageUrl = `https://nekos.moe/image/${response.data.images[0].id}`;
+            }
+
+            if (imageUrl) {
+              await message.reply({
+                body: `${body} ${reaction.description}!`,
+                attachment: await global.utils.getStreamFromURL(imageUrl)
+              });
+              return;
+            }
+          } catch (error) {
+            console.log(`API ${apiUrl} failed, trying backup...`);
+            continue;
+          }
+        }
+        
+        // If all APIs fail
+        await message.reply(`${body} ${reaction.description}! (𝑵𝒐 𝒊𝒎𝒂𝒈𝒆 𝒂𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆)`);
+      }
+    } catch (error) {
+      console.error("Anime emoji reaction error:", error);
+    }
+  }
+};
+
+
+
+/*
 module.exports.config = {
 	name: "anime2",
 	version: "1.0.0",
@@ -249,3 +353,4 @@ module.exports.run = async function({ api, event, args }) {
 	// If all APIs failed
 	return api.sendMessage(`❌ Sorry, couldn't fetch a ${reactionName} reaction at the moment. Please try again later.`, threadID, messageID);
 };
+*/
