@@ -2,7 +2,7 @@ module.exports.config = {
     name: "ckbot",
     version: "1.0.0",
     hasPermssion: 0,
-    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Keep original credits
+    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     description: "𝑩𝒐𝒕 𝒆𝒓 𝒊𝒏𝒇𝒐 𝒅𝒆𝒌𝒉𝒂𝒏𝒐 𝒆𝒓 𝒌𝒂𝒋",
     category: "Media",
     usages: "",
@@ -19,16 +19,13 @@ module.exports.onStart = async ({ api, event, args }) => {
     const threadSetting = global.data.threadData.get(parseInt(event.threadID)) || {};
     const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
     
-    // Helper function for consistent styling
     const applyStyle = (text) => {
-        // This is a basic attempt to convert to 'metalix italic bold' using Unicode.
-        // Actual rendering depends on the client's font support.
         return text
             .split('')
             .map(char => {
-                if (char >= 'A' && char <= 'Z') return String.fromCodePoint(char.charCodeAt(0) + 119937); // Mathematical Bold Italic Capital
-                if (char >= 'a' && char <= 'z') return String.fromCodePoint(char.charCodeAt(0) + 119931); // Mathematical Bold Italic Small
-                if (char >= '0' && char <= '9') return String.fromCodePoint(char.charCodeAt(0) + 120764); // Mathematical Bold
+                if (char >= 'A' && char <= 'Z') return String.fromCodePoint(char.charCodeAt(0) + 119937);
+                if (char >= 'a' && char <= 'z') return String.fromCodePoint(char.charCodeAt(0) + 119931);
+                if (char >= '0' && char <= '9') return String.fromCodePoint(char.charCodeAt(0) + 120764);
                 return char;
             })
             .join('');
@@ -149,7 +146,7 @@ module.exports.onStart = async ({ api, event, args }) => {
     if (args[0] == "admin") {
         var callback = () => api.sendMessage({
             body: `${applyStyle('———» 𝑨𝑫𝑴𝑰𝑵 𝑩𝑶𝑻 «———')}\n` +
-                  `${applyStyle('❯ 𝑵𝒂𝒎𝒆')}: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑 🖤\n` + // Keep original name style
+                  `${applyStyle('❯ 𝑵𝒂𝒎𝒆')}: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑 🖤\n` +
                   `${applyStyle('❯ 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌')}: https://www.facebook.com/61571630409265\n` +
                   `${applyStyle('❯ 𝑻𝒉𝒂𝒏𝒌𝒔 𝒇𝒐𝒓 𝒖𝒔𝒊𝒏𝒈')} ${global.config.BOTNAME} ${applyStyle('𝒃𝒐𝒕')}`,
             attachment: fs.createReadStream(__dirname + "/cache/1.png")
