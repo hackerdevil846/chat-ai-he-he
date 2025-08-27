@@ -6,31 +6,30 @@ module.exports = {
   config: {
     name: "allah",
     version: "1.0.3",
-    hasPermission: 0,
-    credits: "Asif Developer",
-    description: "Send Islamic text GIFs with inspirational messages",
-    category: "image",
-    usages: "allah",
-    cooldowns: 5,
-    dependencies: {
-      "axios": "",
-      "fs-extra": ""
-    }
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
+    category: "islamic",
+    shortDescription: {
+      en: "𝑺𝒆𝒏𝒅 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝒕𝒆𝒙𝒕 𝑮𝑰𝑭𝒔 𝒘𝒊𝒕𝒉 𝒊𝒏𝒔𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏𝒂𝒍 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔"
+    },
+    longDescription: {
+      en: "𝑺𝒉𝒂𝒓𝒆𝒔 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝑮𝑰𝑭𝒔 𝒘𝒊𝒕𝒉 𝒊𝒏𝒔𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏𝒂𝒍 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔 𝒂𝒏𝒅 𝒓𝒆𝒎𝒊𝒏𝒅𝒆𝒓𝒔"
+    },
+    guide: {
+      en: "{p}allah"
+    },
+    cooldowns: 5
   },
 
-  // Added the required onStart function
-  onStart: async function({ api, event }) {
-    const { threadID, messageID } = event;
-    const cacheDir = path.join(__dirname, "cache");
-    let cachePath;
-    
+  onStart: async function({ message, event }) {
     try {
       // Create cache directory if needed
+      const cacheDir = path.join(__dirname, "cache");
       if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir, { recursive: true });
       }
       
-      cachePath = path.join(cacheDir, `allah_${Date.now()}.gif`);
+      const cachePath = path.join(cacheDir, `allah_${Date.now()}.gif`);
       
       // GIF URLs collection
       const gifUrls = [
@@ -62,13 +61,13 @@ module.exports = {
       fs.writeFileSync(cachePath, Buffer.from(response.data, "binary"));
       
       // Send message with GIF
-      await api.sendMessage({
-        body: "الله أكبر - Allahu Akbar\n" +
-              "God is the Greatest\n\n" +
-              "May this reminder strengthen your faith.",
+      await message.reply({
+        body: "🕌 الله أكبر - Allahu Akbar 🕌\n" +
+              "𝑮𝒐𝒅 𝒊𝒔 𝒕𝒉𝒆 𝑮𝒓𝒆𝒂𝒕𝒆𝒔𝒕\n\n" +
+              "𝑴𝒂𝒚 𝒕𝒉𝒊𝒔 𝒓𝒆𝒎𝒊𝒏𝒅𝒆𝒓 𝒔𝒕𝒓𝒆𝒏𝒈𝒕𝒉𝒆𝒏 𝒚𝒐𝒖𝒓 𝒇𝒂𝒊𝒕𝒉 𝒂𝒏𝒅 𝒃𝒓𝒊𝒏𝒈 𝒚𝒐𝒖 𝒑𝒆𝒂𝒄𝒆. ✨",
         attachment: fs.createReadStream(cachePath)
-      }, threadID, messageID);
-      
+      });
+
       // Clean up after sending
       if (fs.existsSync(cachePath)) {
         fs.unlinkSync(cachePath);
@@ -77,12 +76,13 @@ module.exports = {
     } catch (error) {
       console.error("Allah Command Error:", error);
       
-      // Clean up if file exists
-      if (cachePath && fs.existsSync(cachePath)) {
-        fs.unlinkSync(cachePath);
-      }
-      
-      api.sendMessage("❌ Failed to send Islamic GIF. Please try again later.", threadID, messageID);
+      // Fallback message if GIF fails
+      await message.reply({
+        body: "🕌 الله أكبر - Allahu Akbar 🕌\n" +
+              "𝑮𝒐𝒅 𝒊𝒔 𝒕𝒉𝒆 𝑮𝒓𝒆𝒂𝒕𝒆𝒔𝒕\n\n" +
+              "𝑴𝒂𝒚 𝒕𝒉𝒊𝒔 𝒓𝒆𝒎𝒊𝒏𝒅𝒆𝒓 𝒔𝒕𝒓𝒆𝒏𝒈𝒕𝒉𝒆𝒏 𝒚𝒐𝒖𝒓 𝒇𝒂𝒊𝒕𝒉.\n\n" +
+              "❌ 𝑪𝒐𝒖𝒍𝒅 𝒏𝒐𝒕 𝒍𝒐𝒂𝒅 𝑮𝑰𝑭, 𝒃𝒖𝒕 𝒕𝒉𝒆 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒓𝒆𝒎𝒂𝒊𝒏𝒔. 📿"
+      });
     }
   }
 };
