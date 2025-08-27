@@ -40,13 +40,11 @@ module.exports = {
     });
   },
 
-  onStart: async function ({ api, event, args, Users }) {
-    let { senderID, threadID, messageID } = event;
-    const { loadImage, createCanvas } = require("canvas");
-    const Canvas = global.nodemodule["canvas"];
-    const request = require('request');
-    const fs = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"];
+  onStart: async function ({ api, event, args }) { // Removed unused Users parameter
+    let { threadID, messageID } = event; // Removed senderID as it's not directly used here
+    const { loadImage, createCanvas, registerFont } = require("canvas"); // Destructure registerFont
+    const fs = require("fs-extra"); // Use require directly
+    const axios = require("axios"); // Use require directly
     let pathImg = __dirname + `/cache/anhdaden.png`;
     const text = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|");
     
@@ -54,45 +52,58 @@ module.exports = {
       return api.sendMessage("𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒕𝒘𝒐 𝒕𝒆𝒙𝒕𝒔 𝒔𝒆𝒑𝒂𝒓𝒂𝒕𝒆𝒅 𝒃𝒚 \"|\" 𝒔𝒚𝒎𝒃𝒐𝒍\n𝑬𝒙𝒂𝒎𝒑𝒍𝒆: !anhdaden 𝑻𝒆𝒙𝒕 1 | 𝑻𝒆𝒙𝒕 2", threadID, messageID);
     }
 
-    let getImage = (
-      await axios.get(encodeURI(`https://i.imgur.com/2ggq8wM.png`), {
-        responseType: "arraybuffer",
-      })
-    ).data;
-    fs.writeFileSync(pathImg, Buffer.from(getImage, "utf-8"));
-    
-    if (!fs.existsSync(__dirname + '/cache/SVN-Arial 2.ttf')) { 
-      let getfont = (await axios.get(`https://drive.google.com/u/0/uc?id=11YxymRp0y3Jle5cFBmLzwU89XNqHIZux&export=download`, { 
-        responseType: "arraybuffer" 
-      })).data;
-      fs.writeFileSync(__dirname + "/cache/SVN-Arial 2.ttf", Buffer.from(getfont, "utf-8"));
-    };
-    
-    let baseImage = await loadImage(pathImg);
-    let canvas = createCanvas(baseImage.width, baseImage.height);
-    let ctx = canvas.getContext("2d");
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    
-    Canvas.registerFont(__dirname + `/cache/SVN-Arial 2.ttf`, {
-      family: "SVN-Arial 2"
-    });
-    
-    ctx.font = "30px SVN-Arial 2";
-    ctx.fillStyle = "#000077";
-    ctx.textAlign = "center";
-    const line = await this.wrapText(ctx, text[0], 464);
-    const lines = await this.wrapText(ctx, text[1], 464);
-    ctx.fillText(line.join("\n"), 170, 129);
-    ctx.fillText(lines.join("\n"), 170, 440);
-    ctx.beginPath();
-    const imageBuffer = canvas.toBuffer();
-    fs.writeFileSync(pathImg, imageBuffer);
-    
-    return api.sendMessage(
-      { attachment: fs.createReadStream(pathImg) },
-      threadID,
-      () => fs.unlinkSync(pathImg),
-      messageID
-    );
+    try {
+      // Download the base image
+      let getImage = (
+        await axios.get(`https://i.imgur.com/2ggq8wM.png`, { // Exact link as requested
+          responseType: "arraybuffer",
+        })
+      ).data;
+      fs.writeFileSync(pathImg, Buffer.from(getImage, "utf-8"));
+      
+      // Download the font if it doesn't exist
+      const fontPath = __dirname + '/cache/SVN-Arial 2.ttf';
+      if (!fs.existsSync(fontPath)) { 
+        let getfont = (await axios.get(`https://drive.google.com/u/0/uc?id=11YxymRp0y3Jle5cFBmLzwU89XNqHIZux&export=download`, { // Exact link as requested
+          responseType: "arraybuffer" 
+        })).data;
+        fs.writeFileSync(fontPath, Buffer.from(getfont, "utf-8"));
+      }
+      
+      let baseImage = await loadImage(pathImg);
+      let canvas = createCanvas(baseImage.width, baseImage.height);
+      let ctx = canvas.getContext("2d");
+      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+      
+      // Register the font
+      registerFont(fontPath, { family: "SVN-Arial 2" });
+      
+      // Apply "metalix italic bold" style to the font
+      // Note: Canvas font style uses 'italic bold [size] [family]' syntax
+      ctx.font = "italic bold 35px 'SVN-Arial 2'"; // Increased font size for better visibility
+      ctx.fillStyle = "#000077"; // Original color
+      ctx.textAlign = "center";
+      
+      const line1 = await this.wrapText(ctx, text[0], 464);
+      const line2 = await this.wrapText(ctx, text[1], 464);
+      
+      ctx.fillText(line1.join("\n"), 170, 129); // Position for text 1
+      ctx.fillText(line2.join("\n"), 170, 440); // Position for text 2
+      
+      ctx.beginPath();
+      const imageBuffer = canvas.toBuffer();
+      fs.writeFileSync(pathImg, imageBuffer);
+      
+      return api.sendMessage(
+        { attachment: fs.createReadStream(pathImg) },
+        threadID,
+        () => fs.unlinkSync(pathImg),
+        messageID
+      );
+
+    } catch (error) {
+      console.error("Error in anhdaden command:", error);
+      return api.sendMessage(`An error occurred: ${error.message}`, threadID, messageID);
+    }
   }
 };
