@@ -6,8 +6,8 @@ module.exports = {
   config: {
     name: "islam",
     version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", // Applied Metalix Italic Bold font
-    role: 0, // Assuming 0 for general users
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
     category: "Islamic",
     shortDescription: {
       en: "Get random Islamic inspirational videos"
@@ -17,13 +17,12 @@ module.exports = {
     },
     guide: {
       en: "{p}islam"
-    },
-    priority: 0 // Default priority
+    }
   },
 
-  onStart: async function ({ message, api, event }) {
+  onStart: async function ({ message }) {
     try {
-      const islamicDesign = `🕌┏━━━━━━━━━━━━━━━━━━┓🕌
+      const islamDesign = `🕌┏━━━━━━━━━━━━━━━━━━┓🕌
 📖  ইসলামিক কন্টেন্ট মডিউল প্রস্তুত!
 📖  'islam' টাইপ করুন ইসলামিক
 📖  অনুপ্রেরণামূলক ভিডিও পেতে
@@ -31,11 +30,18 @@ module.exports = {
       await message.reply(islamDesign);
     } catch (error) {
       console.error("Error in onStart of islam command:", error);
-      // It's good practice to notify the user if onStart fails, though less critical here.
     }
   },
 
-  run: async function ({ message, api, event, global }) { // Changed onStart to run for the main command logic
+  onChat: async function ({ event, message }) {
+    // This function will be called when someone sends a message
+    // We'll check if the message is "islam" and respond accordingly
+    if (event.body && event.body.toLowerCase() === "islam") {
+      await this.handleIslamicVideo({ message, event });
+    }
+  },
+
+  handleIslamicVideo: async function ({ message, event }) {
     try {
       const cacheDir = path.join(__dirname, 'cache', 'islamic_videos');
       if (!fs.existsSync(cacheDir)) {
@@ -47,7 +53,8 @@ module.exports = {
 🕋  সংগ্রহ করা হচ্ছে...
 🕋  অনুগ্রহ করে অপেক্ষা করুন
 📥┗━━━━━━━━━━━━━━━━━━┛📥`;
-      const processingMsg = await message.reply(processingDesign); // Using message.reply
+      
+      const processingMsg = await message.reply(processingDesign);
 
       const greetings = [
         `🕌┏━━━━━━━━━━━━━━━━━━┓🕌\n\n📖  আসসালামু আলাইকুম! 🖤💫\n📖  প্রিয় ভাই ও বোন - তুমাদের জন্য নিয়ে আসলাম\n📖  পবিত্র কুরআনের তেলাওয়াত\n\n🕌┗━━━━━━━━━━━━━━━━━━┛🕌`,
@@ -55,7 +62,6 @@ module.exports = {
         `🕌┏━━━━━━━━━━━━━━━━━━┓🕌\n\n📖  আসসালামু আলাইকুম ভাই ও বোনেরা!\n📖  আপনার রুহানী খোরাকের জন্য\n📖  এই ভিডিওটি উপহার\n\n🕌┗━━━━━━━━━━━━━━━━━━┛🕌`
       ];
       
-      // Updated video links - KEPT EXACTLY AS PROVIDED
       const islamicVideos = [
         "https://drive.usercontent.google.com/download?id=1Y5O3qRzxt-MFR4vVhz0QsMwHQmr-34iH&export=download",
         "https://drive.usercontent.google.com/download?id=1YDyNrN-rnzsboFmYm8Q5-FhzoJD9WV3O&export=download",
@@ -72,18 +78,19 @@ module.exports = {
       const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
       const randomVideo = islamicVideos[Math.floor(Math.random() * islamicVideos.length)];
       
-      // Kept exact path construction for videoPath
       const videoPath = path.join(cacheDir, `islamic_${Date.now()}.mp4`);
       
-      await message.reply("🔄 ভিডিও ডাউনলোড করা হচ্ছে...");
-      
-      // Using global.utils.getStreamFromURL for robust downloading
-      const videoStream = await global.utils.getStreamFromURL(randomVideo);
+      // Download the video
+      const response = await axios({
+        method: 'GET',
+        url: randomVideo,
+        responseType: 'stream'
+      });
 
-      // Now save the stream to the file
+      const writer = fs.createWriteStream(videoPath);
+      response.data.pipe(writer);
+
       await new Promise((resolve, reject) => {
-        const writer = fs.createWriteStream(videoPath);
-        videoStream.pipe(writer);
         writer.on('finish', resolve);
         writer.on('error', reject);
       });
@@ -97,9 +104,14 @@ module.exports = {
 
       // Cleanup
       fs.unlinkSync(videoPath);
-      // Use api.unsendMessage with the messageID from message.reply
-      if (processingMsg && processingMsg.messageID) {
-        await api.unsendMessage(processingMsg.messageID);
+      
+      // Try to unsend the processing message if possible
+      try {
+        if (processingMsg && processingMsg.messageID) {
+          await global.api.unsendMessage(processingMsg.messageID);
+        }
+      } catch (e) {
+        console.log("Could not unsend processing message:", e);
       }
 
     } catch (error) {
