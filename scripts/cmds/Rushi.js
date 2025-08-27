@@ -1,46 +1,41 @@
-const fs = require('fs');
 const axios = require('axios');
-const request = require('request');
 
-module.exports.config = {
-  name: "rushia",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "🎀 Random Rushia photo dekhano hoy",
-  category: "random-img",
-  usages: "rushia",
-  cooldowns: 3,
-  dependencies: {
-    "axios": "^1.0.0",
-    "request": "^2.88.2",
-    "fs-extra": "^11.1.1"
-  }
-};
+module.exports = {
+  config: {
+    name: "rushia",
+    version: "1.0.0",
+    hasPermssion: 0,
+    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    description: "🎀 𝑹𝒂𝒏𝒅𝒐𝒎 𝑹𝒖𝒔𝒉𝒊𝒂 𝒑𝒉𝒐𝒕𝒐 𝒅𝒆𝒌𝒉𝒂𝒏𝒐 𝒉𝒐𝒚",
+    category: "random-img",
+    usages: "rushia",
+    cooldowns: 3,
+    dependencies: {
+      "axios": ""
+    }
+  },
 
-module.exports.onStart = async () => {
-  // Initialization code (if needed)
-  console.log("Rushia command loaded successfully!");
-};
+  onStart: async function({ message, event, api }) {
+    try {
+      const res = await axios.get('https://saikiapi-v3-production.up.railway.app/holo/rushia');
+      
+      if (!res.data.url) {
+        return message.reply("❌ 𝑵𝒐 𝑹𝒖𝒔𝒉𝒊𝒂 𝒊𝒎𝒂𝒈𝒆 𝒇𝒐𝒖𝒏𝒅");
+      }
 
-module.exports.run = async ({ api, event }) => {
-  try {
-    const res = await axios.get('https://saikiapi-v3-production.up.railway.app/holo/rushia');
-    let ext = res.data.url.substring(res.data.url.lastIndexOf('.') + 1);
-    let filePath = __dirname + `/cache/rushia.${ext}`;
-    
-    const callback = () => {
-      api.sendMessage({
-        body: `✨ Here is a cute Rushia image for you!`,
-        attachment: fs.createReadStream(filePath)
-      }, event.threadID, () => fs.unlinkSync(filePath), event.messageID);
-      api.setMessageReaction('✅', event.messageID, (err) => {}, true);
-    };
-    
-    request(res.data.url).pipe(fs.createWriteStream(filePath)).on('close', callback);
-  } catch (err) {
-    console.error('Error in rushia command:', err);
-    api.sendMessage('❌ Photo load korte somossa hoyeche, abaro try korun!', event.threadID, event.messageID);
-    api.setMessageReaction('☹️', event.messageID, (err) => {}, true);
+      await message.reply({
+        body: `✨ 𝑯𝒆𝒓𝒆 𝒊𝒔 𝒂 𝒄𝒖𝒕𝒆 𝑹𝒖𝒔𝒉𝒊𝒂 𝒊𝒎𝒂𝒈𝒆 𝒇𝒐𝒓 𝒚𝒐𝒖!`,
+        attachment: await global.utils.getStreamFromURL(res.data.url)
+      });
+
+      // Set reaction if possible
+      if (api.setMessageReaction) {
+        api.setMessageReaction('✅', event.messageID, (err) => {}, true);
+      }
+      
+    } catch (err) {
+      console.error('𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒓𝒖𝒔𝒉𝒊𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅:', err);
+      message.reply('❌ 𝑷𝒉𝒐𝒕𝒐 𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒔𝒐𝒎𝒐𝒔𝒔𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆, 𝒂𝒃𝒂𝒓𝒐 𝒕𝒓𝒚 𝒌𝒐𝒓𝒖𝒏!');
+    }
   }
 };
