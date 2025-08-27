@@ -8,49 +8,45 @@ module.exports.config = {
     countDown: 5,
     role: 0,
     description: {
-        vi: "Quản lý biệt danh lệnh trong nhóm hoặc toàn hệ thống",
-        en: "Manage command aliases in group or globally"
+        en: "𝑀𝒂𝒏𝒂𝒈𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒂𝒍𝒊𝒂𝒔𝒆𝒔 𝒊𝒏 𝒈𝒓𝒐𝒖𝒑 𝒐𝒓 𝒈𝒍𝒐𝒃𝒂𝒍𝒍𝒚"
     },
-    category: "config",
+    category: "𝒄𝒐𝒏𝒇𝒊𝒈",
     guide: {
-        en:
-`🔹 Add group alias: {pn} add <alias> <command>
-🔹 Add global alias (admin only): {pn} add <alias> <command> -g
-🔹 Remove group alias: {pn} remove <alias> <command>
-🔹 Remove global alias (admin only): {pn} remove <alias> <command> -g
-🔹 List group aliases: {pn} list
-🔹 List global aliases: {pn} list -g
-🔹 Info about alias: {pn} info <alias>
-🔹 Example: {pn} add ctrk customrankcard`
+        en: `🔹 𝑨𝒅𝒅 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔: {pn} 𝒂𝒅𝒅 <𝒂𝒍𝒊𝒂𝒔> <𝒄𝒐𝒎𝒎𝒂𝒏𝒅>
+🔹 𝑨𝒅𝒅 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔 (𝒂𝒅𝒎𝒊𝒏 𝒐𝒏𝒍𝒚): {pn} 𝒂𝒅𝒅 <𝒂𝒍𝒊𝒂𝒔> <𝒄𝒐𝒎𝒎𝒂𝒏𝒅> -𝒈
+🔹 𝑹𝒆𝒎𝒐𝒗𝒆 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔: {pn} 𝒓𝒆𝒎𝒐𝒗𝒆 <𝒂𝒍𝒊𝒂𝒔> <𝒄𝒐𝒎𝒎𝒂𝒏𝒅>
+🔹 𝑹𝒆𝒎𝒐𝒗𝒆 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔 (𝒂𝒅𝒎𝒊𝒏 𝒐𝒏𝒍𝒚): {pn} 𝒓𝒆𝒎𝒐𝒗𝒆 <𝒂𝒍𝒊𝒂𝒔> <𝒄𝒐𝒎𝒎𝒂𝒏𝒅> -𝒈
+🔹 𝑳𝒊𝒔𝒕 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔𝒆𝒔: {pn} 𝒍𝒊𝒔𝒕
+🔹 𝑳𝒊𝒔𝒕 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔: {pn} 𝒍𝒊𝒔𝒕 -𝒈
+🔹 𝑰𝒏𝒇𝒐 𝒂𝒃𝒐𝒖𝒕 𝒂𝒍𝒊𝒂𝒔: {pn} 𝒊𝒏𝒇𝒐 <𝒂𝒍𝒊𝒂𝒔>
+🔹 𝑬𝒙𝒂𝒎𝒑𝒍𝒆: {pn} 𝒂𝒅𝒅 𝒄𝒕𝒓𝒌 𝒄𝒖𝒔𝒕𝒐𝒎𝒓𝒂𝒏𝒌𝒄𝒂𝒓𝒅`
     }
 };
 
 module.exports.languages = {
     en: {
-        commandNotExist: "❌ Command \"%1\" does not exist",
-        aliasExist: "❌ Alias \"%1\" already exists for command \"%2\"",
-        aliasIsCommand: "❌ Alias \"%1\" conflicts with an existing command",
-        addAliasSuccess: "✅ Added global alias \"%1\" for command \"%2\"",
-        addAliasToGroupSuccess: "✨ Added group alias \"%1\" for command \"%2\"",
-        removeAliasSuccess: "🗑️ Removed global alias \"%1\" for command \"%2\"",
-        removeAliasInGroupSuccess: "🗑️ Removed group alias \"%1\" for command \"%2\"",
-        noPermissionAdd: "❌ You don't have permission to add global aliases",
-        noPermissionDelete: "❌ You don't have permission to remove global aliases",
-        noAliasInSystem: "ℹ️ No global aliases exist",
-        notExistAliasInGroup: "ℹ️ No group aliases exist",
-        noAliasInGroup: "❌ Command \"%1\" has no aliases in this group",
-        aliasExistInGroup: "❌ Alias \"%1\" already exists for command \"%2\" in this group",
-        aliasNotExist: "❌ Alias \"%1\" does not exist for command \"%2\"",
-        aliasList: "📜 Global aliases:\n%1",
-        aliasListInGroup: "📜 Group aliases:\n%1",
-        aliasInfo: "ℹ️ Alias \"%1\" is mapped to command \"%2\"\nGlobal: %3\nGroup ID: %4",
-        invalidSyntax: "❌ Invalid syntax! Please follow the guide:\n%1"
+        commandNotExist: "❌ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 \"%1\" 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒆𝒙𝒊𝒔𝒕",
+        aliasExist: "❌ 𝑨𝒍𝒊𝒂𝒔 \"%1\" 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒆𝒙𝒊𝒔𝒕𝒔 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        aliasIsCommand: "❌ 𝑨𝒍𝒊𝒂𝒔 \"%1\" 𝒄𝒐𝒏𝒇𝒍𝒊𝒄𝒕𝒔 𝒘𝒊𝒕𝒉 𝒂𝒏 𝒆𝒙𝒊𝒔𝒕𝒊𝒏𝒈 𝒄𝒐𝒎𝒎𝒂𝒏𝒅",
+        addAliasSuccess: "✅ 𝑨𝒅𝒅𝒆𝒅 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔 \"%1\" 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        addAliasToGroupSuccess: "✨ 𝑨𝒅𝒅𝒆𝒅 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔 \"%1\" 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        removeAliasSuccess: "🗑️ 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔 \"%1\" 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        removeAliasInGroupSuccess: "🗑️ 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔 \"%1\" 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        noPermissionAdd: "❌ 𝒀𝒐𝒖 𝒅𝒐𝒏'𝒕 𝒉𝒂𝒗𝒆 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒕𝒐 𝒂𝒅𝒅 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔",
+        noPermissionDelete: "❌ 𝒀𝒐𝒖 𝒅𝒐𝒏'𝒕 𝒉𝒂𝒗𝒆 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒕𝒐 𝒓𝒆𝒎𝒐𝒗𝒆 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔",
+        noAliasInSystem: "ℹ️ 𝑵𝒐 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔 𝒆𝒙𝒊𝒔𝒕",
+        notExistAliasInGroup: "ℹ️ 𝑵𝒐 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔𝒆𝒔 𝒆𝒙𝒊𝒔𝒕",
+        noAliasInGroup: "❌ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 \"%1\" 𝒉𝒂𝒔 𝒏𝒐 𝒂𝒍𝒊𝒂𝒔𝒆𝒔 𝒊𝒏 𝒕𝒉𝒊𝒔 𝒈𝒓𝒐𝒖𝒑",
+        aliasExistInGroup: "❌ 𝑨𝒍𝒊𝒂𝒔 \"%1\" 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒆𝒙𝒊𝒔𝒕𝒔 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\" 𝒊𝒏 𝒕𝒉𝒊𝒔 𝒈𝒓𝒐𝒖𝒑",
+        aliasNotExist: "❌ 𝑨𝒍𝒊𝒂𝒔 \"%1\" 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒆𝒙𝒊𝒔𝒕 𝒇𝒐𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"",
+        aliasList: "📜 𝑮𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔:\n%1",
+        aliasListInGroup: "📜 𝑮𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔𝒆𝒔:\n%1",
+        aliasInfo: "ℹ️ 𝑨𝒍𝒊𝒂𝒔 \"%1\" 𝒊𝒔 𝒎𝒂𝒑𝒑𝒆𝒅 𝒕𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"%2\"\n𝑮𝒍𝒐𝒃𝒂𝒍: %3\n𝑮𝒓𝒐𝒖𝒑 𝑰𝑫: %4",
+        invalidSyntax: "❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒔𝒚𝒏𝒕𝒂𝒙! 𝑷𝒍𝒆𝒂𝒔𝒆 𝒇𝒐𝒍𝒍𝒐𝒘 𝒕𝒉𝒆 𝒈𝒖𝒊𝒅𝒆:\n%1"
     }
 };
 
-module.exports.onStart = async function () {
-    // Loader safe
-};
+module.exports.onStart = async function () {};
 
 module.exports.run = async function ({ api, event, args, threadsData, globalData, permssion, getLang }) {
     const { threadID, messageID, senderID } = event;
@@ -65,9 +61,6 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
 
     const command = args[0].toLowerCase();
 
-    /**
-     * ────────────── ADD ALIAS ──────────────
-     */
     if (command === "add") {
         if (args.length < 3) return send(getLang("invalidSyntax", this.config.guide.en));
 
@@ -75,11 +68,9 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
         const targetCommand = args[2].toLowerCase();
         const isGlobal = args.includes("-g");
 
-        // Check if command exists
         if (!global.GoatBot.commands.has(targetCommand))
             return send(getLang("commandNotExist", targetCommand));
 
-        // Global alias handling
         if (isGlobal) {
             if (permssion < 2) return send(getLang("noPermissionAdd"));
 
@@ -95,10 +86,9 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
             await globalData.set("setalias", globalAliases, "data");
             global.GoatBot.aliases.set(alias, targetCommand);
 
-            return send(`✅ [${now}] Added GLOBAL alias "${alias}" ➔ command "${targetCommand}"\nTip: Use "${this.config.name} list -g" to view all global aliases.`);
+            return send(`✅ [${now}] 𝑨𝒅𝒅𝒆𝒅 𝑮𝑳𝑶𝑩𝑨𝑳 𝒂𝒍𝒊𝒂𝒔 \"${alias}\" ➔ 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"${targetCommand}\"\n𝑻𝒊𝒑: 𝑼𝒔𝒆 \"${this.config.name} 𝒍𝒊𝒔𝒕 -𝒈\" 𝒕𝒐 𝒗𝒊𝒆𝒘 𝒂𝒍𝒍 𝒈𝒍𝒐𝒃𝒂𝒍 𝒂𝒍𝒊𝒂𝒔𝒆𝒔.`);
         }
 
-        // Group alias handling
         if (global.GoatBot.commands.has(alias)) return send(getLang("aliasIsCommand", alias));
         if (global.GoatBot.aliases.has(alias)) return send(getLang("aliasExist", alias, global.GoatBot.aliases.get(alias)));
         for (const cmd in aliasesData) if (aliasesData[cmd].includes(alias)) return send(getLang("aliasExistInGroup", alias, cmd));
@@ -107,12 +97,9 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
         if (!aliasesData[targetCommand].includes(alias)) aliasesData[targetCommand].push(alias);
         await threadsData.set(threadID, aliasesData, "data.aliases");
 
-        return send(`✨ [${now}] Added GROUP alias "${alias}" ➔ command "${targetCommand}"\nTip: Use "${this.config.name} list" to see all group aliases.`);
+        return send(`✨ [${now}] 𝑨𝒅𝒅𝒆𝒅 𝑮𝑹𝑶𝑼𝑷 𝒂𝒍𝒊𝒂𝒔 \"${alias}\" ➔ 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"${targetCommand}\"\n𝑻𝒊𝒑: 𝑼𝒔𝒆 \"${this.config.name} 𝒍𝒊𝒔𝒕\" 𝒕𝒐 𝒔𝒆𝒆 𝒂𝒍𝒍 𝒈𝒓𝒐𝒖𝒑 𝒂𝒍𝒊𝒂𝒔𝒆𝒔.`);
     }
 
-    /**
-     * ────────────── REMOVE ALIAS ──────────────
-     */
     if (command === "remove" || command === "rm") {
         if (args.length < 3) return send(getLang("invalidSyntax", this.config.guide.en));
 
@@ -123,7 +110,6 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
         if (!global.GoatBot.commands.has(targetCommand))
             return send(getLang("commandNotExist", targetCommand));
 
-        // Global removal
         if (isGlobal) {
             if (permssion < 2) return send(getLang("noPermissionDelete"));
             const globalAliases = await globalData.get("setalias", "data", []);
@@ -135,10 +121,9 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
             await globalData.set("setalias", globalAliases, "data");
             global.GoatBot.aliases.delete(alias);
 
-            return send(`🗑️ [${now}] Removed GLOBAL alias "${alias}" from command "${targetCommand}"`);
+            return send(`🗑️ [${now}] 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 𝑮𝑳𝑶𝑩𝑨𝑳 𝒂𝒍𝒊𝒂𝒔 \"${alias}\" 𝒇𝒓𝒐𝒎 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"${targetCommand}\"`);
         }
 
-        // Group removal
         if (!aliasesData[targetCommand]) return send(getLang("noAliasInGroup", targetCommand));
         if (!aliasesData[targetCommand].includes(alias)) return send(getLang("aliasNotExist", alias, targetCommand));
 
@@ -146,12 +131,9 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
         if (!aliasesData[targetCommand].length) delete aliasesData[targetCommand];
         await threadsData.set(threadID, aliasesData, "data.aliases");
 
-        return send(`🗑️ [${now}] Removed GROUP alias "${alias}" from command "${targetCommand}"`);
+        return send(`🗑️ [${now}] 𝑹𝒆𝒎𝒐𝒗𝒆𝒅 𝑮𝑹𝑶𝑼𝑷 𝒂𝒍𝒊𝒂𝒔 \"${alias}\" 𝒇𝒓𝒐𝒎 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 \"${targetCommand}\"`);
     }
 
-    /**
-     * ────────────── LIST ALIASES ──────────────
-     */
     if (command === "list") {
         const isGlobal = args.includes("-g");
 
@@ -159,20 +141,17 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
             const globalAliases = await globalData.get("setalias", "data", []);
             if (!globalAliases.length) return send(getLang("noAliasInSystem"));
             const list = globalAliases.map(cmd => `🔹 ${cmd.commandName}: ${cmd.aliases.join(', ') || 'None'}`).join('\n');
-            return send(`📜 [${now}] Global Aliases:\n${list}`);
+            return send(`📜 [${now}] 𝑮𝒍𝒐𝒃𝒂𝒍 𝑨𝒍𝒊𝒂𝒔𝒆𝒔:\n${list}`);
         }
 
         if (!Object.keys(aliasesData).length) return send(getLang("notExistAliasInGroup"));
         const list = Object.entries(aliasesData).map(([cmd, aliases]) => `🔹 ${cmd}: ${aliases.join(', ') || 'None'}`).join('\n');
-        return send(`📜 [${now}] Group Aliases:\n${list}`);
+        return send(`📜 [${now}] 𝑮𝒓𝒐𝒖𝒑 𝑨𝒍𝒊𝒂𝒔𝒆𝒔:\n${list}`);
     }
 
-    /**
-     * ────────────── ALIAS INFO ──────────────
-     */
     if (command === "info") {
         const alias = args[1]?.toLowerCase();
-        if (!alias) return send(getLang("invalidSyntax", `${this.config.name} info <alias>`));
+        if (!alias) return send(getLang("invalidSyntax", `${this.config.name} 𝒊𝒏𝒇𝒐 <𝒂𝒍𝒊𝒂𝒔>`));
 
         const globalAliases = await globalData.get("setalias", "data", []);
         let found = globalAliases.find(a => a.aliases.includes(alias));
@@ -190,11 +169,10 @@ module.exports.run = async function ({ api, event, args, threadsData, globalData
             }
         }
 
-        if (!found) return send(`❌ [${now}] Alias "${alias}" not found`);
-        return send(getLang("aliasInfo", alias, found.commandName, isGlobal ? "Yes" : "No", groupId));
+        if (!found) return send(`❌ [${now}] 𝑨𝒍𝒊𝒂𝒔 \"${alias}\" 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅`);
+        return send(getLang("aliasInfo", alias, found.commandName, isGlobal ? "𝒀𝒆𝒔" : "𝑵𝒐", groupId));
     }
 
-    // Default: guide
     const guide = this.config.guide.en.replace(/{pn}/g, this.config.name);
-    return send(`📝 [${now}] Command Guide:\n${guide}`);
+    return send(`📝 [${now}] 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑮𝒖𝒊𝒅𝒆:\n${guide}`);
 };
