@@ -1,0 +1,24 @@
+const axios = require("axios");
+module.exports = {
+  config: {
+    name: "ye",
+    version: "1.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    shortDescription: { en: "𝑅𝑎𝑛𝑑𝑜𝑚 𝐾𝑎𝑛𝑦𝑒 𝑊𝑒𝑠𝑡 𝑞𝑢𝑜𝑡𝑒" },
+    longDescription: { en: "𝐺𝑒𝑡 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝐾𝑎𝑛𝑦𝑒 𝑊𝑒𝑠𝑡 𝑞𝑢𝑜𝑡𝑒" },
+    category: "𝑓𝑢𝑛",
+    guide: { en: "+𝑦𝑒" }
+  },
+
+  onStart: async function({ message }) {
+    try {
+      const res = await axios.get("https://api.kanye.rest");
+      const quote = res.data.quote;
+      message.reply(`𝑲𝒂𝒏𝒚𝒆 𝒔𝒂𝒚𝒔:\n"${quote}"`);
+    } catch {
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑞𝑢𝑜𝑡𝑒.");
+    }
+  }
+};
