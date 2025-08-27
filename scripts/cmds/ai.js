@@ -1,80 +1,90 @@
 const axios = require("axios");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "misa",
     version: "1.1.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑴𝒊𝒔𝒂 𝑨𝑰 - 𝑨𝒌𝒂𝑟𝒔𝒉𝒐𝒏𝒊𝒚𝒐 𝒃𝒂𝒏𝒈𝒂𝒍𝒊 𝒈𝒊𝒓𝒍𝒇𝒓𝒊𝒆𝒏𝒅 𝒔𝒂𝒎𝒊𝒌𝒔𝒉𝒂𝒌𝒂𝒓𝒊",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
     category: "ai",
-    usages: "[on/off/ask]",
-    cooldowns: 2,
-    dependencies: {
-        "axios": ""
-    }
-};
+    shortDescription: {
+      en: "𝑴𝒊𝒔𝒂 𝑨𝑰 - 𝑨𝒌𝒂𝑟𝒔𝒉𝒐𝒏𝒊𝒚𝒐 𝒃𝒂𝒏𝒈𝒂𝒍𝒊 𝒈𝒊𝒓𝒍𝒇𝒓𝒊𝒆𝒏𝒅 𝒔𝒂𝒎𝒊𝒌𝒔𝒉𝒂𝒌𝒂𝒓𝒊"
+    },
+    longDescription: {
+      en: "𝑨 𝑩𝒂𝒏𝒈𝒍𝒂𝒅𝒆𝒔𝒉𝒊 𝒈𝒊𝒓𝒍𝒇𝒓𝒊𝒆𝒏𝒅 𝑨𝑰 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕 𝒘𝒊𝒕𝒉 𝒂𝒖𝒕𝒐-𝒓𝒆𝒑𝒍𝒚 𝒇𝒆𝒂𝒕𝒖𝒓𝒆𝒔"
+    },
+    guide: {
+      en: "{p}misa [on/off/ask]"
+    },
+    cooldowns: 2
+  },
 
-// API URL (Unchanged)
-const API_URL = "https://gemini-k3rt.onrender.com/chat";
+  onStart: async function({ message, event, args }) {
+    try {
+      const { senderID } = event;
+      let userMessage = args.join(" ");
 
-// User history and auto-reply state
-const chatHistories = {};
-const autoReplyEnabled = {};
+      // Initialize global data if not exists
+      if (!global.misaData) {
+        global.misaData = {
+          chatHistories: {},
+          autoReplyEnabled: {}
+        };
+      }
 
-// Mathematical Bold Italic converter
-function toMathBoldItalic(text) {
-    const normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    const boldItalic = "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛";
-    let result = "";
-    for (let char of text) {
-        const index = normal.indexOf(char);
-        result += index !== -1 ? boldItalic[index] : char;
-    }
-    return result;
-}
+      const { chatHistories, autoReplyEnabled } = global.misaData;
 
-// onStart fix
-module.exports.onStart = async function () {
-    // Empty onStart to prevent "undefined" error
-    return;
-};
+      // Mathematical Bold Italic converter
+      const toMathBoldItalic = (text) => {
+        const normal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        const boldItalic = "𝑨𝑩𝑪𝑫𝑬𝑭𝑮𝑯𝑰𝑱𝑲𝑳𝑴𝑵𝑶𝑷𝑸𝑹𝑺𝑻𝑼𝑽𝑾𝑿𝒀𝒁𝒂𝒃𝒄𝒅𝒆𝒇𝒈𝒉𝒊𝒋𝒌𝒍𝒎𝒏𝒐𝒑𝒒𝒓𝒔𝒕𝒖𝒗𝒘𝒙𝒚𝒛";
+        let result = "";
+        for (let char of text) {
+          const index = normal.indexOf(char);
+          result += index !== -1 ? boldItalic[index] : char;
+        }
+        return result;
+      };
 
-module.exports.run = async function ({ api, event, args }) {
-    const { threadID, messageID, senderID, messageReply } = event;
-    let userMessage = args.join(" ");
-
-    // Auto-reply ON
-    if (userMessage.toLowerCase() === "on") {
+      // Auto-reply ON
+      if (userMessage.toLowerCase() === "on") {
         autoReplyEnabled[senderID] = true;
         const msg = toMathBoldItalic("Hey baby! 😘 auto-reply mode ON hoyeche... ❤️");
-        return api.sendMessage(msg, threadID, messageID);
-    }
+        return message.reply(msg);
+      }
 
-    // Auto-reply OFF
-    if (userMessage.toLowerCase() === "off") {
+      // Auto-reply OFF
+      if (userMessage.toLowerCase() === "off") {
         autoReplyEnabled[senderID] = false;
         chatHistories[senderID] = [];
         const msg = toMathBoldItalic("Hmm! 😒 auto-reply mode OFF hoyeche... 🥺");
-        return api.sendMessage(msg, threadID, messageID);
-    }
+        return message.reply(msg);
+      }
 
-    // Ignore if not triggered and auto-reply off
-    if (!autoReplyEnabled[senderID] && !event.body.toLowerCase().startsWith("misa")) return;
+      // Show help if no message and auto-reply is off
+      if (!userMessage && !autoReplyEnabled[senderID]) {
+        const helpMsg = toMathBoldItalic(`🤖 𝑴𝒊𝒔𝒂 𝑨𝑰 𝑯𝒆𝒍𝒑:
+• ${global.config.PREFIX}misa on - 𝑨𝒖𝒕𝒐-𝒓𝒆𝒑𝒍𝒚 𝒆𝒏𝒂𝒃𝒍𝒆
+• ${global.config.PREFIX}misa off - 𝑨𝒖𝒕𝒐-𝒓𝒆𝒑𝒍𝒚 𝒅𝒊𝒔𝒂𝒃𝒍𝒆
+• ${global.config.PREFIX}misa [𝒎𝒆𝒔𝒔𝒂𝒈𝒆] - 𝑪𝒉𝒂𝒕 𝒘𝒊𝒕𝒉 𝑴𝒊𝒔𝒂`);
+        return message.reply(helpMsg);
+      }
 
-    // Initialize chat history
-    if (!chatHistories[senderID]) chatHistories[senderID] = [];
+      // Initialize chat history
+      if (!chatHistories[senderID]) {
+        chatHistories[senderID] = [];
+      }
 
-    // Handle message replies
-    if (messageReply && messageReply.senderID === api.getCurrentUserID()) {
-        userMessage = messageReply.body + "\nUser: " + userMessage;
-    }
-    chatHistories[senderID].push(`User: ${userMessage}`);
+      // Add user message to history
+      chatHistories[senderID].push(`User: ${userMessage}`);
 
-    // Maintain last 5 messages
-    if (chatHistories[senderID].length > 5) chatHistories[senderID].shift();
+      // Maintain last 5 messages
+      if (chatHistories[senderID].length > 5) {
+        chatHistories[senderID].shift();
+      }
 
-    // Banglish prompt template
-    const banglishPrompt = `Tomar nam Misa. Tomi ekta cute, funny, slightly naughtier bangali girlfriend er moto behave korba:
+      // Banglish prompt template
+      const banglishPrompt = `Tomar nam Misa. Tomi ekta cute, funny, slightly naughtier bangali girlfriend er moto behave korba:
 • Sob reply short hobe (1-2 line max) Banglish e
 • Cute emoji, affectionate ar slightly mischievous language use korba
 • Jodi keu tomake AI/bot bole, tader fun kore roast korba ar slightly tease korba
@@ -87,10 +97,10 @@ Chat history:
 ${chatHistories[senderID].join("\n")}
 Misa:`;
 
-    // Typing indicator
-    api.setMessageReaction("⌛", messageID, () => {}, true);
+      // API URL
+      const API_URL = "https://gemini-k3rt.onrender.com/chat";
 
-    try {
+      try {
         const response = await axios.get(`${API_URL}?message=${encodeURIComponent(banglishPrompt)}`);
         let botReply = response.data.reply || "Uff! Ami bujhte parlam na baby! 😕";
         
@@ -98,22 +108,40 @@ Misa:`;
         botReply = toMathBoldItalic(botReply);
         chatHistories[senderID].push(`Misa: ${botReply}`);
         
-        api.sendMessage(botReply, threadID, messageID);
-        api.setMessageReaction("✅", messageID, () => {}, true);
-    } catch (error) {
+        await message.reply(botReply);
+        
+      } catch (error) {
         console.error("Error:", error);
         const errorMsg = toMathBoldItalic("Oops baby! 😔 Ami ektu confuse hoye gechi... Thoda por try koro na! 💋");
-        api.sendMessage(errorMsg, threadID, messageID);
-        api.setMessageReaction("❌", messageID, () => {}, true);
-    }
-};
+        await message.reply(errorMsg);
+      }
 
-module.exports.handleEvent = async function ({ api, event }) {
-    const { senderID, body, messageReply } = event;
-    
-    if (!autoReplyEnabled[senderID]) return;
-    if (messageReply && messageReply.senderID === api.getCurrentUserID()) {
-        const args = body.split(" ");
-        this.run({ api, event, args });
+    } catch (error) {
+      console.error("Misa AI error:", error);
+      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
     }
+  },
+
+  onChat: async function({ message, event }) {
+    try {
+      const { senderID, body } = event;
+      
+      if (!global.misaData) {
+        global.misaData = {
+          chatHistories: {},
+          autoReplyEnabled: {}
+        };
+      }
+
+      const { autoReplyEnabled } = global.misaData;
+
+      // Check if auto-reply is enabled and message doesn't start with prefix
+      if (autoReplyEnabled[senderID] && body && !body.startsWith(global.config.PREFIX)) {
+        const args = body.split(" ");
+        await this.onStart({ message, event, args });
+      }
+    } catch (error) {
+      console.error("Misa chat handler error:", error);
+    }
+  }
 };
