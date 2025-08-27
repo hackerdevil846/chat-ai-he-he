@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "tint",
+    name: "colorify",
     version: "1.0",
     author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 10,
@@ -17,7 +17,7 @@ module.exports = {
     },
     category: "image",
     guide: {
-      en: "{p}tint <hex color> [@mention or reply]\nExample: {p}tint 7289da\nIf no mention or reply, uses your profile picture."
+      en: "{p}colorify <hex color> [@mention or reply]\nExample: {p}colorify 7289da\nIf no mention or reply, uses your profile picture."
     }
   },
 
@@ -47,11 +47,11 @@ module.exports = {
         responseType: "arraybuffer"
       });
 
-      const filePath = path.join(__dirname, "cache", `tint_${uid}_${Date.now()}.png`);
+      const filePath = path.join(__dirname, "cache", `colorify_${uid}_${Date.now()}.png`);
       fs.writeFileSync(filePath, res.data);
 
       message.reply({
-        body: `🎨 | Here's your tinted image with #${color}!`,
+        body: `🎨 | Here's your colorified image with #${color}!`,
         attachment: fs.createReadStream(filePath)
       }, () => fs.unlinkSync(filePath));
 
