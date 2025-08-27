@@ -8,10 +8,10 @@ module.exports = {
     name: "4k",
     version: "1.0.1",
     hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑬𝒏𝒉𝒂𝒏𝒄𝒆 𝒑𝒉𝒐𝒕𝒐𝒔 𝒕𝒐 𝒔𝒕𝒖𝒏𝒏𝒊𝒏𝒈 4𝑲 𝒓𝒆𝒔𝒐𝒍𝒖𝒕𝒊𝒐𝒏",
-    category: "edit-img",
-    usages: "𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆 𝒐𝒓 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳",
+    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    description: "𝐸𝑛ℎ𝑎𝑛𝑐𝑒 𝑝ℎ𝑜𝑡𝑜𝑠 𝑡𝑜 𝑠𝑡𝑢𝑛𝑛𝑖𝑛𝑔 4𝐾 𝑟𝑒𝑠𝑜𝑙𝑢𝑡𝑖𝑜𝑛",
+    category: "𝑒𝑑𝑖𝑡-𝑖𝑚𝑔",
+    usages: "𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑜𝑟 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿",
     cooldowns: 10,
     dependencies: {
       axios: "",
@@ -34,22 +34,24 @@ module.exports = {
         if (["photo", "sticker"].includes(attachment.type)) {
           imageUrl = attachment.url;
         } else {
-          return message.reply("⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒊𝒎𝒂𝒈𝒆 𝒐𝒓 𝒔𝒕𝒊𝒄𝒌𝒆𝒓.");
+          return message.reply("⚠️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑖𝑚𝑎𝑔𝑒 𝑜𝑟 𝑠𝑡𝑖𝑐𝑘𝑒𝑟.");
         }
       } else if (args[0] && /^https?:\/\//.test(args[0])) {
         imageUrl = args[0];
       } else {
         return message.reply(
-          `📸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆 𝒐𝒓 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳.\n𝑬𝒙𝒂𝒎𝒑𝒍𝒆: ${global.config.PREFIX}4k [𝒊𝒎𝒂𝒈𝒆_𝒖𝒓𝒍]`
+          `📸 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑜𝑟 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿.\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}4k [𝑖𝑚𝑎𝑔𝑒_𝑢𝑟𝑙]`
         );
       }
 
-      const waitMsg = await message.reply("🖼️ 𝑬𝒏𝒉𝒂𝒏𝒄𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒊𝒎𝒂𝒈𝒆 𝒕𝒐 4𝑲... 𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕.");
+      const waitMsg = await message.reply("🖼️ 𝐸𝑛ℎ𝑎𝑛𝑐𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑖𝑚𝑎𝑔𝑒 𝑡𝑜 4𝐾... 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡.");
 
       const enhancementUrl = `https://aryan-xyz-upscale-api-phi.vercel.app/api/upscale-image?imageUrl=${encodeURIComponent(imageUrl)}&apikey=${ARYAN_API}`;
       const { data } = await axios.get(enhancementUrl, { timeout: 60000 });
 
-      if (!data || !data.resultImageUrl) throw new Error("𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑨𝑷𝑰 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆: 𝑵𝒐 𝒓𝒆𝒔𝒖𝒍𝒕 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳");
+      if (!data || !data.resultImageUrl) {
+        throw new Error("𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝐴𝑃𝐼 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒: 𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿");
+      }
 
       const imageResponse = await axios.get(data.resultImageUrl, {
         responseType: "arraybuffer",
@@ -59,7 +61,7 @@ module.exports = {
       fs.writeFileSync(tempPath, imageResponse.data);
 
       await message.reply({
-        body: "✅ 𝑰𝒎𝒂𝒈𝒆 𝒆𝒏𝒉𝒂𝒏𝒄𝒆𝒅 𝒕𝒐 4𝑲 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!",
+        body: "✅ 𝐼𝑚𝑎𝑔𝑒 𝑒𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝑡𝑜 4𝐾 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
         attachment: fs.createReadStream(tempPath)
       });
 
@@ -67,19 +69,21 @@ module.exports = {
       fs.unlinkSync(tempPath);
 
     } catch (error) {
-      console.error("4𝑲 𝑬𝒓𝒓𝒐𝒓:", error);
-      let errorText = "❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒆𝒏𝒉𝒂𝒏𝒄𝒆 𝒊𝒎𝒂𝒈𝒆. ";
+      console.error("4𝐾 𝐸𝑟𝑟𝑜𝑟:", error);
+      let errorText = "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑒𝑛ℎ𝑎𝑛𝑐𝑒 𝑖𝑚𝑎𝑔𝑒. ";
 
       if (error.message.includes("timeout")) {
-        errorText += "𝑻𝒉𝒆 𝒓𝒆𝒒𝒖𝒆𝒔𝒕 𝒕𝒊𝒎𝒆𝒅 𝒐𝒖𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.";
+        errorText += "𝑇ℎ𝑒 𝑟𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑑 𝑜𝑢𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.";
       } else if (error.message.includes("resultImageUrl")) {
-        errorText += "𝑨𝑷𝑰 𝒅𝒊𝒅 𝒏𝒐𝒕 𝒓𝒆𝒕𝒖𝒓𝒏 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳.";
+        errorText += "𝐴𝑃𝐼 𝑑𝑖𝑑 𝑛𝑜𝑡 𝑟𝑒𝑡𝑢𝑟𝑛 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿.";
       } else {
-        errorText += `𝑬𝒓𝒓𝒐𝒓: ${error.message}`;
+        errorText += `𝐸𝑟𝑟𝑜𝑟: ${error.message}`;
       }
 
       await message.reply(errorText);
-      if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+      if (fs.existsSync(tempPath)) {
+        fs.unlinkSync(tempPath);
+      }
     }
   }
 };
