@@ -41,19 +41,17 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
     return lines;
 };
 
-// Changed from module.exports.run to module.exports.onStart
-module.exports.onStart = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args, message }) { // Added 'message' here
     const { senderID, threadID, messageID } = event;
     const { loadImage, createCanvas } = require("canvas");
     const fs = require("fs-extra");
     const axios = require("axios");
-    const pathImg = __dirname + '/cache/obama.png'; // Changed filename from trump.png to obama.png
+    const pathImg = __dirname + '/cache/obama.png';
     const text = args.join(" ");
     
-    if (!text) return api.sendMessage("❌ Please enter your message for Obama's tweet!", threadID, messageID);
+    if (!text) return message.reply("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒚𝒐𝒖𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒇𝒐𝒓 𝑶𝒃𝒂𝒎𝒂'𝒔 𝒕𝒘𝒆𝒆𝒕!"); // Changed api.sendMessage to message.reply
     
     try {
-        // Download image template
         const imageData = (await axios.get(`https://i.imgur.com/6fOxdex.png`, { responseType: 'arraybuffer' })).data;
         fs.writeFileSync(pathImg, Buffer.from(imageData, 'binary'));
         
@@ -64,27 +62,33 @@ module.exports.onStart = async function({ api, event, args }) {
         
         ctx.fillStyle = "#000000";
         ctx.textAlign = "start";
-        let fontSize = 250;
+        let fontSize = 40; // Adjusted initial font size for better fit
         ctx.font = `400 ${fontSize}px Arial, sans-serif`;
         
-        while (ctx.measureText(text).width > 2600) {
+        // Dynamic font size adjustment for the tweet text
+        let wrappedLines;
+        do {
             fontSize--;
             ctx.font = `400 ${fontSize}px Arial, sans-serif`;
-        }
+            wrappedLines = await module.exports.wrapText(ctx, text, 1160); // Max width for text
+        } while (wrappedLines && wrappedLines.length * fontSize > 200 && fontSize > 10); // Adjust max height and min font size
         
-        const lines = await module.exports.wrapText(ctx, text, 1160);
-        ctx.fillText(lines.join('\n'), 60, 165);
+        if (!wrappedLines) {
+            return message.reply("❌ 𝑻𝒉𝒆 𝒕𝒆𝒙𝒕 𝒊𝒔 𝒕𝒐𝒐 𝒍𝒐𝒏𝒈 𝒕𝒐 𝒇𝒊𝒕 𝒐𝒏 𝒕𝒉𝒆 𝒕𝒘𝒆𝒆𝒕.");
+        }
+
+        ctx.fillText(wrappedLines.join('\n'), 60, 165); // X and Y coordinates for the text
         
         const imageBuffer = canvas.toBuffer();
         fs.writeFileSync(pathImg, imageBuffer);
         
-        return api.sendMessage({
-            body: `✅ Obama's tweet generated!`,
+        return message.reply({ // Changed api.sendMessage to message.reply
+            body: `✅ 𝑶𝒃𝒂𝒎𝒂'𝒔 𝒕𝒘𝒆𝒆𝒕 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒆𝒅!`,
             attachment: fs.createReadStream(pathImg)
-        }, threadID, () => fs.unlinkSync(pathImg), messageID);
+        }, () => fs.unlinkSync(pathImg)); // Callback for unlink
         
     } catch (error) {
         console.error("Error generating Obama tweet:", error);
-        return api.sendMessage("❌ An error occurred while generating the tweet. Please try again.", threadID, messageID);
+        return message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒕𝒉𝒆 𝒕𝒘𝒆𝒆𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏."); // Changed api.sendMessage to message.reply
     }
 };
