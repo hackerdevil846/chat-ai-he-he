@@ -1,158 +1,139 @@
+const fs = require("fs-extra");
+const axios = require("axios");
+const path = require("path");
+
 module.exports = {
   config: {
     name: "adc",
     version: "1.0.0",
-    hasPermssion: 2,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍𝒅𝒆𝒗 𝒂𝒖𝒓 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒔𝒆 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒂𝒓𝒆𝒏",
-    category: "Admin",
-    usages: "[reply or text]",
-    cooldowns: 0,
-    dependencies: {
-      "axios": "",
-      "cheerio": "",
-      "request": ""
-    }
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 2,
+    category: "admin",
+    shortDescription: {
+      en: "𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍𝒅𝒆𝒗 𝒂𝒖𝒓 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒔𝒆 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒂𝒓𝒆𝒏"
+    },
+    longDescription: {
+      en: "𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒂𝒏𝒅 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒄𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒓𝒐𝒎 𝒖𝒓𝒍𝒔"
+    },
+    guide: {
+      en: "{p}adc [command_name] [url]"
+    },
+    cooldowns: 0
   },
 
   onStart: async function({ message, event, args }) {
     try {
-      const axios = require('axios');
-      const fs = require('fs-extra');
-      const request = require('request');
-      const cheerio = require('cheerio');
-      const { resolve } = require("path");
+      if (args.length === 0) {
+        return message.reply(
+          "📝 𝑨𝑫𝑪 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒂𝒈𝒆:\n\n" +
+          "• {p}adc [command_name] - 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅\n" +
+          "• {p}adc [command_name] [url] - 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒇𝒓𝒐𝒎 𝒖𝒓𝒍\n" +
+          "• 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 {p}adc [command_name]"
+        );
+      }
 
-      const { senderID, threadID, messageReply, type } = event;
-      let name = args[0];
+      const commandName = args[0];
+      let fileUrl = args[1];
       let text = "";
 
-      if (type === "message_reply") {
-        text = messageReply.body;
+      // Check if replying to a message
+      if (event.type === "message_reply") {
+        text = event.messageReply.body;
+        if (text) {
+          fileUrl = text;
+        }
       }
 
-      if (!text && !name) {
-        return message.reply('𝑷𝒍𝒆𝒂𝒔𝒆 𝒍𝒊𝒏𝒌 𝒆𝒓 𝒓𝒆𝒑𝒍𝒚 𝒌𝒂𝒓𝒐 𝒋𝒆𝒕𝒂 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒕𝒆 𝒄𝒂𝒐 𝒂𝒕𝒐𝒃𝒂 𝒏𝒂𝒎 𝒍𝒆𝒌𝒉𝒐 𝒇𝒂𝒊𝒍𝒆𝒓 𝒏𝒂𝒎 𝒋𝒆𝒕𝒂 𝒑𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒆 𝒖𝒑𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒃𝒐!');
+      // Validate command name
+      if (!commandName || !/^[a-zA-Z0-9]+$/.test(commandName)) {
+        return message.reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒏𝒂𝒎𝒆. 𝑼𝒔𝒆 𝒐𝒏𝒍𝒚 𝒍𝒆𝒕𝒕𝒆𝒓𝒔 𝒂𝒏𝒅 𝒏𝒖𝒎𝒃𝒆𝒓𝒔.");
       }
 
-      if (!text && name) {
-        const filePath = resolve(__dirname, '..', '..', 'scripts', 'cmds', `${args[0]}.js`);
-        
+      const commandsDir = path.join(__dirname, '..');
+      const filePath = path.join(commandsDir, `${commandName}.js`);
+
+      // If no URL provided, create a backup of existing command
+      if (!fileUrl) {
         if (!fs.existsSync(filePath)) {
-          return message.reply(`𝑪𝒐𝒎𝒎𝒂𝒏𝒅 ${args[0]} 𝒆𝒙𝒊𝒔𝒕 𝒌𝒐𝒓𝒆 𝒏𝒂!`);
+          return message.reply(`❌ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 "${commandName}" 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒆𝒙𝒊𝒔𝒕.`);
         }
 
         try {
-          const data = await fs.readFile(filePath, "utf-8");
+          const commandData = await fs.readFile(filePath, "utf-8");
+          const backupPath = path.join(__dirname, '..', '..', 'temp', `${commandName}_backup.js`);
           
-          // For GoatBot, we'll create a simple text file instead of using Pastebin API
-          const uploadPath = resolve(__dirname, '..', '..', 'temp', `${args[0]}_code.txt`);
-          await fs.writeFile(uploadPath, data);
+          // Ensure temp directory exists
+          const tempDir = path.dirname(backupPath);
+          if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+          }
+          
+          await fs.writeFile(backupPath, commandData);
           
           return message.reply({
-            body: `𝑪𝒐𝒅𝒆 ${args[0]}.js 𝒑𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒆 𝒖𝒑𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!\n𝑻𝒆𝒎𝒑𝒐𝒓𝒂𝒓𝒚 𝒇𝒊𝒍𝒆: ${uploadPath}`,
-            attachment: fs.createReadStream(uploadPath)
+            body: `✅ 𝑩𝒂𝒄𝒌𝒖𝒑 𝒄𝒓𝒆𝒂𝒕𝒆𝒅 𝒇𝒐𝒓 "${commandName}.js"`,
+            attachment: fs.createReadStream(backupPath)
           });
           
         } catch (err) {
           console.error(err);
-          return message.reply(`𝑬𝒓𝒓𝒐𝒓: ${err.message}`);
+          return message.reply(`❌ 𝑬𝒓𝒓𝒐𝒓: ${err.message}`);
         }
       }
 
-      const urlR = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-      const url = text.match(urlR);
-      
-      if (!url) {
-        return message.reply('𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒖𝒓𝒍 𝒑𝒓𝒐𝒗𝒊𝒅𝒆𝒅!');
+      // Handle URL download
+      try {
+        let fileContent;
+
+        // Handle different URL types
+        if (fileUrl.includes('pastebin.com')) {
+          // For Pastebin raw content
+          const pasteId = fileUrl.split('/').pop();
+          const rawUrl = `https://pastebin.com/raw/${pasteId}`;
+          const response = await axios.get(rawUrl);
+          fileContent = response.data;
+        }
+        else if (fileUrl.includes('github.com') || fileUrl.includes('raw.githubusercontent.com')) {
+          // For GitHub raw content
+          const response = await axios.get(fileUrl);
+          fileContent = response.data;
+        }
+        else if (fileUrl.includes('drive.google.com')) {
+          // For Google Drive (simplified approach)
+          return message.reply("❌ 𝑮𝒐𝒐𝒈𝒍𝒆 𝑫𝒓𝒊𝒗𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒏𝒐𝒕 𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒊𝒏 𝒕𝒉𝒊𝒔 𝒗𝒆𝒓𝒔𝒊𝒐𝒏.");
+        }
+        else if (fileUrl.includes('http')) {
+          // Direct file download
+          const response = await axios.get(fileUrl);
+          fileContent = response.data;
+        }
+        else {
+          return message.reply("❌ 𝑼𝒏𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒖𝒓𝒍 𝒕𝒚𝒑𝒆.");
+        }
+
+        // Validate the downloaded content
+        if (!fileContent || typeof fileContent !== 'string') {
+          return message.reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒇𝒊𝒍𝒆 𝒄𝒐𝒏𝒕𝒆𝒏𝒕.");
+        }
+
+        // Basic validation to ensure it's a JavaScript file
+        if (!fileContent.includes('module.exports') && !fileContent.includes('onStart')) {
+          return message.reply("❌ 𝑻𝒉𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒆𝒅 𝒇𝒊𝒍𝒆 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒂𝒑𝒑𝒆𝒂𝒓 𝒕𝒐 𝒃𝒆 𝒂 𝒗𝒂𝒍𝒊𝒅 𝑮𝒐𝒂𝒕𝑩𝒐𝒕 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.");
+        }
+
+        // Write the file
+        await fs.writeFile(filePath, fileContent, "utf-8");
+        
+        return message.reply(`✅ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 "${commandName}.js" 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒆𝒅!\n\n📋 𝑼𝒔𝒆 "${global.config.PREFIX}load ${commandName}" 𝒕𝒐 𝒍𝒐𝒂𝒅 𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.`);
+
+      } catch (error) {
+        console.error("Download error:", error);
+        return message.reply(`❌ 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓: ${error.message}`);
       }
 
-      if (url && url[0].includes('pastebin')) {
-        try {
-          const response = await axios.get(url[0]);
-          const data = response.data;
-          const filePath = resolve(__dirname, '..', '..', 'scripts', 'cmds', `${args[0]}.js`);
-          
-          await fs.writeFile(filePath, data, "utf-8");
-          return message.reply(`𝑪𝒐𝒅𝒆 ${args[0]}.js 𝒆 𝒂𝒑𝒍𝒂𝒊 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒖𝒔𝒆 𝒌𝒐𝒓𝒕𝒆 𝒍𝒐𝒂𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅!`);
-          
-        } catch (error) {
-          console.error(error);
-          return message.reply(`𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓: ${error.message}`);
-        }
-      } 
-      else if (url && (url[0].includes('buildtool') || url[0].includes('tinyurl.com'))) {
-        return new Promise((resolve) => {
-          const options = {
-            method: 'GET',
-            url: messageReply.body
-          };
-          
-          request(options, async function (error, response, body) {
-            if (error) {
-              return message.reply('𝑺𝒐𝒅𝒉𝒐 𝒍𝒊𝒏𝒌 𝒆𝒊 𝒓𝒆𝒑𝒍𝒚 𝒌𝒂𝒓𝒐 (𝒍𝒊𝒏𝒌 𝒃𝒂𝒅𝒆 𝒂𝒓 𝒌𝒊𝒄𝒉𝒖 𝒏𝒂)');
-            }
-            
-            try {
-              const load = cheerio.load(body);
-              let code = "";
-              
-              load('.language-js').each((index, el) => {
-                if (index !== 0) return;
-                code = el.children[0].data;
-              });
-              
-              if (!code) {
-                return message.reply('𝑵𝒐 𝒄𝒐𝒅𝒆 𝒇𝒐𝒖𝒏𝒅 𝒐𝒏 𝒕𝒉𝒆 𝒑𝒂𝒈𝒆!');
-              }
-              
-              const filePath = resolve(__dirname, '..', '..', 'scripts', 'cmds', `${args[0]}.js`);
-              await fs.writeFile(filePath, code, "utf-8");
-              
-              await message.reply(`"${args[0]}.js" 𝒄𝒐𝒅𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒖𝒔𝒆 𝒌𝒐𝒓𝒕𝒆 𝒍𝒐𝒂𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅!`);
-              resolve();
-            } catch (err) {
-              console.error(err);
-              await message.reply(`"${args[0]}.js" 𝒆 𝒏𝒐𝒕𝒖𝒏 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!`);
-              resolve();
-            }
-          });
-        });
-      }
-      else if (url && url[0].includes('drive.google')) {
-        try {
-          const id = url[0].match(/[-\w]{25,}/);
-          const filePath = resolve(__dirname, '..', '..', 'scripts', 'cmds', `${args[0]}.js`);
-          
-          // Using axios to download the file
-          const response = await axios({
-            method: 'GET',
-            url: `https://drive.google.com/uc?id=${id}&export=download`,
-            responseType: 'stream'
-          });
-          
-          const writer = fs.createWriteStream(filePath);
-          response.data.pipe(writer);
-          
-          writer.on('finish', async () => {
-            await message.reply(`"${args[0]}.js" 𝒄𝒐𝒅𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒍𝒆 𝒅𝒓𝒊𝒗𝒆 𝒇𝒂𝒊𝒍𝒆 𝒕𝒙𝒕 𝒕𝒆 𝒄𝒉𝒂𝒏𝒈𝒆 𝒌𝒐𝒓𝒐!`);
-          });
-          
-          writer.on('error', async (err) => {
-            await message.reply(`"${args[0]}.js" 𝒆 𝒏𝒐𝒕𝒖𝒏 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒂𝒓 𝒔𝒐𝒎𝒐𝒚 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒆𝒄𝒉𝒆!`);
-          });
-        } catch (e) {
-          console.error(e);
-          return message.reply(`𝑫𝒓𝒊𝒗𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓: ${e.message}`);
-        }
-      }
-      else {
-        return message.reply('𝑼𝒏𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒖𝒓𝒍 𝒕𝒚𝒑𝒆! 𝑶𝒏𝒍𝒚 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏, 𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍, 𝒂𝒏𝒅 𝑮𝒐𝒐𝒈𝒍𝒆 𝑫𝒓𝒊𝒗𝒆 𝒂𝒓𝒆 𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅.');
-      }
-      
     } catch (error) {
       console.error("ADC Command Error:", error);
-      await message.reply("❌ 𝑬𝒓𝒓𝒐𝒓: " + error.message);
+      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅: " + error.message);
     }
   }
 };
