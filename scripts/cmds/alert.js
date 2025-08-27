@@ -1,56 +1,72 @@
+const axios = require("axios");
 const fs = require("fs-extra");
-const request = require("request");
+const path = require("path");
 
-module.exports.config = {
-  name: "alert",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Generate alert images with custom text",
-  category: "image",
-  usages: "[text]",
-  cooldowns: 0,
-  dependencies: {
-    "fs-extra": "",
-    "request": ""
-  }
-};
+module.exports = {
+  config: {
+    name: "alert",
+    version: "1.0.1",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
+    category: "image",
+    shortDescription: {
+      en: "𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂𝒍𝒆𝒓𝒕 𝒊𝒎𝒂𝒈𝒆𝒔 𝒘𝒊𝒕𝒉 𝒄𝒖𝒔𝒕𝒐𝒎 𝒕𝒆𝒙𝒕"
+    },
+    longDescription: {
+      en: "𝑪𝒓𝒆𝒂𝒕𝒆𝒔 𝒂𝒏 𝒂𝒍𝒆𝒓𝒕 𝒔𝒕𝒚𝒍𝒆 𝒊𝒎𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒄𝒖𝒔𝒕𝒐𝒎 𝒕𝒆𝒙𝒕"
+    },
+    guide: {
+      en: "{p}alert [text]"
+    },
+    cooldowns: 0
+  },
 
-// Add empty onStart to prevent the error
-module.exports.onStart = async function() {
-  return;
-};
+  onStart: async function({ message, event, args }) {
+    try {
+      // Combine arguments and replace commas with double spaces
+      let text = args.join(" ").replace(/,/g, "  ");
+      
+      if (!text) {
+        return message.reply("𝑷𝒍𝒆𝒂𝒔𝒆 𝒂𝒅𝒅 𝒕𝒆𝒙𝒕 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒂𝒍𝒆𝒓𝒕 (𝒆.𝒈., '𝒂𝒍𝒆𝒓𝒕 𝑯𝒆𝒍𝒍𝒐 𝑾𝒐𝒓𝒍𝒅')");
+      }
 
-module.exports.run = async function({ api, event, args }) {
-  const { threadID, messageID } = event;
-  
-  // Combine arguments and replace commas with double spaces
-  let text = args.join(" ").replace(/,/g, "  ");
-  
-  if (!text) {
-    return api.sendMessage("Please add text for the alert (e.g., 'alert Hello World')", threadID, messageID);
-  }
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, 'cache');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
 
-  const path = __dirname + `/cache/alert_${event.senderID}.png`;
-  const encodedText = encodeURIComponent(text);
-  const url = `https://api.popcat.xyz/alert?text=${encodedText}`;
+      const imagePath = path.join(cacheDir, `alert_${event.senderID}.png`);
+      const encodedText = encodeURIComponent(text);
+      const url = `https://api.popcat.xyz/alert?text=${encodedText}`;
 
-  try {
-    // Download and process the image
-    request(url)
-      .pipe(fs.createWriteStream(path))
-      .on('close', () => {
-        // Send the generated image
-        api.sendMessage({
-          body: "Here's your alert image:",
-          attachment: fs.createReadStream(path)
-        }, threadID, () => {
-          // Clean up temporary file
-          fs.unlinkSync(path);
-        }, messageID);
+      // Download the image
+      const response = await axios({
+        method: 'GET',
+        url: url,
+        responseType: 'stream'
       });
-  } catch (error) {
-    console.error("Error generating alert image:", error);
-    api.sendMessage("An error occurred while generating the alert image.", threadID, messageID);
+
+      const writer = fs.createWriteStream(imagePath);
+      response.data.pipe(writer);
+
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+
+      // Send the generated image
+      await message.reply({
+        body: "𝑯𝒆𝒓𝒆'𝒔 𝒚𝒐𝒖𝒓 𝒂𝒍𝒆𝒓𝒕 𝒊𝒎𝒂𝒈𝒆:",
+        attachment: fs.createReadStream(imagePath)
+      });
+
+      // Clean up temporary file
+      fs.unlinkSync(imagePath);
+
+    } catch (error) {
+      console.error("Error generating alert image:", error);
+      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒕𝒉𝒆 𝒂𝒍𝒆𝒓𝒕 𝒊𝒎𝒂𝒈𝒆.");
+    }
   }
 };
