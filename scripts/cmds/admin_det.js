@@ -1,53 +1,87 @@
-const fs = require("fs");
+const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.config = {
-  name: "admin2backup",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-  description: "hihihihi",
-  category: "no prefix",
-  usages: "admin",
-  cooldowns: 5,
-};
+module.exports = {
+  config: {
+    name: "admin2backup",
+    version: "1.0.1",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    role: 0,
+    category: "info",
+    shortDescription: {
+      en: "𝑺𝒉𝒐𝒘𝒔 𝒃𝒐𝒕 𝒂𝒅𝒎𝒊𝒏 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏"
+    },
+    longDescription: {
+      en: "𝑫𝒊𝒔𝒑𝒍𝒂𝒚𝒔 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒅𝒎𝒊𝒏𝒊𝒔𝒕𝒓𝒂𝒕𝒐𝒓'𝒔 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏"
+    },
+    guide: {
+      en: "{p}admininfo"
+    },
+    cooldowns: 5
+  },
 
-// Provide an onStart to avoid "onStart of command undefined" errors
-module.exports.onStart = function() {
-  // intentionally empty — required by loader
-};
+  onStart: async function({ message, event }) {
+    try {
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, 'cache');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
 
-module.exports.handleEvent = function({ api, event, client, __GLOBAL }) {
-  var { threadID, messageID } = event;
+      const profileImagePath = path.join(cacheDir, 'profile.png');
+      
+      // Try to download admin profile image if it doesn't exist
+      if (!fs.existsSync(profileImagePath)) {
+        try {
+          const axios = require('axios');
+          const imageResponse = await axios.get('https://graph.facebook.com/61571630409265/picture?width=720&height=720', {
+            responseType: 'arraybuffer'
+          });
+          fs.writeFileSync(profileImagePath, Buffer.from(imageResponse.data));
+        } catch (imageError) {
+          console.log("Could not download profile image:", imageError);
+          // Continue without image if download fails
+        }
+      }
 
-  // guard: ensure event.body exists before using string operations
-  if (!event.body) return;
+      const msg = {
+        body: `╔════ஜ۞۞ஜ═══╗
 
-  if (
-    event.body.indexOf("ADMIN") === 0 ||
-    event.body.indexOf("Admin") === 0 ||
-    event.body.indexOf("/Admin") === 0 ||
-    event.body.indexOf("#admin") === 0
-  ) {
-    var msg = {
-      body: `╔════ஜ۞۞ஜ═══╗
-
-🥀 𝐍𝐚𝐚𝐦 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
-⚜️ 𝐅𝐚𝐜𝐞𝐛𝐨𝐨𝐤 : https://www.facebook.com/share/15yVioQQyq/
-📱 𝐏𝐡𝐨𝐧 𝐧𝐮𝐦𝐛𝐞𝐫 : 01586400590
+🥀 𝑵𝒂𝒂𝒎 : 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅
+⚜️ 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 : https://www.facebook.com/share/15yVioQQyq/
+📱 𝑷𝒉𝒐𝒏 𝒏𝒖𝒎𝒃𝒆𝒓 : 01586400590
 
 ╚════ஜ۞۞ஜ═══╝
 
 »»————-　★　————-««
-🥀 𝐵𝑜𝓉 𝑒𝓇 𝑀𝒶𝓁𝒾𝓀 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
-»»————-　★　————-««`,
-      attachment: fs.createReadStream(__dirname + "/noprefix/profile.png"),
-    };
-    api.sendMessage(msg, threadID, messageID);
-    // use the local messageID variable (consistent with destructuring above)
-    api.setMessageReaction("🫅", messageID, (err) => {}, true);
-  }
-};
+🥀 𝑩𝒐𝒕 𝒆𝒓 𝑴𝒂𝒍𝒊𝒌 : 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅
+»»————-　★　————-««`
+      };
 
-module.exports.run = function({ api, event, client, __GLOBAL }) {
-  // No action needed here
+      // Add attachment only if image exists
+      if (fs.existsSync(profileImagePath)) {
+        msg.attachment = fs.createReadStream(profileImagePath);
+      }
+
+      await message.reply(msg);
+      
+    } catch (error) {
+      console.error("Admin info error:", error);
+      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒔𝒉𝒐𝒘𝒊𝒏𝒈 𝒂𝒅𝒎𝒊𝒏 𝒊𝒏𝒇𝒐.");
+    }
+  },
+
+  onChat: async function({ message, event }) {
+    try {
+      const triggers = ["admin", "Admin", "/Admin", "#admin", "owner", "malik"];
+      
+      if (event.body && triggers.some(trigger => 
+          event.body.toLowerCase().includes(trigger.toLowerCase())
+      )) {
+        await this.onStart({ message, event });
+      }
+    } catch (error) {
+      console.error("Chat handler error:", error);
+    }
+  }
 };
