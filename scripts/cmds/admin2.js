@@ -8,7 +8,7 @@ module.exports.config = {
   version: "1.0.0",
   hasPermssion: 0,
   credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "✨ Admin Management System ✨",
+  description: "✨ 𝑨𝒅𝒎𝒊𝒏 𝑴𝒂𝒏𝒂𝒈𝒆𝒎𝒆𝒏𝒕 𝑺𝒚𝒔𝒕𝒆𝒎 ✨",
   category: "system",
   usages: "admin2",
   cooldowns: 0,
@@ -31,11 +31,11 @@ function getCPUInfo() {
   const cpus = os.cpus();
   if (!cpus || cpus.length === 0) return 'N/A';
   const cpu = cpus[0];
-  return `⚙️ Model: ${cpu.model}\n⚡ Speed: ${cpu.speed} MHz\n💠 Cores: ${cpus.length}`;
+  return `⚙️ 𝑴𝒐𝒅𝒆𝒍: ${cpu.model}\n⚡ 𝑺𝒑𝒆𝒆𝒅: ${cpu.speed} 𝑴𝑯𝒛\n💠 𝑪𝒐𝒓𝒆𝒔: ${cpus.length}`;
 }
 
 function getOSInfo() {
-  return `💻 Platform: ${os.platform()}\n📀 Release: ${os.release()}\n🖥️ Arch: ${os.arch()}`;
+  return `💻 𝑷𝒍𝒂𝒕𝒇𝒐𝒓𝒎: ${os.platform()}\n📀 𝑹𝒆𝒍𝒆𝒂𝒔𝒆: ${os.release()}\n🖥️ 𝑨𝒓𝒄𝒉: ${os.arch()}`;
 }
 
 function getUptime() {
@@ -44,7 +44,7 @@ function getUptime() {
   const hours = Math.floor((uptime % 86400) / 3600);
   const minutes = Math.floor((uptime % 3600) / 60);
   const seconds = Math.floor(uptime % 60);
-  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  return `${days}𝒅 ${hours}𝒉 ${minutes}𝒎 ${seconds}𝒔`;
 }
 
 // Config Setup
@@ -65,7 +65,7 @@ function setupConfig() {
       }
     }
   } catch (e) {
-    console.error('Config setup error:', e);
+    console.error('𝑪𝒐𝒏𝒇𝒊𝒈 𝒔𝒆𝒕𝒖𝒑 𝒆𝒓𝒓𝒐𝒓:', e);
   }
 }
 
@@ -81,46 +81,45 @@ async function handleCommand({ api, event }) {
     const commandCount = global.client?.commands?.size || 'N/A';
 
     const response = `
-🦋✨ Admin Control Panel ✨🦋
+🦋✨ 𝑨𝒅𝒎𝒊𝒏 𝑪𝒐𝒏𝒕𝒓𝒐𝒍 𝑷𝒂𝒏𝒆𝒍 ✨🦋
 ━━━━━━━━━━━━━━━━━━━━
-🕰️ Time: ${formattedTime} | 📅 Date: ${formattedDate}
+🕰️ 𝑻𝒊𝒎𝒆: ${formattedTime} | 📅 𝑫𝒂𝒕𝒆: ${formattedDate}
 ━━━━━━━━━━━━━━━━━━━━
-📊 System Information:
+📊 𝑺𝒚𝒔𝒕𝒆𝒎 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏:
 ${getOSInfo()}
 ${getCPUInfo()}
-💾 RAM: ${formatBytes(process.memoryUsage().rss)}
-⏱️ Uptime: ${getUptime()}
+💾 𝑹𝑨𝑴: ${formatBytes(process.memoryUsage().rss)}
+⏱️ 𝑼𝒑𝒕𝒊𝒎𝒆: ${getUptime()}
 ━━━━━━━━━━━━━━━━━━━━
-📈 Bot Stats:
-🧵 Threads: ${threadCount}
-👥 Users: ${userCount}
-⚙️ Commands: ${commandCount}
+📈 𝑩𝒐𝒕 𝑺𝒕𝒂𝒕𝒔:
+🧵 𝑻𝒉𝒓𝒆𝒂𝒅𝒔: ${threadCount}
+👥 𝑼𝒔𝒆𝒓𝒔: ${userCount}
+⚙️ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔: ${commandCount}
 ━━━━━━━━━━━━━━━━━━━━
-🌟 Admin Commands:
-• 🗃️ admin box - Manage admin boxes
-• ℹ️ admin info - Show detailed system info
-• 🔄 admin update - Update bot settings
-• ♻️ admin reload - Reload configurations
-• 🧹 admin clean - Clean temporary files
-• 🔁 admin restart - Restart the bot system
+🌟 𝑨𝒅𝒎𝒊𝒏 𝑪𝒐𝒎𝒎𝒂𝒏𝒅𝒔:
+• 🗃️ 𝒂𝒅𝒎𝒊𝒏 𝒃𝒐𝒙 - 𝑴𝒂𝒏𝒂𝒈𝒆 𝒂𝒅𝒎𝒊𝒏 𝒃𝒐𝒙𝒆𝒔
+• ℹ️ 𝒂𝒅𝒎𝒊𝒏 𝒊𝒏𝒇𝒐 - 𝑺𝒉𝒐𝒘 𝒅𝒆𝒕𝒂𝒊𝒍𝒆𝒅 𝒔𝒚𝒔𝒕𝒆𝒎 𝒊𝒏𝒇𝒐
+• 🔄 𝒂𝒅𝒎𝒊𝒏 𝒖𝒑𝒅𝒂𝒕𝒆 - 𝑼𝒑𝒅𝒂𝒕𝒆 𝒃𝒐𝒕 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔
+• ♻️ 𝒂𝒅𝒎𝒊𝒏 𝒓𝒆𝒍𝒐𝒂𝒅 - 𝑹𝒆𝒍𝒐𝒂𝒅 𝒄𝒐𝒏𝒇𝒊𝒈𝒖𝒓𝒂𝒕𝒊𝒐𝒏𝒔
+• 🧹 𝒂𝒅𝒎𝒊𝒏 𝒄𝒍𝒆𝒂𝒏 - 𝑪𝒍𝒆𝒂𝒏 𝒕𝒆𝒎𝒑𝒐𝒓𝒂𝒓𝒚 𝒇𝒊𝒍𝒆𝒔
+• 🔁 𝒂𝒅𝒎𝒊𝒏 𝒓𝒆𝒔𝒕𝒂𝒓𝒕 - 𝑹𝒆𝒔𝒕𝒂𝒓𝒕 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒔𝒚𝒔𝒕𝒆𝒎
 ━━━━━━━━━━━━━━━━━━━━
-✨ Type a command to proceed (e.g., 'admin info') ✨
+✨ 𝑻𝒚𝒑𝒆 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒕𝒐 𝒑𝒓𝒐𝒄𝒆𝒆𝒅 (𝒆.𝒈., '𝒂𝒅𝒎𝒊𝒏 𝒊𝒏𝒇𝒐') ✨
 🦋━━━━━━━━━━━━━━━━🦋`;
 
     api.sendMessage(response, event.threadID);
   } catch (error) {
-    console.error('Admin command error:', error);
-    api.sendMessage('❌ An error occurred. Please try again later.', event.threadID);
+    console.error('𝑨𝒅𝒎𝒊𝒏 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓𝒓𝒐𝒓:', error);
+    api.sendMessage('❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.', event.threadID);
   }
 }
 
 // Initialize
 module.exports.onLoad = function () {
   setupConfig();
-  console.log('🌟 Admin system initialized 🌟');
+  console.log('🌟 𝑨𝒅𝒎𝒊𝒏 𝒔𝒚𝒔𝒕𝒆𝒎 𝒊𝒏𝒊𝒕𝒊𝒂𝒍𝒊𝒛𝒆𝒅 🌟');
 };
 
-// FIXED: run → onStart
-module.exports.onStart = async function ({ api, event }) {
+module.exports.run = async function ({ api, event }) {
   await handleCommand({ api, event });
 };
