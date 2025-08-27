@@ -4,16 +4,16 @@ module.exports = {
     version: "1.0.0",
     hasPermssion: 2,
     credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    description: "𝑩𝒐𝒕 𝒌𝒆 𝒈𝒓𝒐𝒖𝒑 𝒕𝒉𝒆𝒌𝒆 𝒃𝒂𝒉𝒊𝒓 𝒌𝒐𝒓𝒖𝒏",
-    category: "Admin",
-    usages: "out [id]",
+    description: "𝐵𝑜𝑡 𝑘𝑒 𝑔𝑟𝑜𝑢𝑝 𝑡ℎ𝑒𝑘𝑒 𝑏𝑎ℎ𝑖𝑟 𝑘𝑜𝑟𝑢𝑛",
+    category: "𝐴𝑑𝑚𝑖𝑛",
+    usages: "𝑜𝑢𝑡 [𝑖𝑑]",
     cooldowns: 10
   },
 
-  onStart: async function({ api, event, args, message }) {
+  onStart: async function({ api, event, args }) {
     try {
       if (!args[0]) {
-        await message.reply(`🥲 𝑨𝒎𝒊 𝒕𝒐𝒅𝒆𝒓 𝒔𝒖𝒌𝒉 𝒅𝒆𝒘𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒂𝒔𝒄𝒉𝒊𝒍𝒂𝒎...\n😞 𝑲𝒊𝒏𝒕𝒖 𝒕𝒐𝒓𝒂 𝒂𝒎𝒂𝒓 𝒋𝒐𝒈𝒈𝒐 𝒏𝒂...`);
+        await api.sendMessage(`🥲 𝐴𝑚𝑖 𝑡𝑜𝑑𝑒𝑟 𝑠𝑢𝑘ℎ 𝑑𝑒𝑤𝑎𝑟 𝑗𝑜𝑛𝑛𝑜 𝑎𝑠𝑐ℎ𝑖𝑙𝑎𝑚...\n😞 𝐾𝑖𝑛𝑡𝑢 𝑡𝑜𝑟𝑎 𝑎𝑚𝑎𝑟 𝑗𝑜𝑔𝑔𝑜 𝑛𝑎...`, event.threadID);
         await new Promise(resolve => setTimeout(resolve, 2000));
         return api.removeUserFromGroup(api.getCurrentUserID(), event.threadID);
       }
@@ -22,10 +22,10 @@ module.exports = {
         return api.removeUserFromGroup(api.getCurrentUserID(), args[0]);
       }
 
-      await message.reply("❌ 𝑩𝒂𝒓𝒐 𝒈𝒓𝒐𝒖𝒑 𝑰𝑫 𝒅𝒊𝒂 𝒏𝒂...");
+      await api.sendMessage("❌ 𝐵𝑎𝑟𝑜 𝑔𝑟𝑜𝑢𝑝 𝐼𝐷 𝑑𝑖𝑎 𝑛𝑎...", event.threadID);
     } catch (error) {
-      console.log("𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒐𝒖𝒕 𝒄𝒐𝒎𝒎𝒂𝒏𝒅:", error);
-      await message.reply("❌ 𝑬𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅: " + error.message);
+      console.log("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑢𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
+      await api.sendMessage("❌ 𝐸𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑒𝑑: " + error.message, event.threadID);
     }
   }
 };
