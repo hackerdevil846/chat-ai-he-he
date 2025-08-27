@@ -86,7 +86,7 @@ const notifyAdmins = (api, message) => {
   });
 };
 
-module.exports.onStart = async ({ api, event, args }) => {
+module.exports.run = async ({ api, event, args }) => {
   initWarnings();
   const { threadID, messageID, senderID, messageReply } = event;
   
@@ -95,10 +95,10 @@ module.exports.onStart = async ({ api, event, args }) => {
     const mediaName = args.join(' ').trim();
     
     if (!mediaUrl) 
-      return api.sendMessage("⚠️ Please reply to a video or image to add it", threadID, messageID);
+      return api.sendMessage("⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒗𝒊𝒅𝒆𝒐 𝒐𝒓 𝒊𝒎𝒂𝒈𝒆 𝒕𝒐 𝒂𝒅𝒅 𝒊𝒕", threadID, messageID);
     
     if (!mediaName) 
-      return api.sendMessage("⚠️ Please provide a name for the media", threadID, messageID);
+      return api.sendMessage("⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒏𝒂𝒎𝒆 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒎𝒆𝒅𝒊𝒂", threadID, messageID);
     
     if (hasBadWords(mediaName)) {
       const warnings = getWarnings();
@@ -106,14 +106,14 @@ module.exports.onStart = async ({ api, event, args }) => {
       saveWarnings(warnings);
       
       const warningCount = warnings[senderID];
-      const userWarning = `❌ আপনার দেওয়া নামের মধ্যে নিষিদ্ধ শব্দ আছে!\n⚠️ সতর্কবার্তা: ${warningCount}/3`;
-      const adminAlert = `🚨 CONTENT VIOLATION\n• User: ${senderID}\n• Content: ${mediaName}\n• Thread: ${threadID}\n⚠️ Warnings: ${warningCount}/3`;
+      const userWarning = `❌ 𝒚𝒐𝒖𝒓 𝒑𝒓𝒐𝒗𝒊𝒅𝒆𝒅 𝒏𝒂𝒎𝒆 𝒉𝒂𝒔 𝒊𝒏𝒂𝒑𝒑𝒓𝒐𝒑𝒓𝒊𝒂𝒕𝒆 𝒘𝒐𝒓𝒅𝒔!\n⚠️ 𝑾𝒂𝒓𝒏𝒊𝒏𝒈: ${warningCount}/3`;
+      const adminAlert = `🚨 𝑪𝑶𝑵𝑻𝑬𝑵𝑻 𝑽𝑰𝑶𝑳𝑨𝑻𝑰𝑶𝑵\n• 𝑼𝒔𝒆𝒓: ${senderID}\n• 𝑪𝒐𝒏𝒕𝒆𝒏𝒕: ${mediaName}\n• 𝑻𝒉𝒓𝒆𝒂𝒅: ${threadID}\n⚠️ 𝑾𝒂𝒓𝒏𝒊𝒏𝒈𝒔: ${warningCount}/3`;
       
       api.sendMessage(userWarning, threadID, messageID);
       notifyAdmins(api, adminAlert);
       
       if (warningCount >= 3) {
-        api.sendMessage(`🚫 User ${senderID} has been blocked for repeated violations!`, threadID);
+        api.sendMessage(`🚫 𝑼𝒔𝒆𝒓 ${senderID} 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 𝒃𝒍𝒐𝒄𝒌𝒆𝒅 𝒇𝒐𝒓 𝒓𝒆𝒑𝒆𝒂𝒕𝒆𝒅 𝒗𝒊𝒐𝒍𝒂𝒕𝒊𝒐𝒏𝒔!`, threadID);
         await new Promise(resolve => setTimeout(resolve, 1000));
         await api.changeBlockedStatus(senderID, true);
       }
@@ -125,7 +125,7 @@ module.exports.onStart = async ({ api, event, args }) => {
     
     const finalUrl = await uploadMedia(mediaUrl, duration);
     if (!finalUrl) 
-      return api.sendMessage("❌ Failed to upload media to hosting service", threadID, messageID);
+      return api.sendMessage("❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒖𝒑𝒍𝒐𝒂𝒅 𝒎𝒆𝒅𝒊𝒂 𝒕𝒐 𝒉𝒐𝒔𝒕𝒊𝒏𝒈 𝒔𝒆𝒓𝒗𝒊𝒄𝒆", threadID, messageID);
     
     const apis = await axios.get('https://raw.githubusercontent.com/shaonproject/Shaon/main/api.json');
     const baseAPI = apis.data.api;
@@ -135,13 +135,13 @@ module.exports.onStart = async ({ api, event, args }) => {
     );
     
     api.sendMessage(
-      `✅ Added successfully!\n📛 Name: ${dbResponse.data.name}\n🔗 URL: ${dbResponse.data.url}`,
+      `✅ 𝑨𝒅𝒅𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!\n📛 𝑵𝒂𝒎𝒆: ${dbResponse.data.name}\n🔗 𝑼𝑹𝑳: ${dbResponse.data.url}`,
       threadID,
       messageID
     );
     
   } catch (error) {
     console.error('Add command error:', error);
-    api.sendMessage("❌ An error occurred while processing your request", threadID, messageID);
+    api.sendMessage("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒓𝒆𝒒𝒖𝒆𝒔𝒕", threadID, messageID);
   }
 };
