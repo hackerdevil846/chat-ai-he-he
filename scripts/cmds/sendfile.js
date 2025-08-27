@@ -27,17 +27,17 @@ module.exports.onStart = async function({ api, event, args, Users }) {
 
 	if (event.type === "message_reply") {
 		const uid = event.messageReply.senderID;
-		const name = (await Users.getData(uid)).name;
+		const name = (await Users.getData(uid)).name; // Corrected: Using Users.getData to get user name
 		
 		if (!fs.existsSync(__dirname + "/" + file)) {
-			return handleFileNotFound(api, event, file, 'user', uid, name);
+			return handleFileNotFound(api, event, file, 'user', uid, name, this.config.name); // Pass command name
 		}
 		
 		return sendFileToUser(api, event, file, uid, name);
 	} 
 	else {
 		if (!fs.existsSync(__dirname + "/" + file)) {
-			return handleFileNotFound(api, event, file, 'thread');
+			return handleFileNotFound(api, event, file, 'thread', null, null, this.config.name); // Pass command name
 		}
 		
 		return sendFileToThread(api, event, file);
@@ -47,11 +47,16 @@ module.exports.onStart = async function({ api, event, args, Users }) {
 module.exports.handleReaction = function({ api, event, handleReaction, Users }) {
 	const { file, author, type, uid, namee } = handleReaction;
 	
-	if (event.userID !== author) return;
-	api.unsendMessage(handleReaction.messageID);
+	if (event.userID !== author) return; // Only author can react
+	api.unsendMessage(handleReaction.messageID); // Remove reaction message
 
 	const filePath = __dirname + '/' + file + '.js';
 	const txtFilePath = filePath.replace('.js', '.txt');
+
+	// Ensure the file exists before copying
+	if (!fs.existsSync(filePath)) {
+		return api.sendMessage(`🔴 | 𝑭𝒊𝒍𝒆 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅 𝒂𝒕 ${filePath}`, event.threadID);
+	}
 
 	fs.copyFileSync(filePath, txtFilePath);
 
@@ -60,9 +65,13 @@ module.exports.handleReaction = function({ api, event, handleReaction, Users }) 
 			api.sendMessage({
 				body: `📩 | ${file}.𝒋𝒔 𝑭𝒂𝒊𝒍𝒕𝒊 𝒕𝒐𝒎𝒂𝒓 𝒌𝒂𝒄𝒉𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒄𝒄𝒉𝒆!`,
 				attachment: fs.createReadStream(txtFilePath)
-			}, uid, () => {
-				fs.unlinkSync(txtFilePath);
-				api.sendMessage(`✅ | ${namee} 𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 𝒇𝒂𝒊𝒍 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒆𝒄𝒄𝒉𝒆!`, event.threadID);
+			}, uid, (err) => {
+				if (err) {
+					api.sendMessage(`❌ | 𝑬𝒓𝒓𝒐𝒓 𝒔𝒆𝒏𝒅𝒊𝒏𝒈 𝒇𝒊𝒍𝒆 𝒕𝒐 ${namee}: ${err.message}`, event.threadID);
+				} else {
+					api.sendMessage(`✅ | ${namee} 𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 𝒇𝒂𝒊𝒍 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒆𝒄𝒄𝒉𝒆!`, event.threadID);
+				}
+				fs.unlinkSync(txtFilePath); // Clean up the temporary .txt file
 			});
 			break;
 
@@ -70,13 +79,18 @@ module.exports.handleReaction = function({ api, event, handleReaction, Users }) 
 			api.sendMessage({
 				body: `📩 | ${file}.𝒋𝒔 𝑭𝒂𝒊𝒍𝒕𝒊 𝒆𝒊 𝒈𝒓𝒖𝒑𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒄𝒄𝒉𝒆!`,
 				attachment: fs.createReadStream(txtFilePath)
-			}, event.threadID, () => fs.unlinkSync(txtFilePath), event.messageID);
+			}, event.threadID, (err) => {
+				if (err) {
+					api.sendMessage(`❌ | 𝑬𝒓𝒓𝒐𝒓 𝒔𝒆𝒏𝒅𝒊𝒏𝒈 𝒇𝒊𝒍𝒆 𝒕𝒐 𝒕𝒉𝒓𝒆𝒂𝒅: ${err.message}`, event.threadID);
+				}
+				fs.unlinkSync(txtFilePath); // Clean up the temporary .txt file
+			}, event.messageID);
 			break;
 	}
 };
 
-// Helper functions
-function handleFileNotFound(api, event, file, type, uid, name) {
+// Helper functions (moved outside module.exports.onStart to be accessible by handleReaction)
+function handleFileNotFound(api, event, file, type, uid, name, commandName) {
 	const allJsFiles = fs.readdirSync(__dirname).filter(f => f.endsWith(".js"));
 	const fileNames = allJsFiles.map(f => f.replace('.js', ''));
 	const matches = stringSimilarity.findBestMatch(file, fileNames);
@@ -90,9 +104,13 @@ function handleFileNotFound(api, event, file, type, uid, name) {
 				   `🔰 | 𝑹𝒆𝒂𝒄𝒕 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒐 𝒔𝒆𝒏𝒅 ${type === 'user' ? `to ${name}` : 'in this group'}`;
 
 	return api.sendMessage(message, event.threadID, (err, info) => {
+		if (err) {
+			console.error("Error sending reaction message:", err);
+			return;
+		}
 		global.client.handleReaction.push({
 			type,
-			name: this.config.name,
+			name: commandName, // Use the passed commandName here
 			author: event.senderID,
 			messageID: info.messageID,
 			file: closestMatch,
@@ -104,25 +122,46 @@ function handleFileNotFound(api, event, file, type, uid, name) {
 
 async function sendFileToUser(api, event, file, uid, name) {
 	const txtFile = file.replace('.js', '.txt');
+	const sourcePath = __dirname + '/' + file;
+	const tempPath = __dirname + '/' + txtFile;
+
+	if (!fs.existsSync(sourcePath)) {
+		return api.sendMessage(`🔴 | 𝑭𝒊𝒍𝒆 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅 𝒂𝒕 ${sourcePath}`, event.threadID);
+	}
 	
-	fs.copyFileSync(__dirname + '/' + file, __dirname + '/' + txtFile);
+	fs.copyFileSync(sourcePath, tempPath);
 	
 	api.sendMessage({
 		body: `📩 | ${file} 𝑭𝒂𝒊𝒍𝒕𝒊 𝒕𝒐𝒎𝒂𝒓 𝒌𝒂𝒄𝒉𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒄𝒄𝒉𝒆!`,
-		attachment: fs.createReadStream(__dirname + '/' + txtFile)
-	}, uid, async () => {
-		fs.unlinkSync(__dirname + '/' + txtFile);
-		api.sendMessage(`✅ | ${name} 𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 ${file} 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒆𝒄𝒄𝒉𝒆!`, event.threadID);
+		attachment: fs.createReadStream(tempPath)
+	}, uid, async (err) => {
+		if (err) {
+			api.sendMessage(`❌ | 𝑬𝒓𝒓𝒐𝒓 𝒔𝒆𝒏𝒅𝒊𝒏𝒈 𝒇𝒊𝒍𝒆 𝒕𝒐 ${name}: ${err.message}`, event.threadID);
+		} else {
+			api.sendMessage(`✅ | ${name} 𝒆𝒓 𝒌𝒂𝒄𝒉𝒆 ${file} 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒆𝒄𝒄𝒉𝒆!`, event.threadID);
+		}
+		fs.unlinkSync(tempPath); // Clean up the temporary .txt file
 	});
 }
 
 function sendFileToThread(api, event, file) {
 	const txtFile = file.replace('.js', '.txt');
+	const sourcePath = __dirname + '/' + file;
+	const tempPath = __dirname + '/' + txtFile;
+
+	if (!fs.existsSync(sourcePath)) {
+		return api.sendMessage(`🔴 | 𝑭𝒊𝒍𝒆 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅 𝒂𝒕 ${sourcePath}`, event.threadID);
+	}
 	
-	fs.copyFileSync(__dirname + '/' + file, __dirname + '/' + txtFile);
+	fs.copyFileSync(sourcePath, tempPath);
 	
 	api.sendMessage({
 		body: `📩 | ${file} 𝑭𝒂𝒊𝒍𝒕𝒊 𝒆𝒊 𝒈𝒓𝒖𝒑𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒉𝒐𝒍𝒄𝒄𝒉𝒆!`,
-		attachment: fs.createReadStream(__dirname + '/' + txtFile)
-	}, event.threadID, () => fs.unlinkSync(__dirname + '/' + txtFile), event.messageID);
+		attachment: fs.createReadStream(tempPath)
+	}, event.threadID, (err) => {
+		if (err) {
+			api.sendMessage(`❌ | 𝑬𝒓𝒓𝒐𝒓 𝒔𝒆𝒏𝒅𝒊𝒏𝒈 𝒇𝒊𝒍𝒆 𝒕𝒐 𝒕𝒉𝒓𝒆𝒂𝒅: ${err.message}`, event.threadID);
+		}
+		fs.unlinkSync(tempPath); // Clean up the temporary .txt file
+	}, event.messageID);
 }
