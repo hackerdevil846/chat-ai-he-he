@@ -2,7 +2,6 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const qs = require("qs");
-const { getStreamFromURL, shortenURL, randomString } = global.utils;
 
 // 𝙃𝙚𝙡𝙥𝙚𝙧 𝙛𝙪𝙣𝙘𝙩𝙞𝙤𝙣 𝙩𝙤 𝙘𝙤𝙣𝙫𝙚𝙧𝙩 𝙩𝙚𝙭𝙩 𝙩𝙤 𝙈𝙖𝙩𝙝𝙚𝙢𝙖𝙩𝙞𝙘𝙖𝙡 𝘽𝙤𝙡𝙙 𝙄𝙩𝙖𝙡𝙞𝙘
 function toBoldItalic(text) {
@@ -33,21 +32,25 @@ function saveAutoLinkStates(states) {
 let autoLinkStates = loadAutoLinkStates();
 
 module.exports = {
-  threadStates: {},
   config: {
-    name: 'autolink',
-    version: '3.0',
-    author: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
+    name: "autolink",
+    version: "3.0",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 5,
     role: 0,
-    shortDescription: toBoldItalic('𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢, 𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠, 𝙏𝙞𝙠𝙏𝙤𝙠, 𝙏𝙬𝙞𝙩𝙩𝙚𝙧, 𝙋𝙞𝙣𝙩𝙚𝙧𝙚𝙨𝙩, 𝙖𝙣𝙙 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙖𝙪𝙩𝙤 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙚𝙧'),
-    longDescription: '',
-    category: '𝙈𝙚𝙙𝙞𝙖',
+    shortDescription: {
+      en: toBoldItalic("𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢, 𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠, 𝙏𝙞𝙠𝙏𝙤𝙠, 𝙏𝙬𝙞𝙩𝙩𝙚𝙧, 𝙋𝙞𝙣𝙩𝙚𝙧𝙚𝙨𝙩, 𝙖𝙣𝙙 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙖𝙪𝙩𝙤 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙚𝙧")
+    },
+    longDescription: {
+      en: toBoldItalic("𝘼𝙪𝙩𝙤𝙢𝙖𝙩𝙞𝙘𝙖𝙡𝙡𝙮 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙨 𝙢𝙚𝙙𝙞𝙖 𝙛𝙧𝙤𝙢 𝙫𝙖𝙧𝙞𝙤𝙪𝙨 𝙨𝙤𝙘𝙞𝙖𝙡 𝙢𝙚𝙙𝙞𝙖 𝙥𝙡𝙖𝙩𝙛𝙤𝙧𝙢𝙨 𝙬𝙝𝙚𝙣 𝙖 𝙡𝙞𝙣𝙠 𝙞𝙨 𝙙𝙚𝙩𝙚𝙘𝙩𝙚𝙙")
+    },
+    category: "𝙈𝙚𝙙𝙞𝙖",
     guide: {
-      en: '{p}{n}',
+      en: "{p}autolink [on|off] - 𝙏𝙪𝙧𝙣 𝙖𝙪𝙩𝙤 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙤𝙣/𝙤𝙛𝙛"
     }
   },
-  onStart: async function ({ api, event }) {
+
+  onStart: async function ({ message, event, args }) {
     const threadID = event.threadID;
 
     if (!autoLinkStates[threadID]) {
@@ -55,55 +58,62 @@ module.exports = {
       saveAutoLinkStates(autoLinkStates);
     }
 
-    if (!this.threadStates[threadID]) {
-      this.threadStates[threadID] = {};
-    }
-
-    if (event.body.toLowerCase().includes('autolink off')) {
+    if (args[0] === 'off') {
       autoLinkStates[threadID] = 'off';
       saveAutoLinkStates(autoLinkStates);
-      api.sendMessage(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙗𝙤𝙣𝙙𝙝𝙤 𝙠𝙤𝙧𝙖 𝙝𝙤𝙮𝙚𝙘𝙝𝙚"), event.threadID, event.messageID);
-    } else if (event.body.toLowerCase().includes('autolink on')) {
+      await message.reply(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙗𝙤𝙣𝙙𝙝𝙤 𝙠𝙤𝙧𝙖 𝙝𝙤𝙮𝙚𝙘𝙝𝙚"));
+    } else if (args[0] === 'on') {
       autoLinkStates[threadID] = 'on';
       saveAutoLinkStates(autoLinkStates);
-      api.sendMessage(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙘𝙝𝙖𝙡𝙪 𝙠𝙤𝙧𝙖 �𝙝𝙤𝙮𝙚𝙘𝙝𝙚"), event.threadID, event.messageID);
+      await message.reply(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙘𝙝𝙖𝙡𝙪 𝙠𝙤𝙧𝙖 𝙝𝙤𝙮𝙚𝙘𝙝𝙚"));
+    } else {
+      await message.reply(toBoldItalic(`𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙘𝙪𝙧𝙧𝙚𝙣𝙩𝙡𝙮: ${autoLinkStates[threadID] === 'on' ? '𝙊𝙉' : '𝙊𝙁𝙁'}`));
     }
   },
-  onChat: async function ({ api, event }) {
-    const threadID = event.threadID;
 
-    if (this.checkLink(event.body)) {
-      const { url } = this.checkLink(event.body);
+  onChat: async function ({ message, event }) {
+    const threadID = event.threadID;
+    const body = event.body || "";
+
+    if (this.checkLink(body)) {
+      const { url } = this.checkLink(body);
       console.log(`𝙰𝚝𝚝𝚎𝚖𝚙𝚝𝚒𝚗𝚐 𝚝𝚘 𝚍𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚏𝚛𝚘𝚖 𝚄𝚁𝙻: ${url}`);
+      
       if (autoLinkStates[threadID] === 'on' || !autoLinkStates[threadID]) {
-        this.downLoad(url, api, event);
-      } else {
-        api.sendMessage("", event.threadID, event.messageID);
+        this.downLoad(url, message, event);
       }
-      api.setMessageReaction("🫦", event.messageID, (err) => {}, true);
+      
+      // Set reaction regardless of autolink state
+      try {
+        await message.react("🫦");
+      } catch (error) {
+        console.error("Failed to set reaction:", error);
+      }
     }
   },
-  downLoad: function (url, api, event) {
+
+  downLoad: function (url, message, event) {
     const time = Date.now();
     const path = __dirname + `/cache/${time}.mp4`;
 
     if (url.includes("instagram")) {
-      this.downloadInstagram(url, api, event, path);
+      this.downloadInstagram(url, message, event, path);
     } else if (url.includes("facebook") || url.includes("fb.watch")) {
-      this.downloadFacebook(url, api, event, path);
+      this.downloadFacebook(url, message, event, path);
     } else if (url.includes("tiktok")) {
-      this.downloadTikTok(url, api, event, path);
+      this.downloadTikTok(url, message, event, path);
     } else if (url.includes("x.com")) {
-      this.downloadTwitter(url, api, event, path);
+      this.downloadTwitter(url, message, event, path);
     } else if (url.includes("pin.it")) {
-      this.downloadPinterest(url, api, event, path);
+      this.downloadPinterest(url, message, event, path);
     } else if (url.includes("youtu")) {
-      this.downloadYouTube(url, api, event, path);
+      this.downloadYouTube(url, message, event, path);
     }
   },
-  downloadInstagram: async function (url, api, event, path) {
+
+  downloadInstagram: async function (url, message, event, path) {
     try {
-      const res = await this.getLink(url, api, event, path);
+      const res = await this.getLink(url, message, event, path);
       const response = await axios({
         method: "GET",
         url: res,
@@ -111,21 +121,25 @@ module.exports = {
       });
       fs.writeFileSync(path, Buffer.from(response.data, "utf-8"));
       if (fs.statSync(path).size / 1024 / 1024 > 25) {
-        return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
       }
 
-      const shortUrl = await shortenURL(res);
+      const shortUrl = await global.utils.shortenURL(res);
       const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
 
-      api.sendMessage({
+      await message.reply({
         body: toBoldItalic(messageBody),
         attachment: fs.createReadStream(path)
-      }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+      });
+      
+      fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
     }
   },
-  downloadFacebook: async function (url, api, event, path) {
+
+  downloadFacebook: async function (url, message, event, path) {
     try {
       const res = await fbDownloader(url);
       if (res.success && res.download && res.download.length > 0) {
@@ -135,29 +149,40 @@ module.exports = {
           url: videoUrl,
           responseType: "stream"
         });
+        
         if (response.headers['content-length'] > 87031808) {
-          return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 �𝙖 𝙤𝙣𝙚𝙠 �𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+          return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
         }
-        response.data.pipe(fs.createWriteStream(path));
-        response.data.on('end', async () => {
-          const shortUrl = await shortenURL(videoUrl);
-          const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-          api.sendMessage({
-            body: toBoldItalic(messageBody),
-            attachment: fs.createReadStream(path)
-          }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+        
+        const writer = fs.createWriteStream(path);
+        response.data.pipe(writer);
+        
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
         });
+
+        const shortUrl = await global.utils.shortenURL(videoUrl);
+        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+
+        await message.reply({
+          body: toBoldItalic(messageBody),
+          attachment: fs.createReadStream(path)
+        });
+        
+        fs.unlinkSync(path);
       } else {
-        api.sendMessage("", event.threadID, event.messageID);
+        await message.reply(toBoldItalic("𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
       }
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙚𝙧𝙧𝙤𝙧"));
     }
   },
-  downloadTikTok: async function (url, api, event, path) {
+
+  downloadTikTok: async function (url, message, event, path) {
     try {
-      const res = await this.getLink(url, api, event, path);
+      const res = await this.getLink(url, message, event, path);
       const response = await axios({
         method: "GET",
         url: res,
@@ -165,21 +190,25 @@ module.exports = {
       });
       fs.writeFileSync(path, Buffer.from(response.data, "utf-8"));
       if (fs.statSync(path).size / 1024 / 1024 > 25) {
-        return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
       }
 
-      const shortUrl = await shortenURL(res);
+      const shortUrl = await global.utils.shortenURL(res);
       const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
 
-      api.sendMessage({
+      await message.reply({
         body: toBoldItalic(messageBody),
         attachment: fs.createReadStream(path)
-      }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+      });
+      
+      fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙏𝙞𝙠𝙏𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
     }
   },
-  downloadTwitter: async function (url, api, event, path) {
+
+  downloadTwitter: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://xdl-twitter.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
       const videoUrl = res.data.url;
@@ -191,24 +220,33 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
       }
 
-      response.data.pipe(fs.createWriteStream(path));
-      response.data.on('end', async () => {
-        const shortUrl = await shortenURL(videoUrl);
-        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-        api.sendMessage({
-          body: toBoldItalic(messageBody),
-          attachment: fs.createReadStream(path)
-        }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+      const writer = fs.createWriteStream(path);
+      response.data.pipe(writer);
+      
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
       });
+
+      const shortUrl = await global.utils.shortenURL(videoUrl);
+      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+
+      await message.reply({
+        body: toBoldItalic(messageBody),
+        attachment: fs.createReadStream(path)
+      });
+      
+      fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙏𝙬𝙞𝙩𝙩𝙚𝙧 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
     }
   },
-  downloadPinterest: async function (url, api, event, path) {
+
+  downloadPinterest: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://pindl-pinterest.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
       const videoUrl = res.data.url;
@@ -220,24 +258,33 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
       }
 
-      response.data.pipe(fs.createWriteStream(path));
-      response.data.on('end', async () => {
-        const shortUrl = await shortenURL(videoUrl);
-        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-        api.sendMessage({
-          body: toBoldItalic(messageBody),
-          attachment: fs.createReadStream(path)
-        }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+      const writer = fs.createWriteStream(path);
+      response.data.pipe(writer);
+      
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
       });
+
+      const shortUrl = await global.utils.shortenURL(videoUrl);
+      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+
+      await message.reply({
+        body: toBoldItalic(messageBody),
+        attachment: fs.createReadStream(path)
+      });
+      
+      fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙋𝙞𝙣𝙩𝙚𝙧𝙚𝙨𝙩 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
     }
   },
-  downloadYouTube: async function (url, api, event, path) {
+
+  downloadYouTube: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://yt-downloader-eta.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
       const videoUrl = res.data['480p'];
@@ -249,25 +296,33 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return api.sendMessage(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"), event.threadID, () => fs.unlinkSync(path), event.messageID);
+        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
       }
 
-      response.data.pipe(fs.createWriteStream(path));
-      response.data.on('end', async () => {
-        const shortUrl = await shortenURL(videoUrl);
-        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-        api.sendMessage({
-          body: toBoldItalic(messageBody),
-          attachment: fs.createReadStream(path)
-        }, event.threadID, () => fs.unlinkSync(path), event.messageID);
+      const writer = fs.createWriteStream(path);
+      response.data.pipe(writer);
+      
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
       });
+
+      const shortUrl = await global.utils.shortenURL(videoUrl);
+      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+
+      await message.reply({
+        body: toBoldItalic(messageBody),
+        attachment: fs.createReadStream(path)
+      });
+      
+      fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
+      await message.reply(toBoldItalic("𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
     }
   },
 
-  getLink: function (url, api, event, path) {
+  getLink: function (url, message, event, path) {
     return new Promise((resolve, reject) => {
       if (url.includes("instagram")) {
         axios({
@@ -300,6 +355,7 @@ module.exports = {
       }
     });
   },
+
   queryTikTok: async function (url) {
     try {
       const res = await axios.get("https://ssstik.io/en");
@@ -351,6 +407,7 @@ module.exports = {
       };
     }
   },
+
   checkLink: function (url) {
     if (
       url.includes("instagram") ||
