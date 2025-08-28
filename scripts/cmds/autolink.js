@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const qs = require("qs");
+const { getStreamFromURL, shortenURL, randomString } = global.utils;
 
 // 𝙃𝙚𝙡𝙥𝙚𝙧 𝙛𝙪𝙣𝙘𝙩𝙞𝙤𝙣 𝙩𝙤 𝙘𝙤𝙣𝙫𝙚𝙧𝙩 𝙩𝙚𝙭𝙩 𝙩𝙤 𝙈𝙖𝙩𝙝𝙚𝙢𝙖𝙩𝙞𝙘𝙖𝙡 𝘽𝙤𝙡𝙙 𝙄𝙩𝙖𝙡𝙞𝙘
 function toBoldItalic(text) {
@@ -39,18 +40,20 @@ module.exports = {
     countDown: 5,
     role: 0,
     shortDescription: {
-      en: toBoldItalic("𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢, 𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠, 𝙏𝙞𝙠𝙏𝙤𝙠, 𝙏𝙬𝙞𝙩𝙩𝙚𝙧, 𝙋𝙞𝙣𝙩𝙚𝙧𝙚𝙨𝙩, 𝙖𝙣𝙙 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙖𝙪𝙩𝙤 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙚𝙧")
+      en: "𝑰𝒏𝒔𝒕𝒂𝒈𝒓𝒂𝒎, 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌, 𝑻𝒊𝒌𝑻𝒐𝒌, 𝑻𝒘𝒊𝒕𝒕𝒆𝒓, 𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕, 𝒂𝒏𝒅 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒂𝒖𝒕𝒐 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒆𝒓"
     },
     longDescription: {
-      en: toBoldItalic("𝘼𝙪𝙩𝙤𝙢𝙖𝙩𝙞𝙘𝙖𝙡𝙡𝙮 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙨 𝙢𝙚𝙙𝙞𝙖 𝙛𝙧𝙤𝙢 𝙫𝙖𝙧𝙞𝙤𝙪𝙨 𝙨𝙤𝙘𝙞𝙖𝙡 𝙢𝙚𝙙𝙞𝙖 𝙥𝙡𝙖𝙩𝙛𝙤𝙧𝙢𝙨 𝙬𝙝𝙚𝙣 𝙖 𝙡𝙞𝙣𝙠 𝙞𝙨 𝙙𝙚𝙩𝙚𝙘𝙩𝙚𝙙")
+      en: "𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒔 𝒎𝒆𝒅𝒊𝒂 𝒇𝒓𝒐𝒎 𝒗𝒂𝒓𝒊𝒐𝒖𝒔 𝒔𝒐𝒄𝒊𝒂𝒍 𝒎𝒆𝒅𝒊𝒂 𝒑𝒍𝒂𝒕𝒇𝒐𝒓𝒎𝒔 𝒘𝒉𝒆𝒏 𝒂 𝒍𝒊𝒏𝒌 𝒊𝒔 𝒔𝒉𝒂𝒓𝒆𝒅 𝒊𝒏 𝒕𝒉𝒆 𝒄𝒉𝒂𝒕"
     },
-    category: "𝙈𝙚𝙙𝙞𝙖",
+    category: "𝑴𝒆𝒅𝒊𝒂",
     guide: {
-      en: "{p}autolink [on|off] - 𝙏𝙪𝙧𝙣 𝙖𝙪𝙩𝙤 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙤𝙣/𝙤𝙛𝙛"
+      en: "{p}autolink [on/off] - 𝑻𝒖𝒓𝒏 𝒂𝒖𝒕𝒐 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒇𝒆𝒂𝒕𝒖𝒓𝒆 𝒐𝒏 𝒐𝒓 𝒐𝒇𝒇"
     }
   },
 
-  onStart: async function ({ message, event, args }) {
+  threadStates: {},
+  
+  onStart: async function ({ api, event, message, args }) {
     const threadID = event.threadID;
 
     if (!autoLinkStates[threadID]) {
@@ -58,40 +61,36 @@ module.exports = {
       saveAutoLinkStates(autoLinkStates);
     }
 
-    if (args[0] === 'off') {
+    if (!this.threadStates[threadID]) {
+      this.threadStates[threadID] = {};
+    }
+
+    if (args[0] && args[0].toLowerCase() === 'off') {
       autoLinkStates[threadID] = 'off';
       saveAutoLinkStates(autoLinkStates);
-      await message.reply(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙗𝙤𝙣𝙙𝙝𝙤 𝙠𝙤𝙧𝙖 𝙝𝙤𝙮𝙚𝙘𝙝𝙚"));
-    } else if (args[0] === 'on') {
+      await message.reply(toBoldItalic("𝑨𝒖𝒕𝒐𝑳𝒊𝒏𝒌 𝒆𝒊 𝒄𝒉𝒂𝒕 𝒆 𝒃𝒐𝒏𝒅𝒉𝒐 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆"));
+    } else if (args[0] && args[0].toLowerCase() === 'on') {
       autoLinkStates[threadID] = 'on';
       saveAutoLinkStates(autoLinkStates);
-      await message.reply(toBoldItalic("𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙚𝙞 𝙘𝙝𝙖𝙩 𝙚 𝙘𝙝𝙖𝙡𝙪 𝙠𝙤𝙧𝙖 𝙝𝙤𝙮𝙚𝙘𝙝𝙚"));
+      await message.reply(toBoldItalic("𝑨𝒖𝒕𝒐𝑳𝒊𝒏𝒌 𝒆𝒊 𝒄𝒉𝒂𝒕 𝒆 𝒄𝒉𝒂𝒍𝒖 𝒌𝒐𝒓𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆"));
     } else {
-      await message.reply(toBoldItalic(`𝘼𝙪𝙩𝙤𝙇𝙞𝙣𝙠 𝙘𝙪𝙧𝙧𝙚𝙣𝙩𝙡𝙮: ${autoLinkStates[threadID] === 'on' ? '𝙊𝙉' : '𝙊𝙁𝙁'}`));
+      await message.reply(toBoldItalic(`𝑨𝒖𝒕𝒐𝑳𝒊𝒏𝒌 𝒊𝒔 𝒄𝒖𝒓𝒓𝒆𝒏𝒕𝒍𝒚 ${autoLinkStates[threadID] === 'on' ? '𝑶𝑵' : '𝑶𝑭𝑭'} 𝒇𝒐𝒓 𝒕𝒉𝒊𝒔 𝒄𝒉𝒂𝒕`));
     }
   },
-
-  onChat: async function ({ message, event }) {
+  
+  onChat: async function ({ event, message }) {
     const threadID = event.threadID;
-    const body = event.body || "";
 
-    if (this.checkLink(body)) {
-      const { url } = this.checkLink(body);
-      console.log(`𝙰𝚝𝚝𝚎𝚖𝚙𝚝𝚒𝚗𝚐 𝚝𝚘 𝚍𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚏𝚛𝚘𝚖 𝚄𝚁𝙻: ${url}`);
-      
+    if (this.checkLink(event.body)) {
+      const { url } = this.checkLink(event.body);
+      console.log(`𝑨𝒕𝒕𝒆𝒎𝒑𝒕𝒊𝒏𝒈 𝒕𝒐 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒇𝒓𝒐𝒎 𝑼𝑹𝑳: ${url}`);
       if (autoLinkStates[threadID] === 'on' || !autoLinkStates[threadID]) {
         this.downLoad(url, message, event);
       }
-      
-      // Set reaction regardless of autolink state
-      try {
-        await message.react("🫦");
-      } catch (error) {
-        console.error("Failed to set reaction:", error);
-      }
+      api.setMessageReaction("🫦", event.messageID, (err) => {}, true);
     }
   },
-
+  
   downLoad: function (url, message, event) {
     const time = Date.now();
     const path = __dirname + `/cache/${time}.mp4`;
@@ -110,7 +109,7 @@ module.exports = {
       this.downloadYouTube(url, message, event, path);
     }
   },
-
+  
   downloadInstagram: async function (url, message, event, path) {
     try {
       const res = await this.getLink(url, message, event, path);
@@ -121,24 +120,23 @@ module.exports = {
       });
       fs.writeFileSync(path, Buffer.from(response.data, "utf-8"));
       if (fs.statSync(path).size / 1024 / 1024 > 25) {
-        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+        return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
       }
 
-      const shortUrl = await global.utils.shortenURL(res);
-      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+      const shortUrl = await shortenURL(res);
+      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
       await message.reply({
         body: toBoldItalic(messageBody),
         attachment: fs.createReadStream(path)
       });
-      
       fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙄𝙣𝙨𝙩𝙖𝙜𝙧𝙖𝙢 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+      await message.reply(toBoldItalic("𝑰𝒏𝒔𝒕𝒂𝒈𝒓𝒂𝒎 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
-
+  
   downloadFacebook: async function (url, message, event, path) {
     try {
       const res = await fbDownloader(url);
@@ -149,37 +147,37 @@ module.exports = {
           url: videoUrl,
           responseType: "stream"
         });
-        
         if (response.headers['content-length'] > 87031808) {
-          return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+          return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
         }
         
         const writer = fs.createWriteStream(path);
         response.data.pipe(writer);
         
-        await new Promise((resolve, reject) => {
-          writer.on('finish', resolve);
-          writer.on('error', reject);
-        });
+        writer.on('finish', async () => {
+          const shortUrl = await shortenURL(videoUrl);
+          const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
-        const shortUrl = await global.utils.shortenURL(videoUrl);
-        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-        await message.reply({
-          body: toBoldItalic(messageBody),
-          attachment: fs.createReadStream(path)
+          await message.reply({
+            body: toBoldItalic(messageBody),
+            attachment: fs.createReadStream(path)
+          });
+          fs.unlinkSync(path);
         });
         
-        fs.unlinkSync(path);
+        writer.on('error', (err) => {
+          console.error(err);
+          message.reply(toBoldItalic("𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
+        });
       } else {
-        await message.reply(toBoldItalic("𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+        await message.reply(toBoldItalic("𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
       }
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙚𝙧𝙧𝙤𝙧"));
+      await message.reply(toBoldItalic("𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
-
+  
   downloadTikTok: async function (url, message, event, path) {
     try {
       const res = await this.getLink(url, message, event, path);
@@ -190,24 +188,23 @@ module.exports = {
       });
       fs.writeFileSync(path, Buffer.from(response.data, "utf-8"));
       if (fs.statSync(path).size / 1024 / 1024 > 25) {
-        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+        return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
       }
 
-      const shortUrl = await global.utils.shortenURL(res);
-      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
+      const shortUrl = await shortenURL(res);
+      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
       await message.reply({
         body: toBoldItalic(messageBody),
         attachment: fs.createReadStream(path)
       });
-      
       fs.unlinkSync(path);
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙏𝙞𝙠𝙏𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+      await message.reply(toBoldItalic("𝑻𝒊𝒌𝑻𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
-
+  
   downloadTwitter: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://xdl-twitter.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
@@ -220,32 +217,33 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+        return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
       }
 
       const writer = fs.createWriteStream(path);
       response.data.pipe(writer);
       
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
+      writer.on('finish', async () => {
+        const shortUrl = await shortenURL(videoUrl);
+        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
-      const shortUrl = await global.utils.shortenURL(videoUrl);
-      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-      await message.reply({
-        body: toBoldItalic(messageBody),
-        attachment: fs.createReadStream(path)
+        await message.reply({
+          body: toBoldItalic(messageBody),
+          attachment: fs.createReadStream(path)
+        });
+        fs.unlinkSync(path);
       });
       
-      fs.unlinkSync(path);
+      writer.on('error', (err) => {
+        console.error(err);
+        message.reply(toBoldItalic("𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
+      });
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙏𝙬𝙞𝙩𝙩𝙚𝙧 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+      await message.reply(toBoldItalic("𝑻𝒘𝒊𝒕𝒕𝒆𝒓 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
-
+  
   downloadPinterest: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://pindl-pinterest.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
@@ -258,32 +256,33 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+        return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
       }
 
       const writer = fs.createWriteStream(path);
       response.data.pipe(writer);
       
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
+      writer.on('finish', async () => {
+        const shortUrl = await shortenURL(videoUrl);
+        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
-      const shortUrl = await global.utils.shortenURL(videoUrl);
-      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-      await message.reply({
-        body: toBoldItalic(messageBody),
-        attachment: fs.createReadStream(path)
+        await message.reply({
+          body: toBoldItalic(messageBody),
+          attachment: fs.createReadStream(path)
+        });
+        fs.unlinkSync(path);
       });
       
-      fs.unlinkSync(path);
+      writer.on('error', (err) => {
+        console.error(err);
+        message.reply(toBoldItalic("𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
+      });
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙋𝙞𝙣𝙩𝙚𝙧𝙚𝙨𝙩 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+      await message.reply(toBoldItalic("𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
-
+  
   downloadYouTube: async function (url, message, event, path) {
     try {
       const res = await axios.get(`https://yt-downloader-eta.vercel.app/kshitiz?url=${encodeURIComponent(url)}`);
@@ -296,29 +295,30 @@ module.exports = {
       });
 
       if (response.headers['content-length'] > 87031808) {
-        return message.reply(toBoldItalic("𝙁𝙞𝙡𝙚 𝙩𝙖 𝙤𝙣𝙚𝙠 𝙗𝙤𝙧𝙤, 𝙥𝙖𝙩𝙝𝙖𝙣𝙤 𝙟𝙖𝙗𝙚 𝙣𝙖"));
+        return message.reply(toBoldItalic("𝑭𝒊𝒍𝒆 𝒕𝒂 𝒐𝒏𝒆𝒌 𝒃𝒐𝒓𝒐, 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒃𝒆 𝒏𝒂"));
       }
 
       const writer = fs.createWriteStream(path);
       response.data.pipe(writer);
       
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
+      writer.on('finish', async () => {
+        const shortUrl = await shortenURL(videoUrl);
+        const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝑳𝒊𝒏𝒌')}: ${shortUrl}`;
 
-      const shortUrl = await global.utils.shortenURL(videoUrl);
-      const messageBody = `╔════ஜ۩۞۩ஜ═══╗\n          𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n ╚════ஜ۩۞۩ஜ═══╝\n\n🔗${toBoldItalic('Download Link')}: ${shortUrl}`;
-
-      await message.reply({
-        body: toBoldItalic(messageBody),
-        attachment: fs.createReadStream(path)
+        await message.reply({
+          body: toBoldItalic(messageBody),
+          attachment: fs.createReadStream(path)
+        });
+        fs.unlinkSync(path);
       });
       
-      fs.unlinkSync(path);
+      writer.on('error', (err) => {
+        console.error(err);
+        message.reply(toBoldItalic("𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
+      });
     } catch (err) {
       console.error(err);
-      await message.reply(toBoldItalic("𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙛𝙖𝙞𝙡𝙚𝙙"));
+      await message.reply(toBoldItalic("𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓"));
     }
   },
 
@@ -333,7 +333,7 @@ module.exports = {
           if (res.data.url) {
             resolve(res.data.url);
           } else {
-            reject(new Error(toBoldItalic("𝙀𝙧𝙧𝙤𝙧: 𝘼𝙋𝙄 𝙧𝙚𝙨𝙥𝙤𝙣𝙨𝙚 𝙞𝙣𝙫𝙖𝙡𝙞𝙙")));
+            reject(new Error(toBoldItalic("𝑬𝒓𝒓𝒐𝒓: 𝑨𝑷𝑰 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆 𝒊𝒏𝒗𝒂𝒍𝒊𝒅")));
           }
         })
         .catch(err => reject(err));
@@ -343,7 +343,7 @@ module.exports = {
             const videoUrl = res.download[0].url;
             resolve(videoUrl);
           } else {
-            reject(new Error(toBoldItalic("𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙚𝙧𝙧𝙤𝙧")));
+            reject(new Error(toBoldItalic("𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓")));
           }
         }).catch(err => reject(err));
       } else if (url.includes("tiktok")) {
@@ -351,11 +351,11 @@ module.exports = {
           resolve(res.downloadUrls);
         }).catch(err => reject(err));
       } else {
-        reject(new Error(toBoldItalic("𝙐𝙣𝙨𝙪𝙥𝙥𝙤𝙧𝙩𝙚𝙙 𝙥𝙡𝙖𝙩𝙛𝙤𝙧𝙢")));
+        reject(new Error(toBoldItalic("𝑼𝒏𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒑𝒍𝒂𝒕𝒇𝒐𝒓𝒎")));
       }
     });
   },
-
+  
   queryTikTok: async function (url) {
     try {
       const res = await axios.get("https://ssstik.io/en");
@@ -400,14 +400,14 @@ module.exports = {
       format.downloadUrls = $(allUrls[0]).attr('href');
       return format;
     } catch (err) {
-      console.error(toBoldItalic('𝙏𝙞𝙠𝙏𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙚𝙧𝙧𝙤𝙧:'), err);
+      console.error(toBoldItalic('𝑻𝒊𝒌𝑻𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓:'), err);
       return {
         status: "error",
-        message: toBoldItalic("𝙏𝙞𝙠𝙏𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙥𝙧𝙤𝙗𝙡𝙚𝙢")
+        message: toBoldItalic("𝑻𝒊𝒌𝑻𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒑𝒓𝒐𝒃𝒍𝒆𝒎")
       };
     }
   },
-
+  
   checkLink: function (url) {
     if (
       url.includes("instagram") ||
@@ -487,7 +487,7 @@ async function fbDownloader(url) {
       download
     };
   } catch (err) {
-    console.error(toBoldItalic('𝙁𝙖𝙘𝙚𝙗𝙤𝙤𝙠 𝙙𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙚𝙧𝙧𝙤𝙧:'), err);
+    console.error(toBoldItalic('𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓:'), err);
     return {
       success: false
     };
