@@ -8,8 +8,8 @@ module.exports = {
     name: "arrest",
     version: "1.0.0",
     hasPermission: 0,
-    credits: "Asif",
-    description: "Arrest a mentioned user with their profile picture",
+    credits: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    description: "𝐴𝑟𝑟𝑒𝑠𝑡 𝑎 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒𝑖𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒",
     category: "fun",
     usages: "[@mention]",
     cooldowns: 5,
@@ -28,31 +28,33 @@ module.exports = {
     
     try {
       if (!fs.existsSync(cachePath)) {
-        fs.mkdirSync(cachePath);
+        fs.mkdirSync(cachePath, { recursive: true });
       }
       if (!fs.existsSync(canvasPath)) {
-        fs.mkdirSync(canvasPath);
+        fs.mkdirSync(canvasPath, { recursive: true });
       }
       
       if (!fs.existsSync(templatePath)) {
+        console.log("𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑎𝑟𝑟𝑒𝑠𝑡 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒...");
         const { data } = await axios.get("https://i.imgur.com/ep1gG3r.png", {
           responseType: "arraybuffer",
           timeout: 30000
         });
         fs.writeFileSync(templatePath, Buffer.from(data, "binary"));
+        console.log("𝑇𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦");
       }
     } catch (err) {
-      console.error("Arrest Template Initialization Error:", err);
+      console.error("𝐴𝑟𝑟𝑒𝑠𝑡 𝑇𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝐼𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", err);
     }
   },
 
-  run: async function({ event, api, args }) {
+  onStart: async function({ event, api, args }) {
     const { threadID, messageID, senderID } = event;
     
     try {
       const mention = Object.keys(event.mentions)[0];
       if (!mention) {
-        return api.sendMessage("⚠️ Please mention someone to arrest!", threadID, messageID);
+        return api.sendMessage("⚠️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑎𝑟𝑟𝑒𝑠𝑡!", threadID, messageID);
       }
       
       const targetName = event.mentions[mention];
@@ -62,20 +64,20 @@ module.exports = {
       const imagePath = await this.makeArrestImage(senderID, mention, canvasPath);
       
       api.sendMessage({
-        body: `🚨 You're under arrest ${targetName}! 🚨`,
+        body: `🚨 𝒀𝒐𝒖'𝒓𝒆 𝒖𝒏𝒅𝒆𝒓 𝒂𝒓𝒓𝒆𝒔𝒕 ${targetName}! 🚨`,
         mentions: [{ tag: targetName, id: mention }],
         attachment: fs.createReadStream(imagePath)
       }, threadID, () => {
         try { 
           fs.unlinkSync(imagePath);
         } catch (cleanupErr) {
-          console.warn("Failed to clean up image:", cleanupErr);
+          console.warn("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑙𝑒𝑎𝑛 𝑢𝑝 𝑖𝑚𝑎𝑔𝑒:", cleanupErr);
         }
       }, messageID);
 
     } catch (error) {
-      console.error("Arrest Command Error:", error);
-      api.sendMessage("❌ Failed to create arrest image. Please try again later.", threadID, messageID);
+      console.error("𝐴𝑟𝑟𝑒𝑠𝑡 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+      api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎𝑟𝑟𝑒𝑠𝑡 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
     }
   },
 
@@ -100,7 +102,7 @@ module.exports = {
       await template.writeAsync(outputPath);
       return outputPath;
     } catch (error) {
-      console.error("Image Creation Error:", error);
+      console.error("𝐼𝑚𝑎𝑔𝑒 𝐶𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
       throw error;
     }
   },
@@ -116,8 +118,8 @@ module.exports = {
       const avatar = await jimp.read(data);
       return avatar.circle();
     } catch (error) {
-      console.error("Avatar Loading Error:", error);
-      // Create a blank avatar as fallback
+      console.error("𝐴𝑣𝑎𝑡𝑎𝑟 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝐸𝑟𝑟𝑜𝑟:", error);
+      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑏𝑙𝑎𝑛𝑘 𝑎𝑣𝑎𝑡𝑎𝑟 𝑎𝑠 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘
       return new jimp(100, 100, 0xFFFFFFFF).circle();
     }
   }
