@@ -1,21 +1,24 @@
-const axios = require('axios');
-
 module.exports = {
   config: {
-    name: 'animeimg',
-    version: '1.0',
-    author: 'asif',
+    name: "animeimg",
+    aliases: ["animeimage"],
+    version: "1.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
-    category: 'funny',
+    category: "funny",
     shortDescription: {
-      en: 'Sends a random anime-style image.'
+      en: "𝑆𝑒𝑛𝑑𝑠 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒-𝑠𝑡𝑦𝑙𝑒 𝑖𝑚𝑎𝑔𝑒."
     },
     longDescription: {
-      en: 'Sends a random anime-style image fetched from the API.'
+      en: "𝑆𝑒𝑛𝑑𝑠 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒-𝑠𝑡𝑦𝑙𝑒 𝑖𝑚𝑎𝑔𝑒 𝑓𝑒𝑡𝑐ℎ𝑒𝑑 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝐴𝑃𝐼."
+    },
+    guide: {
+      en: "{p}animeimg"
     }
   },
-  onStart: async function ({ api, event }) {
+  onStart: async function({ message, event, api, global }) {
     try {
+      const axios = require('axios');
       const url = 'https://any-anime.p.rapidapi.com/anime/img';
       const headers = {
         'X-RapidAPI-Key': 'b38444b5b7mshc6ce6bcd5c9e446p154fa1jsn7bbcfb025b3b',
@@ -29,25 +32,19 @@ module.exports = {
         const imageStream = await global.utils.getStreamFromURL(imageURL);
 
         if (imageStream) {
-          const messageID = await api.sendMessage({
-            body: 'Here is a random anime-style image:',
+          await message.reply({
+            body: "𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒-𝑠𝑡𝑦𝑙𝑒 𝑖𝑚𝑎𝑔𝑒:",
             attachment: imageStream
-          }, event.threadID);
-
-          if (messageID) {
-            console.log(`Sent random anime-style image with message ID ${messageID}`);
-          } else {
-            console.error('Failed to send message with anime-style image');
-          }
+          });
         } else {
-          throw new Error('Failed to fetch the image stream from the URL');
+          throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑈𝑅𝐿.");
         }
       } else {
-        throw new Error('Failed to fetch data from the API');
+        throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑑𝑎𝑡𝑎 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝐴𝑃𝐼.");
       }
     } catch (error) {
-      console.error(`Error: ${error.message}`);
-      api.sendMessage('Sorry, something went wrong while trying to send an anime-style image. Please try again later.', event.threadID);
+      console.error("𝐸𝑟𝑟𝑜𝑟:", error.message);
+      await message.reply("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
   }
 };
