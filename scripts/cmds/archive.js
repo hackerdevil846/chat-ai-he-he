@@ -38,87 +38,88 @@ function toBI(text) {
 module.exports = {
   config: {
     name: "archive",
+    aliases: ["arc"],
     version: "2.0",
-    hasPermission: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: toBI("Search and download videos, music, documents, APKs, and images from archive.org"),
-    category: toBI("media"),
-    usages: toBI("<type> <query>"),
-    cooldowns: 5,
-  },
-
-  // Added onStart to satisfy the loader and create cache dir if missing
-  onStart: async function () {
-    try {
-      const cacheDir = path.join(__dirname, "cache");
-      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-    } catch (e) {
-      console.error("archive.js onStart error:", e);
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    countDown: 5,
+    role: 0,
+    category: "media",
+    shortDescription: {
+      en: "𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑟𝑜𝑚 𝑎𝑟𝑐ℎ𝑖𝑣𝑒.𝑜𝑟𝑔"
+    },
+    longDescription: {
+      en: "𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑣𝑖𝑑𝑒𝑜𝑠, 𝑚𝑢𝑠𝑖𝑐, 𝑑𝑜𝑐𝑢𝑚𝑒𝑛𝑡𝑠, 𝐴𝑃𝐾𝑠, 𝑎𝑛𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑎𝑟𝑐ℎ𝑖𝑣𝑒.𝑜𝑟𝑔"
+    },
+    guide: {
+      en: "{𝑝}𝑎𝑟𝑐ℎ𝑖𝑣𝑒 <𝑣𝑖𝑑𝑒𝑜|𝑚𝑢𝑠𝑖𝑐|𝑑𝑜𝑐|𝑎𝑝𝑘|𝑖𝑚𝑎𝑔𝑒> <𝑞𝑢𝑒𝑟𝑦>"
     }
   },
 
-  run: async function ({ api, event, args }) {
-    const type = args[0]?.toLowerCase();
-    const query = args.slice(1).join(" ");
-    const validTypes = ["video", "music", "doc", "apk", "image"];
-
-    if (!validTypes.includes(type) || !query)
-      return api.sendMessage(toBI("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒖𝒔𝒂𝒈𝒆: 𝒂𝒓𝒄𝒉𝒊𝒗𝒆 <𝒗𝒊𝒅𝒆𝒐|𝒎𝒖𝒔𝒊𝒄|𝒅𝒐𝒄|𝒂𝒑𝒌|𝒊𝒎𝒂𝒈𝒆> <𝒒𝒖𝒆𝒓𝒚>"), event.threadID);
-
-    const typeMap = {
-      video: "movies",
-      music: "audio",
-      doc: "texts",
-      apk: "software",
-      image: "image",
-    };
-
-    const searchUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(
-      query
-    )}+AND+mediatype:${typeMap[type]}&fl[]=identifier,title,description,downloads&rows=5&page=1&output=json`;
-
+  onStart: async function ({ api, event, args, message }) {
     try {
+      const cacheDir = path.join(__dirname, "cache");
+      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+      
+      const type = args[0]?.toLowerCase();
+      const query = args.slice(1).join(" ");
+      const validTypes = ["video", "music", "doc", "apk", "image"];
+
+      if (!validTypes.includes(type) || !query) {
+        return message.reply(toBI("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑎𝑔𝑒: 𝑎𝑟𝑐ℎ𝑖𝑣𝑒 <𝑣𝑖𝑑𝑒𝑜|𝑚𝑢𝑠𝑖𝑐|𝑑𝑜𝑐|𝑎𝑝𝑘|𝑖𝑚𝑎𝑔𝑒> <𝑞𝑢𝑒𝑟𝑦>"));
+      }
+
+      const typeMap = {
+        video: "movies",
+        music: "audio",
+        doc: "texts",
+        apk: "software",
+        image: "image",
+      };
+
+      const searchUrl = `https://archive.org/advancedsearch.php?q=${encodeURIComponent(
+        query
+      )}+AND+mediatype:${typeMap[type]}&fl[]=identifier,title,description,downloads&rows=5&page=1&output=json`;
+
       const res = await axios.get(searchUrl);
       const items = res.data.response.docs;
 
-      if (!items.length) return api.sendMessage(toBI("❌ 𝑵𝒐 𝒓𝒆𝒔𝒖𝒍𝒕𝒔 𝒇𝒐𝒖𝒏𝒅!"), event.threadID);
+      if (!items.length) return message.reply(toBI("❌ 𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑢𝑛𝑑!"));
 
       userCache.set(event.senderID, { type, results: items });
 
       const list = items.map((item, i) => `${i + 1}. ${item.title}`).join("\n");
 
-      api.sendMessage(
-        toBI(`📦 𝑻𝒐𝒑 5 ${type} 𝒓𝒆𝒔𝒖𝒍𝒕𝒔 𝒇𝒐𝒓 "${query}":\n\n${list}\n\n👉 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 1–5 𝒕𝒐 𝒔𝒆𝒍𝒆𝒄𝒕`),
-        event.threadID,
+      message.reply(
+        toBI(`📦 𝑇𝑜𝑝 5 ${type} 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑟 "${query}":\n\n${list}\n\n👉 𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 1–5 𝑡𝑜 𝑠𝑒𝑙𝑒𝑐𝑡`),
         (err, info) => {
-          global.client.handleReply.push({
-            name: this.config.name,
-            type: "select",
-            author: event.senderID,
+          global.goatBot.onReply.set(info.messageID, {
+            commandName: this.config.name,
             messageID: info.messageID,
+            author: event.senderID,
+            type: "select"
           });
         }
       );
     } catch (e) {
-      console.error(e);
-      api.sendMessage(toBI("❌ 𝑬𝒓𝒓𝒐𝒓 𝒔𝒆𝒂𝒓𝒄𝒉𝒊𝒏𝒈 𝒂𝒓𝒄𝒉𝒊𝒗𝒆.𝒐𝒓𝒈"), event.threadID);
+      console.error("Archive command error:", e);
+      message.reply(toBI("❌ 𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑎𝑟𝑐ℎ𝑖𝑣𝑒.𝑜𝑟𝑔"));
     }
   },
 
-  handleReply: async function ({ api, event, handleReply }) {
-    if (event.senderID !== handleReply.author) return;
-
-    const choice = event.body.trim();
-    if (!/^[1-5]$/.test(choice)) return api.sendMessage(toBI("⚠️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒓𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒂 𝒏𝒖𝒎𝒃𝒆𝒓 𝒃𝒆𝒕𝒘𝒆𝒆𝒏 1–5"), event.threadID);
-
-    const index = parseInt(choice) - 1;
-    const { type, results } = userCache.get(event.senderID) || {};
-    if (!results || !results[index]) return api.sendMessage(toBI("❌ 𝑫𝒂𝒕𝒂 𝒆𝒙𝒑𝒊𝒓𝒆𝒅 𝒐𝒓 𝒊𝒏𝒗𝒂𝒍𝒊𝒅 𝒔𝒆𝒍𝒆𝒄𝒕𝒊𝒐𝒏"), event.threadID);
-
-    const item = results[index];
-    const metaUrl = `https://archive.org/metadata/${item.identifier}`;
-
+  onReply: async function ({ api, event, Reply, message }) {
     try {
+      if (event.senderID !== Reply.author) return;
+
+      const choice = event.body.trim();
+      if (!/^[1-5]$/.test(choice)) return message.reply(toBI("⚠️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1–5"));
+
+      const index = parseInt(choice) - 1;
+      const { type, results } = userCache.get(event.senderID) || {};
+      if (!results || !results[index]) return message.reply(toBI("❌ 𝐷𝑎𝑡𝑎 𝑒𝑥𝑝𝑖𝑟𝑒𝑑 𝑜𝑟 𝑖𝑛𝑣𝑎𝑙𝑖𝑑 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛"));
+
+      const item = results[index];
+      const metaUrl = `https://archive.org/metadata/${item.identifier}`;
+
       const metaRes = await axios.get(metaUrl);
       const files = metaRes.data.files;
       let file, fileUrl, duration = 0;
@@ -131,17 +132,17 @@ module.exports = {
         duration = parseFloat(file?.length || 0);
       } else if (type === "doc") {
         const docFiles = files.filter(f => /\.(pdf|zip|docx?|epub)$/i.test(f.name));
-        if (!docFiles.length) return api.sendMessage(toBI("❌ 𝑵𝒐 𝒅𝒐𝒄𝒖𝒎𝒆𝒏𝒕 𝒇𝒊𝒍𝒆𝒔 𝒇𝒐𝒖𝒏𝒅"), event.threadID);
+        if (!docFiles.length) return message.reply(toBI("❌ 𝑁𝑜 𝑑𝑜𝑐𝑢𝑚𝑒𝑛𝑡 𝑓𝑖𝑙𝑒𝑠 𝑓𝑜𝑢𝑛𝑑"));
         const links = docFiles.map(f => toBI(`📄 ${f.name}\n🔗 https://archive.org/download/${item.identifier}/${f.name}`));
-        return api.sendMessage(toBI(`📚 𝑫𝒐𝒄𝒖𝒎𝒆𝒏𝒕𝒔:\n\n${links.join("\n\n")}`), event.threadID);
+        return message.reply(toBI(`📚 𝐷𝑜𝑐𝑢𝑚𝑒𝑛𝑡𝑠:\n\n${links.join("\n\n")}`));
       } else if (type === "apk") {
         file = files.find(f => /\.apk$/i.test(f.name));
-        if (!file) return api.sendMessage(toBI("❌ 𝑵𝒐 𝑨𝑷𝑲 𝒇𝒊𝒍𝒆𝒔 𝒇𝒐𝒖𝒏𝒅"), event.threadID);
+        if (!file) return message.reply(toBI("❌ 𝑁𝑜 𝐴𝑃𝐾 𝑓𝑖𝑙𝑒𝑠 𝑓𝑜𝑢𝑛𝑑"));
         fileUrl = `https://archive.org/download/${item.identifier}/${file.name}`;
-        return api.sendMessage(toBI(`📱 𝑨𝑷𝑲 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅:\n${item.title}\n🔗 ${fileUrl}`), event.threadID);
+        return message.reply(toBI(`📱 𝐴𝑃𝐾 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑:\n${item.title}\n🔗 ${fileUrl}`));
       } else if (type === "image") {
         file = files.find(f => /\.(jpe?g|png)$/i.test(f.name));
-        if (!file) return api.sendMessage(toBI("❌ 𝑵𝒐 𝒊𝒎𝒂𝒈𝒆 𝒇𝒊𝒍𝒆𝒔 𝒇𝒐𝒖𝒏𝒅"), event.threadID);
+        if (!file) return message.reply(toBI("❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒 𝑓𝑖𝑙𝑒𝑠 𝑓𝑜𝑢𝑛𝑑"));
         fileUrl = `https://archive.org/download/${item.identifier}/${file.name}`;
         const ext = file.name.split(".").pop();
         const filePath = path.join(__dirname, "cache", `img_${Date.now()}.${ext}`);
@@ -152,14 +153,14 @@ module.exports = {
           writer.on("finish", resolve);
           writer.on("error", reject);
         });
-        await api.sendMessage({ 
-          body: toBI("✅ 𝑰𝒎𝒂𝒈𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒆𝒅:"),
+        await message.reply({ 
+          body: toBI("✅ 𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑:"),
           attachment: fs.createReadStream(filePath) 
-        }, event.threadID);
+        });
         return deleteAfterTimeout(filePath);
       }
 
-      if (!file) return api.sendMessage(toBI("❌ 𝑵𝒐 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒍𝒆 𝒇𝒊𝒍𝒆 𝒇𝒐𝒖𝒏𝒅"), event.threadID);
+      if (!file) return message.reply(toBI("❌ 𝑁𝑜 𝑐𝑜𝑚𝑝𝑎𝑡𝑖𝑏𝑙𝑒 𝑓𝑖𝑙𝑒 𝑓𝑜𝑢𝑛𝑑"));
 
       fileUrl = `https://archive.org/download/${item.identifier}/${file.name}`;
       const ext = file.name.split(".").pop();
@@ -178,21 +179,20 @@ module.exports = {
           writer.on("error", reject);
         });
 
-        await api.sendMessage({
-          body: toBI(`📥 ${item.title}\n🕒 ${formatSeconds(duration)}\n✅ 𝑭𝒊𝒍𝒆 𝒂𝒕𝒕𝒂𝒄𝒉𝒆𝒅`),
+        await message.reply({
+          body: toBI(`📥 ${item.title}\n🕒 ${formatSeconds(duration)}\n✅ 𝐹𝑖𝑙𝑒 𝑎𝑡𝑡𝑎𝑐ℎ𝑒𝑑`),
           attachment: fs.createReadStream(filePath)
-        }, event.threadID);
+        });
 
         deleteAfterTimeout(filePath);
       } else {
-        await api.sendMessage(
-          toBI(`📦 ${item.title}\n🕒 ${formatSeconds(duration)}\n🔗 ${fileUrl}`),
-          event.threadID
+        await message.reply(
+          toBI(`📦 ${item.title}\n🕒 ${formatSeconds(duration)}\n🔗 ${fileUrl}`)
         );
       }
     } catch (err) {
-      console.error(err);
-      api.sendMessage(toBI("❌ 𝑬𝒓𝒓𝒐𝒓 𝒍𝒐𝒂𝒅𝒊𝒏𝒈 𝒇𝒊𝒍𝒆 𝒅𝒂𝒕𝒂"), event.threadID);
+      console.error("Archive reply error:", err);
+      message.reply(toBI("❌ 𝐸𝑟𝑟𝑜𝑟 𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑓𝑖𝑙𝑒 𝑑𝑎𝑡𝑎"));
     }
   }
 };
