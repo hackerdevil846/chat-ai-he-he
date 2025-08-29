@@ -1,237 +1,291 @@
-const child_process = require('child_process');
+const axios = require('axios');
+const fs = require('fs-extra');
+const path = require('path');
 
-// Auto-install helper: tries to require a package, if missing it installs via npm and requires again.
-function autoRequire(pkg) {
-    try {
-        return require(pkg);
-    } catch (e) {
-        console.log(`Package '${pkg}' not found. Attempting to install...`);
+module.exports = {
+    config: {
+        name: "menu",
+        version: "1.2.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        role: 0,
+        category: "utility",
+        shortDescription: {
+            en: "𝑉𝑖𝑒𝑤 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑖𝑠𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠"
+        },
+        longDescription: {
+            en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑎 𝑚𝑜𝑑𝑒𝑟𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑖𝑠𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠 𝑎𝑛𝑑 𝑏𝑜𝑡 𝑖𝑛𝑓𝑜"
+        },
+        guide: {
+            en: "{𝑝}𝑚𝑒𝑛𝑢 [𝑐𝑜𝑚𝑚𝑎𝑛𝑑/𝑎𝑙𝑙]"
+        }
+    },
+
+    onStart: async function ({ event, message, usersData, threadsData, args, global }) {
         try {
-            child_process.execSync(`npm i ${pkg} --no-save`, { stdio: 'inherit' });
-            console.log(`Successfully installed ${pkg}`);
-            return require(pkg);
-        } catch (err) {
-            console.error(`Automatic install failed for ${pkg}.`, err);
-            throw err;
-        }
-    }
-}
-
-// Optional dependencies
-let fs, createCanvas, loadImage, DIG;
-try {
-    fs = autoRequire('fs-extra');
-    const canvasModule = autoRequire('canvas');
-    createCanvas = canvasModule.createCanvas;
-    loadImage = canvasModule.loadImage;
-    DIG = autoRequire('discord-image-generation');
-} catch (err) {
-    console.warn('Optional dependencies failed to load. Menu will fallback to text-only display.');
-}
-
-// Command configuration
-module.exports.config = {
-    name: "menu",
-    version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑺𝒐𝒃 𝒌𝒐𝒎𝒂𝒏𝒅 𝒆𝒓 𝒍𝒊𝒔𝒕 𝒅𝒆𝒌𝒉𝒂𝒏𝒐",
-    usages: "[all/-a] [page number]",
-    category: "system",
-    cooldowns: 5,
-    dependencies: {
-        "canvas": "^2.11.0",
-        "discord-image-generation": "^2.0.0",
-        "fs-extra": "^11.1.1"
-    }
-};
-
-// Ensure cache directory exists
-module.exports.onLoad = function () {
-    try {
-        const cacheDir = __dirname + '/cache';
-        if (!fs) fs = autoRequire('fs-extra');
-        if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-        console.log('menu command loaded successfully.');
-    } catch (e) {
-        console.error('onLoad error for menu command:', e);
-    }
-};
-
-// Handle replies for command info or category
-module.exports.handleReply = async function ({ api, event, handleReply }) {
-    try {
-        const commands = global.client.commands;
-        let body = (event.body || event.message || "").toString().trim();
-        let num = parseInt(body.split(" ")[0], 10);
-
-        if (isNaN(num)) return api.sendMessage("𝑬𝒌𝒕𝒊 𝒏𝒖𝒎𝒃𝒆𝒓 𝒏𝒂 😒", event.threadID, event.messageID);
-        if (handleReply.bonus) num -= handleReply.bonus;
-        if (!handleReply.content || num > handleReply.content.length || num <= 0)
-            return api.sendMessage("𝑼𝒑𝒂𝒍𝒂𝒃𝒅𝒉𝒐 𝒏𝒂 😕", event.threadID, event.messageID);
-
-        const data = handleReply.content;
-        const selected = data[num - 1];
-        let msg = "";
-
-        if (handleReply.type === "cmd_info") {
-            // Show detailed info about a single command
-            const commandName = selected;
-            if (!commands.has(commandName)) return api.sendMessage("Command not found.", event.threadID, event.messageID);
-            const cfg = commands.get(commandName).config || {};
-
-            const permissionText = cfg.hasPermssion == 0 ? "𝑼𝒔𝒆𝒓" :
-                cfg.hasPermssion == 1 ? "𝑮𝒓𝒐𝒖𝒑 𝑨𝒅𝒎𝒊𝒏" : "𝑩𝒐𝒕 𝑨𝒅𝒎𝒊𝒏";
-
-            msg += `╭─── •◈• ────
-│ ⦿ 𝑵𝒂𝒎: ${commandName}
-│ ⦿ 𝑩𝒆𝒔𝒄𝒉𝒐𝒏𝒂: ${cfg.description || "𝑵𝒂𝒊"}
-│ ⦿ 𝑩𝒂𝒃𝒐𝒉𝒂𝒓: ${cfg.usages || "𝑵𝒂𝒊"}
-│ ⦿ 𝑺𝒐𝒎𝒐𝒚 𝑶𝒏𝒕𝒐𝒓: ${cfg.cooldowns || 5}s
-│ ⦿ 𝑷𝒆𝒓𝒎𝒊𝒔𝒊𝒐𝒏: ${permissionText}
-╰─── •◈• ────
-
-» 𝑴𝒐𝒅𝒖𝒍𝒆 𝒄𝒐𝒅𝒆 𝒃𝒚 ${cfg.credits || "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅"} «`;
-
-            return api.sendMessage(msg, event.threadID, event.messageID);
-
-        } else {
-            // Show commands in a category
-            const groupObj = selected;
-            msg += `╭─⌈ ${groupObj.group.toUpperCase()} ⌋
-`;
-            let count = 0;
-            for (const cmdName of groupObj.cmds) {
-                const desc = commands.has(cmdName) && commands.get(cmdName).config && commands.get(cmdName).config.description
-                    ? commands.get(cmdName).config.description
-                    : "—";
-                msg += `│ ${++count}. ${cmdName}: ${desc}
-`;
+            const { events, commands } = global.client;
+            const { threadID, messageID, senderID } = event;
+            const config = global.config;
+            const time = process.uptime();
+            const hours = Math.floor(time / (60 * 60));
+            const minutes = Math.floor((time % (60 * 60)) / 60);
+            const seconds = Math.floor(time % 60);
+            const timeStart = Date.now();
+            
+            // System information
+            let cpuInfo = { manufacturer: "Unknown", brand: "Unknown", speed: "0", physicalCores: 0, cores: 0 };
+            let osInfo = { platform: "Unknown" };
+            let pidusage = { cpu: 0, memory: 0 };
+            
+            try {
+                const systemInfo = require("systeminformation");
+                cpuInfo = await systemInfo.cpu();
+                osInfo = await systemInfo.osInfo();
+                pidusage = await global.utils.getPidUsage(process.pid);
+            } catch (e) {
+                console.error("System info error:", e);
             }
-            msg += `╰────────────
+            
+            const moment = require("moment-timezone");
+            const xuly = Math.floor((Date.now() - global.client.timeStart) / 4444);
+            const trinhtrang = xuly < 10 ? "𝑆𝑚𝑜𝑜𝑡ℎ 𝑉𝐼𝑃" : xuly > 10 && xuly < 100 ? "𝑉𝑒𝑟𝑦 𝑆𝑚𝑜𝑜𝑡ℎ" : "𝑆𝑚𝑜𝑜𝑡ℎ";
+            
+            let thu = moment.tz('Asia/Dhaka').format('dddd');
+            const daysMap = {
+                'Sunday': '𝑆𝑢𝑛𝑑𝑎𝑦', 'Monday': '𝑀𝑜𝑛𝑑𝑎𝑦', 'Tuesday': '𝑇𝑢𝑒𝑠𝑑𝑎𝑦',
+                'Wednesday': '𝑊𝑒𝑑𝑛𝑒𝑠𝑑𝑎𝑦', 'Thursday': '𝑇ℎ𝑢𝑟𝑠𝑑𝑎𝑦', 'Friday': '𝐹𝑟𝑖𝑑𝑎𝑦', 'Saturday': '𝑆𝑎𝑡𝑢𝑟𝑑𝑎𝑦'
+            };
+            thu = daysMap[thu] || thu;
+            
+            const timeNow = moment.tz("Asia/Dhaka").format("𝐻𝐻:𝑚𝑚:𝑠𝑠 - 𝐷𝐷/𝑀𝑀/𝑌𝑌𝑌𝑌");
+            const admin = config.ADMINBOT || [];
+            const NameBot = config.BOTNAME || "𝐵𝑜𝑡";
+            const version = config.version || "1.0.0";
+            const cmds = global.client.commands;
+            
+            // Get prefix
+            let prefix = config.PREFIX || "!";
+            try {
+                const threadData = await threadsData.get(threadID);
+                if (threadData && threadData.PREFIX) {
+                    prefix = threadData.PREFIX;
+                }
+            } catch (e) {
+                console.error("Thread data error:", e);
+            }
 
-» 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓 𝒅𝒆𝒕𝒂𝒊𝒍𝒔 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒚 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 𝒓𝒆𝒑𝒍𝒚 𝒅𝒆𝒏 «`;
+            // Random icons
+            function getRandomIcons(count) {
+                const allIcons = [
+                    '🦄','🌸','🥑','💎','🚀','🔮','🌈','🐳','🍀','🍉','🎧','🎲','🧩','🌻','🍕','🧸','🥨','🎂','🎉','🦋','🌺','🍭','🍦','🌵','🐱‍👤',
+                    '👑','🧠','🍓','🎮','⚡','🎨','🦖','🐼','🦊','🦚','🍔','🥕','🍣','🍩','🍿','🍫','🍤','🍩','🍪','🥟','🍦','🍟','🧁','🍰','🥜'
+                ];
+                const arr = [];
+                for (let i = 0; i < count; i++) arr.push(allIcons[Math.floor(Math.random() * allIcons.length)]);
+                return arr;
+            }
 
-            return api.sendMessage(msg, event.threadID, (err, info) => {
-                if (err) return console.error(err);
-                global.client.handleReply.push({
-                    type: "cmd_info",
-                    name: module.exports.config.name,
-                    messageID: info.messageID,
-                    content: groupObj.cmds
-                });
-            }, event.messageID);
+            // Download image
+            async function downloadImage(url) {
+                try {
+                    const ext = path.extname(url.split("?")[0]).split(".").pop() || "jpg";
+                    const cacheDir = path.join(__dirname, '../scripts/cmds/cache');
+                    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+                    const filePath = path.join(cacheDir, `menu_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
+                    const response = await axios({ method: 'GET', url, responseType: 'arraybuffer', timeout: 15000 });
+                    fs.writeFileSync(filePath, response.data);
+                    return filePath;
+                } catch (error) {
+                    console.error("Download image error:", error);
+                    return null;
+                }
+            }
+
+            // Byte to MB converter
+            function byte2mb(bytes) {
+                const units = ['𝐵𝑦𝑡𝑒𝑠', '𝐾𝐵', '𝑀𝐵', '𝐺𝐵', '𝑇𝐵', '𝑃𝐵', '𝐸𝐵', '𝑍𝐵', '𝑌𝐵'];
+                let l = 0, n = parseInt(bytes, 10) || 0;
+                while (n >= 1024 && ++l) n = n / 1024;
+                return `${n.toFixed(n < 10 && l > 0 ? 1 : 0)} ${units[l]}`;
+            }
+
+            let type = !args[0] ? "" : args[0].toLowerCase();
+            let imgPath, attachment;
+
+            // Download menu image
+            try {
+                imgPath = await downloadImage("https://i.imgur.com/wJQKoTa.jpeg");
+                if (imgPath) {
+                    attachment = fs.createReadStream(imgPath);
+                }
+            } catch (error) {
+                console.error("Image download failed:", error);
+            }
+
+            if (type == "all") {
+                let msg = "";
+                let i = 0;
+                for (const cmd of cmds.values()) {
+                    msg += `🌸 ${++i} | /${cmd.config.name}: ${cmd.config.description || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n\n`;
+                }
+                await message.reply({ body: msg, attachment });
+                if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
+                return;
+            }
+
+            if (type) {
+                const array = [];
+                for (const cmd of cmds.values()) array.push(cmd.config.name.toString());
+                
+                if (!array.find(n => n == args[0].toLowerCase())) {
+                    const stringSimilarity = require('string-similarity');
+                    const commandName = args.shift().toLowerCase() || "";
+                    const allCommandName = Array.from(cmds.keys());
+                    const checker = stringSimilarity.findBestMatch(commandName, allCommandName);
+                    
+                    let similarCmd = "";
+                    if (checker.bestMatch.rating >= 0.5) {
+                        similarCmd = checker.bestMatch.target;
+                    }
+                    
+                    const msg = `⚡ 𝑁𝑜 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑓𝑜𝑢𝑛𝑑: ${type}\n📌 𝑆𝑖𝑚𝑖𝑙𝑎𝑟 𝑐𝑜𝑚𝑚𝑎𝑛𝑑: ${similarCmd || "𝑁𝑜𝑛𝑒"}`;
+                    await message.reply({ body: msg, attachment });
+                    if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
+                    return;
+                }
+                
+                const cmd = cmds.get(type).config;
+                const msg = `✏️ 𝑁𝑎𝑚𝑒: ${cmd.name}\n🚫 𝑃𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛: ${TextPr(cmd.role || cmd.hasPermssion || 0)}\n📝 𝐷𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛: ${cmd.description || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n📍 𝑈𝑠𝑎𝑔𝑒: ${cmd.usages || "𝑁𝑜 𝑢𝑠𝑎𝑔𝑒"}\n🌸 𝐶𝑎𝑡𝑒𝑔𝑜𝑟𝑦: ${cmd.commandCategory || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑"}\n⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: ${cmd.cooldowns || 5}s`;
+                await message.reply({ body: msg, attachment });
+                if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
+                return;
+            }
+
+            // Main menu display
+            function CmdCategory() {
+                const array = [];
+                for (const cmd of cmds.values()) {
+                    const { commandCategory, role, hasPermssion, name: nameModule } = cmd.config;
+                    const category = commandCategory || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑";
+                    const perm = role !== undefined ? role : hasPermssion !== undefined ? hasPermssion : 0;
+                    
+                    if (!array.find(i => i.cmdCategory == category)) {
+                        array.push({
+                            cmdCategory: category,
+                            permission: perm,
+                            nameModule: [nameModule]
+                        });
+                    } else {
+                        const find = array.find(i => i.cmdCategory == category);
+                        find.nameModule.push(nameModule);
+                    }
+                }
+                return array;
+            }
+
+            const array = CmdCategory();
+            array.sort(S("nameModule"));
+            const icons = getRandomIcons(array.length);
+            
+            let msg = `[ 𝐵𝑂𝑇 𝑀𝐸𝑁𝑈 ]\n`;
+            let idx = 0;
+            let totalCommands = 0;
+            
+            for (const cmd of array) {
+                msg += `${icons[idx++]} ${cmd.cmdCategory}: ${cmd.nameModule.length} 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠\n🔎 𝐼𝑛𝑐𝑙𝑢𝑑𝑒𝑠: ${cmd.nameModule.join(", ")}\n\n`;
+                totalCommands += cmd.nameModule.length;
+            }
+            
+            msg += `🔥 𝑇𝑜𝑡𝑎𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠: ${totalCommands} | 💧 𝑇𝑜𝑡𝑎𝑙 𝑒𝑣𝑒𝑛𝑡𝑠: ${events?.size || 0}\n${prefix}𝑚𝑒𝑛𝑢 𝑎𝑙𝑙 𝑡𝑜 𝑣𝑖𝑒𝑤 𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠\n${prefix}𝑚𝑒𝑛𝑢 + 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑛𝑎𝑚𝑒 𝑡𝑜 𝑣𝑖𝑒𝑤 𝑢𝑠𝑎𝑔𝑒\n📅 𝑇𝑜𝑑𝑎𝑦: ${thu}\n⏰ 𝑇𝑖𝑚𝑒: ${timeNow}\n𝑅𝑒𝑎𝑐𝑡 𝑤𝑖𝑡ℎ ❤️ 𝑡𝑜 𝑣𝑖𝑒𝑤 𝑏𝑜𝑡 𝑖𝑛𝑓𝑜`;
+
+            const sentMessage = await message.reply({ body: msg, attachment });
+            
+            // Store reaction data
+            global.client.handleReaction = global.client.handleReaction || [];
+            global.client.handleReaction.push({
+                name: this.config.name,
+                messageID: sentMessage.messageID,
+                author: senderID,
+                meta: { NameBot, version, admin, trinhtrang, prefix, commands, events, timeNow, thu, ...cpuInfo, OSPlatform: osInfo.platform, pidusage, timeStart, hours, minutes, seconds }
+            });
+
+            if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
+
+        } catch (error) {
+            console.error("𝑀𝑒𝑛𝑢 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑑𝑖𝑠𝑝𝑙𝑎𝑦𝑖𝑛𝑔 𝑚𝑒𝑛𝑢! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
         }
+    },
 
-    } catch (e) {
-        console.error(e);
-        return api.sendMessage("An error occurred while processing your reply.", event.threadID, event.messageID);
+    onReaction: async function ({ event, message, global }) {
+        try {
+            const { threadID, messageID, userID } = event;
+            const handleReaction = global.client.handleReaction?.find(r => r.messageID === messageID);
+            
+            if (!handleReaction || userID !== handleReaction.author || event.reaction !== "❤") {
+                return;
+            }
+
+            await message.unsend(messageID);
+            
+            const { NameBot, version, admin, trinhtrang, prefix, commands, events, timeNow, thu, manufacturer, brand, speed, physicalCores, cores, OSPlatform, pidusage, timeStart, hours, minutes, seconds } = handleReaction.meta || {};
+
+            // Download image again for bot info
+            let imgPath, attachment;
+            try {
+                imgPath = await downloadImage("https://i.imgur.com/wJQKoTa.jpeg");
+                if (imgPath) {
+                    attachment = fs.createReadStream(imgPath);
+                }
+            } catch (error) {
+                console.error("Image download failed:", error);
+            }
+
+            function byte2mb(bytes) {
+                const units = ['𝐵𝑦𝑡𝑒𝑠', '𝐾𝐵', '𝑀𝐵', '𝐺𝐵', '𝑇𝐵', '𝑃𝐵', '𝐸𝐵', '𝑍𝐵', '𝑌𝐵'];
+                let l = 0, n = parseInt(bytes, 10) || 0;
+                while (n >= 1024 && ++l) n = n / 1024;
+                return `${n.toFixed(n < 10 && l > 0 ? 1 : 0)} ${units[l]}`;
+            }
+
+            async function downloadImage(url) {
+                try {
+                    const ext = path.extname(url.split("?")[0]).split(".").pop() || "jpg";
+                    const cacheDir = path.join(__dirname, '../scripts/cmds/cache');
+                    if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+                    const filePath = path.join(cacheDir, `menu_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
+                    const response = await axios({ method: 'GET', url, responseType: 'arraybuffer', timeout: 15000 });
+                    fs.writeFileSync(filePath, response.data);
+                    return filePath;
+                } catch (error) {
+                    console.error("Download image error:", error);
+                    return null;
+                }
+            }
+
+            const msg = `🤖 𝐵𝑜𝑡 𝑁𝑎𝑚𝑒: ${NameBot}\n📝 𝑉𝑒𝑟𝑠𝑖𝑜𝑛: ${version}\n👨‍💻 𝑇𝑜𝑡𝑎𝑙 𝑎𝑑𝑚𝑖𝑛𝑠: ${admin?.length || 0}\n💻 𝑂𝑝𝑒𝑟𝑎𝑡𝑜𝑟: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑\n🌐 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘: ℎ𝑡𝑡𝑝𝑠://𝑤𝑤𝑤.𝑓𝑎𝑐𝑒𝑏𝑜𝑜𝑘.𝑐𝑜𝑚\n\n⏳ 𝐵𝑜𝑡 𝑢𝑝𝑡𝑖𝑚𝑒: ${hours}ℎ ${minutes}𝑚 ${seconds}𝑠\n📌 𝑆𝑡𝑎𝑡𝑢𝑠: ${trinhtrang}\n✏️ 𝑃𝑟𝑒𝑓𝑖𝑥: ${prefix}\n🎒 𝐶𝑜𝑚𝑚𝑎𝑛𝑑𝑠: ${commands?.size || 0}\n📑 𝐸𝑣𝑒𝑛𝑡𝑠: ${events?.size || 0}\n🗂️ 𝑇𝑜𝑡𝑎𝑙: ${(commands?.size || 0) + (events?.size || 0)}\n🔰 𝐺𝑟𝑜𝑢𝑝𝑠: ${global.data.allThreadID?.length || 0}\n👥 𝑈𝑠𝑒𝑟𝑠: ${global.data.allUserID?.length || 0}\n\n🧬 𝐶𝑃𝑈: ${manufacturer} ${brand}\n⚙️ 𝑆𝑝𝑒𝑒𝑑: ${speed}𝐺𝐻𝑧\n⚔️ 𝐶𝑜𝑟𝑒𝑠: ${physicalCores}\n🏹 𝑇ℎ𝑟𝑒𝑎𝑑𝑠: ${cores}\n🛡️ 𝑂𝑆: ${OSPlatform}\n🧪 𝐶𝑃𝑈 𝑈𝑠𝑎𝑔𝑒: ${pidusage?.cpu?.toFixed(1) || 0}%\n🧫 𝑅𝐴𝑀: ${byte2mb(pidusage?.memory || 0)}\n🛠️ 𝐿𝑎𝑡𝑒𝑛𝑐𝑦: ${Date.now() - (timeStart || Date.now())}𝑚𝑠\n[ ${timeNow} - ${thu} ]`;
+
+            await message.reply({ body: msg, attachment });
+            
+            if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
+
+        } catch (error) {
+            console.error("𝑅𝑒𝑎𝑐𝑡𝑖𝑜𝑛 ℎ𝑎𝑛𝑑𝑙𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:", error);
+        }
     }
 };
 
-// Main start function
-module.exports.onStart = async function ({ api, event, args }) {
-    const { commands } = global.client;
-    const { threadID, messageID } = event;
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-    const prefix = threadSetting.PREFIX || global.config.PREFIX;
-
-    // Organize commands by category
-    let group = [];
-    for (const commandConfig of commands.values()) {
-        const category = (commandConfig.config.commandCategory || "other").toString().toLowerCase();
-        const existingGroup = group.find(item => item.group.toLowerCase() === category);
-        if (!existingGroup) {
-            group.push({ group: category, cmds: [commandConfig.config.name] });
-        } else {
-            existingGroup.cmds.push(commandConfig.config.name);
-        }
+function S(k) {
+    return function (a, b) {
+        let i = 0;
+        if (a[k].length > b[k].length) i = 1;
+        else if (a[k].length < b[k].length) i = -1;
+        return i * -1;
     }
+}
 
-    // Build menu header
-    let msg = `╭───⌈ 𝑪𝑶𝑴𝑴𝑨𝑵𝑫 𝑳𝑰𝑺𝑻 ⌋───╮
-`;
-    let page_num_input = null;
-    let bonus = 0;
-    let check = true;
-
-    // Handle "all commands" view with optional page number
-    if (args[0] && ["all", "-a"].includes(args[0].trim())) {
-        let allCommands = [];
-        group.forEach(g => g.cmds.forEach(c => allCommands.push(c)));
-        const page_num_total = Math.ceil(allCommands.length / 10) || 1;
-
-        if (args[1]) {
-            page_num_input = parseInt(args[1], 10);
-            if (isNaN(page_num_input)) msg = "𝑬𝒌𝒕𝒊 𝒏𝒖𝒎𝒃𝒆𝒓 𝒏𝒂 😒";
-            else if (page_num_input > page_num_total || page_num_input <= 0) msg = "𝑼𝒑𝒂𝒍𝒂𝒃𝒅𝒉𝒐 𝒏𝒂 😕";
-            else check = true;
-        }
-
-        if (check) {
-            const start = page_num_input ? (page_num_input * 10) - 10 : 0;
-            bonus = start;
-            const end = Math.min(start + 10, allCommands.length);
-            const slice = allCommands.slice(start, end);
-
-            slice.forEach((e, i) => {
-                msg += `│ ${start + i + 1}. ${e}: ${commands.get(e).config.description || "—"}
-`;
-            });
-
-            msg += `╰──────────────────
-
-» 𝑷𝒂𝒈𝒆 (${page_num_input || 1}/${page_num_total})
-» 𝑶𝒏𝒏𝒐 𝒑𝒂𝒈𝒆 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒚: ${prefix}menu [all/-a] [page number]
-» 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓 𝒅𝒆𝒕𝒂𝒊𝒍𝒔 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒚 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 𝒓𝒆𝒑𝒍𝒚 𝒅𝒆𝒏 «`;
-
-            return api.sendMessage(msg, threadID, (err, info) => {
-                if (err) console.error(err);
-                global.client.handleReply.push({
-                    type: "cmd_info",
-                    bonus: bonus,
-                    name: module.exports.config.name,
-                    messageID: info.messageID,
-                    content: slice
-                });
-            }, messageID);
-        }
-    }
-
-    // Default category view
-    const page_num_total = Math.ceil(group.length / 10) || 1;
-    if (args[0]) {
-        page_num_input = parseInt(args[0], 10);
-        if (isNaN(page_num_input)) msg = "𝑬𝒌𝒕𝒊 𝒏𝒖𝒎𝒃𝒆𝒓 𝒏𝒂 😒";
-        else if (page_num_input > page_num_total || page_num_input <= 0) msg = "𝑼𝒑𝒂𝒍𝒂𝒃𝒅𝒉𝒐 𝒏𝒂 😕";
-        else check = true;
-    }
-
-    if (check) {
-        const start = page_num_input ? (page_num_input * 10) - 10 : 0;
-        bonus = start;
-        const end = Math.min(start + 10, group.length);
-        const slice = group.slice(start, end);
-
-        slice.forEach((g, i) => {
-            msg += `│ ${start + i + 1}. ${g.group.toLowerCase()}
-`;
-        });
-
-        msg += `╰──────────────────
-
-» 𝑷𝒂𝒈𝒆 (${page_num_input || 1}/${page_num_total})
-» 𝑶𝒏𝒏𝒐 𝒑𝒂𝒈𝒆 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒚: ${prefix}menu [page number]
-» 𝑪𝒂𝒕𝒆𝒈𝒐𝒓𝒚 𝒆𝒓 𝒌𝒐𝒎𝒂𝒏𝒅 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒚 𝒏𝒖𝒎𝒃𝒆𝒓 𝒅𝒊𝒚𝒆 𝒓𝒆𝒑𝒍𝒚 𝒅𝒆𝒏 «`;
-
-        return api.sendMessage(msg, threadID, (err, info) => {
-            if (err) return console.error(err);
-            global.client.handleReply.push({
-                name: module.exports.config.name,
-                bonus: bonus,
-                messageID: info.messageID,
-                content: slice
-            });
-        }, messageID);
-    }
-};
+function TextPr(permission) {
+    return permission == 0 ? "𝑀𝑒𝑚𝑏𝑒𝑟"
+        : permission == 1 ? "𝑀𝑜𝑑𝑒𝑟𝑎𝑡𝑜𝑟"
+        : permission == 2 ? "𝐴𝑑𝑚𝑖𝑛"
+        : "𝑆𝑢𝑝𝑒𝑟 𝑈𝑠𝑒𝑟";
+}
