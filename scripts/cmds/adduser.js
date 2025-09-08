@@ -1,92 +1,95 @@
-module.exports = {
-  config: {
+module.exports.config = {
     name: "adduser",
+    aliases: ["addmember", "invite"],
     version: "2.4.3",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
     role: 0,
     category: "group",
     shortDescription: {
-      en: "𝑨𝒅𝒅 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒈𝒓𝒐𝒖𝒑 𝒃𝒚 𝒍𝒊𝒏𝒌 𝒐𝒓 𝒊𝒅"
+        en: "𝐴𝑑𝑑 𝑢𝑠𝑒𝑟 𝑡𝑜 𝑔𝑟𝑜𝑢𝑝 𝑏𝑦 𝑙𝑖𝑛𝑘 𝑜𝑟 𝑖𝑑"
     },
     longDescription: {
-      en: "𝑨𝒅𝒅 𝒖𝒔𝒆𝒓𝒔 𝒕𝒐 𝒚𝒐𝒖𝒓 𝒈𝒓𝒐𝒖𝒑 𝒖𝒔𝒊𝒏𝒈 𝒕𝒉𝒆𝒊𝒓 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑰𝑫 𝒐𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌"
+        en: "𝐴𝑑𝑑 𝑢𝑠𝑒𝑟𝑠 𝑡𝑜 𝑦𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 𝑢𝑠𝑖𝑛𝑔 𝑡ℎ𝑒𝑖𝑟 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝐼𝐷 𝑜𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑙𝑖𝑛𝑘"
     },
     guide: {
-      en: "{p}adduser [Facebook ID or profile URL]"
+        en: "{p}adduser [𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝐼𝐷 𝑜𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑈𝑅𝐿]"
+    },
+    dependencies: {
+        "axios": ""
     }
-  },
+};
 
-  onStart: async function({ message, event, args, api }) {
+module.exports.onStart = async function({ message, event, args, api }) {
     try {
-      if (!args[0]) {
-        return message.reply("𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒖𝒔𝒆𝒓 𝑰𝑫 𝒐𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌");
-      }
+        if (!args[0]) {
+            return message.reply("𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑢𝑠𝑒𝑟 𝐼𝐷 𝑜𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑙𝑖𝑛𝑘");
+        }
 
-      const threadInfo = await api.getThreadInfo(event.threadID);
-      const participantIDs = threadInfo.participantIDs.map(id => id.toString());
-      const adminIDs = threadInfo.adminIDs.map(admin => admin.id.toString());
+        const threadInfo = await api.getThreadInfo(event.threadID);
+        const participantIDs = threadInfo.participantIDs.map(id => id.toString());
+        const adminIDs = threadInfo.adminIDs.map(admin => admin.id.toString());
 
-      let targetID;
-      let userName = "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒖𝒔𝒆𝒓";
+        let targetID;
+        let userName = "𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑢𝑠𝑒𝑟";
 
-      // Check if input is a numeric ID
-      if (!isNaN(args[0])) {
-        targetID = args[0].toString();
+        // Check if input is a numeric ID
+        if (!isNaN(args[0])) {
+            targetID = args[0].toString();
+            try {
+                const userInfo = await api.getUserInfo(targetID);
+                userName = userInfo[targetID]?.name || userName;
+            } catch (error) {
+                console.error("𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜:", error);
+            }
+        } 
+        // Check if input is a Facebook profile URL
+        else if (args[0].includes("facebook.com") || args[0].includes("fb.com")) {
+            try {
+                // Extract ID from URL (simple approach)
+                const url = args[0];
+                let extractedID = url.match(/(?:\/|id=)(\d+)/);
+                
+                if (extractedID && extractedID[1]) {
+                    targetID = extractedID[1];
+                    const userInfo = await api.getUserInfo(targetID);
+                    userName = userInfo[targetID]?.name || userName;
+                } else {
+                    return message.reply("𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑒𝑥𝑡𝑟𝑎𝑐𝑡 𝐼𝐷 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑙𝑖𝑛𝑘");
+                }
+            } catch (error) {
+                return message.reply("𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑙𝑖𝑛𝑘 𝑜𝑟 𝐼𝐷 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
+            }
+        } 
+        else {
+            return message.reply("𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝐼𝐷 𝑜𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑙𝑖𝑛𝑘");
+        }
+
+        // Check if user is already in the group
+        if (participantIDs.includes(targetID)) {
+            return message.reply("𝑇ℎ𝑖𝑠 𝑢𝑠𝑒𝑟 𝑖𝑠 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑖𝑛 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝");
+        }
+
+        // Try to add the user to the group
         try {
-          const userInfo = await api.getUserInfo(targetID);
-          userName = userInfo[targetID]?.name || userName;
+            await api.addUserToGroup(targetID, event.threadID);
+            return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑎𝑑𝑑𝑒𝑑 ${userName} 𝑡𝑜 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝`);
         } catch (error) {
-          console.error("Error getting user info:", error);
+            console.error("𝐴𝑑𝑑 𝑢𝑠𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:", error);
+            
+            if (error.message.includes("approval")) {
+                return message.reply(`📝 ${userName} ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑎𝑑𝑑𝑒𝑑 𝑡𝑜 𝑡ℎ𝑒 𝑎𝑝𝑝𝑟𝑜𝑣𝑎𝑙 𝑙𝑖𝑠𝑡. 𝑇ℎ𝑒𝑦 𝑛𝑒𝑒𝑑 𝑡𝑜 𝑎𝑐𝑐𝑒𝑝𝑡 𝑡ℎ𝑒 𝑖𝑛𝑣𝑖𝑡𝑒.`);
+            } else if (error.message.includes("friend")) {
+                return message.reply(`❌ 𝐶𝑎𝑛'𝑡 𝑎𝑑𝑑 ${userName}. 𝑇ℎ𝑒 𝑏𝑜𝑡 𝑛𝑒𝑒𝑑𝑠 𝑡𝑜 𝑏𝑒 𝑓𝑟𝑖𝑒𝑛𝑑𝑠 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒 𝑢𝑠𝑒𝑟 𝑓𝑖𝑟𝑠𝑡.`);
+            } else if (error.message.includes("privacy")) {
+                return message.reply(`🔒 ${userName}'𝑠 𝑝𝑟𝑖𝑣𝑎𝑐𝑦 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠 𝑝𝑟𝑒𝑣𝑒𝑛𝑡 𝑎𝑑𝑑𝑖𝑛𝑔 𝑡𝑜 𝑔𝑟𝑜𝑢𝑝𝑠.`);
+            } else {
+                return message.reply(`❌ 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑎𝑑𝑑 ${userName}: ${error.message}`);
+            }
         }
-      } 
-      // Check if input is a Facebook profile URL
-      else if (args[0].includes("facebook.com") || args[0].includes("fb.com")) {
-        try {
-          // Extract ID from URL (simple approach)
-          const url = args[0];
-          let extractedID = url.match(/(?:\/|id=)(\d+)/);
-          
-          if (extractedID && extractedID[1]) {
-            targetID = extractedID[1];
-            const userInfo = await api.getUserInfo(targetID);
-            userName = userInfo[targetID]?.name || userName;
-          } else {
-            return message.reply("𝑪𝒐𝒖𝒍𝒅 𝒏𝒐𝒕 𝒆𝒙𝒕𝒓𝒂𝒄𝒕 𝑰𝑫 𝒇𝒓𝒐𝒎 𝒕𝒉𝒆 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌");
-          }
-        } catch (error) {
-          return message.reply("𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌 𝒐𝒓 𝑰𝑫 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅");
-        }
-      } 
-      else {
-        return message.reply("𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒗𝒂𝒍𝒊𝒅 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑰𝑫 𝒐𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒍𝒊𝒏𝒌");
-      }
-
-      // Check if user is already in the group
-      if (participantIDs.includes(targetID)) {
-        return message.reply("𝑻𝒉𝒊𝒔 𝒖𝒔𝒆𝒓 𝒊𝒔 𝒂𝒍𝒓𝒆𝒂𝒅𝒚 𝒊𝒏 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑");
-      }
-
-      // Try to add the user to the group
-      try {
-        await api.addUserToGroup(targetID, event.threadID);
-        return message.reply(`✅ 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒂𝒅𝒅𝒆𝒅 ${userName} 𝒕𝒐 𝒕𝒉𝒆 𝒈𝒓𝒐𝒖𝒑`);
-      } catch (error) {
-        console.error("Add user error:", error);
-        
-        if (error.message.includes("approval")) {
-          return message.reply(`📝 ${userName} 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 𝒂𝒅𝒅𝒆𝒅 𝒕𝒐 𝒕𝒉𝒆 𝒂𝒑𝒑𝒓𝒐𝒗𝒂𝒍 𝒍𝒊𝒔𝒕. 𝑻𝒉𝒆𝒚 𝒏𝒆𝒆𝒅 𝒕𝒐 𝒂𝒄𝒄𝒆𝒑𝒕 𝒕𝒉𝒆 𝒊𝒏𝒗𝒊𝒕𝒆.`);
-        } else if (error.message.includes("friend")) {
-          return message.reply(`❌ 𝑪𝒂𝒏'𝒕 𝒂𝒅𝒅 ${userName}. 𝑻𝒉𝒆 𝒃𝒐𝒕 𝒏𝒆𝒆𝒅𝒔 𝒕𝒐 𝒃𝒆 𝒇𝒓𝒊𝒆𝒏𝒅𝒔 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒖𝒔𝒆𝒓 𝒇𝒊𝒓𝒔𝒕.`);
-        } else if (error.message.includes("privacy")) {
-          return message.reply(`🔒 ${userName}'𝒔 𝒑𝒓𝒊𝒗𝒂𝒄𝒚 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒑𝒓𝒆𝒗𝒆𝒏𝒕 𝒂𝒅𝒅𝒊𝒏𝒈 𝒕𝒐 𝒈𝒓𝒐𝒖𝒑𝒔.`);
-        } else {
-          return message.reply(`❌ 𝑪𝒐𝒖𝒍𝒅 𝒏𝒐𝒕 𝒂𝒅𝒅 ${userName}: ${error.message}`);
-        }
-      }
 
     } catch (error) {
-      console.error("AddUser Error:", error);
-      return message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+        console.error("𝐴𝑑𝑑𝑈𝑠𝑒𝑟 𝐸𝑟𝑟𝑜𝑟:", error);
+        return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
-  }
 };
