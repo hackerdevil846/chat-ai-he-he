@@ -22,7 +22,7 @@ module.exports = {
 
   onStart: async function ({ api, event, args, usersData }) {
     const moment = require("moment");
-    const time = moment.tz("Asia/Ho_Chi_Minh").format("HH:mm:ss DD/MM/YYYY");
+    const time = moment.tz("Asia/Dhaka").format("HH:mm:ss DD/MM/YYYY");
     
     const flirtyMessages = [
       "𝐶𝑎𝑛 𝐼 𝑓𝑜𝑙𝑙𝑜𝑤 𝑦𝑜𝑢? 𝐵𝑒𝑐𝑎𝑢𝑠𝑒 𝑚𝑦 𝑝𝑎𝑟𝑒𝑛𝑡𝑠 𝑎𝑙𝑤𝑎𝑦𝑠 𝑡𝑜𝑙𝑑 𝑚𝑒 𝑡𝑜 𝑓𝑜𝑙𝑙𝑜𝑤 𝑚𝑦 𝑑𝑟𝑒𝑎𝑚𝑠.",
