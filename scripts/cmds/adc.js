@@ -2,138 +2,142 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const path = require("path");
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "adc",
+    aliases: ["downloadcmd", "getcmd"],
     version: "1.0.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 0,
     role: 2,
     category: "admin",
     shortDescription: {
-      en: "𝑩𝒖𝒊𝒍𝒅𝒕𝒐𝒐𝒍𝒅𝒆𝒗 𝒂𝒖𝒓 𝑷𝒂𝒔𝒕𝒆𝒃𝒊𝒏 𝒔𝒆 𝒄𝒐𝒅𝒆 𝒂𝒑𝒍𝒂𝒊 𝒌𝒂𝒓𝒆𝒏"
+        en: "𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑛𝑑 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 𝑓𝑟𝑜𝑚 𝑢𝑟𝑙𝑠"
     },
     longDescription: {
-      en: "𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒂𝒏𝒅 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒄𝒐𝒎𝒎𝒂𝒏𝒅𝒔 𝒇𝒓𝒐𝒎 𝒖𝒓𝒍𝒔"
+        en: "𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑛𝑑 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 𝑓𝑟𝑜𝑚 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑠𝑜𝑢𝑟𝑐𝑒𝑠"
     },
     guide: {
-      en: "{p}adc [command_name] [url]"
+        en: "{p}adc [𝑐𝑜𝑚𝑚𝑎𝑛𝑑_𝑛𝑎𝑚𝑒] [𝑢𝑟𝑙]"
     },
-    cooldowns: 0
-  },
+    dependencies: {
+        "fs-extra": "",
+        "axios": "",
+        "path": ""
+    }
+};
 
-  onStart: async function({ message, event, args }) {
+module.exports.onStart = async function({ message, event, args }) {
     try {
-      if (args.length === 0) {
-        return message.reply(
-          "📝 𝑨𝑫𝑪 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑼𝒔𝒂𝒈𝒆:\n\n" +
-          "• {p}adc [command_name] - 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒂 𝒄𝒐𝒎𝒎𝒂𝒏𝒅\n" +
-          "• {p}adc [command_name] [url] - 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒇𝒓𝒐𝒎 𝒖𝒓𝒍\n" +
-          "• 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 {p}adc [command_name]"
-        );
-      }
-
-      const commandName = args[0];
-      let fileUrl = args[1];
-      let text = "";
-
-      // Check if replying to a message
-      if (event.type === "message_reply") {
-        text = event.messageReply.body;
-        if (text) {
-          fileUrl = text;
-        }
-      }
-
-      // Validate command name
-      if (!commandName || !/^[a-zA-Z0-9]+$/.test(commandName)) {
-        return message.reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒏𝒂𝒎𝒆. 𝑼𝒔𝒆 𝒐𝒏𝒍𝒚 𝒍𝒆𝒕𝒕𝒆𝒓𝒔 𝒂𝒏𝒅 𝒏𝒖𝒎𝒃𝒆𝒓𝒔.");
-      }
-
-      const commandsDir = path.join(__dirname, '..');
-      const filePath = path.join(commandsDir, `${commandName}.js`);
-
-      // If no URL provided, create a backup of existing command
-      if (!fileUrl) {
-        if (!fs.existsSync(filePath)) {
-          return message.reply(`❌ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 "${commandName}" 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒆𝒙𝒊𝒔𝒕.`);
+        if (args.length === 0) {
+            return message.reply(
+                "📝 𝐴𝐷𝐶 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑈𝑠𝑎𝑔𝑒:\n\n" +
+                "• {p}adc [𝑐𝑜𝑚𝑚𝑎𝑛𝑑_𝑛𝑎𝑚𝑒] - 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎 𝑐𝑜𝑚𝑚𝑎𝑛𝑑\n" +
+                "• {p}adc [𝑐𝑜𝑚𝑚𝑎𝑛𝑑_𝑛𝑎𝑚𝑒] [𝑢𝑟𝑙] - 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑟𝑜𝑚 𝑢𝑟𝑙\n" +
+                "• 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ {p}adc [𝑐𝑜𝑚𝑚𝑎𝑛𝑑_𝑛𝑎𝑚𝑒]"
+            );
         }
 
+        const commandName = args[0];
+        let fileUrl = args[1];
+        let text = "";
+
+        // Check if replying to a message
+        if (event.type === "message_reply") {
+            text = event.messageReply.body;
+            if (text) {
+                fileUrl = text;
+            }
+        }
+
+        // Validate command name
+        if (!commandName || !/^[a-zA-Z0-9]+$/.test(commandName)) {
+            return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑛𝑎𝑚𝑒. 𝑈𝑠𝑒 𝑜𝑛𝑙𝑦 𝑙𝑒𝑡𝑡𝑒𝑟𝑠 𝑎𝑛𝑑 𝑛𝑢𝑚𝑏𝑒𝑟𝑠.");
+        }
+
+        const commandsDir = path.join(__dirname, '..');
+        const filePath = path.join(commandsDir, `${commandName}.js`);
+
+        // If no URL provided, create a backup of existing command
+        if (!fileUrl) {
+            if (!fs.existsSync(filePath)) {
+                return message.reply(`❌ 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 "${commandName}" 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡.`);
+            }
+
+            try {
+                const commandData = await fs.readFile(filePath, "utf-8");
+                const backupPath = path.join(__dirname, '..', '..', 'temp', `${commandName}_backup.js`);
+                
+                // Ensure temp directory exists
+                const tempDir = path.dirname(backupPath);
+                if (!fs.existsSync(tempDir)) {
+                    fs.mkdirSync(tempDir, { recursive: true });
+                }
+                
+                await fs.writeFile(backupPath, commandData);
+                
+                return message.reply({
+                    body: `✅ 𝐵𝑎𝑐𝑘𝑢𝑝 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 𝑓𝑜𝑟 "${commandName}.js"`,
+                    attachment: fs.createReadStream(backupPath)
+                });
+                
+            } catch (err) {
+                console.error(err);
+                return message.reply(`❌ 𝐸𝑟𝑟𝑜𝑟: ${err.message}`);
+            }
+        }
+
+        // Handle URL download
         try {
-          const commandData = await fs.readFile(filePath, "utf-8");
-          const backupPath = path.join(__dirname, '..', '..', 'temp', `${commandName}_backup.js`);
-          
-          // Ensure temp directory exists
-          const tempDir = path.dirname(backupPath);
-          if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
-          }
-          
-          await fs.writeFile(backupPath, commandData);
-          
-          return message.reply({
-            body: `✅ 𝑩𝒂𝒄𝒌𝒖𝒑 𝒄𝒓𝒆𝒂𝒕𝒆𝒅 𝒇𝒐𝒓 "${commandName}.js"`,
-            attachment: fs.createReadStream(backupPath)
-          });
-          
-        } catch (err) {
-          console.error(err);
-          return message.reply(`❌ 𝑬𝒓𝒓𝒐𝒓: ${err.message}`);
-        }
-      }
+            let fileContent;
 
-      // Handle URL download
-      try {
-        let fileContent;
+            // Handle different URL types
+            if (fileUrl.includes('pastebin.com')) {
+                // For Pastebin raw content
+                const pasteId = fileUrl.split('/').pop();
+                const rawUrl = `https://pastebin.com/raw/${pasteId}`;
+                const response = await axios.get(rawUrl);
+                fileContent = response.data;
+            }
+            else if (fileUrl.includes('github.com') || fileUrl.includes('raw.githubusercontent.com')) {
+                // For GitHub raw content
+                const response = await axios.get(fileUrl);
+                fileContent = response.data;
+            }
+            else if (fileUrl.includes('drive.google.com')) {
+                // For Google Drive
+                return message.reply("❌ 𝐺𝑜𝑜𝑔𝑙𝑒 𝐷𝑟𝑖𝑣𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑛𝑜𝑡 𝑠𝑢𝑝𝑝𝑜𝑟𝑡𝑒𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑣𝑒𝑟𝑠𝑖𝑜𝑛.");
+            }
+            else if (fileUrl.includes('http')) {
+                // Direct file download
+                const response = await axios.get(fileUrl);
+                fileContent = response.data;
+            }
+            else {
+                return message.reply("❌ 𝑈𝑛𝑠𝑢𝑝𝑝𝑜𝑟𝑡𝑒𝑑 𝑢𝑟𝑙 𝑡𝑦𝑝𝑒.");
+            }
 
-        // Handle different URL types
-        if (fileUrl.includes('pastebin.com')) {
-          // For Pastebin raw content
-          const pasteId = fileUrl.split('/').pop();
-          const rawUrl = `https://pastebin.com/raw/${pasteId}`;
-          const response = await axios.get(rawUrl);
-          fileContent = response.data;
-        }
-        else if (fileUrl.includes('github.com') || fileUrl.includes('raw.githubusercontent.com')) {
-          // For GitHub raw content
-          const response = await axios.get(fileUrl);
-          fileContent = response.data;
-        }
-        else if (fileUrl.includes('drive.google.com')) {
-          // For Google Drive (simplified approach)
-          return message.reply("❌ 𝑮𝒐𝒐𝒈𝒍𝒆 𝑫𝒓𝒊𝒗𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒏𝒐𝒕 𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒊𝒏 𝒕𝒉𝒊𝒔 𝒗𝒆𝒓𝒔𝒊𝒐𝒏.");
-        }
-        else if (fileUrl.includes('http')) {
-          // Direct file download
-          const response = await axios.get(fileUrl);
-          fileContent = response.data;
-        }
-        else {
-          return message.reply("❌ 𝑼𝒏𝒔𝒖𝒑𝒑𝒐𝒓𝒕𝒆𝒅 𝒖𝒓𝒍 𝒕𝒚𝒑𝒆.");
-        }
+            // Validate the downloaded content
+            if (!fileContent || typeof fileContent !== 'string') {
+                return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑓𝑖𝑙𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡.");
+            }
 
-        // Validate the downloaded content
-        if (!fileContent || typeof fileContent !== 'string') {
-          return message.reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒇𝒊𝒍𝒆 𝒄𝒐𝒏𝒕𝒆𝒏𝒕.");
+            // Basic validation to ensure it's a JavaScript file
+            if (!fileContent.includes('module.exports') && !fileContent.includes('onStart')) {
+                return message.reply("❌ 𝑇ℎ𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 𝑓𝑖𝑙𝑒 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑎𝑝𝑝𝑒𝑎𝑟 𝑡𝑜 𝑏𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.`);
+            }
+
+            // Write the file
+            await fs.writeFile(filePath, fileContent, "utf-8");
+            
+            return message.reply(`✅ 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 "${commandName}.js" ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑖𝑛𝑠𝑡𝑎𝑙𝑙𝑒𝑑!\n\n📋 𝑈𝑠𝑒 "${global.config.PREFIX}load ${commandName}" 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.`);
+
+        } catch (error) {
+            console.error("𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+            return message.reply(`❌ 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟: ${error.message}`);
         }
-
-        // Basic validation to ensure it's a JavaScript file
-        if (!fileContent.includes('module.exports') && !fileContent.includes('onStart')) {
-          return message.reply("❌ 𝑻𝒉𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒆𝒅 𝒇𝒊𝒍𝒆 𝒅𝒐𝒆𝒔 𝒏𝒐𝒕 𝒂𝒑𝒑𝒆𝒂𝒓 𝒕𝒐 𝒃𝒆 𝒂 𝒗𝒂𝒍𝒊𝒅 𝑮𝒐𝒂𝒕𝑩𝒐𝒕 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.");
-        }
-
-        // Write the file
-        await fs.writeFile(filePath, fileContent, "utf-8");
-        
-        return message.reply(`✅ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 "${commandName}.js" 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒆𝒅!\n\n📋 𝑼𝒔𝒆 "${global.config.PREFIX}load ${commandName}" 𝒕𝒐 𝒍𝒐𝒂𝒅 𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅.`);
-
-      } catch (error) {
-        console.error("Download error:", error);
-        return message.reply(`❌ 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓: ${error.message}`);
-      }
 
     } catch (error) {
-      console.error("ADC Command Error:", error);
-      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅: " + error.message);
+        console.error("𝐴𝐷𝐶 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑: " + error.message);
     }
-  }
 };
