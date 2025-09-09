@@ -2,83 +2,91 @@ const fs = require("fs-extra");
 const axios = require("axios");
 const path = require("path");
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "anigen",
-    aliases: ["animegen"],
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    aliases: ["animegen", "animeai"],
     version: "1.0",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
     role: 0,
     shortDescription: {
-      en: "𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂𝒏𝒊𝒎𝒆 𝒊𝒎𝒂𝒈𝒆𝒔"
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒𝑠"
     },
     longDescription: {
-      en: "𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂𝒏 𝒂𝒏𝒊𝒎𝒆 𝒊𝒎𝒂𝒈𝒆 𝒃𝒂𝒔𝒆𝒅 𝒐𝒏 𝒂 𝒑𝒓𝒐𝒎𝒑𝒕"
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎𝑛 𝑎𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒 𝑏𝑎𝑠𝑒𝑑 𝑜𝑛 𝑎 𝑝𝑟𝑜𝑚𝑝𝑡"
     },
-    category: "𝗠𝗘𝗗𝗜𝗔",
+    category: "𝑚𝑒𝑑𝑖𝑎",
     guide: {
-      en: "{p}anigen [prompt]"
+        en: "{p}anigen [𝑝𝑟𝑜𝑚𝑝𝑡]"
+    },
+    dependencies: {
+        "fs-extra": "",
+        "axios": "",
+        "path": ""
     }
-  },
+};
 
-  onStart: async function ({ message, event, args }) {
+module.exports.onStart = async function({ message, args }) {
     try {
-      if (!args[0]) {
-        return message.reply("🎨 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒑𝒓𝒐𝒎𝒑𝒕 𝒇𝒐𝒓 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒂𝒏 𝒂𝒏𝒊𝒎𝒆 𝒊𝒎𝒂𝒈𝒆.\n\n𝑬𝒙𝒂𝒎𝒑𝒍𝒆: {p}anigen 𝒄𝒖𝒕𝒆 𝒂𝒏𝒊𝒎𝒆 𝒈𝒊𝒓𝒍 𝒘𝒊𝒕𝒉 𝒑𝒊𝒏𝒌 𝒉𝒂𝒊𝒓");
-      }
+        // Check dependencies
+        if (!fs.existsSync || !axios || !path) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
 
-      const userPrompt = args.join(" ");
-      
-      await message.reply("⏳ 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒂𝒏𝒊𝒎𝒆 𝒊𝒎𝒂𝒈𝒆... 𝒑𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕, 𝒊𝒕 𝒎𝒂𝒚 𝒕𝒂𝒌𝒆 𝒂 𝒎𝒐𝒎𝒆𝒏𝒕. ✨");
+        if (!args[0]) {
+            return message.reply("🎨 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑝𝑟𝑜𝑚𝑝𝑡 𝑓𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑎𝑛 𝑎𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒.\n\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}anigen 𝑐𝑢𝑡𝑒 𝑎𝑛𝑖𝑚𝑒 𝑔𝑖𝑟𝑙 𝑤𝑖𝑡ℎ 𝑝𝑖𝑛𝑘 ℎ𝑎𝑖𝑟");
+        }
 
-      // Create cache directory if it doesn't exist
-      const cacheDir = path.join(__dirname, 'cache');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
+        const userPrompt = args.join(" ");
+        
+        await message.reply("⏳ 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑎𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒... 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡, 𝑖𝑡 𝑚𝑎𝑦 𝑡𝑎𝑘𝑒 𝑎 𝑚𝑜𝑚𝑒𝑛𝑡. ✨");
 
-      const imagePath = path.join(cacheDir, `anime_${Date.now()}.png`);
-      const encodedPrompt = encodeURIComponent(userPrompt);
-      const apiUrl = `https://t2i.onrender.com/kshitiz?prompt=${encodedPrompt}`;
+        // Create cache directory if it doesn't exist
+        const cacheDir = path.join(__dirname, 'cache');
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
 
-      // Fetch the image from the API
-      const response = await axios.get(apiUrl, { timeout: 30000 });
+        const imagePath = path.join(cacheDir, `anime_${Date.now()}.png`);
+        const encodedPrompt = encodeURIComponent(userPrompt);
+        const apiUrl = `https://t2i.onrender.com/kshitiz?prompt=${encodedPrompt}`;
 
-      if (!response.data || !response.data.imageUrl) {
-        return message.reply("❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒊𝒎𝒂𝒈𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒘𝒊𝒕𝒉 𝒂 𝒅𝒊𝒇𝒇𝒆𝒓𝒆𝒏𝒕 𝒑𝒓𝒐𝒎𝒑𝒕.");
-      }
+        // Fetch the image from the API
+        const response = await axios.get(apiUrl, { timeout: 30000 });
 
-      const imageUrl = response.data.imageUrl;
+        if (!response.data || !response.data.imageUrl) {
+            return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑤𝑖𝑡ℎ 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑝𝑟𝑜𝑚𝑝𝑡.");
+        }
 
-      // Download the image
-      const imageResponse = await axios.get(imageUrl, {
-        responseType: 'arraybuffer',
-        timeout: 30000
-      });
+        const imageUrl = response.data.imageUrl;
 
-      // Save the image to cache
-      fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+        // Download the image
+        const imageResponse = await axios.get(imageUrl, {
+            responseType: 'arraybuffer',
+            timeout: 30000
+        });
 
-      // Send the generated image
-      await message.reply({
-        body: `✅ 𝑨𝒏𝒊𝒎𝒆 𝒊𝒎𝒂𝒈𝒆 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!\n📝 𝑷𝒓𝒐𝒎𝒑𝒕: ${userPrompt}`,
-        attachment: fs.createReadStream(imagePath)
-      });
+        // Save the image to cache
+        fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
 
-      // Clean up the temporary file
-      fs.unlinkSync(imagePath);
+        // Send the generated image
+        await message.reply({
+            body: `✅ 𝐴𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!\n📝 𝑃𝑟𝑜𝑚𝑝𝑡: ${userPrompt}`,
+            attachment: fs.createReadStream(imagePath)
+        });
+
+        // Clean up the temporary file
+        fs.unlinkSync(imagePath);
 
     } catch (error) {
-      console.error("Anigen command error:", error);
-      
-      if (error.code === 'ECONNABORTED') {
-        await message.reply("❌ 𝑹𝒆𝒒𝒖𝒆𝒔𝒕 𝒕𝒊𝒎𝒆𝒅 𝒐𝒖𝒕. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒘𝒊𝒕𝒉 𝒂 𝒔𝒊𝒎𝒑𝒍𝒆𝒓 𝒑𝒓𝒐𝒎𝒑𝒕.");
-      } else if (error.response?.status === 404) {
-        await message.reply("❌ 𝑨𝑷𝑰 𝒆𝒏𝒅𝒑𝒐𝒊𝒏𝒕 𝒏𝒐𝒕 𝒇𝒐𝒖𝒏𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
-      } else {
-        await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒕𝒉𝒆 𝒊𝒎𝒂𝒈𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.");
-      }
+        console.error("𝐴𝑛𝑖𝑔𝑒𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        
+        if (error.code === 'ECONNABORTED') {
+            await message.reply("❌ 𝑅𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑑 𝑜𝑢𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑖𝑚𝑝𝑙𝑒𝑟 𝑝𝑟𝑜𝑚𝑝𝑡.");
+        } else if (error.response?.status === 404) {
+            await message.reply("❌ 𝐴𝑃𝐼 𝑒𝑛𝑑𝑝𝑜𝑖𝑛𝑡 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        } else {
+            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
+        }
     }
-  }
 };
