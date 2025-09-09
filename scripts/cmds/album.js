@@ -1,119 +1,239 @@
 const axios = require("axios");
-const fs = require("fs-extra");
 const path = require("path");
+const fs = require("fs-extra");
 
-module.exports = {
-  config: {
+const API_CONFIG_URL = "https://raw.githubusercontent.com/cyber-ullash/cyber-ullash/refs/heads/main/UllashApi.json";
+
+const getApiUrl = async () => {
+    try {
+        const response = await axios.get(API_CONFIG_URL);
+        const albumUrl = response.data.album;
+        if (!albumUrl) {
+            throw new Error("Album API URL not found in the JSON data.");
+        }
+        return albumUrl;
+    } catch (error) {
+        console.error("API URL Error:", error);
+        throw new Error("Failed to fetch API URL");
+    }
+};
+
+module.exports.config = {
     name: "album",
-    version: "1.7",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    aliases: ["albums", "mediaalbum"],
+    version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
     role: 0,
     category: "media",
     shortDescription: {
-      en: "𝑽𝒊𝒅𝒆𝒐 𝒂𝒍𝒃𝒖𝒎 𝒎𝒂𝒏𝒂𝒈𝒆𝒎𝒆𝒏𝒕 𝒔𝒚𝒔𝒕𝒆𝒎"
+        en: "𝑀𝑎𝑛𝑎𝑔𝑒 𝑎𝑛𝑑 𝑣𝑖𝑒𝑤 𝑣𝑖𝑑𝑒𝑜/𝑝ℎ𝑜𝑡𝑜 𝑎𝑙𝑏𝑢𝑚𝑠"
     },
     longDescription: {
-      en: "𝑨𝒅𝒅, 𝒍𝒊𝒔𝒕, 𝒂𝒏𝒅 𝒗𝒊𝒆𝒘 𝒗𝒊𝒅𝒆𝒐𝒔 𝒇𝒓𝒐𝒎 𝒗𝒂𝒓𝒊𝒐𝒖𝒔 𝒄𝒂𝒕𝒆𝒈𝒐𝒓𝒊𝒆𝒔"
+        en: "𝐵𝑟𝑜𝑤𝑠𝑒 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑚𝑒𝑑𝑖𝑎 𝑓𝑟𝑜𝑚 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑒𝑠"
     },
     guide: {
-      en: "{p}album [page]\n{p}album add [category] [URL]\n{p}album list"
+        en: "{p}album\n{p}album [𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦]"
     },
-    cooldowns: 5
-  },
-
-  onStart: async function({ message, event, args }) {
-    try {
-      const baseApiUrl = "https://your-api-url.com"; // Replace with your actual API URL
-
-      if (args[0] === "add") {
-        if (!args[1]) {
-          return message.reply("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒔𝒑𝒆𝒄𝒊𝒇𝒚 𝒂 𝒄𝒂𝒕𝒆𝒈𝒐𝒓𝒚. 𝑼𝒔𝒂𝒈𝒆: !𝒂𝒍𝒃𝒖𝒎 𝒂𝒅𝒅 [𝒄𝒂𝒕𝒆𝒈𝒐𝒓𝒚]");
-        }
-
-        const category = args[1].toLowerCase();
-
-        if (event.messageReply && event.messageReply.attachments && event.messageReply.attachments.length > 0) {
-          const attachment = event.messageReply.attachments[0];
-          
-          if (attachment.type !== "video") {
-            return message.reply("❌ 𝑶𝒏𝒍𝒚 𝒗𝒊𝒅𝒆𝒐 𝒂𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕𝒔 𝒂𝒓𝒆 𝒂𝒍𝒍𝒐𝒘𝒆𝒅.");
-          }
-
-          try {
-            // For GoatBot, we'll use the attachment URL directly instead of Imgur
-            const videoUrl = attachment.url;
-            
-            try {
-              const uploadResponse = await axios.post(`${baseApiUrl}/api/album/add`, {
-                category,
-                videoUrl,
-              });
-
-              return message.reply(uploadResponse.data.message);
-            } catch (error) {
-              return message.reply(`❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒖𝒑𝒍𝒐𝒂𝒅 𝒗𝒊𝒅𝒆𝒐.\n𝑬𝒓𝒓𝒐𝒓: ${error.response?.data?.error || error.message}`);
-            }
-
-          } catch (error) {
-            return message.reply(`❌ 𝑬𝒓𝒓𝒐𝒓: ${error.message}`);
-          }
-        }
-
-        if (!args[2]) {
-          return message.reply("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂 𝒗𝒊𝒅𝒆𝒐 𝑼𝑹𝑳 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒗𝒊𝒅𝒆𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆.");
-        }
-
-        const videoUrl = args[2];
-        try {
-          const response = await axios.post(`${baseApiUrl}/album/add`, {
-            category,
-            videoUrl,
-          });
-
-          return message.reply(response.data.message);
-        } catch (error) {
-          return message.reply(`❌ 𝑬𝒓𝒓𝒐𝒓: ${error.response?.data?.error || error.message}`);
-        }
-
-      } else if (args[0] === "list") {
-        try {
-          const response = await axios.get(`${baseApiUrl}/api/album/list`);
-          return message.reply(response.data.message);
-        } catch (error) {
-          return message.reply(`❌ 𝑬𝒓𝒓𝒐𝒓: ${error.message}`);
-        }
-      } else {
-        const displayNames = [
-          "𝐅𝐮𝐧𝐧𝐲 𝐕𝐢𝐝𝐞𝐨", "𝐈𝐬𝐥𝐚𝐦𝐢𝐜 𝐕𝐢𝐝𝐞𝐨", "𝐒𝐚𝐝 𝐕𝐢𝐝𝐞𝐨", "𝐀𝐧𝐢𝐦𝐞 𝐕𝐢𝐝𝐞𝐨", "𝐋𝐨𝐅𝐈 𝐕𝐢𝐝𝐞𝐨",
-          "𝐀𝐭𝐭𝐢𝐭𝐮𝐝𝐞 𝐕𝐢𝐝𝐞𝐨", "𝐇𝐨𝐫𝐧𝐲 𝐕𝐢𝐝𝐞𝐨", "𝐂𝐨𝐮𝐩𝐥𝐞 𝐕𝐢𝐝𝐞𝐨", "𝐅𝐥𝐨𝐰𝐞𝐫 𝐕𝐢𝐝𝐞𝐨", "𝐁𝐢𝐤𝐞 & 𝐂𝐚𝐫 𝐕𝐢𝐝𝐞𝐨",
-          "𝐋𝐨𝐯𝐞 𝐕𝐢𝐝𝐞𝐨", "𝐋𝐲𝐫𝐢𝐜𝐬 𝐕𝐢𝐝𝐞𝐨", "𝐂𝐚𝐭 𝐕𝐢𝐝𝐞𝐨", "𝟏𝟖+ 𝐕𝐢𝐝𝐞𝐨", "𝐅𝐫𝐞𝐞 𝐅𝐢𝐫𝐞 𝐕𝐢𝐝𝐞𝐨",
-          "𝐅𝐨𝐨𝐭𝐛𝐚𝐥𝐥 𝐕𝐢𝐝𝐞𝐨", "𝐁𝐚𝐛𝐲 𝐕𝐢𝐝𝐞𝐨", "𝐅𝐫𝐢𝐞𝐧𝐝𝐬 𝐕𝐢𝐝𝐞𝐨", "𝐏𝐮𝐛𝐠 𝐯𝐢𝐝𝐞𝐨", "𝐀𝐞𝐬𝐭𝐡𝐞𝐭𝐢𝐜 𝐕𝐢𝐝𝐞𝐨"
-        ];    
-        
-        const itemsPerPage = 10;
-        const page = parseInt(args[0]) || 1;
-        const totalPages = Math.ceil(displayNames.length / itemsPerPage);
-
-        if (page < 1 || page > totalPages) {
-          return message.reply(`❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒑𝒂𝒈𝒆! 𝑷𝒍𝒆𝒂𝒔𝒆 𝒄𝒉𝒐𝒐𝒔𝒆 𝒃𝒆𝒕𝒘𝒆𝒆𝒏 1 - ${totalPages}.`);
-        }
-
-        const startIndex = (page - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const displayedCategories = displayNames.slice(startIndex, endIndex);
-
-        const messageText = `𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐀𝐥𝐛𝐮𝐦 𝐕𝐢𝐝𝐞𝐨 𝐋𝐢𝐬𝐭 🎀\n` +
-          "𐙚━━━━━━━━━━━━━━━━━━━━━ᡣ𐭩\n" +
-          displayedCategories.map((option, index) => `${startIndex + index + 1}. ${option}`).join("\n") +
-          "\n𐙚━━━━━━━━━━━━━━━━━━━━━ᡣ𐭩" +
-          `\n♻ | 𝐏𝐚𝐠𝐞 [${page}/${totalPages}]<😘\nℹ | 𝐓𝐲𝐩𝐞 ${global.config.PREFIX}album ${page + 1} - 𝐭𝐨 𝐬𝐞𝐞 𝐧𝐞𝐱𝐭 𝐩𝐚𝐠𝐞.`;
-
-        await message.reply(messageText);
-
-      }
-    } catch (error) {
-      console.error("Album command error:", error);
-      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+    dependencies: {
+        "axios": "",
+        "fs-extra": ""
     }
-  }
+};
+
+module.exports.onStart = async function ({ api, event, args }) {
+    const { threadID, messageID, senderID } = event;
+
+    const albumOptionsPage1 = [
+        "funny", "islamic", "sad", "anime", "cartoon",
+        "love", "horny", "couple", "flower", "marvel"
+    ];
+    const albumOptionsPage2 = [
+        "aesthetic", "sigma", "lyrics", "cat", "18plus",
+        "freefire", "football", "girl", "friends", "cricket"
+    ];
+
+    const toBold = (text) => text.replace(/[a-z]/g, (c) => String.fromCodePoint(0x1d41a + c.charCodeAt(0) - 97));
+    const toBoldNumber = (num) => String(num).replace(/[0-9]/g, (c) => String.fromCodePoint(0x1d7ec + parseInt(c)));
+
+    const formatOptions = (options, startIndex = 1) =>
+        options.map((opt, i) => `✨ | ${toBoldNumber(i + startIndex)}. ${toBold(opt)}`).join("\n");
+
+    if (args[0] === "2") {
+        const message2 =
+            "💫 𝐶ℎ𝑜𝑜𝑠𝑒 𝑎𝑛 𝑎𝑙𝑏𝑢𝑚 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦 𝐵𝑎𝑏𝑦 💫\n" +
+            "✺━━━━━━━◈◉◈━━━━━━━✺\n" +
+            formatOptions(albumOptionsPage2, 11) +
+            "\n✺━━━━━━━◈◉◈━━━━━━━✺\n🎯 | 𝑃𝑎𝑔𝑒 [2/2]\n✺━━━━━━━◈◉◈━━━━━━━✺";
+
+        await api.sendMessage(
+            { body: message2 },
+            threadID,
+            (error, info) => {
+                if (!error) {
+                    global.client.handleReply.push({
+                        name: this.config.name,
+                        type: "reply",
+                        messageID: info.messageID,
+                        author: senderID,
+                        link: albumOptionsPage2,
+                    });
+                }
+            },
+            messageID
+        );
+        return;
+    }
+
+    if (!args[0] || args[0].toLowerCase() === "list") {
+        await api.setMessageReaction("☢️", messageID, () => {}, true);
+
+        const message =
+            "💫 𝐶ℎ𝑜𝑜𝑠𝑒 𝑎𝑛 𝑎𝑙𝑏𝑢𝑚 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦 𝐵𝑎𝑏𝑦 💫\n" +
+            "✺━━━━━━━◈◉◈━━━━━━━✺\n" +
+            formatOptions(albumOptionsPage1) +
+            `\n✺━━━━━━━◈◉◈━━━━━━━✺\n🎯 | 𝑃𝑎𝑔𝑒 [1/2]\nℹ | 𝑇𝑦𝑝𝑒: ${global.config.PREFIX}album 2 - 𝑛𝑒𝑥𝑡 𝑝𝑎𝑔𝑒\n✺━━━━━━━◈◉◈━━━━━━━✺`;
+
+        await api.sendMessage(
+            { body: message },
+            threadID,
+            (error, info) => {
+                if (!error) {
+                    global.client.handleReply.push({
+                        name: this.config.name,
+                        type: "reply",
+                        messageID: info.messageID,
+                        author: senderID,
+                        link: albumOptionsPage1,
+                    });
+                }
+            },
+            messageID
+        );
+        return;
+    }
+
+    const validCategories = [
+        "cartoon", "marvel", "lofi", "sad", "islamic", "funny",
+        "horny", "anime", "love", "baby", "lyrics", "sigma",
+        "aesthetic", "cat", "flower", "freefire", "sex", "girl",
+        "football", "friend", "cricket", "couple", "18plus", "freefire"
+    ];
+
+    const command = args[0].toLowerCase();
+
+    if (!validCategories.includes(command)) {
+        return api.sendMessage(
+            "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦! 𝑇𝑦𝑝𝑒 '/album' 𝑡𝑜 𝑠𝑒𝑒 𝑙𝑖𝑠𝑡.",
+            threadID,
+            messageID
+        );
+    }
+
+    return api.sendMessage(
+        `📁 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦: 𝑎𝑙𝑏𝑢𝑚 - ${command}...`,
+        threadID,
+        messageID
+    );
+};
+
+module.exports.onReply = async function ({ api, event, handleReply }) {
+    try {
+        await api.unsendMessage(handleReply.messageID);
+
+        const adminID = "100015168369582";
+        const replyNum = parseInt(event.body);
+        
+        if (isNaN(replyNum)) {
+            return api.sendMessage("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟.", event.threadID, event.messageID);
+        }
+
+        const categories = [
+            "funny", "islamic", "sad", "anime", "cartoon",
+            "love", "horny", "couple", "flower", "marvel",
+            "aesthetic", "sigma", "lyrics", "cat", "18plus",
+            "freefire", "football", "girl", "friend", "cricket"
+        ];
+
+        if (replyNum < 1 || replyNum > categories.length) {
+            return api.sendMessage("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛.", event.threadID, event.messageID);
+        }
+
+        const selectedCategory = categories[replyNum - 1];
+
+        if (
+            (selectedCategory === "horny" || selectedCategory === "18plus") &&
+            event.senderID !== adminID
+        ) {
+            return api.sendMessage("🚫 𝑌𝑜𝑢 𝑎𝑟𝑒 𝑛𝑜𝑡 𝑎𝑢𝑡ℎ𝑜𝑟𝑖𝑧𝑒𝑑 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦.", event.threadID, event.messageID);
+        }
+
+        const captions = {
+            funny: "🤣 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐹𝑢𝑛𝑛𝑦 𝑣𝑖𝑑𝑒𝑜",
+            islamic: "😇 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑣𝑖𝑑𝑒𝑜",
+            sad: "🥺 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝑆𝑎𝑑 𝑣𝑖𝑑𝑒𝑜",
+            anime: "😘 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐴𝑛𝑖𝑚𝑒 𝑣𝑖𝑑𝑒𝑜",
+            cartoon: "😇 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐶𝑎𝑟𝑡𝑜𝑜𝑛 𝑣𝑖𝑑𝑒𝑜",
+            love: "😇 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐿𝑜𝑣𝑒 𝑣𝑖𝑑𝑒𝑜",
+            horny: "🥵 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐻𝑜𝑟𝑛𝑦 𝑣𝑖𝑑𝑒𝑜",
+            couple: "❤️ > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐶𝑜𝑢𝑝𝑙𝑒 𝑣𝑖𝑑𝑒𝑜",
+            flower: "🌸 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐹𝑙𝑜𝑤𝑒𝑟 𝑣𝑖𝑑𝑒𝑜",
+            marvel: "🎯 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝑀𝑎𝑟𝑣𝑒𝑙 𝑣𝑖𝑑𝑒𝑜",
+            aesthetic: "🎀 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐴𝑒𝑠𝑡ℎ𝑒𝑡𝑖𝑐 𝑣𝑖𝑑𝑒𝑜",
+            sigma: "🐤 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝑆𝑖𝑔𝑚𝑎 𝑣𝑖𝑑𝑒𝑜",
+            lyrics: "🥰 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐿𝑦𝑟𝑖𝑐𝑠 𝑣𝑖𝑑𝑒𝑜",
+            cat: "🐱 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐶𝑎𝑡 𝑣𝑖𝑑𝑒𝑜",
+            "18plus": "🔞 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 18+ 𝑣𝑖𝑑𝑒𝑜",
+            freefire: "🎮 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐹𝑟𝑒𝑒𝑓𝑖𝑟𝑒 𝑣𝑖𝑑𝑒𝑜",
+            football: "⚽ > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐹𝑜𝑜𝑡𝑏𝑎𝑙𝑙 𝑣𝑖𝑑𝑒𝑜",
+            girl: "👧 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐺𝑖𝑟𝑙 𝑣𝑖𝑑𝑒𝑜",
+            friend: "👫 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐹𝑟𝑖𝑒𝑛𝑑𝑠 𝑣𝑖𝑑𝑒𝑜",
+            cricket: "🏏 > 𝑁𝑎𝑤 𝐵𝑎𝑏𝑦 𝐶𝑟𝑖𝑐𝑘𝑒𝑡 𝑣𝑖𝑑𝑒𝑜"
+        };
+
+        const BASE_API_URL = await getApiUrl();
+        const res = await axios.get(`${BASE_API_URL}/album?type=${selectedCategory}`);
+        const mediaUrl = res.data.data;
+
+        if (!mediaUrl) {
+            return api.sendMessage("⚠️ 𝑁𝑜 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦.", event.threadID, event.messageID);
+        }
+
+        const response = await axios({
+            method: 'get',
+            url: mediaUrl,
+            responseType: 'stream'
+        });
+
+        const cacheDir = path.join(__dirname, "cache");
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+
+        const filename = path.basename(mediaUrl).split("?")[0];
+        const filePath = path.join(cacheDir, `${Date.now()}_${filename}`);
+        const writer = fs.createWriteStream(filePath);
+
+        response.data.pipe(writer);
+
+        writer.on('finish', () => {
+            api.sendMessage({
+                body: captions[selectedCategory] || `🎬 𝑁𝑜𝑤 𝐵𝑎𝑏𝑦 ${selectedCategory} 𝑐𝑜𝑛𝑡𝑒𝑛𝑡`,
+                attachment: fs.createReadStream(filePath)
+            }, event.threadID, () => {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            }, event.messageID);
+        });
+
+        writer.on('error', (err) => {
+            console.error("Write Error:", err);
+            api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑣𝑖𝑑𝑒𝑜.", event.threadID, event.messageID);
+        });
+
+    } catch (err) {
+        console.error("Album Error:", err.message);
+        return api.sendMessage("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔. 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛!", event.threadID, event.messageID);
+    }
 };
