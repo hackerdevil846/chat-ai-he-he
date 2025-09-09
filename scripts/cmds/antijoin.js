@@ -1,70 +1,72 @@
-module.exports = {
-  config: {
+module.exports.config = {
     name: "antijoin",
+    aliases: ["antienter", "ajoin"],
     version: "1.0.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
     role: 1,
     category: "system",
     shortDescription: {
-      en: "𝑻𝒖𝒓𝒏 𝒐𝒏/𝒐𝒇𝒇 𝒂𝒏𝒕𝒊𝒋𝒐𝒊𝒏"
+        en: "𝑇𝑢𝑟𝑛 𝑜𝑛/𝑜𝑓𝑓 𝑎𝑛𝑡𝑖𝑗𝑜𝑖𝑛"
     },
     longDescription: {
-      en: "𝑬𝒏𝒂𝒃𝒍𝒆 𝒐𝒓 𝒅𝒊𝒔𝒂𝒃𝒍𝒆 𝒂𝒏𝒕𝒊-𝒋𝒐𝒊𝒏 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒇𝒐𝒓 𝒚𝒐𝒖𝒓 𝒈𝒓𝒐𝒖𝒑"
+        en: "𝐸𝑛𝑎𝑏𝑙𝑒 𝑜𝑟 𝑑𝑖𝑠𝑎𝑏𝑙𝑒 𝑎𝑛𝑡𝑖-𝑗𝑜𝑖𝑛 𝑝𝑟𝑜𝑡𝑒𝑐𝑡𝑖𝑜𝑛 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝"
     },
     guide: {
-      en: "{p}antijoin [on/off]"
+        en: "{p}antijoin [on/off]"
     },
-    cooldowns: 5
-  },
+    dependencies: {
+        "fs-extra": ""
+    }
+};
 
-  onStart: async function({ message, event, args, Threads }) {
+module.exports.onStart = async function({ message, event, args, threadsData, api }) {
     try {
-      const { threadID } = event;
-      
-      // Check if user provided argument
-      if (!args[0]) {
-        return message.reply("🛡️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒔𝒑𝒆𝒄𝒊𝒇𝒚 '𝒐𝒏' 𝒐𝒓 '𝒐𝒇𝒇':\n• {p}antijoin on - 𝑬𝒏𝒂𝒃𝒍𝒆 𝒂𝒏𝒕𝒊-𝒋𝒐𝒊𝒏\n• {p}antijoin off - 𝑫𝒊𝒔𝒂𝒃𝒍𝒆 𝒂𝒏𝒕𝒊-𝒋𝒐𝒊𝒏");
-      }
+        const { threadID } = event;
+        
+        // Check if user provided argument
+        if (!args[0]) {
+            return message.reply("🛡️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑠𝑝𝑒𝑐𝑖𝑓𝑦 '𝑜𝑛' 𝑜𝑟 '𝑜𝑓𝑓':\n• {p}antijoin on - 𝐸𝑛𝑎𝑏𝑙𝑒 𝑎𝑛𝑡𝑖-𝑗𝑜𝑖𝑛\n• {p}antijoin off - 𝐷𝑖𝑠𝑎𝑏𝑙𝑒 𝑎𝑛𝑡𝑖-𝑗𝑜𝑖𝑛");
+        }
 
-      const action = args[0].toLowerCase();
-      
-      if (action !== 'on' && action !== 'off') {
-        return message.reply("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒐𝒑𝒕𝒊𝒐𝒏. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒖𝒔𝒆 '𝒐𝒏' 𝒐𝒓 '𝒐𝒇𝒇'");
-      }
+        const action = args[0].toLowerCase();
+        
+        if (action !== 'on' && action !== 'off') {
+            return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑜𝑝𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑢𝑠𝑒 '𝑜𝑛' 𝑜𝑟 '𝑜𝑓𝑓'");
+        }
 
-      // Get thread info to check admin status
-      const threadInfo = await api.getThreadInfo(threadID);
-      const botID = api.getCurrentUserID();
-      
-      // Check if bot is admin
-      if (!threadInfo.adminIDs.some(admin => admin.id === botID)) {
-        return message.reply("❌ 𝑩𝒐𝒕 𝒏𝒆𝒆𝒅𝒔 𝒂𝒅𝒎𝒊𝒏 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏𝒔 𝒕𝒐 𝒎𝒂𝒏𝒂𝒈𝒆 𝒂𝒏𝒕𝒊-𝒋𝒐𝒊𝒏 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔");
-      }
+        // Get thread info to check admin status
+        const threadInfo = await api.getThreadInfo(threadID);
+        const botID = api.getCurrentUserID();
+        
+        // Check if bot is admin
+        if (!threadInfo.adminIDs.some(admin => admin.id === botID)) {
+            return message.reply("❌ 𝐵𝑜𝑡 𝑛𝑒𝑒𝑑𝑠 𝑎𝑑𝑚𝑖𝑛 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠 𝑡𝑜 𝑚𝑎𝑛𝑎𝑔𝑒 𝑎𝑛𝑡𝑖-𝑗𝑜𝑖𝑛 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠");
+        }
 
-      // Get current thread data
-      const threadData = (await Threads.getData(threadID)).data || {};
-      const currentStatus = threadData.antijoin || false;
-      
-      // Update the setting
-      threadData.antijoin = action === 'on';
-      
-      // Save the updated data
-      await Threads.setData(threadID, { data: threadData });
-      
-      // Update global cache if it exists
-      if (global.data.threadData) {
-        global.data.threadData.set(parseInt(threadID), threadData);
-      }
+        // Get current thread data
+        const threadData = await threadsData.get(threadID) || {};
+        const currentStatus = threadData.antijoin || false;
+        
+        // Update the setting
+        threadData.antijoin = action === 'on';
+        
+        // Save the updated data
+        await threadsData.set(threadID, threadData);
+        
+        // Update global cache if it exists
+        if (global.data.threadData) {
+            global.data.threadData.set(parseInt(threadID), threadData);
+        }
 
-      return message.reply(
-        `🛡️ 𝑨𝑵𝑻𝑰-𝑱𝑶𝑰𝑵 𝑺𝑻𝑨𝑻𝑼𝑺\n\n` +
-        `✅ ${action === 'on' ? '𝑬𝑵𝑨𝑩𝑳𝑬𝑫' : '𝑫𝑰𝑺𝑨𝑩𝑳𝑬𝑃'}\n\n` +
-        `𝑨𝒏𝒕𝒊-𝒋𝒐𝒊𝒏 𝒑𝒓𝒐𝒕𝒆𝒄𝒕𝒊𝒐𝒏 𝒉𝒂𝒔 𝒃𝒆𝒆𝒏 ${action === 'on' ? '𝒆𝒏𝒂𝒃𝒍𝒆𝒅' : '𝒅𝒊𝒔𝒂𝒃𝒍𝒆𝒅'} 𝒇𝒐𝒓 𝒕𝒉𝒊𝒔 𝒈𝒓𝒐𝒖𝒑.`
-      );
+        return message.reply(
+            `🛡️ 𝐴𝑁𝑇𝐼-𝐽𝑂𝐼𝑁 𝑆𝑇𝐴𝑇𝑈𝑆\n\n` +
+            `✅ ${action === 'on' ? '𝐸𝑁𝐴𝐵𝐿𝐸𝐷' : '𝐷𝐼𝑆𝐴𝐵𝐿𝐸𝐷'}\n\n` +
+            `𝐴𝑛𝑡𝑖-𝑗𝑜𝑖𝑛 𝑝𝑟𝑜𝑡𝑒𝑐𝑡𝑖𝑜𝑛 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 ${action === 'on' ? '𝑒𝑛𝑎𝑏𝑙𝑒𝑑' : '𝑑𝑖𝑠𝑎𝑏𝑙𝑒𝑑'} 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝.`
+        );
 
     } catch (error) {
-      console.error("Antijoin command error:", error);
-      await message.reply("❌ 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+        console.error("Antijoin command error:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
-  }
 };
