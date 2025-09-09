@@ -1,59 +1,65 @@
 const axios = require('axios');
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "anifact",
-    aliases: [],
+    aliases: ["animefact", "afact"],
     version: "1.0.2",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     shortDescription: {
-      en: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎𝒆 𝒇𝒂𝒄𝒕𝒔 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆𝒔"
+        en: "𝑅𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 𝑓𝑎𝑐𝑡𝑠 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠"
     },
     longDescription: {
-      en: "𝑮𝒆𝒕 𝒓𝒂𝒏𝒅𝒐𝒎 𝒂𝒏𝒊𝒎𝒆 𝒇𝒂𝒄𝒕𝒔 𝒂𝒄𝒄𝒐𝒎𝒑𝒂𝒏𝒊𝒆𝒅 𝒃𝒚 𝒊𝒎𝒂𝒈𝒆𝒔"
+        en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 𝑓𝑎𝑐𝑡𝑠 𝑎𝑐𝑐𝑜𝑚𝑝𝑎𝑛𝑖𝑒𝑑 𝑏𝑦 𝑖𝑚𝑎𝑔𝑒𝑠"
     },
-    category: "𝒂𝒏𝒊𝒎𝒆",
+    category: "𝑎𝑛𝑖𝑚𝑒",
     guide: {
-      en: "{p}anifact"
+        en: "{p}anifact"
+    },
+    dependencies: {
+        "axios": "",
+        "fs-extra": ""
     }
-  },
+};
 
-  onStart: async function ({ api, event }) {
+module.exports.onStart = async function ({ message, event }) {
     try {
-      // Create cache directory if it doesn't exist
-      const cacheDir = path.join(__dirname, 'cache');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-      
-      const response = await axios.get('https://nekos.best/api/v2/neko');
-      const imageUrl = response.data.results[0].url;
-      const artistName = response.data.results[0].artist_name;
-      const artistHref = response.data.results[0].artist_href;
+        // Check dependencies
+        if (!axios || !fs.existsSync) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
 
-      const imagePath = path.join(cacheDir, `anime_fact_${event.senderID}.png`);
-      const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-      
-      fs.writeFileSync(imagePath, Buffer.from(imageResponse.data, 'binary'));
-      
-      api.sendMessage({
-        body: `🦄 𝑨𝒏𝒊𝒎𝒆 𝑭𝒂𝒄𝒕 𝒘𝒊𝒕𝒉 𝒊𝒎𝒂𝒈𝒆:\n🎨 Artist: ${artistName}\n🔗 Source: ${artistHref}`,
-        attachment: fs.createReadStream(imagePath)
-      }, event.threadID, (err) => {
-        if (err) console.error(err);
+        // Create cache directory if it doesn't exist
+        const cacheDir = path.join(__dirname, 'cache');
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+        
+        const response = await axios.get('https://nekos.best/api/v2/neko');
+        const imageUrl = response.data.results[0].url;
+        const artistName = response.data.results[0].artist_name;
+        const artistHref = response.data.results[0].artist_href;
+
+        const imagePath = path.join(cacheDir, `anime_fact_${event.senderID}.png`);
+        const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        
+        await fs.writeFileSync(imagePath, Buffer.from(imageResponse.data, 'binary'));
+        
+        await message.reply({
+            body: `🦄 𝐴𝑛𝑖𝑚𝑒 𝐹𝑎𝑐𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒:\n🎨 𝐴𝑟𝑡𝑖𝑠𝑡: ${artistName}\n🔗 𝑆𝑜𝑢𝑟𝑐𝑒: ${artistHref}`,
+            attachment: fs.createReadStream(imagePath)
+        });
+
         // Clean up the image file after sending
         if (fs.existsSync(imagePath)) {
-          fs.unlinkSync(imagePath);
+            fs.unlinkSync(imagePath);
         }
-      }, event.messageID);
-      
+        
     } catch (error) {
-      console.error(error);
-      api.sendMessage("🔴 𝑬𝒓𝒓𝒐𝒓: 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒇𝒆𝒕𝒄𝒉 𝒂𝒏𝒊𝒎𝒆 𝒅𝒂𝒕𝒂 𝒐𝒓 𝒊𝒎𝒂𝒈𝒆", event.threadID, event.messageID);
+        console.error("𝐴𝑛𝑖𝐹𝑎𝑐𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("🔴 𝐸𝑟𝑟𝑜𝑟: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑎𝑛𝑖𝑚𝑒 𝑑𝑎𝑡𝑎 𝑜𝑟 𝑖𝑚𝑎𝑔𝑒");
     }
-  }
 };
