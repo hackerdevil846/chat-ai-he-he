@@ -1,45 +1,60 @@
 const axios = require('axios');
 const fs = require('fs-extra');
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "art",
+    aliases: ["animefy", "animeart"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑨𝒏𝒊𝒎𝒆 𝒆𝒇𝒇𝒆𝒄𝒕 𝒂𝒅𝒅 𝒌𝒐𝒓𝒂",
-    category: "𝑬𝒅𝒊𝒕𝒊𝒏𝒈",
-    usages: "𝒊𝒎𝒂𝒈𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏",
-    cooldowns: 5
-  },
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "𝑒𝑑𝑖𝑡𝑖𝑛𝑔",
+    shortDescription: {
+        en: "𝐴𝑛𝑖𝑚𝑒 𝑒𝑓𝑓𝑒𝑐𝑡 𝑎𝑑𝑑"
+    },
+    longDescription: {
+        en: "𝐴𝑑𝑑𝑠 𝑎𝑛𝑖𝑚𝑒 𝑒𝑓𝑓𝑒𝑐𝑡𝑠 𝑡𝑜 𝑖𝑚𝑎𝑔𝑒𝑠"
+    },
+    guide: {
+        en: "{p}art (𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒)"
+    },
+    dependencies: {
+        "axios": "",
+        "fs-extra": ""
+    }
+};
 
-  onStart: async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args }) {
     try {
-      let pathie = __dirname + `/cache/animefied.jpg`;
-      const { threadID, messageID } = event;
+        // Check dependencies
+        if (!axios || !fs.existsSync) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
 
-      if (!event.messageReply || !event.messageReply.attachments || event.messageReply.attachments.length === 0) {
-        return api.sendMessage("❌ 𝑰𝒎𝒂𝒈𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒐𝒓𝒖𝒏 𝒑𝒍𝒆𝒂𝒔𝒆", threadID, messageID);
-      }
+        let pathie = __dirname + `/cache/animefied.jpg`;
+        const { threadID, messageID } = event;
 
-      var imageUrl = event.messageReply.attachments[0].url;
+        if (!event.messageReply || !event.messageReply.attachments || event.messageReply.attachments.length === 0) {
+            return api.sendMessage("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒", threadID, messageID);
+        }
 
-      const lim = await axios.get(`https://animeify.shinoyama.repl.co/convert-to-anime?imageUrl=${encodeURIComponent(imageUrl)}`);
-      const image = lim.data.urls[1];
-      const img = (await axios.get(`https://www.drawever.com${image}`, { responseType: "arraybuffer" })).data;
-      
-      fs.writeFileSync(pathie, Buffer.from(img, 'binary'));
+        var imageUrl = event.messageReply.attachments[0].url;
 
-      await api.sendMessage({
-        body: "✅ 𝑨𝒏𝒊𝒎𝒆𝒇𝒊𝒆𝒅 𝒊𝒎𝒂𝒈𝒆 𝒓𝒆𝒂𝒅𝒚!\n𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒊𝒏𝒈 𝒎𝒂𝒚 𝒕𝒂𝒌𝒆 𝒂 𝒎𝒐𝒎𝒆𝒏𝒕...",
-        attachment: fs.createReadStream(pathie)
-      }, threadID, messageID);
+        const lim = await axios.get(`https://animeify.shinoyama.repl.co/convert-to-anime?imageUrl=${encodeURIComponent(imageUrl)}`);
+        const image = lim.data.urls[1];
+        const img = (await axios.get(`https://www.drawever.com${image}`, { responseType: "arraybuffer" })).data;
+        
+        fs.writeFileSync(pathie, Buffer.from(img, 'binary'));
 
-      fs.unlinkSync(pathie);
+        await api.sendMessage({
+            body: "✅ 𝐴𝑛𝑖𝑚𝑒𝑓𝑖𝑒𝑑 𝑖𝑚𝑎𝑔𝑒 𝑟𝑒𝑎𝑑𝑦!\n𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑚𝑎𝑦 𝑡𝑎𝑘𝑒 𝑎 𝑚𝑜𝑚𝑒𝑛𝑡...",
+            attachment: fs.createReadStream(pathie)
+        }, threadID, messageID);
+
+        fs.unlinkSync(pathie);
 
     } catch (e) {
-      console.error(e);
-      await api.sendMessage(`❌ 𝑬𝒓𝒓𝒐𝒓 𝒉𝒐𝒚𝒆𝒄𝒉𝒆:\n${e.message}`, event.threadID, event.messageID);
+        console.error("𝐴𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", e);
+        await api.sendMessage(`❌ 𝐸𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑:\n${e.message}`, event.threadID, event.messageID);
     }
-  }
 };
