@@ -1,55 +1,58 @@
-module.exports = {
-  config: {
+const moment = require("moment-timezone");
+
+module.exports.config = {
     name: "autoreset",
+    aliases: ["autorestart", "botreset"],
     version: "1.0.1",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 0,
     role: 0,
-    category: "𝒔𝒚𝒔𝒕𝒆𝒎",
+    category: "system",
     shortDescription: {
-      en: "𝑨𝑼𝑻𝑶 𝑹𝑬𝑺𝑻𝑨𝑹𝑻 𝑺𝒀𝑺𝑻𝑬𝑴"
+        en: "𝐴𝑈𝑇𝑂 𝑅𝐸𝑆𝑇𝐴𝑅𝑇 𝑆𝑌𝑆𝑇𝐸𝑀"
     },
     longDescription: {
-      en: "𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒓𝒆𝒔𝒕𝒂𝒓𝒕𝒔 𝒕𝒉𝒆 𝒃𝒐𝒕 𝒂𝒕 𝒔𝒑𝒆𝒄𝒊𝒇𝒊𝒄 𝒕𝒊𝒎𝒆𝒔"
+        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑡𝑎𝑟𝑡𝑠 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑎𝑡 𝑠𝑝𝑒𝑐𝑖𝑓𝑖𝑐 𝑡𝑖𝑚𝑒𝑠"
     },
     guide: {
-      en: ""
+        en: ""
+    },
+    dependencies: {
+        "moment-timezone": ""
     }
-  },
+};
 
-  onStart: async function({ api, event }) {
+module.exports.onStart = async function({ message, event }) {
     try {
-      const moment = require("moment-timezone");
-      const timeNow = moment.tz("Asia/Dhaka").format("HH:mm:ss");
-      await api.sendMessage(`🕒 𝑨𝒌𝒉𝒏𝒆𝒓 𝒔𝒐𝒎𝒐𝒚: ${timeNow}`, event.threadID);
+        const timeNow = moment.tz("Asia/Dhaka").format("HH:mm:ss");
+        await message.reply(`🕒 𝐴𝑘ℎ𝑛𝑒𝑟 𝑠𝑜𝑚𝑜𝑦: ${timeNow}`);
     } catch (error) {
-      console.error("𝑨𝒖𝒕𝒐𝒓𝒆𝒔𝒕 𝑬𝒓𝒓𝒐𝒓:", error);
+        console.error("𝐴𝑢𝑡𝑜𝑟𝑒𝑠𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
     }
-  },
+};
 
-  onChat: async function({ api, event }) {
+module.exports.onChat = async function({ message, event }) {
     try {
-      const moment = require("moment-timezone");
-      const timeNow = moment.tz("Asia/Dhaka").format("HH:mm:ss");
-      const seconds = moment.tz("Asia/Dhaka").format("ss");
-      const adminIDs = global.config.ADMINBOT;
-      
-      // 𝑪𝒓𝒆𝒂𝒕𝒆 𝒕𝒊𝒎𝒆 𝒔𝒕𝒓𝒊𝒏𝒈𝒔 𝒇𝒐𝒓 𝒆𝒂𝒄𝒉 𝒉𝒐𝒖𝒓
-      const restartTimes = Array.from({length: 12}, (_, i) => 
-          `${(i+1).toString().padStart(2, '0')}:00:${seconds}`
-      );
-      
-      // 𝑪𝒉𝒆𝒄𝒌 𝒊𝒇 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 𝒕𝒊𝒎𝒆 𝒎𝒂𝒕𝒄𝒉𝒆𝒔 𝒂𝒏𝒚 𝒓𝒆𝒔𝒕𝒂𝒓𝒕 𝒕𝒊𝒎𝒆
-      if (restartTimes.includes(timeNow) && parseInt(seconds) < 6) {
-          for (const adminID of adminIDs) {
-              await api.sendMessage(
-                  `⚡️ 𝑨𝒌𝒉𝒐𝒏 𝒔𝒐𝒎𝒐𝒚: ${timeNow}\n𝑩𝒂𝒃𝒚 𝒓𝒆𝒔𝒕𝒂𝒓𝒕 𝒉𝒐𝒄𝒄𝒉𝒆!!!`,
-                  adminID
-              );
-          }
-          process.exit(1);
-      }
+        const timeNow = moment.tz("Asia/Dhaka").format("HH:mm:ss");
+        const seconds = moment.tz("Asia/Dhaka").format("ss");
+        const adminIDs = global.config.ADMINBOT || [];
+        
+        // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑡𝑖𝑚𝑒 𝑠𝑡𝑟𝑖𝑛𝑔𝑠 𝑓𝑜𝑟 𝑒𝑎𝑐ℎ ℎ𝑜𝑢𝑟
+        const restartTimes = Array.from({length: 24}, (_, i) => 
+            `${i.toString().padStart(2, '0')}:00:${seconds}`
+        );
+        
+        // 𝐶ℎ𝑒𝑐𝑘 𝑖𝑓 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑡𝑖𝑚𝑒 𝑚𝑎𝑡𝑐ℎ𝑒𝑠 𝑎𝑛𝑦 𝑟𝑒𝑠𝑡𝑎𝑟𝑡 𝑡𝑖𝑚𝑒
+        if (restartTimes.includes(timeNow) && parseInt(seconds) < 6) {
+            for (const adminID of adminIDs) {
+                await message.reply(
+                    `⚡️ 𝐴𝑘ℎ𝑜𝑛 𝑠𝑜𝑚𝑜𝑦: ${timeNow}\n𝐵𝑎𝑏𝑦 𝑟𝑒𝑠𝑡𝑎𝑟𝑡 ℎ𝑜𝑐𝑐ℎ𝑒!!!`,
+                    adminID
+                );
+            }
+            process.exit(1);
+        }
     } catch (error) {
-      console.error("𝑨𝒖𝒕𝒐𝒓𝒆𝒔𝒕 𝑬𝒓𝒓𝒐𝒓:", error);
+        console.error("𝐴𝑢𝑡𝑜𝑟𝑒𝑠𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
     }
-  }
 };
