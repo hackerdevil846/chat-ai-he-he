@@ -1,35 +1,35 @@
-module.exports = {
-  config: {
+module.exports.config = {
     name: "automention",
+    aliases: ["autotag", "mention"],
     version: "1.0.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
     role: 0,
-    category: "𝒐𝒕𝒉𝒆𝒓",
+    category: "utility",
     shortDescription: {
-      en: "𝒂𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒖𝒔𝒆𝒓𝒔"
+        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑢𝑠𝑒𝑟𝑠"
     },
     longDescription: {
-      en: "𝑨𝒖𝒕𝒐𝒎𝒂𝒕𝒊𝒄𝒂𝒍𝒍𝒚 𝒎𝒆𝒏𝒕𝒊𝒐𝒏𝒔 𝒖𝒔𝒆𝒓𝒔 𝒊𝒏 𝒕𝒉𝒆 𝒄𝒉𝒂𝒕"
+        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑠 𝑢𝑠𝑒𝑟𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡"
     },
     guide: {
-      en: "{𝒑}𝒂𝒖𝒕𝒐𝒎𝒆𝒏𝒕𝒊𝒐𝒏"
+        en: "{p}automention"
     }
-  },
+};
 
-  onStart: async function({ message, event, api }) {
+module.exports.onStart = async function({ message, event, api }) {
     try {
-      if (Object.keys(event.mentions).length === 0) {
-        await message.reply(`𝑨𝒑𝒏𝒂𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏: @[${event.senderID}:0]`);
-      } else {
-        for (let i = 0; i < Object.keys(event.mentions).length; i++) {
-          const name = Object.values(event.mentions)[i].replace('@', '');
-          const uid = Object.keys(event.mentions)[i];
-          await message.reply(`𝑴𝒆𝒏𝒕𝒊𝒐𝒏𝒊𝒏𝒈: ${name}\n➺ @[${uid}:0]`);
+        if (Object.keys(event.mentions).length === 0) {
+            await message.reply(`𝐴𝑝𝑛𝑎𝑘𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛: @[${event.senderID}:0]`);
+        } else {
+            for (let i = 0; i < Object.keys(event.mentions).length; i++) {
+                const name = Object.values(event.mentions)[i].replace('@', '');
+                const uid = Object.keys(event.mentions)[i];
+                await message.reply(`𝑀𝑒𝑛𝑡𝑖𝑜𝑛𝑖𝑛𝑔: ${name}\n➺ @[${uid}:0]`);
+            }
         }
-      }
     } catch (error) {
-      console.error("𝑨𝒖𝒕𝒐𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝑬𝒓𝒓𝒐𝒓:", error);
-      await message.reply("❌ 𝑺𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈!");
+        console.error("𝐴𝑢𝑡𝑜𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔!");
     }
-  }
 };
