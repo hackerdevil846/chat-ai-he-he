@@ -1,4 +1,5 @@
-const { createCanvas } = require('canvas');
+const { createCanvas, loadImage } = require('canvas');
+const moment = require('moment-timezone');
 
 const rows = [
 	{ col: 4, row: 10, rewardPoint: 1 },
@@ -6,715 +7,523 @@ const rows = [
 	{ col: 6, row: 15, rewardPoint: 3 }
 ];
 
-// -----------------------------
-// Module metadata
-// -----------------------------
 module.exports.config = {
-	name: "guessnumber",
-	version: "1.1",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "Guess number game 🎮",
-	category: "game",
-	usages: "[4|5|6] [single|multi]",
-	cooldowns: 5,
-	dependencies: { "canvas": "*" },
-	envConfig: {}
+    name: "guessnumber",
+    aliases: ["gnumber", "guessthecode", "numbergame"],
+    version: "1.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    shortDescription: {
+        en: "𝐺𝑢𝑒𝑠𝑠 𝑛𝑢𝑚𝑏𝑒𝑟 𝑔𝑎𝑚𝑒 🎮"
+    },
+    longDescription: {
+        en: "𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 ℎ𝑖𝑑𝑑𝑒𝑛 𝑛𝑢𝑚𝑏𝑒𝑟 𝑐𝑜𝑑𝑒 𝑔𝑎𝑚𝑒 𝑤𝑖𝑡ℎ ℎ𝑖𝑛𝑡𝑠 𝑎𝑛𝑑 𝑟𝑎𝑛𝑘𝑖𝑛𝑔 𝑠𝑦𝑠𝑡𝑒𝑚"
+    },
+    category: "𝑔𝑎𝑚𝑒",
+    guide: {
+        en: "{p}guessnumber [4|5|6] [single|multi]\n{p}guessnumber rank [page]\n{p}guessnumber info [@user|userID]\n{p}guessnumber reset (𝑎𝑑𝑚𝑖𝑛 𝑜𝑛𝑙𝑦)"
+    },
+    dependencies: { 
+        "canvas": "",
+        "moment-timezone": "",
+        "axios": "",
+        "fs-extra": ""
+    }
 };
 
-// Backwards-compatible translations holder (keeps original strings)
 module.exports.langs = {
-	vi: {
-		charts: "🏆 | Bảng xếp hạng:\n%1",
-		pageInfo: "Trang %1/%2",
-		noScore: "⭕ | Hiện tại chưa có ai ghi điểm.",
-		noPermissionReset: "⚠️ | Bạn không có quyền reset bảng xếp hạng.",
-		notFoundUser: "⚠️ | Không tìm thấy người dùng có id %1 trong bảng xếp hạng.",
-		userRankInfo: "🏆 | Thông tin xếp hạng:\nTên: %1\nĐiểm: %2\nSố lần chơi: %3\nSố lần thắng: %4\n%5\nSố lần thua: %6\nTỉ lệ thắng: %7%\nTổng thời gian chơi: %8",
-		digits: "%1 chữ số: %2",
-		resetRankSuccess: "✅ | Reset bảng xếp hạng thành công.",
-		invalidCol: "⚠️ | Vui lòng nhập số chữ số của số cần đoán là 4, 5 hoặc 6",
-		invalidMode: "⚠️ | Vui lòng nhập chế độ chơi là single hoặc multi",
-		created: "✅ | Tạo bàn chơi thành công.",
-		gameName: "GAME ĐOÁN SỐ",
-		gameGuide: "⏳ | Cách chơi:\nBạn có %1 lần đoán.\nSau mỗi lần đoán, bạn sẽ nhận được thêm gợi ý là số lượng chữ số đúng (hiển thị bên trái) và số lượng chữ số đúng vị trí (hiển thị bên phải).",
-		gameNote: "📄 | Lưu ý:\nSố được hình thành với các chữ số từ 0 đến 9, mỗi chữ số xuất hiện duy nhất một lần và số có thể đứng đầu là 0.",
-		replyToPlayGame: "🎮 | Phản hồi tin nhắn hình ảnh bên dưới kèm theo %1 số bạn đoán để chơi game.",
-		invalidNumbers: "⚠️ | Vui lòng nhập %1 số bạn muốn đoán",
-		win: "🎉 | Chúc mừng bạn đã đoán đúng số %1 sau %2 lần đoán và nhận được %3 điểm thưởng.",
-		loss: "🤦‍♂️ | Bạn đã thua, số đúng là %1."
-	},
-	en: {
-		charts: "🏆 | Ranking:\n%1",
-		pageInfo: "Page %1/%2",
-		noScore: "⭕ | There is no one who has scored.",
-		noPermissionReset: "⚠️ | You do not have permission to reset the ranking.",
-		notFoundUser: "⚠️ | Could not find user with id %1 in the ranking.",
-		userRankInfo: "🏆 | Ranking information:\nName: %1\nScore: %2\nNumber of games: %3\nNumber of wins: %4\n%5\nNumber of losses: %6\nWin rate: %7%\nTotal play time: %8",
-		digits: "%1 digits: %2",
-		resetRankSuccess: "✅ | Reset the ranking successfully.",
-		invalidCol: "⚠️ | Please enter the number of digits of the number to guess is 4, 5 or 6",
-		invalidMode: "⚠️ | Please enter the game mode is single or multi",
-		created: "✅ | Create game successfully.",
-		gameName: "GUESS NUMBER GAME",
-		gameGuide: "⏳ | How to play:\nYou have %1 guesses.\nAfter each guess, you will get additional hints of the number of correct digits (shown on the left) and the number of correct digits (shown on the right).",
-		gameNote: "📄 | Note:\nThe number is formed with digits from 0 to 9, each digit appears only once and the number can start with 0.",
-		replyToPlayGame: "🎮 | Reply to the message below with the image of %1 numbers you guess to play the game.",
-		invalidNumbers: "⚠️ | Please enter %1 numbers you want to guess",
-		win: "🎉 | Congratulations you guessed the number %1 after %2 guesses and received %3 bonus points.",
-		loss: "🤦‍♂️ | You lost, the correct number is %1."
-	}
+    "en": {
+        "charts": "🏆 | 𝑅𝑎𝑛𝑘𝑖𝑛𝑔 𝐿𝑒𝑎𝑑𝑒𝑟𝑏𝑜𝑎𝑟𝑑:\n%1",
+        "pageInfo": "📄 𝑃𝑎𝑔𝑒 %1/%2",
+        "noScore": "⭕ | 𝑁𝑜 𝑜𝑛𝑒 ℎ𝑎𝑠 𝑠𝑐𝑜𝑟𝑒𝑑 𝑦𝑒𝑡.",
+        "noPermissionReset": "⚠️ | 𝑌𝑜𝑢 𝑑𝑜 𝑛𝑜𝑡 ℎ𝑎𝑣𝑒 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑟𝑒𝑠𝑒𝑡 𝑡ℎ𝑒 𝑟𝑎𝑛𝑘𝑖𝑛𝑔.",
+        "notFoundUser": "⚠️ | 𝑈𝑠𝑒𝑟 %1 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑟𝑎𝑛𝑘𝑖𝑛𝑔.",
+        "userRankInfo": "🏆 | 𝑈𝑠𝑒𝑟 𝑅𝑎𝑛𝑘 𝐼𝑛𝑓𝑜:\n👤 𝑁𝑎𝑚𝑒: %1\n⭐ 𝑆𝑐𝑜𝑟𝑒: %2\n🎮 𝑇𝑜𝑡𝑎𝑙 𝐺𝑎𝑚𝑒𝑠: %3\n✅ 𝑊𝑖𝑛𝑠: %4\n%5\n❌ 𝐿𝑜𝑠𝑠𝑒𝑠: %6\n📊 𝑊𝑖𝑛 𝑅𝑎𝑡𝑒: %7%\n⏰ 𝑇𝑜𝑡𝑎𝑙 𝑇𝑖𝑚𝑒: %8",
+        "digits": "%1 𝑑𝑖𝑔𝑖𝑡𝑠: %2",
+        "resetRankSuccess": "✅ | 𝑅𝑎𝑛𝑘𝑖𝑛𝑔 𝑟𝑒𝑠𝑒𝑡 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦.",
+        "invalidCol": "⚠️ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 4, 5 𝑜𝑟 6 𝑑𝑖𝑔𝑖𝑡𝑠.",
+        "invalidMode": "⚠️ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 '𝑠𝑖𝑛𝑔𝑙𝑒' 𝑜𝑟 '𝑚𝑢𝑙𝑡𝑖' 𝑚𝑜𝑑𝑒.",
+        "created": "✅ | 𝐺𝑎𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
+        "gameName": "🔢 𝐺𝑈𝐸𝑆𝑆 𝑇𝐻𝐸 𝑁𝑈𝑀𝐵𝐸𝑅",
+        "gameGuide": "⏳ | 𝐻𝑜𝑤 𝑡𝑜 𝑝𝑙𝑎𝑦:\n• 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 %1 𝑔𝑢𝑒𝑠𝑠𝑒𝑠\n• 𝐴𝑓𝑡𝑒𝑟 𝑒𝑎𝑐ℎ 𝑔𝑢𝑒𝑠𝑠, 𝑦𝑜𝑢 𝑔𝑒𝑡 ℎ𝑖𝑛𝑡𝑠:\n  ← 𝐶𝑜𝑟𝑟𝑒𝑐𝑡 𝑑𝑖𝑔𝑖𝑡𝑠\n  → 𝐶𝑜𝑟𝑟𝑒𝑐𝑡 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛𝑠",
+        "gameNote": "📄 | 𝑁𝑜𝑡𝑒𝑠:\n• 𝐷𝑖𝑔𝑖𝑡𝑠 𝑓𝑟𝑜𝑚 0-9, 𝑛𝑜 𝑟𝑒𝑝𝑒𝑎𝑡𝑠\n• 𝐶𝑎𝑛 𝑠𝑡𝑎𝑟𝑡 𝑤𝑖𝑡ℎ 0\n• 𝑈𝑛𝑖𝑞𝑢𝑒 𝑑𝑖𝑔𝑖𝑡𝑠 𝑜𝑛𝑙𝑦",
+        "replyToPlayGame": "🎮 | 𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ %1 𝑑𝑖𝑔𝑖𝑡𝑠 𝑡𝑜 𝑝𝑙𝑎𝑦!",
+        "invalidNumbers": "⚠️ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑒𝑥𝑎𝑐𝑡𝑙𝑦 %1 𝑑𝑖𝑔𝑖𝑡𝑠.",
+        "win": "🎉 | 𝑪𝑶𝑵𝑮𝑹𝑨𝑻𝑼𝑳𝑨𝑻𝑰𝑶𝑵𝑺!\n𝑌𝑜𝑢 𝑔𝑢𝑒𝑠𝑠𝑒𝑑 '%1' 𝑖𝑛 %2 𝑡𝑟𝑖𝑒𝑠!\n🏆 +%3 𝑝𝑜𝑖𝑛𝑡𝑠 𝑒𝑎𝑟𝑛𝑒𝑑!",
+        "loss": "🤦‍♂️ | 𝑮𝑨𝑴𝑬 𝑶𝑽𝑬𝑹!\n𝑇ℎ𝑒 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑛𝑢𝑚𝑏𝑒𝑟 𝑤𝑎𝑠: %1\n𝐵𝑒𝑡𝑡𝑒𝑟 𝑙𝑢𝑐𝑘 𝑛𝑒𝑥𝑡 𝑡𝑖𝑚𝑒!",
+        "alreadyPlaying": "⚠️ | 𝑌𝑜𝑢 𝑎𝑟𝑒 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑖𝑛 𝑎 𝑔𝑎𝑚𝑒!",
+        "gameExpired": "⏰ | 𝐺𝑎𝑚𝑒 𝑠𝑒𝑠𝑠𝑖𝑜𝑛 𝑒𝑥𝑝𝑖𝑟𝑒𝑑. 𝑆𝑡𝑎𝑟𝑡 𝑎 𝑛𝑒𝑤 𝑜𝑛𝑒."
+    }
 };
 
-// -----------------------------
-// Internal helper: lightweight globalData fallback
-// -----------------------------
-if (!global._guessNumberGlobalStore) global._guessNumberGlobalStore = {};
-const defaultGlobalData = {
-	async get(key, scope = "data", def = []) {
-		const fullKey = `${scope || "data"}:${key}`;
-		if (global._guessNumberGlobalStore.hasOwnProperty(fullKey)) return global._guessNumberGlobalStore[fullKey];
-		return def;
-	},
-	async set(key, value, scope = "data") {
-		const fullKey = `${scope || "data"}:${key}`;
-		global._guessNumberGlobalStore[fullKey] = value;
-		return true;
-	}
-};
+if (!global.guessNumberGames) global.guessNumberGames = new Map();
+if (!global.guessNumberRankings) global.guessNumberRankings = [];
 
-// -----------------------------
-// Utility: format strings with %1 %2 placeholders (simple)
-// -----------------------------
 function formatString(base = "", ...args) {
-	let out = base + "";
-	for (let i = 0; i < args.length; i++) {
-		out = out.replace(new RegExp(`%${i + 1}`, "g"), args[i]);
-	}
-	return out;
-}
-
-// -----------------------------
-// Canvas & text helpers (kept from original, duplicates removed, cleaned up)
-// -----------------------------
-function wrapTextGetHeight(ctx, text, maxWidth, lineHeight, margin = 0) {
-	const lines = text.split('\n');
-	let height = 0;
-	let count = 0;
-	for (let i = 0; i < lines.length; i++) {
-		let line = '';
-		const words = lines[i].split(' ');
-		for (let n = 0; n < words.length; n++) {
-			const textLine = line + words[n] + ' ';
-			const textWidth = ctx.measureText(textLine).width;
-			if (textWidth > maxWidth && n > 0) {
-				line = words[n] + ' ';
-				height += lineHeight;
-				count++;
-			}
-			else {
-				line = textLine;
-			}
-		}
-		height += lineHeight;
-		count++;
-	}
-	return height + margin * count;
+    let out = base + "";
+    for (let i = 0; i < args.length; i++) {
+        out = out.replace(new RegExp(`%${i + 1}`, "g"), args[i]);
+    }
+    return out;
 }
 
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-	const yStart = y;
-	const lines = text.split('\n');
-	for (let i = 0; i < lines.length; i++) {
-		let line = '';
-		const words = lines[i].split(' ');
-		for (let n = 0; n < words.length; n++) {
-			const textLine = line + words[n] + ' ';
-			const metrics = ctx.measureText(textLine);
-			const textWidth = metrics.width;
-			if (textWidth > maxWidth && n > 0) {
-				ctx.fillText(line, x, y);
-				line = words[n] + ' ';
-				y += lineHeight;
-			}
-			else {
-				line = textLine;
-			}
-		}
-		ctx.fillText(line, x, y);
-		y += lineHeight;
-	}
-	return y - yStart;
+    const lines = text.split('\n');
+    let currentY = y;
+    
+    for (const line of lines) {
+        const words = line.split(' ');
+        let currentLine = '';
+        
+        for (const word of words) {
+            const testLine = currentLine ? `${currentLine} ${word}` : word;
+            const metrics = ctx.measureText(testLine);
+            
+            if (metrics.width > maxWidth && currentLine) {
+                ctx.fillText(currentLine, x, currentY);
+                currentLine = word;
+                currentY += lineHeight;
+            } else {
+                currentLine = testLine;
+            }
+        }
+        
+        if (currentLine) {
+            ctx.fillText(currentLine, x, currentY);
+            currentY += lineHeight;
+        }
+    }
+    
+    return currentY;
 }
 
-function drawBorderSquareRadius(ctx, x, y, width, height, radius = 5, lineWidth = 1, strokeStyle = '#000', fill) {
-	ctx.save();
-	ctx.beginPath();
-	ctx.moveTo(x + radius, y);
-	ctx.lineTo(x + width - radius, y);
-	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-	ctx.lineTo(x + width, y + height - radius);
-	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-	ctx.lineTo(x + radius, y + height);
-	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-	ctx.lineTo(x, y + radius);
-	ctx.quadraticCurveTo(x, y, x + radius, y);
-	ctx.closePath();
-	if (fill) {
-		ctx.fillStyle = strokeStyle;
-		ctx.fill();
-	}
-	else {
-		ctx.strokeStyle = strokeStyle;
-		ctx.lineWidth = lineWidth;
-		ctx.stroke();
-	}
-	ctx.restore();
+function drawRoundedRect(ctx, x, y, width, height, radius, fill, stroke) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    
+    if (fill) {
+        ctx.fillStyle = fill;
+        ctx.fill();
+    }
+    
+    if (stroke) {
+        ctx.strokeStyle = stroke.color || '#000';
+        ctx.lineWidth = stroke.width || 1;
+        ctx.stroke();
+    }
 }
 
-function drawWrappedText(ctx, text, startY, wrapWidth, lineHeight, boldFirstLine, margin, marginText) {
-	const splitText = text.split('\n');
-	let y = startY;
-	for (let i = 0; i < splitText.length; i++) {
-		if (i === 0 && boldFirstLine)
-			ctx.font = `bold ${ctx.font}`;
-		else
-			ctx.font = ctx.font.replace('bold ', '');
-		const height = wrapText(ctx, splitText[i], margin / 2, y, wrapWidth, lineHeight);
-		y += height + marginText;
-	}
-	return y;
+function createGameBoard(options) {
+    const { col, row, answer, gameName, gameGuide, gameNote } = options;
+    
+    const cellSize = 80;
+    const cellSpacing = 15;
+    const padding = 50;
+    const headerHeight = 120;
+    const footerHeight = 150;
+    
+    const width = col * (cellSize + cellSpacing) + padding * 2;
+    const height = headerHeight + row * (cellSize + cellSpacing) + footerHeight + padding * 2;
+    
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
+    
+    // Background
+    ctx.fillStyle = '#2c3e50';
+    ctx.fillRect(0, 0, width, height);
+    
+    // Header
+    ctx.fillStyle = '#34495e';
+    ctx.fillRect(0, 0, width, headerHeight);
+    
+    // Game title
+    ctx.font = 'bold 32px Arial';
+    ctx.fillStyle = '#ecf0f1';
+    ctx.textAlign = 'center';
+    ctx.fillText(gameName, width / 2, 40);
+    
+    // Game grid background
+    ctx.fillStyle = '#34495e';
+    ctx.fillRect(padding, headerHeight, width - padding * 2, row * (cellSize + cellSpacing));
+    
+    // Draw grid cells
+    for (let r = 0; r < row; r++) {
+        for (let c = 0; c < col; c++) {
+            const x = padding + c * (cellSize + cellSpacing);
+            const y = headerHeight + r * (cellSize + cellSpacing);
+            
+            drawRoundedRect(ctx, x, y, cellSize, cellSize, 10, '#ecf0f1', {
+                color: '#bdc3c7',
+                width: 2
+            });
+        }
+    }
+    
+    // Footer with instructions
+    ctx.fillStyle = '#34495e';
+    ctx.fillRect(0, height - footerHeight, width, footerHeight);
+    
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#ecf0f1';
+    ctx.textAlign = 'left';
+    
+    let textY = height - footerHeight + 30;
+    const instructions = [
+        `🎯 𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 ${col}-𝑑𝑖𝑔𝑖𝑡 𝑐𝑜𝑑𝑒`,
+        `📊 𝐻𝑖𝑛𝑡𝑠: ← 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑑𝑖𝑔𝑖𝑡𝑠 → 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛𝑠`,
+        `⏰ ${row} 𝑎𝑡𝑡𝑒𝑚𝑝𝑡𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒`,
+        `💡 𝐷𝑖𝑔𝑖𝑡𝑠 0-9, 𝑛𝑜 𝑟𝑒𝑝𝑒𝑎𝑡𝑠`
+    ];
+    
+    for (const line of instructions) {
+        ctx.fillText(line, padding, textY);
+        textY += 25;
+    }
+    
+    const imageStream = canvas.createPNGStream();
+    return { canvas, ctx, imageStream };
 }
 
-function getPositionOfSquare(x, y, sizeOfOneSquare, distance, marginX, marginY, lineWidth, heightGameName) {
-	const xOutSide = marginX + x * (sizeOfOneSquare + distance) + lineWidth / 2;
-	const yOutSide = marginY + y * (sizeOfOneSquare + distance) + lineWidth / 2 + heightGameName;
-	const xInSide = xOutSide + lineWidth;
-	const yInSide = yOutSide + lineWidth;
-
-	return {
-		xOutSide,
-		yOutSide,
-		xInSide,
-		yInSide
-	};
+function updateGameBoard(gameData, guess, attempt) {
+    const { canvas, ctx, col, row, answer } = gameData;
+    const cellSize = 80;
+    const cellSpacing = 15;
+    const padding = 50;
+    const headerHeight = 120;
+    
+    // Draw guess in the grid
+    const yPos = headerHeight + attempt * (cellSize + cellSpacing);
+    
+    for (let c = 0; c < col; c++) {
+        const x = padding + c * (cellSize + cellSpacing);
+        const y = yPos;
+        
+        // Clear cell
+        drawRoundedRect(ctx, x, y, cellSize, cellSize, 10, '#ecf0f1', {
+            color: '#bdc3c7',
+            width: 2
+        });
+        
+        // Determine cell color based on correctness
+        let cellColor = '#e74c3c'; // Default red (wrong)
+        if (guess[c] === answer[c]) {
+            cellColor = '#27ae60'; // Green (correct position)
+        } else if (answer.includes(guess[c])) {
+            cellColor = '#f39c12'; // Orange (correct digit, wrong position)
+        }
+        
+        // Fill cell with color
+        drawRoundedRect(ctx, x, y, cellSize, cellSize, 10, cellColor);
+        
+        // Draw digit
+        ctx.font = 'bold 36px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(guess[c], x + cellSize / 2, y + cellSize / 2);
+    }
+    
+    // Calculate hints
+    let correctDigits = 0;
+    let correctPositions = 0;
+    const answerDigits = answer.split('');
+    const guessDigits = guess.split('');
+    
+    for (let i = 0; i < col; i++) {
+        if (answerDigits[i] === guessDigits[i]) {
+            correctPositions++;
+        }
+        if (answerDigits.includes(guessDigits[i])) {
+            correctDigits++;
+        }
+    }
+    
+    // Draw hints
+    ctx.font = 'bold 20px Arial';
+    ctx.fillStyle = '#ecf0f1';
+    ctx.textAlign = 'center';
+    
+    const hintX = padding + col * (cellSize + cellSpacing) + 30;
+    const hintY = yPos + cellSize / 2;
+    
+    ctx.fillText(`← ${correctDigits}`, hintX, hintY - 15);
+    ctx.fillText(`→ ${correctPositions}`, hintX, hintY + 15);
+    
+    const imageStream = canvas.createPNGStream();
+    return { 
+        imageStream, 
+        isWin: correctPositions === col,
+        isGameOver: attempt === row - 1,
+        correctDigits,
+        correctPositions 
+    };
 }
 
-// -----------------------------
-// Main game rendering & logic (kept intact)
-// -----------------------------
-function guessNumberGame(options) {
-	let { numbers, ctx, canvas, tryNumber, row, ctxNumbers, canvasNumbers, ctxHightLight, canvasHightLight } = options;
-	const { col, answer, gameName, gameGuide, gameNote } = options;
-
-	// Prepare numbers format
-	tryNumber = tryNumber || 0;
-	tryNumber--;
-	if (Array.isArray(numbers)) numbers = numbers.map(item => item.toString().trim());
-	if (typeof numbers == 'string') numbers = numbers.split('').map(item => item.trim());
-
-	if (numbers && numbers.length) {
-		options.allGuesss ? options.allGuesss.push(numbers) : options.allGuesss = [numbers];
-	}
-
-	row = row || 10;
-
-	const heightGameName = 40;
-	const yGameName = 150;
-	const sizeOfOneSquare = 100;
-	const lineWidth = 6;
-	const radius = 10;
-	const distance = 10;
-	const marginX = 150;
-	const marginY = 100;
-	const backgroundColor = '#F0F2F5';
-
-	const fontGameGuide = '35px "Arial"';
-	const fontGameName = 'bold 50px "Arial"';
-	const fontNumbers = 'bold 60px "Arial"';
-	const fontSuggest = 'bold 40px "Arial"';
-	const fontResultWin = 'bold 150px "Times New Roman"';
-	const fontResultLose = 'bold 150px "Arial"';
-	const marginText = 2.9;
-	const lineHeightGuideText = 38;
-
-	// Create canvas if not present
-	if (!ctx && !canvas) {
-		const xCanvas = col * sizeOfOneSquare + (col - 1) * distance + marginX * 2;
-		canvas = createCanvas(1, 1);
-		ctx = canvas.getContext('2d');
-		ctx.font = fontGameGuide;
-
-		const heightGameGuide = wrapTextGetHeight(ctx, gameGuide, xCanvas - marginX, lineHeightGuideText, marginText);
-		const heightGameNote = wrapTextGetHeight(ctx, gameNote, xCanvas - marginX, lineHeightGuideText, marginText);
-		const marginGuideNote = 10;
-
-		canvas = createCanvas(
-			col * sizeOfOneSquare + (col - 1) * distance + marginX * 2,
-			heightGameName + row * sizeOfOneSquare + (row - 1) * distance + marginY * 2 + heightGameGuide + heightGameNote + marginGuideNote
-		);
-		ctx = canvas.getContext('2d');
-		ctx.fillStyle = backgroundColor;
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-		// draw game name
-		ctx.font = fontGameName;
-		ctx.fillStyle = '#404040';
-		ctx.textAlign = 'center';
-		ctx.textBaseline = 'middle';
-		ctx.fillText(gameName, canvas.width / 2, yGameName / 2);
-
-		// draw guide + note
-		ctx.font = fontGameGuide;
-		ctx.fillStyle = '#404040';
-		ctx.textAlign = 'left';
-		const yGuide = heightGameName + marginY / 2 + row * (sizeOfOneSquare + distance) + marginY / 2 + lineHeightGuideText * 2;
-
-		const yNote = drawWrappedText(ctx, gameGuide, yGuide, canvas.width - marginX, lineHeightGuideText, true, marginX, marginText);
-		drawWrappedText(ctx, gameNote, yNote + 10, canvas.width - marginX, lineHeightGuideText, true, marginX, marginText);
-
-		// draw all squares
-		for (let i = 0; i < col; i++) {
-			for (let j = 0; j < row; j++) {
-				const { xOutSide, yOutSide, xInSide, yInSide } = getPositionOfSquare(i, j, sizeOfOneSquare, distance, marginX, marginY, lineWidth, heightGameName);
-				drawBorderSquareRadius(
-					ctx,
-					xOutSide,
-					yOutSide,
-					sizeOfOneSquare,
-					sizeOfOneSquare,
-					radius,
-					lineWidth,
-					'#919191',
-					true
-				);
-
-				drawBorderSquareRadius(
-					ctx,
-					xInSide,
-					yInSide,
-					sizeOfOneSquare - lineWidth * 2,
-					sizeOfOneSquare - lineWidth * 2,
-					radius / 2,
-					lineWidth,
-					backgroundColor,
-					true
-				);
-			}
-		}
-	}
-
-	// ensure highlight & number layers exist
-	if (!canvasHightLight) {
-		canvasHightLight = createCanvas(canvas.width, canvas.height);
-		ctxHightLight = canvasHightLight.getContext('2d');
-		canvasNumbers = createCanvas(canvas.width, canvas.height);
-		ctxNumbers = canvasNumbers.getContext('2d');
-	}
-
-	// draw numbers if provided
-	let isWin = null;
-	if (numbers && numbers.length) {
-		ctxNumbers.font = fontNumbers;
-		ctxNumbers.fillStyle = '#f0f0f0';
-		ctxNumbers.textAlign = 'center';
-		ctxNumbers.textBaseline = 'middle';
-		for (let i = 0; i < col; i++) {
-			const { xOutSide, yOutSide, xInSide, yInSide } = getPositionOfSquare(i, tryNumber, sizeOfOneSquare, distance, marginX, marginY, lineWidth, heightGameName);
-
-			// draw background of square (on base ctx)
-			drawBorderSquareRadius(
-				ctx,
-				xInSide,
-				yInSide,
-				sizeOfOneSquare - lineWidth * 2,
-				sizeOfOneSquare - lineWidth * 2,
-				radius / 2,
-				lineWidth,
-				'#a3a3a3',
-				true
-			);
-
-			// draw number on ctxNumbers
-			const x = xOutSide + sizeOfOneSquare / 2;
-			const y = yOutSide + sizeOfOneSquare / 2;
-			ctxNumbers.fillText(numbers[i], x, y);
-
-			// highlight yellow/green if number present/position correct
-			if (answer.includes(numbers[i]) || numbers[i] === answer[i]) {
-				drawBorderSquareRadius(
-					ctxHightLight,
-					xOutSide,
-					yOutSide,
-					sizeOfOneSquare,
-					sizeOfOneSquare,
-					radius,
-					lineWidth,
-					numbers[i] == answer[i] ? '#417642' : '#A48502',
-					true
-				);
-				drawBorderSquareRadius(
-					ctxHightLight,
-					xInSide,
-					yInSide,
-					sizeOfOneSquare - lineWidth * 2,
-					sizeOfOneSquare - lineWidth * 2,
-					radius / 2,
-					lineWidth,
-					numbers[i] == answer[i] ? '#57AC58' : '#E9BE00',
-					true
-				);
-			}
-		}
-
-		// compute hints: numberRight (digits present) and numberRightPosition (correct position)
-		let numberRight = 0;
-		let numberRightPosition = 0;
-		answer.split('').forEach((item, index) => {
-			if (numbers.includes(item)) numberRight++;
-			if (item == numbers[index]) numberRightPosition++;
-		});
-
-		ctx.font = fontSuggest;
-		ctx.fillText(numberRight, marginX / 2, marginY + sizeOfOneSquare / 2 + heightGameName + tryNumber * (sizeOfOneSquare + distance));
-		ctx.fillText(numberRightPosition, marginX + col * (sizeOfOneSquare) + distance * (col - 1) + marginX / 2, marginY + sizeOfOneSquare / 2 + heightGameName + tryNumber * (sizeOfOneSquare + distance));
-
-		// check win or last try
-		if ((numberRight == answer.length && numberRightPosition == answer.length) || tryNumber + 1 == row) {
-			isWin = (numberRight == answer.length && numberRightPosition == answer.length);
-			ctx.save();
-			ctx.drawImage(canvasHightLight, 0, 0);
-			ctx.drawImage(canvasNumbers, 0, 0);
-
-			ctx.font = isWin ? fontResultWin : fontResultLose;
-			ctx.fillStyle = isWin ? '#005900' : '#590000';
-			ctx.globalAlpha = 0.4;
-			ctx.translate(canvas.width / 2, marginY + heightGameName + (row * (sizeOfOneSquare + distance)) / 2);
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.rotate(-45 * Math.PI / 180);
-			ctx.fillText(isWin ? 'YOU WIN' : answer.split('').join(' '), 0, 0);
-			ctx.restore();
-		}
-		else {
-			// just draw numbers overlay
-			ctx.drawImage(canvasNumbers, 0, 0);
-		}
-	}
-
-	tryNumber++;
-
-	const imageStream = canvas.createPNGStream();
-	imageStream.path = `guessNumber${Date.now()}.png`;
-
-	return {
-		...options,
-		imageStream,
-		ctx,
-		canvas,
-		tryNumber: tryNumber + 1,
-		isWin,
-		ctxHightLight,
-		canvasHightLight,
-		ctxNumbers,
-		canvasNumbers
-	};
+function generateNumber(length) {
+    const digits = '0123456789'.split('');
+    let result = '';
+    
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * digits.length);
+        result += digits[randomIndex];
+        digits.splice(randomIndex, 1);
+    }
+    
+    return result;
 }
 
-// -----------------------------
-// Core handlers (kept original behavior)
-// -----------------------------
-async function onStartHandler({ message, event, getLang, commandName, args, globalData, usersData, role }) {
-	// Commands: rank, info, reset handled first
-	if (args[0] == "rank") {
-		const rankGuessNumber = await globalData.get("rankGuessNumber", "data", []);
-		if (!rankGuessNumber.length) return message.reply(getLang("noScore"));
-
-		const page = parseInt(args[1]) || 1;
-		const maxUserOnePage = 30;
-
-		let rankGuessNumberHandle = await Promise.all(rankGuessNumber.slice((page - 1) * maxUserOnePage, page * maxUserOnePage).map(async item => {
-			const userName = (usersData && usersData.getName) ? await usersData.getName(item.id) : `${item.id}`;
-			return {
-				...item,
-				userName,
-				winNumber: item.wins?.length || 0,
-				lossNumber: item.losses?.length || 0
-			};
-		}));
-
-		rankGuessNumberHandle = rankGuessNumberHandle.sort((a, b) => b.winNumber - a.winNumber);
-		const medals = ["🥇", "🥈", "🥉"];
-		const rankGuessNumberText = rankGuessNumberHandle.map((item, index) => {
-			const medal = medals[index] || index + 1;
-			return `${medal} ${item.userName} - ${item.winNumber} wins - ${item.lossNumber} losses`;
-		}).join("\n");
-
-		return message.reply(getLang("charts", rankGuessNumberText || getLang("noScore")) + "\n" + getLang("pageInfo", page, Math.ceil(rankGuessNumber.length / maxUserOnePage)));
-	}
-	else if (args[0] == "info") {
-		const rankGuessNumber = await globalData.get("rankGuessNumber", "data", []);
-		let targetID;
-		if (event && event.mentions && Object.keys(event.mentions).length) targetID = Object.keys(event.mentions)[0];
-		else if (event && event.messageReply) targetID = event.messageReply.senderID;
-		else if (!isNaN(args[1])) targetID = args[1];
-		else targetID = event.senderID;
-
-		const userDataGuessNumber = rankGuessNumber.find(item => item.id == targetID);
-		if (!userDataGuessNumber) return message.reply(getLang("notFoundUser", targetID));
-
-		const userName = (usersData && usersData.getName) ? await usersData.getName(targetID) : `${targetID}`;
-		const pointsReceived = userDataGuessNumber.points;
-		const winNumber = userDataGuessNumber.wins?.length || 0;
-		const playNumber = winNumber + (userDataGuessNumber.losses?.length || 0);
-		const lossNumber = userDataGuessNumber.losses?.length || 0;
-		const winRate = (playNumber === 0) ? 0 : (winNumber / playNumber * 100).toFixed(2);
-		const winInfo = {};
-		for (const item of userDataGuessNumber.wins || [])
-			winInfo[item.col] = winInfo[item.col] ? winInfo[item.col] + 1 : 1;
-		const playTime = (global.utils && global.utils.convertTime) ? global.utils.convertTime((userDataGuessNumber.wins || []).reduce((a, b) => a + b.timeSuccess, 0) + (userDataGuessNumber.losses || []).reduce((a, b) => a + b.timeSuccess, 0)) : 0;
-
-		return message.reply(getLang("userRankInfo", userName, pointsReceived, playNumber, winNumber, Object.keys(winInfo).map(item => `  + ${getLang("digits", item, winInfo[item])}`).join("\n"), lossNumber, winRate, playTime));
-	}
-	else if (args[0] == "reset") {
-		if (role < 2) return message.reply(getLang("noPermissionReset"));
-		await globalData.set("rankGuessNumber", [], "data");
-		return message.reply(getLang("resetRankSuccess"));
-	}
-
-	// Validate column & mode
-	const col = parseInt(args.join(" ").match(/(\d+)/)?.[1] || 4);
-	const levelOfDifficult = rows.find(item => item.col == col);
-	if (!levelOfDifficult) return message.reply(getLang("invalidCol"));
-	const mode = args.join(" ").match(/(single|multi|-s|-m)/)?.[1] || "single";
-	const row = levelOfDifficult.row || 10;
-
-	// Build options
-	const options = {
-		col,
-		row,
-		timeStart: parseInt((global.utils && global.utils.getTime) ? global.utils.getTime("x") : Date.now()),
-		numbers: [],
-		tryNumber: 0,
-		ctx: null,
-		canvas: null,
-		answer: (global.utils && global.utils.randomString) ? global.utils.randomString(col, true, "0123456789") : (() => {
-			// fallback if randomString not provided: generate non-repeated digits string
-			const digits = "0123456789".split('');
-			let s = "";
-			for (let i = 0; i < col; i++) {
-				const idx = Math.floor(Math.random() * digits.length);
-				s += digits.splice(idx, 1);
-			}
-			return s;
-		})(),
-		gameName: getLang("gameName"),
-		gameGuide: getLang("gameGuide", row),
-		gameNote: getLang("gameNote")
-	};
-
-	const gameData = guessNumberGame(options);
-	gameData.mode = mode;
-
-	// reply initial text and image, then register reply handler
-	const messageDataText = `${getLang("created")}\n\n${getLang("gameGuide", row)}\n\n${getLang("gameNote")}\n\n${getLang("replyToPlayGame", col)}`;
-	const messageData = await message.reply(messageDataText);
-	gameData.messageData = messageData;
-
-	// send image
-	const imageReply = await message.reply({ attachment: gameData.imageStream });
-
-	// store onReply map so future replies are connected
-	if (global.GoatBot && global.GoatBot.onReply && imageReply && imageReply.messageID) {
-		global.GoatBot.onReply.set(imageReply.messageID, {
-			commandName,
-			messageID: imageReply.messageID,
-			author: event.senderID,
-			gameData
-		});
-	}
-}
-
-async function onReplyHandler({ message, Reply, event, getLang, commandName, globalData }) {
-	const { gameData: oldGameData } = Reply;
-	if (event.senderID != Reply.author && oldGameData.mode == "single") return;
-
-	const numbers = (event.body || "").split("").map(item => item.trim()).filter(item => item != "" && !isNaN(item));
-	if (numbers.length != oldGameData.col) return message.reply(getLang("invalidNumbers", oldGameData.col));
-	// Remove pending reply entry
-	if (global.GoatBot && global.GoatBot.onReply) global.GoatBot.onReply.delete(Reply.messageID);
-
-	oldGameData.numbers = numbers;
-	const gameData = guessNumberGame(oldGameData);
-
-	// If game not finished -> send updated image and re-register reply
-	if (gameData.isWin == null) {
-		const info = await message.reply({ attachment: gameData.imageStream });
-		// try to unsend old reply message (best-effort)
-		try { if (Reply && Reply.messageID) message.unsend(Reply.messageID); } catch (e) {}
-		if (global.GoatBot && global.GoatBot.onReply && info && info.messageID) {
-			global.GoatBot.onReply.set(info.messageID, {
-				commandName,
-				messageID: info.messageID,
-				author: event.senderID,
-				gameData
-			});
-		}
-	}
-	else {
-		const rankGuessNumber = await globalData.get("rankGuessNumber", "data", []);
-		const rewardPoint = rows.find(item => item.col == gameData.col)?.rewardPoint || 0;
-		const messageText = gameData.isWin ? getLang("win", gameData.answer, gameData.tryNumber - 1, rewardPoint) : getLang("loss", gameData.answer);
-
-		// try to unsend previous messages (best-effort)
-		try { if ((await oldGameData.messageData)?.messageID) message.unsend((await oldGameData.messageData).messageID); } catch (e) {}
-		try { if (Reply && Reply.messageID) message.unsend(Reply.messageID); } catch (e) {}
-
-		await message.reply({ body: messageText, attachment: gameData.imageStream });
-
-		// Update ranking
-		if (gameData.isWin != null) {
-			const userIndex = rankGuessNumber.findIndex(item => item.id == event.senderID);
-			const data = {
-				tryNumber: gameData.tryNumber - 1,
-				timeSuccess: parseInt(((global.utils && global.utils.getTime) ? global.utils.getTime("x") : Date.now()) - (oldGameData.timeStart || 0)),
-				date: (global.utils && global.utils.getTime) ? global.utils.getTime() : new Date().toString(),
-				col: gameData.col
-			};
-
-			if (gameData.isWin == true) {
-				if (userIndex == -1)
-					rankGuessNumber.push({ id: event.senderID, wins: [data], losses: [], points: rewardPoint });
-				else {
-					rankGuessNumber[userIndex].wins.push(data);
-					rankGuessNumber[userIndex].points += rewardPoint;
-				}
-			}
-			else {
-				delete data.tryNumber;
-				if (userIndex == -1)
-					rankGuessNumber.push({ id: event.senderID, wins: [], losses: [data], points: 0 });
-				else
-					rankGuessNumber[userIndex].losses.push(data);
-			}
-			await globalData.set("rankGuessNumber", rankGuessNumber, "data");
-		}
-	}
-}
-
-// -----------------------------
-// GoatBot wrappers: adapt various runtime signatures to internal handlers
-// - run(...) -> calls onStartHandler
-// - handleReply(...) -> calls onReplyHandler
-// These wrappers build small shims for message, globalData, usersData and getLang.
-// -----------------------------
-module.exports.run = async function ({ api, event, args = [], models, Users, Threads, Currencies, permssion }) {
-	// Build message wrapper with reply(bodyOrObj) and unsend(messageID)
-	const message = {
-		reply: async (bodyOrObj) => {
-			return new Promise(resolve => {
-				// bodyOrObj can be string or { body:, attachment: stream }
-				api.sendMessage(bodyOrObj, event.threadID, (err, info) => {
-					if (err) resolve(null);
-					else resolve(info);
-				});
-			});
-		},
-		unsend: async (messageID) => {
-			try {
-				// many GoatBot forks use api.unsendMessage(messageID)
-				if (api.unsendMessage) await api.unsendMessage(messageID);
-				else if (api.deleteMessage) await api.deleteMessage(messageID);
-				// else: best-effort no-op
-			} catch (e) { /* ignore errors */ }
-		}
-	};
-
-	// getLang shim: try to get thread language if Threads available; fallback to 'en'
-	let langCode = 'en';
-	try {
-		if (Threads && Threads.getData) {
-			const threadData = await Threads.getData(event.threadID);
-			if (threadData && threadData.data && threadData.data.lang) langCode = threadData.data.lang;
-		}
-	} catch (e) { /* ignore */ }
-
-	const getLang = (key, ...vars) => {
-		const strObj = module.exports.langs[langCode] || module.exports.langs['en'];
-		const base = strObj[key] || key;
-		return formatString(base, ...vars);
-	};
-
-	// build globalData shim: prefer models / global if provided else fallback to defaultGlobalData
-	const globalData = (models && models.globalData) ? models.globalData : (global.globalData ? global.globalData : defaultGlobalData);
-
-	// usersData shim (for getName)
-	const usersData = {
-		getName: async (uid) => {
-			try {
-				// try provided Users.getName
-				if (Users && Users.getName) return await Users.getName(uid);
-				// try api.getUserInfo
-				if (api.getUserInfo) {
-					const info = await new Promise(res => api.getUserInfo(uid, res));
-					if (info && info[uid] && info[uid].name) return info[uid].name;
-				}
-			} catch (e) {}
-			return `${uid}`;
-		}
-	};
-
-	const role = permssion || 0;
-	const commandName = module.exports.config.name;
-
-	// call internal handler
-	await onStartHandler({ message, event, getLang, commandName, args, globalData, usersData, role });
+module.exports.onStart = async function({ message, event, args, getLang, usersData, role }) {
+    try {
+        const userId = event.senderID;
+        
+        // Clean up expired games
+        const now = Date.now();
+        for (const [key, game] of global.guessNumberGames.entries()) {
+            if (now - game.createdAt > 3600000) { // 1 hour expiration
+                global.guessNumberGames.delete(key);
+            }
+        }
+        
+        // Handle subcommands
+        if (args[0] === 'rank') {
+            if (global.guessNumberRankings.length === 0) {
+                return message.reply(getLang("noScore"));
+            }
+            
+            const page = parseInt(args[1]) || 1;
+            const itemsPerPage = 10;
+            const totalPages = Math.ceil(global.guessNumberRankings.length / itemsPerPage);
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            
+            const rankedUsers = global.guessNumberRankings
+                .sort((a, b) => b.points - a.points)
+                .slice(startIndex, endIndex);
+            
+            let leaderboard = '';
+            const medals = ['🥇', '🥈', '🥉'];
+            
+            for (let i = 0; i < rankedUsers.length; i++) {
+                const user = rankedUsers[i];
+                const userName = usersData ? await usersData.getName(user.id) : `User ${user.id}`;
+                const medal = medals[i] || `#${startIndex + i + 1}`;
+                
+                leaderboard += `${medal} ${userName} - ${user.points} pts (${user.wins} wins)\n`;
+            }
+            
+            return message.reply(
+                getLang("charts", leaderboard) + 
+                '\n' + 
+                getLang("pageInfo", page, totalPages)
+            );
+            
+        } else if (args[0] === 'info') {
+            let targetId = event.senderID;
+            
+            if (event.mentions && Object.keys(event.mentions).length > 0) {
+                targetId = Object.keys(event.mentions)[0];
+            } else if (args[1] && !isNaN(args[1])) {
+                targetId = args[1];
+            }
+            
+            const userStats = global.guessNumberRankings.find(u => u.id === targetId);
+            if (!userStats) {
+                return message.reply(getLang("notFoundUser", targetId));
+            }
+            
+            const userName = usersData ? await usersData.getName(targetId) : `User ${targetId}`;
+            const winRate = userStats.gamesPlayed > 0 
+                ? ((userStats.wins / userStats.gamesPlayed) * 100).toFixed(1)
+                : '0.0';
+                
+            const digitStats = Object.entries(userStats.digitStats || {})
+                .map(([digits, wins]) => getLang("digits", digits, wins))
+                .join('\n');
+                
+            const totalTime = moment.duration(userStats.totalPlayTime || 0).humanize();
+            
+            return message.reply(getLang("userRankInfo", 
+                userName, 
+                userStats.points, 
+                userStats.gamesPlayed, 
+                userStats.wins,
+                digitStats,
+                userStats.gamesPlayed - userStats.wins,
+                winRate,
+                totalTime
+            ));
+            
+        } else if (args[0] === 'reset') {
+            if (role < 2) {
+                return message.reply(getLang("noPermissionReset"));
+            }
+            
+            global.guessNumberRankings = [];
+            return message.reply(getLang("resetRankSuccess"));
+        }
+        
+        // Check if user already has an active game
+        if (global.guessNumberGames.has(userId)) {
+            return message.reply(getLang("alreadyPlaying"));
+        }
+        
+        // Parse difficulty and mode
+        const col = parseInt(args[0]) || 4;
+        if (![4, 5, 6].includes(col)) {
+            return message.reply(getLang("invalidCol"));
+        }
+        
+        const mode = args[1]?.toLowerCase() || 'single';
+        if (!['single', 'multi'].includes(mode)) {
+            return message.reply(getLang("invalidMode"));
+        }
+        
+        const difficulty = rows.find(r => r.col === col);
+        const answer = generateNumber(col);
+        
+        // Create game data
+        const gameData = {
+            col,
+            row: difficulty.row,
+            answer,
+            attempts: [],
+            currentAttempt: 0,
+            mode,
+            createdAt: Date.now(),
+            userId,
+            gameName: getLang("gameName"),
+            gameGuide: getLang("gameGuide", difficulty.row),
+            gameNote: getLang("gameNote")
+        };
+        
+        // Create initial game board
+        const board = createGameBoard(gameData);
+        Object.assign(gameData, board);
+        
+        // Store game
+        global.guessNumberGames.set(userId, gameData);
+        
+        // Send game instructions
+        const instructions = `${getLang("created")}\n\n${getLang("gameGuide", difficulty.row)}\n\n${getLang("replyToPlayGame", col)}`;
+        await message.reply(instructions);
+        
+        // Send game board
+        const reply = await message.reply({
+            attachment: gameData.imageStream
+        });
+        
+        // Store reply message ID for handling
+        gameData.messageId = reply.messageID;
+        
+    } catch (error) {
+        console.error('𝐺𝑎𝑚𝑒 𝐸𝑟𝑟𝑜𝑟:', error);
+        message.reply('❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑: ' + error.message);
+    }
 };
 
-module.exports.handleReply = async function ({ api, event, models, Users, Threads, Currencies, handleReply }) {
-	// handleReply object expected like: { commandName, messageID, author, gameData }
-	if (!handleReply) return;
-	// Build message shim for reply and unsend
-	const message = {
-		reply: async (bodyOrObj) => {
-			return new Promise(resolve => {
-				api.sendMessage(bodyOrObj, event.threadID, (err, info) => {
-					if (err) resolve(null);
-					else resolve(info);
-				});
-			});
-		},
-		unsend: async (messageID) => {
-			try { if (api.unsendMessage) await api.unsendMessage(messageID); else if (api.deleteMessage) await api.deleteMessage(messageID); } catch (e) {}
-		}
-	};
-
-	// getLang shim (same as run)
-	let langCode = 'en';
-	try {
-		if (Threads && Threads.getData) {
-			const threadData = await Threads.getData(event.threadID);
-			if (threadData && threadData.data && threadData.data.lang) langCode = threadData.data.lang;
-		}
-	} catch (e) { /* ignore */ }
-
-	const getLang = (key, ...vars) => {
-		const strObj = module.exports.langs[langCode] || module.exports.langs['en'];
-		const base = strObj[key] || key;
-		return formatString(base, ...vars);
-	};
-
-	// globalData shim
-	const globalData = (models && models.globalData) ? models.globalData : (global.globalData ? global.globalData : defaultGlobalData);
-
-	await onReplyHandler({ message, Reply: handleReply, event, getLang, commandName: handleReply.commandName, globalData });
+module.exports.onReply = async function({ event, Reply, message, getLang, usersData }) {
+    try {
+        const userId = event.senderID;
+        const guess = event.body.trim();
+        
+        // Get game data
+        const gameData = global.guessNumberGames.get(userId);
+        if (!gameData) {
+            return message.reply(getLang("gameExpired"));
+        }
+        
+        // Validate guess
+        if (!/^\d+$/.test(guess) || guess.length !== gameData.col) {
+            return message.reply(getLang("invalidNumbers", gameData.col));
+        }
+        
+        // Check for duplicate digits
+        const uniqueDigits = new Set(guess.split(''));
+        if (uniqueDigits.size !== guess.length) {
+            return message.reply('⚠️ | 𝐷𝑖𝑔𝑖𝑡𝑠 𝑚𝑢𝑠𝑡 𝑏𝑒 𝑢𝑛𝑖𝑞𝑢𝑒! 𝑁𝑜 𝑟𝑒𝑝𝑒𝑎𝑡𝑠 𝑎𝑙𝑙𝑜𝑤𝑒𝑑.');
+        }
+        
+        // Update game board
+        const result = updateGameBoard(gameData, guess, gameData.currentAttempt);
+        gameData.attempts.push({
+            guess,
+            correctDigits: result.correctDigits,
+            correctPositions: result.correctPositions
+        });
+        gameData.currentAttempt++;
+        
+        // Check game outcome
+        if (result.isWin || result.isGameOver) {
+            // Remove game from active games
+            global.guessNumberGames.delete(userId);
+            
+            // Update rankings
+            let userStats = global.guessNumberRankings.find(u => u.id === userId);
+            if (!userStats) {
+                userStats = {
+                    id: userId,
+                    points: 0,
+                    wins: 0,
+                    gamesPlayed: 0,
+                    totalPlayTime: 0,
+                    digitStats: {}
+                };
+                global.guessNumberRankings.push(userStats);
+            }
+            
+            userStats.gamesPlayed++;
+            userStats.totalPlayTime += (Date.now() - gameData.createdAt);
+            
+            if (result.isWin) {
+                const pointsEarned = rows.find(r => r.col === gameData.col)?.rewardPoint || 1;
+                userStats.points += pointsEarned;
+                userStats.wins++;
+                
+                // Update digit-specific stats
+                if (!userStats.digitStats[gameData.col]) {
+                    userStats.digitStats[gameData.col] = 0;
+                }
+                userStats.digitStats[gameData.col]++;
+                
+                await message.reply({
+                    body: getLang("win", gameData.answer, gameData.currentAttempt, pointsEarned),
+                    attachment: result.imageStream
+                });
+            } else {
+                await message.reply({
+                    body: getLang("loss", gameData.answer),
+                    attachment: result.imageStream
+                });
+            }
+            
+        } else {
+            // Game continues, update the message
+            await message.reply({
+                attachment: result.imageStream
+            });
+        }
+        
+    } catch (error) {
+        console.error('𝑅𝑒𝑝𝑙𝑦 𝐸𝑟𝑟𝑜𝑟:', error);
+        message.reply('❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑: ' + error.message);
+    }
 };
 
-// Export a couple of handlers for runtimes that call these names
-module.exports.onStart = async function (context) {
-	// If a runtime directly provides the original signatures, call original handler
-	return onStartHandler(context);
-};
-module.exports.onReply = async function (context) {
-	return onReplyHandler(context);
+module.exports.onChat = async function({ event, message }) {
+    // Optional: Add some interactive responses
+    const text = event.body?.toLowerCase() || '';
+    
+    if (text.includes('guess number') || text.includes('number game')) {
+        message.reply('🎮 𝑇𝑟𝑦: !guessnumber 4 - 𝑃𝑙𝑎𝑦 𝑤𝑖𝑡ℎ 4 𝑑𝑖𝑔𝑖𝑡𝑠!\n𝑈𝑠𝑒: !guessnumber rank - 𝑆𝑒𝑒 𝑙𝑒𝑎𝑑𝑒𝑟𝑏𝑜𝑎𝑟𝑑');
+    }
 };
