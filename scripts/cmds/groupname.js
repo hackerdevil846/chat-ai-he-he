@@ -1,46 +1,60 @@
 module.exports.config = {
-	name: "groupname",
-	version: "2.0.0",
-	hasPermssion: 1,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "✨ 𝐂𝐡𝐚𝐧𝐠𝐞 𝐲𝐨𝐮𝐫 𝐠𝐫𝐨𝐮𝐩'𝐬 𝐧𝐚𝐦𝐞 𝐰𝐢𝐭𝐡 𝐬𝐭𝐲𝐥𝐞 ✨",
-	category: "🅶🆁🅾🆄🅿",
-	usages: "[𝐧𝐞𝐰 𝐧𝐚𝐦𝐞]",
-	cooldowns: 3,
-	dependencies: {}
+    name: "groupname",
+    aliases: ["setname", "changename"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 3,
+    role: 1,
+    category: "𝑔𝑟𝑜𝑢𝑝",
+    shortDescription: {
+        en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑦𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝'𝑠 𝑛𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑒"
+    },
+    longDescription: {
+        en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑛𝑎𝑚𝑒 𝑜𝑓 𝑦𝑜𝑢𝑟 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑔𝑟𝑜𝑢𝑝 𝑤𝑖𝑡ℎ 𝑐𝑢𝑠𝑡𝑜𝑚 𝑠𝑡𝑦𝑙𝑖𝑛𝑔"
+    },
+    guide: {
+        en: "{p}groupname [𝑛𝑒𝑤 𝑛𝑎𝑚𝑒]"
+    },
+    dependencies: {}
 };
 
-module.exports.onStart = async function({ api, event, args }) {
-	try {
-		const { threadID, messageID, senderID } = event;
-		const newName = args.join(" ");
-		
-		if (!newName) {
-			return api.sendMessage(`🎯 | 𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐭𝐞𝐫 𝐚 𝐧𝐞𝐰 𝐧𝐚𝐦𝐞 𝐟𝐨𝐫 𝐭𝐡𝐞 𝐠𝐫𝐨𝐮𝐩!\n💡 | 𝐔𝐬𝐚𝐠𝐞: 𝐠𝐫𝐨𝐮𝐩𝐧𝐚𝐦𝐞 [𝐧𝐞𝐰 𝐧𝐚𝐦𝐞]`, threadID, messageID);
-		}
-		if (newName.length > 200) {
-			return api.sendMessage("❌ | 𝐆𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞 𝐜𝐚𝐧𝐧𝐨𝐭 𝐞𝐱𝐜𝐞𝐞𝐝 𝟐𝟎𝟎 𝐜𝐡𝐚𝐫𝐚𝐜𝐭𝐞𝐫𝐬!", threadID, messageID);
-		}
-		await api.setTitle(newName, threadID);
-		
-		return api.sendMessage({
-			body: `✅ | 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐜𝐡𝐚𝐧𝐠𝐞𝐝 𝐠𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞!\n\n✨ | 𝐍𝐞𝐰 𝐍𝐚𝐦𝐞: 「 ${newName} 」\n👤 | 𝐂𝐡𝐚𝐧𝐠𝐞𝐝 𝐁𝐲: @${(await api.getUserInfo(senderID))[senderID].name}`,
-			mentions: [{
-				tag: `@${(await api.getUserInfo(senderID))[senderID].name}`,
-				id: senderID
-			}]
-		}, threadID, messageID);
-	} catch (error) {
-		console.error("Group Name Error:", error);
-		return api.sendMessage(`❌ | 𝐄𝐫𝐫𝐨𝐫 𝐜𝐡𝐚𝐧𝐠𝐢𝐧𝐠 𝐠𝐫𝐨𝐮𝐩 𝐧𝐚𝐦𝐞!\n🔧 | 𝐏𝐥𝐞𝐚𝐬𝐞 𝐞𝐧𝐬𝐮𝐫𝐞 𝐈 𝐡𝐚𝐯𝐞 𝐚𝐝𝐦𝐢𝐧 𝐩𝐞𝐫𝐦𝐢𝐬𝐬𝐢𝐨𝐧 𝐚𝐧𝐝 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧!`, event.threadID, event.messageID);
-	}
+module.exports.onStart = async function({ message, args, event, api }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const newName = args.join(" ");
+        
+        if (!newName) {
+            return message.reply("🎯 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑒𝑤 𝑛𝑎𝑚𝑒 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝!\n💡 | 𝑈𝑠𝑎𝑔𝑒: 𝑔𝑟𝑜𝑢𝑝𝑛𝑎𝑚𝑒 [𝑛𝑒𝑤 𝑛𝑎𝑚𝑒]", threadID, messageID);
+        }
+        
+        if (newName.length > 200) {
+            return message.reply("❌ | 𝐺𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒 𝑐𝑎𝑛𝑛𝑜𝑡 𝑒𝑥𝑐𝑒𝑒𝑑 200 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠!", threadID, messageID);
+        }
+        
+        await api.setTitle(newName, threadID);
+        
+        const userInfo = await api.getUserInfo(senderID);
+        const userName = userInfo[senderID]?.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
+        
+        return message.reply({
+            body: `✅ | 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐ℎ𝑎𝑛𝑔𝑒𝑑 𝑔𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒!\n\n✨ | 𝑁𝑒𝑤 𝑁𝑎𝑚𝑒: 「 ${newName} 」\n👤 | 𝐶ℎ𝑎𝑛𝑔𝑒𝑑 𝐵𝑦: @${userName}`,
+            mentions: [{
+                tag: `@${userName}`,
+                id: senderID
+            }]
+        }, threadID, messageID);
+        
+    } catch (error) {
+        console.error("𝐺𝑟𝑜𝑢𝑝 𝑁𝑎𝑚𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+        return message.reply("❌ | 𝐸𝑟𝑟𝑜𝑟 𝑐ℎ𝑎𝑛𝑔𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒!\n🔧 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑠𝑢𝑟𝑒 𝐼 ℎ𝑎𝑣𝑒 𝑎𝑑𝑚𝑖𝑛 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑎𝑛𝑑 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛!", event.threadID, event.messageID);
+    }
 };
 
-module.exports.handleEvent = async function({ api, event }) {
-	// Additional event handling if needed
+module.exports.onChat = async function({ event }) {
+    // Additional chat handling if needed
 };
 
 module.exports.onLoad = function() {
-	// Code that runs when the command is loaded
-	console.log("Group Name Command Loaded Successfully!");
+    // Code that runs when the command is loaded
+    console.log("𝐺𝑟𝑜𝑢𝑝 𝑁𝑎𝑚𝑒 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐿𝑜𝑎𝑑𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!");
 };
