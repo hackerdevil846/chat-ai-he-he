@@ -1,29 +1,32 @@
-module.exports = {
-	config: {
-		name: "hentai",
-		aliases: ["hvdo"],
-		version: "1.0",
-		author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-		countDown: 60,
-		role: 0,
-		shortDescription: "Get hentai video 🎬",
-		longDescription: "Sends random hentai video from curated collection 🌙",
-		category: "𝟭𝟴+",
-		guide: "{p}{n}",
-		envConfig: {
-			// No environment config required
-		}
-	},
+module.exports.config = {
+    name: "hentai",
+    aliases: ["hvdo", "adultvideo"],
+    version: "1.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 60,
+    role: 0,
+    shortDescription: {
+        en: "𝐺𝑒𝑡 ℎ𝑒𝑛𝑡𝑎𝑖 𝑣𝑖𝑑𝑒𝑜 🎬"
+    },
+    longDescription: {
+        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 ℎ𝑒𝑛𝑡𝑎𝑖 𝑣𝑖𝑑𝑒𝑜 𝑓𝑟𝑜𝑚 𝑐𝑢𝑟𝑎𝑡𝑒𝑑 𝑐𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛 🌙"
+    },
+    category: "18+",
+    guide: {
+        en: "{p}hentai"
+    },
+    dependencies: {
+        "axios": ""
+    }
+};
 
-	sentVideos: [],
+module.exports.onStart = async function ({ message, event }) {
+    try {
+        const loadingMessage = await message.reply({
+            body: "🔞 | 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑑𝑢𝑙𝑡 𝑣𝑖𝑑𝑒𝑜...\n⏳ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 𝑢𝑝 𝑡𝑜 5 𝑚𝑖𝑛𝑢𝑡𝑒𝑠"
+        });
 
-	onStart: async function ({ api, event, message }) {
-		const senderID = event.senderID;
-		const loadingMessage = await message.reply({
-			body: "🔞 | Loading random adult video...\n⏳ | Please wait up to 5 minutes"
-		});
-
-		const videoLinks = [
+        const videoLinks = [
 				"https://drive.google.com/uc?export=download&id=1ywjcqK_AkWyxnRXjoB0JKLdChZsR69cK",
 				"https://drive.google.com/uc?export=download&id=1xyC3bJWlmZVMoWJHYRLdX_dNibPVBDIV",
 				"https://drive.google.com/uc?export=download&id=1whpsUv4Xzt3bp-QSlx03cLdwW2UsnEt2",
@@ -144,24 +147,35 @@ module.exports = {
 				"https://drive.google.com/uc?export=download&id=1-7rYID9JMd38eg5NplPVFbD7jTE8NDyf",
 ];
 
-		const availableVideos = videoLinks.filter(video => !this.sentVideos.includes(video));
-		
-		if (availableVideos.length === 0) {
-			this.sentVideos = [];
-		}
+        if (!global.hentaiSentVideos) {
+            global.hentaiSentVideos = [];
+        }
 
-		const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
-		this.sentVideos.push(randomVideo);
+        const availableVideos = videoLinks.filter(video => !global.hentaiSentVideos.includes(video));
+        
+        if (availableVideos.length === 0) {
+            global.hentaiSentVideos = [];
+        }
 
-		try {
-			await message.reply({
-				body: "🎬 | Here's your adult video\n⚠️ | Make sure to watch full video",
-				attachment: await global.utils.getStreamFromURL(randomVideo)
-			});
-		} catch (error) {
-			await message.reply("❌ | Error sending video. Please try again later.");
-		} finally {
-			api.unsendMessage(loadingMessage.messageID);
-		}
-	}
+        const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
+        global.hentaiSentVideos.push(randomVideo);
+
+        try {
+            await message.reply({
+                body: "🎬 | 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑎𝑑𝑢𝑙𝑡 𝑣𝑖𝑑𝑒𝑜\n⚠️ | 𝑀𝑎𝑘𝑒 𝑠𝑢𝑟𝑒 𝑡𝑜 𝑤𝑎𝑡𝑐ℎ 𝑓𝑢𝑙𝑙 𝑣𝑖𝑑𝑒𝑜",
+                attachment: await global.utils.getStreamFromURL(randomVideo)
+            });
+        } catch (error) {
+            console.error("𝑉𝑖𝑑𝑒𝑜 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ | 𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        } finally {
+            if (loadingMessage && loadingMessage.messageID) {
+                await message.unsend(loadingMessage.messageID);
+            }
+        }
+
+    } catch (error) {
+        console.error("𝑀𝑎𝑖𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+    }
 };
