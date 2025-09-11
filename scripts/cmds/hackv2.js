@@ -4,14 +4,21 @@ const { createCanvas, loadImage } = require('canvas');
 
 module.exports.config = {
     name: "hackv2",
+    aliases: ["hackprank", "fakehack"],
     version: "1.0.3",
-    hasPermssion: 0,
-    usePrefix: true,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🖥️ Prank friends with hack simulation",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 0,
+    role: 0,
     category: "group",
-    usages: "@mention",
-    cooldowns: 0,
+    shortDescription: {
+        en: "🖥️ 𝑃𝑟𝑎𝑛𝑘 𝑓𝑟𝑖𝑒𝑛𝑑𝑠 𝑤𝑖𝑡ℎ ℎ𝑎𝑐𝑘 𝑠𝑖𝑚𝑢𝑙𝑎𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "𝑆𝑖𝑚𝑢𝑙𝑎𝑡𝑒𝑠 𝑎 ℎ𝑎𝑐𝑘𝑖𝑛𝑔 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑓𝑜𝑟 𝑝𝑟𝑎𝑛𝑘𝑖𝑛𝑔 𝑓𝑟𝑖𝑒𝑛𝑑𝑠"
+    },
+    guide: {
+        en: "{p}hackv2 @𝑚𝑒𝑛𝑡𝑖𝑜𝑛"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -19,15 +26,15 @@ module.exports.config = {
     }
 };
 
-module.exports.onStart = async function ({ event, api }) {
-    const cachePath = __dirname + "/cache";
-    if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath);
-
-    const pathImg = cachePath + "/background.png";
-    const pathAvt1 = cachePath + "/Avtmot.png";
-    const mentionID = Object.keys(event.mentions)[0] || event.senderID;
-    
+module.exports.onStart = async function ({ event, api, message }) {
     try {
+        const cachePath = __dirname + "/cache";
+        if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath);
+
+        const pathImg = cachePath + "/background.png";
+        const pathAvt1 = cachePath + "/Avtmot.png";
+        const mentionID = Object.keys(event.mentions)[0] || event.senderID;
+        
         const userInfo = await api.getUserInfo(mentionID);
         const name = userInfo[mentionID].name;
         const backgroundUrl = "https://drive.google.com/uc?id=1RwJnJTzUmwOmP3N_mZzxtp63wbvt9bLZ";
@@ -90,13 +97,15 @@ module.exports.onStart = async function ({ event, api }) {
         fs.writeFileSync(pathImg, imageBuffer);
         fs.removeSync(pathAvt1);
 
-        return api.sendMessage({
-            body: "✅ 𝙎𝙪𝙘𝙘𝙚𝙨𝙨𝙛𝙪𝙡𝙡𝙮 𝙃𝙖𝙘𝙠𝙚𝙙 𝙏𝙝𝙞𝙨 𝙐𝙨𝙚𝙧! My Lord, Please Check Your Inbox. 💌",
+        await message.reply({
+            body: "✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝐻𝑎𝑐𝑘𝑒𝑑 𝑇ℎ𝑖𝑠 𝑈𝑠𝑒𝑟! 𝑀𝑦 𝐿𝑜𝑟𝑑, 𝑃𝑙𝑒𝑎𝑠𝑒 𝐶ℎ𝑒𝑐𝑘 𝑌𝑜𝑢𝑟 𝐼𝑛𝑏𝑜𝑥. 💌",
             attachment: fs.createReadStream(pathImg)
-        }, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
+        });
+
+        fs.unlinkSync(pathImg);
 
     } catch (error) {
-        console.error("Hack module error:", error);
-        return api.sendMessage("❌ An error occurred, please try again later.", event.threadID, event.messageID);
+        console.error("𝐻𝑎𝑐𝑘 𝑚𝑜𝑑𝑢𝑙𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
 };
