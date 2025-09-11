@@ -3,54 +3,69 @@ const fs = require("fs-extra");
 
 module.exports.config = {
     name: "bslap",
+    aliases: ["batslap", "slap"],
     version: "1.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🎭 Batslap image generator",
-    category: "random-img",
-    usages: "@tag [message]",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "fun",
+    shortDescription: {
+        en: "𝐵𝑎𝑡𝑠𝑙𝑎𝑝 𝑖𝑚𝑎𝑔𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝐵𝑎𝑡𝑚𝑎𝑛 𝑠𝑙𝑎𝑝 𝑚𝑒𝑚𝑒 𝑤𝑖𝑡ℎ 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟"
+    },
+    guide: {
+        en: "{p}bslap @𝑡𝑎𝑔 [𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
+    },
     dependencies: {
         "discord-image-generation": "",
         "fs-extra": ""
-    },
-    envConfig: {}
-};
-
-module.exports.languages = {
-    "vi": {
-        noTag: "Bạn phải tag người bạn muốn tát"
-    },
-    "en": {
-        noTag: "❌ You must tag the person you want to slap!"
     }
 };
 
-module.exports.onLoad = function() {
-    // Runs when command is loaded
+module.exports.languages = {
+    "en": {
+        "noTag": "❌ 𝑌𝑜𝑢 𝑚𝑢𝑠𝑡 𝑡𝑎𝑔 𝑡ℎ𝑒 𝑝𝑒𝑟𝑠𝑜𝑛 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑠𝑙𝑎𝑝!"
+    }
 };
 
 module.exports.onStart = async function({ api, event, args, Users }) {
     try {
         const uid1 = event.senderID;
         const uid2 = Object.keys(event.mentions)[0];
-        if (!uid2) return api.sendMessage(this.languages.en.noTag, event.threadID);
+        
+        if (!uid2) {
+            return api.sendMessage(this.languages.en.noTag, event.threadID, event.messageID);
+        }
 
-        const avatarURL1 = await Users.getAvatarUrl(uid1);
-        const avatarURL2 = await Users.getAvatarUrl(uid2);
+        // Get avatar URLs
+        const userInfo1 = await api.getUserInfo(uid1);
+        const userInfo2 = await api.getUserInfo(uid2);
+        
+        const avatarURL1 = `https://graph.facebook.com/${uid1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+        const avatarURL2 = `https://graph.facebook.com/${uid2}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 
+        // Generate batslap image
         const img = await new DIG.Batslap().getImage(avatarURL1, avatarURL2);
-        const pathSave = `${__dirname}/tmp/${uid1}_${uid2}Batslap.png`;
-        fs.writeFileSync(pathSave, Buffer.from(img));
+        const pathSave = `${__dirname}/cache/${uid1}_${uid2}_batslap.png`;
+        
+        await fs.writeFileSync(pathSave, Buffer.from(img));
 
-        const content = args.join(' ').replace(Object.keys(event.mentions)[0], "") || "Bópppp 😵‍💫😵";
-        api.sendMessage({
+        // Prepare message content
+        const content = args.join(' ').replace(Object.keys(event.mentions)[0], "").trim() || "𝐵𝑜𝑝𝑝𝑝𝑝 😵‍💫😵";
+        
+        // Send message with attachment
+        await api.sendMessage({
             body: `💥 ${content}`,
             attachment: fs.createReadStream(pathSave)
-        }, event.threadID, () => fs.unlinkSync(pathSave));
+        }, event.threadID, event.messageID);
+
+        // Clean up temporary file
+        await fs.unlinkSync(pathSave);
 
     } catch (error) {
-        console.error(error);
-        api.sendMessage("❌ Something went wrong while generating the Batslap image!", event.threadID);
+        console.error("𝐵𝑎𝑡𝑠𝑙𝑎𝑝 𝐸𝑟𝑟𝑜𝑟:", error);
+        await api.sendMessage("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝐵𝑎𝑡𝑠𝑙𝑎𝑝 𝑖𝑚𝑎𝑔𝑒!", event.threadID, event.messageID);
     }
 };
