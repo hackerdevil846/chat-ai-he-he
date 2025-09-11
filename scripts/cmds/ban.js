@@ -21,214 +21,228 @@ const toBI = (text) => {
   return text.split('').map(char => map[char] || char).join('');
 };
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "ban",
+    aliases: ["warn", "moderate"],
     version: "2.0.5",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 1,
     category: "group",
     shortDescription: {
-      en: toBI("Group theke member der permanently ban kora")
+        en: "𝐵𝑎𝑛 𝑜𝑟 𝑤𝑎𝑟𝑛 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠"
     },
     longDescription: {
-      en: toBI("Group theke member der permanently ban kora (QTV bot set kora rakhun)")
+        en: "𝑀𝑎𝑛𝑎𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑤𝑖𝑡ℎ 𝑤𝑎𝑟𝑛𝑖𝑛𝑔𝑠 𝑎𝑛𝑑 𝑏𝑎𝑛𝑠"
     },
     guide: {
-      en: toBI("{p}ban [key]")
+        en: "{p}ban [𝑣𝑖𝑒𝑤|𝑢𝑛𝑏𝑎𝑛|𝑙𝑖𝑠𝑡𝑏𝑎𝑛|𝑟𝑒𝑠𝑒𝑡|@𝑡𝑎𝑔]"
+    },
+    dependencies: {
+        "fs-extra": "",
+        "path": ""
     }
-  },
+};
 
-  onStart: async function ({ event, message, args, usersData, threadsData, api }) {
-    const { threadID, messageID, senderID } = event;
-    
-    // Ensure cache directory exists
-    const cacheDir = path.join(__dirname, 'cache');
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
-    }
-    
-    // Initialize bans data if not exists
-    const bansPath = path.join(__dirname, 'cache', 'bans.json');
-    if (!fs.existsSync(bansPath)) {
-      const initialData = { warns: {}, banned: {} };
-      fs.writeFileSync(bansPath, JSON.stringify(initialData, null, 2));
-    }
-    
-    let bans = JSON.parse(fs.readFileSync(bansPath));
-    
-    // Get thread info to check admin status
-    const threadInfo = await threadsData.get(threadID);
-    const isBotAdmin = threadInfo.adminIDs.some(admin => admin.id === api.getCurrentUserID());
-    
-    if (!isBotAdmin) {
-      return message.reply(toBI("❌ Botke group admin dite hobe ei command chalanor jonno\nPlease add kore abar try korun!"));
-    }
-    
-    if (!bans.warns.hasOwnProperty(threadID)) {
-      bans.warns[threadID] = {};
-      fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
-    }
-    
-    if (!bans.banned.hasOwnProperty(threadID)) {
-      bans.banned[threadID] = [];
-      fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
-    }
-    
-    // Check if user is admin
-    const isUserAdmin = threadInfo.adminIDs.some(admin => admin.id === senderID) || 
-                       (global.GoatBot && global.GoatBot.config.ADMINBOT.includes(senderID));
-    
-    // Handle different commands
-    switch (args[0]) {
-      case "view": {
-        if (!args[1]) {
-          // View own warns
-          const mywarn = bans.warns[threadID][senderID];
-          if (!mywarn || mywarn.length === 0) {
-            return message.reply(toBI("✅ Apnake kokhono warn kora hoyni"));
-          }
-          
-          let msg = "";
-          for (let reasonwarn of mywarn) {
-            msg += `• ${reasonwarn}\n`;
-          }
-          return message.reply(toBI(`❎ Apnake warn kora hoyeche:\n${msg}`));
-        } 
-        else if (args[1] === "all") {
-          // View all warns in group
-          const dtwbox = bans.warns[threadID];
-          let allwarn = "";
-          
-          for (let idtvw in dtwbox) {
-            if (dtwbox[idtvw].length > 0) {
-              const name = await usersData.getName(idtvw);
-              let msg = "";
-              for (let reasonwtv of dtwbox[idtvw]) {
-                msg += `• ${reasonwtv}\n`;
-              }
-              allwarn += `${name}:\n${msg}\n`;
+module.exports.onStart = async function ({ event, message, args, usersData, threadsData, api }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        
+        // Ensure cache directory exists
+        const cacheDir = path.join(__dirname, 'cache');
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+        
+        // Initialize bans data if not exists
+        const bansPath = path.join(__dirname, 'cache', 'bans.json');
+        if (!fs.existsSync(bansPath)) {
+            const initialData = { warns: {}, banned: {} };
+            fs.writeFileSync(bansPath, JSON.stringify(initialData, null, 2));
+        }
+        
+        let bans = JSON.parse(fs.readFileSync(bansPath));
+        
+        // Get thread info to check admin status
+        const threadInfo = await threadsData.get(threadID);
+        const isBotAdmin = threadInfo.adminIDs.some(admin => admin.id === api.getCurrentUserID());
+        
+        if (!isBotAdmin) {
+            return message.reply(toBI("❌ 𝐵𝑜𝑡 𝑚𝑢𝑠𝑡 𝑏𝑒 𝑎𝑛 𝑎𝑑𝑚𝑖𝑛 𝑡𝑜 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑"));
+        }
+        
+        if (!bans.warns.hasOwnProperty(threadID)) {
+            bans.warns[threadID] = {};
+            fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
+        }
+        
+        if (!bans.banned.hasOwnProperty(threadID)) {
+            bans.banned[threadID] = [];
+            fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
+        }
+        
+        // Check if user is admin
+        const isUserAdmin = threadInfo.adminIDs.some(admin => admin.id === senderID) || 
+                           (global.GoatBot && global.GoatBot.config.ADMINBOT.includes(senderID));
+        
+        // Handle different commands
+        switch (args[0]) {
+            case "view": {
+                if (!args[1]) {
+                    // View own warns
+                    const mywarn = bans.warns[threadID][senderID];
+                    if (!mywarn || mywarn.length === 0) {
+                        return message.reply(toBI("✅ 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 𝑛𝑜 𝑤𝑎𝑟𝑛𝑠"));
+                    }
+                    
+                    let msg = "";
+                    for (let reasonwarn of mywarn) {
+                        msg += `• ${reasonwarn}\n`;
+                    }
+                    return message.reply(toBI(`❎ 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 𝑤𝑎𝑟𝑛𝑠:\n${msg}`));
+                } 
+                else if (args[1] === "all") {
+                    if (!isUserAdmin) {
+                        return message.reply(toBI("❌ 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑣𝑖𝑒𝑤 𝑎𝑙𝑙 𝑤𝑎𝑟𝑛𝑠"));
+                    }
+                    
+                    // View all warns in group
+                    const dtwbox = bans.warns[threadID];
+                    let allwarn = "";
+                    
+                    for (let idtvw in dtwbox) {
+                        if (dtwbox[idtvw].length > 0) {
+                            const name = await usersData.getName(idtvw);
+                            let msg = "";
+                            for (let reasonwtv of dtwbox[idtvw]) {
+                                msg += `• ${reasonwtv}\n`;
+                            }
+                            allwarn += `${name}:\n${msg}\n`;
+                        }
+                    }
+                    
+                    if (allwarn === "") {
+                        return message.reply(toBI("✅ 𝑁𝑜 𝑜𝑛𝑒 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑤𝑎𝑟𝑛𝑒𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝"));
+                    } else {
+                        return message.reply(toBI("❎ 𝑊𝑎𝑟𝑛𝑒𝑑 𝑚𝑒𝑚𝑏𝑒𝑟𝑠:\n" + allwarn));
+                    }
+                } else {
+                    return message.reply(toBI("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑣𝑖𝑒𝑤 𝑐𝑜𝑚𝑚𝑎𝑛𝑑. 𝑈𝑠𝑒 '𝑣𝑖𝑒𝑤' 𝑜𝑟 '𝑣𝑖𝑒𝑤 𝑎𝑙𝑙'"));
+                }
             }
-          }
-          
-          if (allwarn === "") {
-            return message.reply(toBI("✅ Apnar group e aj porjonto keu warn hoyni"));
-          } else {
-            return message.reply(toBI("❎ Warn hoyeche emon memberra:\n" + allwarn));
-          }
-        } else {
-          return message.reply(toBI("❎ Invalid view command. Use 'view' or 'view all'"));
-        }
-      }
-      
-      case "unban": {
-        if (!isUserAdmin) {
-          return message.reply(toBI("❎ Permission denied! Shudhu group adminra ei command use korte paren"));
-        }
-        
-        const id = parseInt(args[1]);
-        if (!id) {
-          return message.reply(toBI("❎ Group er ban list theke remove korar jonno user er id dite hobe"));
-        }
-        
-        const mybox = bans.banned[threadID] || [];
-        if (!mybox.includes(id)) {
-          return message.reply(toBI("✅ Ei user ke apnar group theke ban kora hoyni"));
-        }
-        
-        // Remove from banned list and warns
-        bans.banned[threadID] = mybox.filter(userId => userId !== id);
-        delete bans.warns[threadID][id];
-        
-        fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
-        return message.reply(toBI(`✅ Group er ban list theke id ${id} wala member ke remove kora holo`));
-      }
-      
-      case "listban": {
-        const mybox = bans.banned[threadID] || [];
-        if (mybox.length === 0) {
-          return message.reply(toBI("✅ Apnar group e aj porjonto keu ban hoyni"));
-        }
-        
-        let msg = "";
-        for (let iduser of mybox) {
-          const name = await usersData.getName(iduser);
-          msg += `╔ Name: ${name}\n╚ ID: ${iduser}\n\n`;
-        }
-        return message.reply(toBI("❎ Group theke ban kora hoyeche emon memberra:\n" + msg));
-      }
-      
-      case "reset": {
-        if (!isUserAdmin) {
-          return message.reply(toBI("❎ Permission denied! Shudhu group adminra ei command use korte paren"));
-        }
-        
-        bans.warns[threadID] = {};
-        bans.banned[threadID] = [];
-        fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
-        return message.reply(toBI("✅ Apnar group er shob data reset kora holo"));
-      }
-      
-      default: {
-        // Default ban command
-        if (!isUserAdmin) {
-          return message.reply(toBI("❎ Permission denied! Shudhu group adminra ei command use korte paren"));
-        }
-        
-        // Check if message is a reply or has mentions
-        const { messageReply, mentions } = event;
-        let iduser = [];
-        let reason = args.slice(1).join(" ") || toBI("Kono reason dewa hoyni");
-        
-        if (messageReply) {
-          iduser.push(messageReply.senderID);
-        } else if (Object.keys(mentions).length > 0) {
-          iduser = Object.keys(mentions);
-          // Remove mentions from reason
-          const mentionValues = Object.values(mentions);
-          for (let mention of mentionValues) {
-            reason = reason.replace(mention, "").trim();
-          }
-        } else {
-          return message.reply(toBI("❎ Kise ban korben? User ke tag koren ba reply din"));
-        }
-        
-        const arraytag = [];
-        const arrayname = [];
-        
-        for (let iid of iduser) {
-          const id = parseInt(iid);
-          const name = await usersData.getName(id);
-          arraytag.push({ id: id, tag: name });
-          arrayname.push(name);
-          
-          // Initialize user warns if not exists
-          if (!bans.warns[threadID][id]) {
-            bans.warns[threadID][id] = [];
-          }
-          
-          // Add warn reason
-          bans.warns[threadID][id].push(reason);
-          
-          // Ban user if they have warns
-          if (bans.warns[threadID][id].length > 0) {
-            try {
-              await api.removeUserFromGroup(id, threadID);
-              if (!bans.banned[threadID].includes(id)) {
-                bans.banned[threadID].push(id);
-              }
-            } catch (error) {
-              console.error("Ban error:", error);
+            
+            case "unban": {
+                if (!isUserAdmin) {
+                    return message.reply(toBI("❌ 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑢𝑛𝑏𝑎𝑛 𝑢𝑠𝑒𝑟𝑠"));
+                }
+                
+                const id = parseInt(args[1]);
+                if (!id) {
+                    return message.reply(toBI("❌ 𝑃𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑢𝑠𝑒𝑟 𝐼𝐷 𝑡𝑜 𝑢𝑛𝑏𝑎𝑛"));
+                }
+                
+                const mybox = bans.banned[threadID] || [];
+                if (!mybox.includes(id)) {
+                    return message.reply(toBI("✅ 𝑇ℎ𝑖𝑠 𝑢𝑠𝑒𝑟 𝑖𝑠 𝑛𝑜𝑡 𝑏𝑎𝑛𝑛𝑒𝑑"));
+                }
+                
+                // Remove from banned list and warns
+                bans.banned[threadID] = mybox.filter(userId => userId !== id);
+                delete bans.warns[threadID][id];
+                
+                fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
+                return message.reply(toBI(`✅ 𝑈𝑠𝑒𝑟 ${id} ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑢𝑛𝑏𝑎𝑛𝑛𝑒𝑑`));
             }
-          }
+            
+            case "listban": {
+                const mybox = bans.banned[threadID] || [];
+                if (mybox.length === 0) {
+                    return message.reply(toBI("✅ 𝑁𝑜 𝑜𝑛𝑒 𝑖𝑠 𝑏𝑎𝑛𝑛𝑒𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝"));
+                }
+                
+                let msg = "";
+                for (let iduser of mybox) {
+                    const name = await usersData.getName(iduser);
+                    msg += `╔ 𝑁𝑎𝑚𝑒: ${name}\n╚ 𝐼𝐷: ${iduser}\n\n`;
+                }
+                return message.reply(toBI("❎ 𝐵𝑎𝑛𝑛𝑒𝑑 𝑚𝑒𝑚𝑏𝑒𝑟𝑠:\n" + msg));
+            }
+            
+            case "reset": {
+                if (!isUserAdmin) {
+                    return message.reply(toBI("❌ 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑟𝑒𝑠𝑒𝑡 𝑑𝑎𝑡𝑎"));
+                }
+                
+                bans.warns[threadID] = {};
+                bans.banned[threadID] = [];
+                fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
+                return message.reply(toBI("✅ 𝐴𝑙𝑙 𝑔𝑟𝑜𝑢𝑝 𝑑𝑎𝑡𝑎 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑟𝑒𝑠𝑒𝑡"));
+            }
+            
+            default: {
+                // Default ban command
+                if (!isUserAdmin) {
+                    return message.reply(toBI("❌ 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑"));
+                }
+                
+                // Check if message is a reply or has mentions
+                const { messageReply, mentions } = event;
+                let iduser = [];
+                let reason = args.slice(1).join(" ") || toBI("𝑁𝑜 𝑟𝑒𝑎𝑠𝑜𝑛 𝑝𝑟𝑜𝑣𝑖𝑑𝑒𝑑");
+                
+                if (messageReply) {
+                    iduser.push(messageReply.senderID);
+                } else if (Object.keys(mentions).length > 0) {
+                    iduser = Object.keys(mentions);
+                    // Remove mentions from reason
+                    const mentionValues = Object.values(mentions);
+                    for (let mention of mentionValues) {
+                        reason = reason.replace(mention, "").trim();
+                    }
+                } else {
+                    return message.reply(toBI("❌ 𝑇𝑎𝑔 𝑎 𝑢𝑠𝑒𝑟 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"));
+                }
+                
+                const arraytag = [];
+                const arrayname = [];
+                
+                for (let iid of iduser) {
+                    const id = parseInt(iid);
+                    const name = await usersData.getName(id);
+                    arraytag.push({ id: id, tag: name });
+                    arrayname.push(name);
+                    
+                    // Initialize user warns if not exists
+                    if (!bans.warns[threadID][id]) {
+                        bans.warns[threadID][id] = [];
+                    }
+                    
+                    // Add warn reason
+                    bans.warns[threadID][id].push(reason);
+                    
+                    // Ban user if they have warns
+                    if (bans.warns[threadID][id].length > 0) {
+                        try {
+                            await api.removeUserFromGroup(id, threadID);
+                            if (!bans.banned[threadID].includes(id)) {
+                                bans.banned[threadID].push(id);
+                            }
+                        } catch (error) {
+                            console.error("𝐵𝑎𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+                        }
+                    }
+                }
+                
+                fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
+                
+                return message.reply({
+                    body: toBI(`❎ 𝐵𝑎𝑛𝑛𝑒𝑑 ${arrayname.join(", ")} 𝑓𝑜𝑟: ${reason}`),
+                    mentions: arraytag
+                });
+            }
         }
-        
-        fs.writeFileSync(bansPath, JSON.stringify(bans, null, 2));
-        
-        return message.reply({
-          body: toBI(`❎ Banned members ${arrayname.join(", ")} reason: ${reason} diye group theke permanently ber kora holo`),
-          mentions: arraytag
-        });
-      }
+    } catch (error) {
+        console.error("𝐵𝑎𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑");
     }
-  }
 };
