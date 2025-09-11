@@ -25,7 +25,7 @@ const toBI = (text) => {
 
 module.exports.config = {
     name: "batslap",
-    aliases: ["batman", "slap"],
+    aliases: ["batmanslap", "slap"],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
