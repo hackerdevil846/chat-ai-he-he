@@ -1,12 +1,24 @@
+const { createCanvas, loadImage } = require("canvas");
+const axios = require("axios");
+const fs = require("fs-extra");
+
 module.exports.config = {
     name: "billboard",
+    aliases: ["board", "billb"],
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🌟 𝑩𝒊𝒍𝒃𝒐𝒓𝒅𝒆 𝒕𝒆𝒙𝒕 𝒄𝒓𝒆𝒂𝒕𝒐𝒓 ( ͡° ͜ʖ ͡°)",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "edit-img",
-    usages: "[text]",
-    cooldowns: 5,
+    shortDescription: {
+        en: "🌟 𝐵𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑡𝑒𝑥𝑡 𝑐𝑟𝑒𝑎𝑡𝑜𝑟 ( ͡° ͜ʖ ͡°)"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑡𝑒𝑥𝑡 𝑎𝑛𝑑 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒"
+    },
+    guide: {
+        en: "{p}billboard [𝑡𝑒𝑥𝑡]"
+    },
     dependencies: {
         "canvas": "",
         "axios": "",
@@ -47,12 +59,10 @@ module.exports.wrapText = async (ctx, text, maxWidth) => {
 
 module.exports.onStart = async function({ api, event, args }) {
     try {
-        const { createCanvas, loadImage } = require("canvas");
-        const fs = require("fs-extra");
-        const axios = require("axios");
-        
         const text = args.join(" ");
-        if (!text) return api.sendMessage("✨ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒚𝒐𝒖𝒓 𝒕𝒆𝒙𝒕!", event.threadID, event.messageID);
+        if (!text) {
+            return api.sendMessage("✨ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑦𝑜𝑢𝑟 𝑡𝑒𝑥𝑡!", event.threadID, event.messageID);
+        }
 
         const avatarPath = __dirname + '/cache/avt.png';
         const outputPath = __dirname + '/cache/billboard_result.png';
@@ -62,17 +72,23 @@ module.exports.onStart = async function({ api, event, args }) {
         const { name, thumbSrc } = userInfo[event.senderID];
         
         // Download images
-        const avatarBuffer = (await axios.get(thumbSrc, { responseType: 'arraybuffer' })).data;
-        const billboardTemplate = (await axios.get("https://imgur.com/uN7Sllp.png", { responseType: 'arraybuffer' })).data;
-        
-        fs.writeFileSync(avatarPath, Buffer.from(avatarBuffer, 'utf-8'));
-        fs.writeFileSync(outputPath, Buffer.from(billboardTemplate, 'utf-8'));
+        const [avatarBuffer, billboardBuffer] = await Promise.all([
+            axios.get(thumbSrc, { responseType: 'arraybuffer' }),
+            axios.get("https://imgur.com/uN7Sllp.png", { responseType: 'arraybuffer' })
+        ]);
+
+        await Promise.all([
+            fs.writeFile(avatarPath, Buffer.from(avatarBuffer.data, 'utf-8')),
+            fs.writeFile(outputPath, Buffer.from(billboardBuffer.data, 'utf-8'))
+        ]);
 
         // Process images
         const canvas = createCanvas(700, 350);
         const ctx = canvas.getContext("2d");
-        const baseImage = await loadImage(outputPath);
-        const avatarImage = await loadImage(avatarPath);
+        const [baseImage, avatarImage] = await Promise.all([
+            loadImage(outputPath),
+            loadImage(avatarPath)
+        ]);
         
         ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
         ctx.drawImage(avatarImage, 148, 75, 110, 110);
@@ -94,16 +110,18 @@ module.exports.onStart = async function({ api, event, args }) {
 
         // Save and send
         const resultBuffer = canvas.toBuffer();
-        fs.writeFileSync(outputPath, resultBuffer);
-        fs.removeSync(avatarPath);
+        await fs.writeFile(outputPath, resultBuffer);
+        await fs.remove(avatarPath);
 
-        return api.sendMessage({
-            body: "🎊 𝑩𝒊𝒍𝒍𝒃𝒐𝒓𝒅 𝑪𝒓𝒆𝒂𝒕𝒆𝒅 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!",
+        await api.sendMessage({
+            body: "🎊 𝐵𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
             attachment: fs.createReadStream(outputPath)
-        }, event.threadID, () => fs.unlinkSync(outputPath), event.messageID);
+        }, event.threadID);
+
+        await fs.remove(outputPath);
 
     } catch (error) {
-        console.error(error);
-        return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒃𝒊𝒍𝒍𝒃𝒐𝒓𝒅 𝒄𝒓𝒆𝒂𝒕𝒊𝒐𝒏", event.threadID, event.messageID);
+        console.error("𝐵𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        return api.sendMessage("❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛", event.threadID, event.messageID);
     }
 };
