@@ -1,12 +1,25 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
+
 module.exports.config = {
     name: "hug2b",
+    aliases: ["hug", "embrace"],
     version: "3.1.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🥰 𝑴𝒆𝒚𝒆𝒓 𝒋𝒐𝒏𝒏𝒐 𝒉𝒖𝒈 𝒅𝒆𝒐𝒘𝒂",
-    category: "🖼️ 𝑰𝒎𝒂𝒈𝒆",
-    usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "image",
+    shortDescription: {
+        en: "𝐺𝑖𝑣𝑒 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑎 ℎ𝑢𝑔"
+    },
+    longDescription: {
+        en: "𝑆𝑒𝑛𝑑 𝑎 𝑐𝑢𝑡𝑒 ℎ𝑢𝑔 𝑖𝑚𝑎𝑔𝑒 𝑡𝑜 𝑠𝑜𝑚𝑒𝑜𝑛𝑒"
+    },
+    guide: {
+        en: "{p}hug2b [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -16,76 +29,98 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const path = require("path");
-    const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
     const { existsSync, mkdirSync } = fs;
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const filePath = path.resolve(__dirname, 'cache/canvas', 'hugv1.png');
+    const dirMaterial = path.join(__dirname, 'cache', 'canvas');
+    const filePath = path.join(dirMaterial, 'hugv1.png');
     
-    if (!existsSync(dirMaterial + "canvas")) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(filePath)) await downloadFile("https://i.ibb.co/3YN3T1r/q1y28eqblsr21.jpg", filePath);
-}
-
-module.exports.onStart = async function({ event, api, args }) {
-    const fs = (global.nodemodule && global.nodemodule["fs-extra"]) || require("fs-extra");
-    const axios = (global.nodemodule && global.nodemodule["axios"]) || require("axios");
-    const jimp = (global.nodemodule && global.nodemodule["jimp"]) || require("jimp");
-    const path = require("path");
-    
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
-    
-    if (!mention[0]) return api.sendMessage("❌ 𝑬𝒌𝒋𝒐𝒏 𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏! 🥺", threadID, messageID);
-    
-    async function circle(image) {
-        image = await jimp.read(image);
-        image.circle();
-        return await image.getBufferAsync("image/png");
+    if (!existsSync(dirMaterial)) {
+        mkdirSync(dirMaterial, { recursive: true });
     }
-
-    async function makeImage(one, two) {
-        const __root = path.resolve(__dirname, "cache", "canvas");
-        const batgiam_img = await jimp.read(__root + "/hugv1.png");
-        const pathImg = __root + `/hug_${one}_${two}.png`;
-        const avatarOne = __root + `/avt_${one}.png`;
-        const avatarTwo = __root + `/avt_${two}.png`;
-        
-        const getAvatarOne = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-        fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-        
-        const getAvatarTwo = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-        fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-        
-        const circleOne = await jimp.read(await circle(avatarOne));
-        const circleTwo = await jimp.read(await circle(avatarTwo));
-        
-        batgiam_img.composite(circleOne.resize(150, 150), 320, 100)
-                   .composite(circleTwo.resize(130, 130), 280, 280);
-        
-        const raw = await batgiam_img.getBufferAsync("image/png");
-        fs.writeFileSync(pathImg, raw);
-        
-        fs.unlinkSync(avatarOne);
-        fs.unlinkSync(avatarTwo);
-        
-        return pathImg;
-    }
-
-    const one = senderID;
-    const two = mention[0];
     
-    makeImage(one, two).then(path => {
-        api.sendMessage({ 
-            body: `💖 𝑵𝒊𝒋𝒆𝒓 𝑯𝒖𝒈! ${event.mentions[two].replace("@", "")} 🥰`,
+    if (!existsSync(filePath)) {
+        try {
+            const imageData = await axios.get("https://i.ibb.co/3YN3T1r/q1y28eqblsr21.jpg", { 
+                responseType: 'arraybuffer' 
+            });
+            await fs.writeFile(filePath, Buffer.from(imageData.data));
+        } catch (error) {
+            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑢𝑔 𝑖𝑚𝑎𝑔𝑒:", error);
+        }
+    }
+};
+
+module.exports.onStart = async function({ message, event, args }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const mention = Object.keys(event.mentions);
+        
+        if (!mention[0]) {
+            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 ℎ𝑢𝑔! 🥺", threadID, messageID);
+        }
+
+        async function circle(imageBuffer) {
+            const image = await jimp.read(imageBuffer);
+            image.circle();
+            return await image.getBufferAsync("image/png");
+        }
+
+        async function makeImage(one, two) {
+            const __root = path.join(__dirname, "cache", "canvas");
+            const batgiam_img = await jimp.read(path.join(__root, "hugv1.png"));
+            const pathImg = path.join(__root, `hug_${one}_${two}.png`);
+            const avatarOne = path.join(__root, `avt_${one}.png`);
+            const avatarTwo = path.join(__root, `avt_${two}.png`);
+            
+            // Get first user avatar
+            const getAvatarOne = await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
+                responseType: 'arraybuffer' 
+            });
+            await fs.writeFile(avatarOne, Buffer.from(getAvatarOne.data));
+            
+            // Get second user avatar
+            const getAvatarTwo = await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
+                responseType: 'arraybuffer' 
+            });
+            await fs.writeFile(avatarTwo, Buffer.from(getAvatarTwo.data));
+            
+            // Create circular avatars
+            const circleOne = await jimp.read(await circle(await fs.readFile(avatarOne)));
+            const circleTwo = await jimp.read(await circle(await fs.readFile(avatarTwo)));
+            
+            // Composite images
+            batgiam_img.composite(circleOne.resize(150, 150), 320, 100)
+                       .composite(circleTwo.resize(130, 130), 280, 280);
+            
+            // Save final image
+            const raw = await batgiam_img.getBufferAsync("image/png");
+            await fs.writeFile(pathImg, raw);
+            
+            // Clean up temporary files
+            await fs.unlink(avatarOne);
+            await fs.unlink(avatarTwo);
+            
+            return pathImg;
+        }
+
+        const one = senderID;
+        const two = mention[0];
+        
+        const imagePath = await makeImage(one, two);
+        
+        await message.reply({ 
+            body: `💖 𝑁𝑖𝑐𝑒 𝐻𝑢𝑔! ${event.mentions[two]} 🥰`,
             mentions: [{
-                tag: event.mentions[two].replace("@", ""),
+                tag: event.mentions[two],
                 id: two
             }],
-            attachment: fs.createReadStream(path) 
-        }, threadID, () => fs.unlinkSync(path), messageID);
-    }).catch(err => {
-        console.error(err);
-        api.sendMessage("❌ 𝑨𝒓𝒆 𝒃𝒂𝒄𝒄𝒂! 𝑲𝒊𝒄𝒉𝒖 𝒈𝒐𝒍𝒂𝒕 𝒉𝒐𝒊𝒚𝒆𝒄𝒉𝒆, 𝒑𝒐𝒓𝒆 𝒂𝒃𝒂𝒓 𝒕𝒓𝒚 𝒌𝒐𝒓𝒖𝒏! 😿", threadID, messageID);
-    });
+            attachment: fs.createReadStream(imagePath) 
+        }, threadID);
+        
+        // Clean up final image
+        await fs.unlink(imagePath);
+        
+    } catch (error) {
+        console.error("𝐻𝑢𝑔 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝑂𝑜𝑝𝑠! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟! 😿", event.threadID, event.messageID);
+    }
 };
