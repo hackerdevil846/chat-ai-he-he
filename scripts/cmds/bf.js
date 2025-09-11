@@ -16,13 +16,21 @@ function toMathBoldItalic(text) {
 
 module.exports.config = {
     name: "bf",
+    aliases: ["couple", "pair"],
     version: "7.3.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: toMathBoldItalic("Get couple from mention"),
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    shortDescription: {
+        en: toMathBoldItalic("Get couple from mention")
+    },
+    longDescription: {
+        en: toMathBoldItalic("Create couple image from mentioned user")
+    },
     category: toMathBoldItalic("image"),
-    usages: toMathBoldItalic("[mention]"),
-    cooldowns: 5,
+    guide: {
+        en: "{p}bf [mention]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -36,10 +44,8 @@ module.exports.onLoad = async () => {
     const arrPath = path.resolve(dirMaterial, "arr2.png");
     if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
     if (!fs.existsSync(arrPath)) {
-        await global.utils.downloadFile(
-            "https://i.imgur.com/iaOiAXe.jpeg",
-            arrPath
-        );
+        const imageBuffer = await global.utils.getStreamFromURL("https://i.imgur.com/iaOiAXe.jpeg");
+        await fs.writeFileSync(arrPath, imageBuffer);
     }
 };
 
@@ -60,64 +66,79 @@ async function makeImage({ one, two }) {
     const finalPath = path.join(__root, `batman${one}_${two}.png`);
 
     // Download avatars
-    const avatarOneBuffer = (await axios.get(
-        `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-        { responseType: "arraybuffer" }
-    )).data;
-    fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneBuffer, "utf-8"));
+    try {
+        const avatarOneBuffer = await global.utils.getStreamFromURL(
+            `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
+        );
+        fs.writeFileSync(avatarOnePath, avatarOneBuffer);
 
-    const avatarTwoBuffer = (await axios.get(
-        `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-        { responseType: "arraybuffer" }
-    )).data;
-    fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoBuffer, "utf-8"));
+        const avatarTwoBuffer = await global.utils.getStreamFromURL(
+            `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
+        );
+        fs.writeFileSync(avatarTwoPath, avatarTwoBuffer);
 
-    // Apply circle effect
-    let circleOne = await jimp.read(await circle(avatarOnePath));
-    let circleTwo = await jimp.read(await circle(avatarTwoPath));
+        // Apply circle effect
+        let circleOne = await jimp.read(await circle(avatarOnePath));
+        let circleTwo = await jimp.read(await circle(avatarTwoPath));
 
-    // Composite images
-    baseImage.composite(circleOne.resize(200, 200), 70, 110)
-             .composite(circleTwo.resize(200, 200), 465, 110);
+        // Composite images
+        baseImage.composite(circleOne.resize(200, 200), 70, 110)
+                 .composite(circleTwo.resize(200, 200), 465, 110);
 
-    const buffer = await baseImage.getBufferAsync("image/png");
-    fs.writeFileSync(finalPath, buffer);
+        const buffer = await baseImage.getBufferAsync("image/png");
+        fs.writeFileSync(finalPath, buffer);
 
-    // Cleanup avatars
-    fs.unlinkSync(avatarOnePath);
-    fs.unlinkSync(avatarTwoPath);
+        // Cleanup avatars
+        fs.unlinkSync(avatarOnePath);
+        fs.unlinkSync(avatarTwoPath);
 
-    return finalPath;
+        return finalPath;
+    } catch (error) {
+        console.error("Image creation error:", error);
+        throw error;
+    }
 }
 
 module.exports.onStart = async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
+    try {
+        const { threadID, messageID, senderID } = event;
+        const mention = Object.keys(event.mentions);
 
-    if (!mention[0]) {
-        return api.sendMessage(
-            toMathBoldItalic("❌ 𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝟏 𝐩𝐞𝐫𝐬𝐨𝐧"),
-            threadID,
-            messageID
+        if (!mention[0]) {
+            return api.sendMessage(
+                toMathBoldItalic("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 1 𝑝𝑒𝑟𝑠𝑜𝑛"),
+                threadID,
+                messageID
+            );
+        }
+
+        const one = senderID;
+        const two = mention[0];
+
+        const imagePath = await makeImage({ one, two });
+
+        const bodyMsg = toMathBoldItalic(
+            "💞 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙 𝐶𝑜𝑢𝑝𝑙𝑒 💞\n\n" +
+            "✨ 𝐼 𝐺𝑜𝑡 𝑌𝑜𝑢 ❤\n" +
+            "👑 𝑌𝑜𝑢𝑟 𝐵𝑜𝑦𝑓𝑟𝑖𝑒𝑛𝑑 🩷\n\n" +
+            "💖 𝑇𝑜𝑔𝑒𝑡ℎ𝑒𝑟 𝐹𝑜𝑟𝑒𝑣𝑒𝑟 💖"
+        );
+
+        await api.sendMessage({
+            body: bodyMsg,
+            attachment: fs.createReadStream(imagePath)
+        }, threadID, (error, info) => {
+            if (!error) {
+                fs.unlinkSync(imagePath);
+            }
+        }, messageID);
+
+    } catch (error) {
+        console.error("BF command error:", error);
+        api.sendMessage(
+            toMathBoldItalic("❌ 𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑐𝑜𝑢𝑝𝑙𝑒 𝑖𝑚𝑎𝑔𝑒"),
+            event.threadID,
+            event.messageID
         );
     }
-
-    const one = senderID;
-    const two = mention[0];
-
-    const imagePath = await makeImage({ one, two });
-
-    const bodyMsg = toMathBoldItalic(
-        "💞 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥 𝐂𝐨𝐮𝐩𝐥𝐞 💞\n\n" +
-        "✨ 𝐈 𝐆𝐨𝐭 𝐘𝐨𝐮 ❤\n" +
-        "👑 𝐘𝐨𝐮𝐫 𝐁𝐨𝐲𝐟𝐫𝐢𝐞𝐧𝐝 🩷\n\n" +
-        "💖 𝐓𝐨𝐠𝐞𝐭𝐡𝐞𝐫 𝐅𝐨𝐫𝐞𝐯𝐞𝐫 💖"
-    );
-
-    api.sendMessage(
-        { body: bodyMsg, attachment: fs.createReadStream(imagePath) },
-        threadID,
-        () => fs.unlinkSync(imagePath),
-        messageID
-    );
 };
