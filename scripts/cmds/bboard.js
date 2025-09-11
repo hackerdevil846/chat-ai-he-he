@@ -4,13 +4,21 @@ const { createCanvas, loadImage } = require('canvas');
 
 module.exports.config = {
     name: 'bboard',
+    aliases: ['billboard', 'board'],
     version: '1.0.1',
-    hasPermssion: 0,
-    credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
-    description: '✨ 𝑩𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅 𝒄𝒓𝒆𝒂𝒕𝒐𝒓',
+    author: '𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑',
+    countDown: 10,
+    role: 0,
     category: 'media',
-    usages: '[text]',
-    cooldowns: 10,
+    shortDescription: {
+        en: '𝐵𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑐𝑟𝑒𝑎𝑡𝑜𝑟'
+    },
+    longDescription: {
+        en: '𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑡𝑒𝑥𝑡 𝑎𝑛𝑑 𝑝𝑟𝑜𝑓𝑖𝑙𝑒'
+    },
+    guide: {
+        en: '{p}bboard [𝑡𝑒𝑥𝑡]'
+    },
     dependencies: {
         'canvas': '',
         'axios': '',
@@ -58,15 +66,15 @@ async function wrapText(ctx, text, maxWidth) {
 }
 
 module.exports.onStart = async function({ api, event, args }) {
-    const { senderID, threadID, messageID } = event;
-    const text = args.join(' ');
-    
-    if (!text) {
-        return api.sendMessage('🌟 𝑷𝒍𝒆𝒂𝒔𝒆 𝒂𝒅𝒅 𝒕𝒆𝒙𝒕 𝒇𝒐𝒓 𝒚𝒐𝒖𝒓 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅!', threadID, messageID);
-    }
-    
     try {
-        api.sendMessage('🔄 𝑪𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒃𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅, 𝒑𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕...', threadID, messageID);
+        const { senderID, threadID, messageID } = event;
+        const text = args.join(' ');
+        
+        if (!text) {
+            return api.sendMessage('🌟 𝑃𝑙𝑒𝑎𝑠𝑒 𝑎𝑑𝑑 𝑡𝑒𝑥𝑡 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑!', threadID, messageID);
+        }
+        
+        await api.sendMessage('🔄 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...', threadID, messageID);
         
         const bgPath = __dirname + '/cache/bboard_bg.jpg';
         const avtPath = __dirname + `/cache/avt_${senderID}.png`;
@@ -96,6 +104,7 @@ module.exports.onStart = async function({ api, event, args }) {
         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
         
         // Draw circular avatar
+        ctx.save();
         ctx.beginPath();
         ctx.arc(200, 90, 35, 0, Math.PI * 2, true);
         ctx.closePath();
@@ -119,7 +128,7 @@ module.exports.onStart = async function({ api, event, args }) {
         const lines = await wrapText(ctx, text, maxWidth);
         
         if (!lines || lines.length === 0) {
-            return api.sendMessage('❌ 𝑻𝒆𝒙𝒕 𝒕𝒐𝒐 𝒍𝒐𝒏𝒈 𝒕𝒐 𝒅𝒊𝒔𝒑𝒍𝒂𝒚!', threadID, messageID);
+            return api.sendMessage('❌ 𝑇𝑒𝑥𝑡 𝑡𝑜𝑜 𝑙𝑜𝑛𝑔 𝑡𝑜 𝑑𝑖𝑠𝑝𝑙𝑎𝑦!', threadID, messageID);
         }
         
         // Draw each line of text
@@ -137,7 +146,7 @@ module.exports.onStart = async function({ api, event, args }) {
         
         // Send result
         await api.sendMessage({
-            body: `🎉 𝑯𝒆𝒓𝒆'𝒔 𝒚𝒐𝒖𝒓 𝒃𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅!\n┏━━━━━━━━━━━━━━┓\n┃ 𝗡𝗮𝗺𝗲: ${name}\n┃ 𝗧𝗲𝘅𝘁: ${text}\n┗━━━━━━━━━━━━━━┛`,
+            body: `🎉 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑!\n┏━━━━━━━━━━━━━━┓\n┃ 𝑁𝑎𝑚𝑒: ${name}\n┃ 𝑇𝑒𝑥𝑡: ${text}\n┗━━━━━━━━━━━━━━┛`,
             attachment: fs.createReadStream(outputPath)
         }, threadID, messageID);
         
@@ -149,7 +158,7 @@ module.exports.onStart = async function({ api, event, args }) {
         ]);
         
     } catch (error) {
-        console.error('BBoard Error:', error);
-        api.sendMessage('❌ 𝑬𝒓𝒓𝒐𝒓 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒃𝒊𝒍𝒍𝒃𝒐𝒂𝒓𝒅 𝒊𝒎𝒂𝒈𝒆!', threadID, messageID);
+        console.error('𝐵𝐵𝑜𝑎𝑟𝑑 𝐸𝑟𝑟𝑜𝑟:', error);
+        api.sendMessage('❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑏𝑖𝑙𝑙𝑏𝑜𝑎𝑟𝑑 𝑖𝑚𝑎𝑔𝑒!', event.threadID, event.messageID);
     }
 };
