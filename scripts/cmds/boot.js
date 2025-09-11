@@ -1,80 +1,89 @@
-module.exports = {
-    config: {
-        name: "boot",
-        version: "1.0.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        role: 0,
-        category: "fun",
-        shortDescription: {
-            en: "𝐾𝑖𝑐𝑘 𝑠𝑜𝑚𝑒𝑜𝑛𝑒"
-        },
-        longDescription: {
-            en: "𝑆𝑒𝑛𝑑 𝑎 𝑓𝑢𝑛𝑛𝑦 𝑘𝑖𝑐𝑘 𝑎𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛"
-        },
-        guide: {
-            en: "{𝑝}𝑏𝑜𝑜𝑡 @𝑡𝑎𝑔"
-        }
+const fs = require("fs-extra");
+const axios = require("axios");
+const path = require("path");
+
+module.exports.config = {
+    name: "boot",
+    aliases: ["kickgif", "bootkick"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "fun",
+    shortDescription: {
+        en: "𝐾𝑖𝑐𝑘 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑤𝑖𝑡ℎ 𝑓𝑢𝑛𝑛𝑦 𝑎𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛"
     },
+    longDescription: {
+        en: "𝑆𝑒𝑛𝑑 𝑎 𝑓𝑢𝑛𝑛𝑦 𝑘𝑖𝑐𝑘 𝑎𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛 𝑤ℎ𝑒𝑛 𝑡𝑎𝑔𝑔𝑖𝑛𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒"
+    },
+    guide: {
+        en: "{p}boot @𝑡𝑎𝑔"
+    },
+    dependencies: {
+        "fs-extra": "",
+        "axios": ""
+    }
+};
 
-    onStart: async function ({ event, message, usersData, args }) {
-        try {
-            const fs = require("fs-extra");
-            const axios = require("axios");
-            const path = require("path");
-            
-            const { mentions } = event;
-            const mention = Object.keys(mentions);
-            
-            if (!mention[0]) {
-                return message.reply("𝑇𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒! 👟");
-            }
-
-            const tag = mentions[mention[0]].replace("@", "");
-            const userId = mention[0];
-            
-            const gifLinks = [
-                "https://i.postimg.cc/65TSxJYD/2ce5a017f6556ff103bce87b273b89b7.gif",
-                "https://i.postimg.cc/65SP9jPT/Anime-083428-6224795.gif",
-                "https://i.postimg.cc/RFXP2XfS/jXOwoHx.gif",
-                "https://i.postimg.cc/jSPMRsNk/tumblr-nyc5ygy2a-Z1uz35lto1-540.gif",
-            ];
-            
-            const randomGif = gifLinks[Math.floor(Math.random() * gifLinks.length)];
-            
-            // Create cache directory
-            const cacheDir = path.resolve(__dirname, '../scripts/cmds/cache');
-            if (!fs.existsSync(cacheDir)) {
-                fs.mkdirSync(cacheDir, { recursive: true });
-            }
-            
-            const gifPath = path.resolve(cacheDir, "boot.gif");
-            
-            // Download the GIF
-            const response = await axios.get(randomGif, {
-                responseType: 'arraybuffer'
-            });
-            
-            fs.writeFileSync(gifPath, Buffer.from(response.data, 'binary'));
-            
-            await message.reply({
-                body: `${tag} 𝐺𝑒𝑡 𝑏𝑜𝑜𝑡𝑒𝑑! 👢`,
-                mentions: [{
-                    tag: tag,
-                    id: userId
-                }],
-                attachment: fs.createReadStream(gifPath)
-            });
-            
-            // Clean up after 5 seconds
-            setTimeout(() => {
-                if (fs.existsSync(gifPath)) {
-                    fs.unlinkSync(gifPath);
-                }
-            }, 5000);
-            
-        } catch (error) {
-            console.error("𝐵𝑜𝑜𝑡 𝑒𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑!");
+module.exports.onStart = async function ({ message, event }) {
+    try {
+        // Check dependencies
+        if (!fs.existsSync || !axios) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
         }
+
+        const { mentions } = event;
+        const mention = Object.keys(mentions);
+        
+        if (!mention[0]) {
+            return message.reply("𝑇𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒! 👟");
+        }
+
+        const tag = mentions[mention[0]].replace("@", "");
+        const userId = mention[0];
+        
+        const gifLinks = [
+            "https://i.postimg.cc/65TSxJYD/2ce5a017f6556ff103bce87b273b89b7.gif",
+            "https://i.postimg.cc/65SP9jPT/Anime-083428-6224795.gif",
+            "https://i.postimg.cc/RFXP2XfS/jXOwoHx.gif",
+            "https://i.postimg.cc/jSPMRsNk/tumblr-nyc5ygy2a-Z1uz35lto1-540.gif",
+        ];
+        
+        const randomGif = gifLinks[Math.floor(Math.random() * gifLinks.length)];
+        
+        // Create cache directory
+        const cacheDir = path.join(__dirname, 'cache');
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+        
+        const gifPath = path.join(cacheDir, "boot.gif");
+        
+        // Download the GIF
+        const response = await axios.get(randomGif, {
+            responseType: 'arraybuffer'
+        });
+        
+        await fs.writeFileSync(gifPath, Buffer.from(response.data, 'binary'));
+        
+        await message.reply({
+            body: `${tag} 𝐺𝑒𝑡 𝑏𝑜𝑜𝑡𝑒𝑑! 👢`,
+            mentions: [{
+                tag: tag,
+                id: userId
+            }],
+            attachment: fs.createReadStream(gifPath)
+        });
+        
+        // Clean up after 5 seconds
+        setTimeout(() => {
+            if (fs.existsSync(gifPath)) {
+                fs.unlinkSync(gifPath);
+            }
+        }, 5000);
+        
+    } catch (error) {
+        console.error("𝐵𝑜𝑜𝑡 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑏𝑜𝑜𝑡 𝑎𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛!");
     }
 };
