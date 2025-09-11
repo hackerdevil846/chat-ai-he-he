@@ -1,61 +1,70 @@
-const axios = require('axios');
-
-module.exports = {
-  config: {
+module.exports.config = {
     name: "history",
     aliases: ["historical"],
     version: "1.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 8,
     role: 0,
-    shortDescription: "Search and know about Bangladeshi history",
-    longDescription: "Get short and reliable info about Bangladeshi historical events",
-    category: "info",
+    shortDescription: {
+        en: "𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑘𝑛𝑜𝑤 𝑎𝑏𝑜𝑢𝑡 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 ℎ𝑖𝑠𝑡𝑜𝑟𝑦"
+    },
+    longDescription: {
+        en: "𝐺𝑒𝑡 𝑠ℎ𝑜𝑟𝑡 𝑎𝑛𝑑 𝑟𝑒𝑙𝑖𝑎𝑏𝑙𝑒 𝑖𝑛𝑓𝑜 𝑎𝑏𝑜𝑢𝑡 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙 𝑒𝑣𝑒𝑛𝑡𝑠"
+    },
+    category: "𝑖𝑛𝑓𝑜",
     guide: {
-      en: "{pn} [query]"
+        en: "{p}history [𝑞𝑢𝑒𝑟𝑦]"
+    },
+    dependencies: {
+        "axios": ""
     }
-  },
+};
 
-  onStart: async function ({ api, args, event }) {
-    const query = args.join(" ").trim().toLowerCase();
+module.exports.onStart = async function({ message, args }) {
+    try {
+        const query = args.join(" ").trim().toLowerCase();
 
-    if (!query) {
-      return api.sendMessage("🔍 Please provide a historical topic to search!\nExample: history bangladesh", event.threadID, event.messageID);
-    }
+        if (!query) {
+            return message.reply("🔍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙 𝑡𝑜𝑝𝑖𝑐 𝑡𝑜 𝑠𝑒𝑎𝑟𝑐ℎ!\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ℎ𝑖𝑠𝑡𝑜𝑟𝑦 𝑏𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ");
+        }
 
-    if (query !== "bangladesh") {
-      return api.sendMessage(`❌ Sorry, I only have information about Bangladeshi history for now.`, event.threadID, event.messageID);
-    }
+        if (query !== "bangladesh") {
+            return message.reply("❌ 𝑆𝑜𝑟𝑟𝑦, 𝐼 𝑜𝑛𝑙𝑦 ℎ𝑎𝑣𝑒 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑏𝑜𝑢𝑡 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 ℎ𝑖𝑠𝑡𝑜𝑟𝑦 𝑓𝑜𝑟 𝑛𝑜𝑤.");
+        }
 
-    const message = 
+        const historyMessage = 
 `🇧🇩 𝗕𝗔𝗡𝗚𝗟𝗔𝗗𝗘𝗦𝗛 𝗛𝗜𝗦𝗧𝗢𝗥𝗬 𝗢𝗩𝗘𝗥𝗩𝗜𝗘𝗪
 
 🏛️ 𝗔𝗻𝗰𝗶𝗲𝗻𝘁 𝗣𝗲𝗿𝗶𝗼𝗱:
-The region now known as Bangladesh was historically part of Bengal. Key civilizations included:
-• Maurya Dynasty (4th century BCE)
-• Gupta Empire (4th-6th century CE)
-• Pala Empire (9th-12th century CE)
-• Mughal Rule (13th century CE)
+𝑇ℎ𝑒 𝑟𝑒𝑔𝑖𝑜𝑛 𝑛𝑜𝑤 𝑘𝑛𝑜𝑤𝑛 𝑎𝑠 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ 𝑤𝑎𝑠 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙𝑙𝑦 𝑝𝑎𝑟𝑡 𝑜𝑓 𝐵𝑒𝑛𝑔𝑎𝑙. 𝐾𝑒𝑦 𝑐𝑖𝑣𝑖𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛𝑠 𝑖𝑛𝑐𝑙𝑢𝑑𝑒𝑑:
+• 𝑀𝑎𝑢𝑟𝑦𝑎 𝐷𝑦𝑛𝑎𝑠𝑡𝑦 (4𝑡ℎ 𝑐𝑒𝑛𝑡𝑢𝑟𝑦 𝐵𝐶𝐸)
+• 𝐺𝑢𝑝𝑡𝑎 𝐸𝑚𝑝𝑖𝑟𝑒 (4𝑡ℎ-6𝑡ℎ 𝑐𝑒𝑛𝑡𝑢𝑟𝑦 𝐶𝐸)
+• 𝑃𝑎𝑙𝑎 𝐸𝑚𝑝𝑖𝑟𝑒 (9𝑡ℎ-12𝑡ℎ 𝑐𝑒𝑛𝑡𝑢𝑟𝑦 𝐶𝐸)
+• 𝑀𝑢𝑔ℎ𝑎𝑙 𝑅𝑢𝑙𝑒 (13𝑡ℎ 𝑐𝑒𝑛𝑡𝑢𝑟𝑦 𝐶𝐸)
 
 🇬🇧 𝗖𝗼𝗹𝗼𝗻𝗶𝗮𝗹 𝗣𝗲𝗿𝗶𝗼𝗱:
-• British East India Company control after Battle of Plassey (1757)
-• Part of Bengal Presidency (1757-1947)
-• Bengal Partition (1905) into East/West provinces
+• 𝐵𝑟𝑖𝑡𝑖𝑠ℎ 𝐸𝑎𝑠𝑡 𝐼𝑛𝑑𝑖𝑎 𝐶𝑜𝑚𝑝𝑎𝑛𝑦 𝑐𝑜𝑛𝑡𝑟𝑜𝑙 𝑎𝑓𝑡𝑒𝑟 𝐵𝑎𝑡𝑡𝑙𝑒 𝑜𝑓 𝑃𝑙𝑎𝑠𝑠𝑒𝑦 (1757)
+• 𝑃𝑎𝑟𝑡 𝑜𝑓 𝐵𝑒𝑛𝑔𝑎𝑙 𝑃𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑐𝑦 (1757-1947)
+• 𝐵𝑒𝑛𝑔𝑎𝑙 𝑃𝑎𝑟𝑡𝑖𝑡𝑖𝑜𝑛 (1905) 𝑖𝑛𝑡𝑜 𝐸𝑎𝑠𝑡/𝑊𝑒𝑠𝑡 𝑝𝑟𝑜𝑣𝑖𝑛𝑐𝑒𝑠
 
 🇵🇰 𝗣𝗮𝗸𝗶𝘀𝘁𝗮𝗻 𝗘𝗿𝗮:
-• Partition of British India (1947)
-• East Bengal became East Pakistan
-• Religious division between East/West Bengal
+• 𝑃𝑎𝑟𝑡𝑖𝑡𝑖𝑜𝑛 𝑜𝑓 𝐵𝑟𝑖𝑡𝑖𝑠ℎ 𝐼𝑛𝑑𝑖𝑎 (1947)
+• 𝐸𝑎𝑠𝑡 𝐵𝑒𝑛𝑔𝑎𝑙 𝑏𝑒𝑐𝑎𝑚𝑒 𝐸𝑎𝑠𝑡 𝑃𝑎𝑘𝑖𝑠𝑡𝑎𝑛
+• 𝑅𝑒𝑙𝑖𝑔𝑖𝑜𝑢𝑠 𝑑𝑖𝑣𝑖𝑠𝑖𝑜𝑛 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 𝐸𝑎𝑠𝑡/𝑊𝑒𝑠𝑡 𝐵𝑒𝑛𝑔𝑎𝑙
 
 ✨ 𝗠𝗼𝗱𝗲𝗿𝗻 𝗕𝗮𝗻𝗴𝗹𝗮𝗱𝗲𝘀𝗵:
-• Bangladesh Liberation War (1971)
-• Transition from military rule to democracy
-• Economic growth in agriculture and manufacturing
+• 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ 𝐿𝑖𝑏𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝑊𝑎𝑟 (1971)
+• 𝑇𝑟𝑎𝑛𝑠𝑖𝑡𝑖𝑜𝑛 𝑓𝑟𝑜𝑚 𝑚𝑖𝑙𝑖𝑡𝑎𝑟𝑦 𝑟𝑢𝑙𝑒 𝑡𝑜 𝑑𝑒𝑚𝑜𝑐𝑟𝑎𝑐𝑦
+• 𝐸𝑐𝑜𝑛𝑜𝑚𝑖𝑐 𝑔𝑟𝑜𝑤𝑡ℎ 𝑖𝑛 𝑎𝑔𝑟𝑖𝑐𝑢𝑙𝑡𝑢𝑟𝑒 𝑎𝑛𝑑 𝑚𝑎𝑛𝑢𝑓𝑎𝑐𝑡𝑢𝑟𝑖𝑛𝑔
 
 ━━━━━━━━━━━━━━━
-📜 Source: Verified Historical Records
-⭐ Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
+📜 𝑆𝑜𝑢𝑟𝑐𝑒: 𝑉𝑒𝑟𝑖𝑓𝑖𝑒𝑑 𝐻𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙 𝑅𝑒𝑐𝑜𝑟𝑑𝑠
+⭐ 𝐶𝑟𝑒𝑑𝑖𝑡: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
 
-    return api.sendMessage(message, event.threadID, event.messageID);
-  }
+        await message.reply(historyMessage);
+
+    } catch (error) {
+        console.error("𝐻𝑖𝑠𝑡𝑜𝑟𝑦 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 ℎ𝑖𝑠𝑡𝑜𝑟𝑖𝑐𝑎𝑙 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛.");
+    }
 };
