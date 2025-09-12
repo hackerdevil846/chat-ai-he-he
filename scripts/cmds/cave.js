@@ -1,16 +1,27 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 
 module.exports.config = {
     name: "cave",
+    aliases: ["mine", "work"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💰 Sell your own capital and earn rewards!",
-    category: "Economy",
-    usages: "",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "𝑒𝑐𝑜𝑛𝑜𝑚𝑦",
+    shortDescription: {
+        en: "💰 𝑆𝑒𝑙𝑙 𝑦𝑜𝑢𝑟 𝑜𝑤𝑛 𝑐𝑎𝑝𝑖𝑡𝑎𝑙 𝑎𝑛𝑑 𝑒𝑎𝑟𝑛 𝑟𝑒𝑤𝑎𝑟𝑑𝑠!"
+    },
+    longDescription: {
+        en: "𝑀𝑖𝑛𝑒 𝑟𝑒𝑠𝑜𝑢𝑟𝑐𝑒𝑠 𝑎𝑛𝑑 𝑒𝑎𝑟𝑛 𝑚𝑜𝑛𝑒𝑦 𝑓𝑟𝑜𝑚 𝑦𝑜𝑢𝑟 𝑐𝑎𝑣𝑒"
+    },
+    guide: {
+        en: "{p}cave"
+    },
+    dependencies: {
+        "fs-extra": ""
+    },
     envConfig: {
-        cooldownTime: 1000000 // Cooldown in ms
+        cooldownTime: 1000000
     }
 };
 
@@ -30,46 +41,48 @@ function toMathBoldItalic(text) {
 
 module.exports.languages = {
     "en": {
-        "cooldown": toMathBoldItalic("⏳ You have already worked today. Try again in: %1 minute(s) %2 second(s) 🛏"),
-        "rewarded": toMathBoldItalic("💸 You worked at %1 and earned: %2$"),
-        "job1": toMathBoldItalic("Cave"),
-    },
-    "vi": {
-        "cooldown": toMathBoldItalic("⏳ Apni aaj kaj korechen, abar kach korte parben: %1 minute(s) %2 second(s) 🛏"),
-        "rewarded": toMathBoldItalic("💸 Apni kaj ta korechen: %1 ar peyechen: %2$"),
-        "job1": toMathBoldItalic("Cave"),
+        "cooldown": toMathBoldItalic("⏳ 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑤𝑜𝑟𝑘𝑒𝑑 𝑡𝑜𝑑𝑎𝑦. 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑖𝑛: %1 𝑚𝑖𝑛𝑢𝑡𝑒(𝑠) %2 𝑠𝑒𝑐𝑜𝑛𝑑(𝑠) 🛏"),
+        "rewarded": toMathBoldItalic("💸 𝑌𝑜𝑢 𝑤𝑜𝑟𝑘𝑒𝑑 𝑎𝑡 %1 𝑎𝑛𝑑 𝑒𝑎𝑟𝑛𝑒𝑑: %2$"),
+        "job1": toMathBoldItalic("𝐶𝑎𝑣𝑒"),
     }
 };
 
-module.exports.onStart = async ({ api, event, Currencies, getText }) => {
-    const { threadID, messageID, senderID } = event;
-    const cooldown = global.configModule[this.config.name].cooldownTime;
+module.exports.onStart = async function({ message, event, usersData }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const cooldown = global.configModule[this.config.name].cooldownTime;
 
-    let userData = (await Currencies.getData(senderID)).data || {};
-    if (userData.workTime && cooldown - (Date.now() - userData.workTime) > 0) {
-        let time = cooldown - (Date.now() - userData.workTime);
-        let minutes = Math.floor(time / 60000);
-        let seconds = Math.floor((time % 60000) / 1000);
+        const userData = await usersData.get(senderID);
+        const userCustomData = userData.data || {};
+        
+        if (userCustomData.workTime && cooldown - (Date.now() - userCustomData.workTime) > 0) {
+            const time = cooldown - (Date.now() - userCustomData.workTime);
+            const minutes = Math.floor(time / 60000);
+            const seconds = Math.floor((time % 60000) / 1000);
 
-        return api.sendMessage(
-            getText("cooldown", toMathBoldItalic(minutes.toString()), toMathBoldItalic((seconds < 10 ? "0" + seconds : seconds).toString())),
-            threadID,
-            messageID
-        );
-    } else {
-        const job = getText("job1");
-        const amount = Math.floor(Math.random() * 10000);
-        const amountText = toMathBoldItalic(amount.toString());
+            return message.reply(
+                this.languages.en.cooldown
+                    .replace("%1", toMathBoldItalic(minutes.toString()))
+                    .replace("%2", toMathBoldItalic((seconds < 10 ? "0" + seconds : seconds).toString()))
+            );
+        } else {
+            const job = this.languages.en.job1;
+            const amount = Math.floor(Math.random() * 10000);
+            const amountText = toMathBoldItalic(amount.toString());
 
-        return api.sendMessage(
-            getText("rewarded", job, amountText),
-            threadID,
-            async () => {
-                await Currencies.increaseMoney(senderID, amount);
-                userData.workTime = Date.now();
-                await Currencies.setData(senderID, { data: userData });
-            },
-            messageID
-        );
+            await message.reply(
+                this.languages.en.rewarded
+                    .replace("%1", job)
+                    .replace("%2", amountText)
+            );
+
+            await usersData.increaseMoney(senderID, amount);
+            userCustomData.workTime = Date.now();
+            await usersData.setData(senderID, { data: userCustomData });
+        }
+
+    } catch (error) {
+        console.error("𝐶𝑎𝑣𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑚𝑖𝑛𝑖𝑛𝑔.");
     }
 };
