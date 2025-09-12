@@ -40,7 +40,8 @@ module.exports.config = {
     },
     dependencies: {
         "fs": "",
-        "path": ""
+        "path": "",
+        "moment-timezone": ""
     },
     envConfig: {
         "maxPlayers": 10,
@@ -50,7 +51,7 @@ module.exports.config = {
         "cardChangeLimit": 2,
         "winningScore": 9,
         "autoEndGame": true,
-        "timeout": 300000, // 5 minutes
+        "timeout": 300000,
         "language": "en"
     }
 };
@@ -99,229 +100,240 @@ const messages = {
     }
 };
 
-module.exports.onStart = async function ({ event, message, args, usersData, api, prefix }) {
-    const { senderID, threadID } = event;
-    const config = this.config.envConfig;
-    const lang = config.language || 'en';
-    const msg = messages[lang];
-    
-    // Initialize game data if not exists
-    if (!global.baicaoData) global.baicaoData = new Map();
-    
-    let values = global.baicaoData.get(threadID) || {};
-
-    switch (args[0]) {
-      case "create":
-      case "-c": {
-        if (global.baicaoData.has(threadID)) {
-          return message.reply(toBI(msg.gameAlreadyRunning));
-        }
-        global.baicaoData.set(threadID, { 
-          "author": senderID, 
-          "start": 0, 
-          "chiabai": 0, 
-          "ready": 0, 
-          player: [{ 
-            "id": senderID, 
-            "card1": 0, 
-            "card2": 0, 
-            "card3": 0, 
-            "doibai": config.cardChangeLimit, 
-            "ready": false,
-            "tong": 0
-          }] 
-        });
-        return message.reply(toBI(msg.gameCreated.replace("{}", prefix + this.config.name)));
-      }
-      
-      case "join":
-      case "-j": {
-        if (!global.baicaoData.has(threadID)) {
-          return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
-        }
-        if (values.start == 1) {
-          return message.reply(toBI(msg.gameStarted));
-        }
-        if (values.player.find(item => item.id == senderID)) {
-          return message.reply(toBI(msg.alreadyJoined));
-        }
-        if (values.player.length >= config.maxPlayers) {
-          return message.reply(toBI(`🚫 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑝𝑙𝑎𝑦𝑒𝑟𝑠 𝑟𝑒𝑎𝑐ℎ𝑒𝑑 (${config.maxPlayers})`));
-        }
-        values.player.push({ 
-          "id": senderID, 
-          "card1": 0, 
-          "card2": 0, 
-          "card3": 0, 
-          "tong": 0, 
-          "doibai": config.cardChangeLimit, 
-          "ready": false 
-        });
-        global.baicaoData.set(threadID, values);
-        return message.reply(toBI(msg.joinSuccess));
-      }
-
-      case "leave":
-      case "-l": {
-        if (!global.baicaoData.has(threadID)) {
-          return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
-        }
-        if (!values.player.some(item => item.id == senderID)) {
-          return message.reply(toBI(msg.notInGame));
-        }
-        if (values.start == 1) {
-          return message.reply(toBI(msg.gameStarted));
-        }
-        if (values.author == senderID) {
-          global.baicaoData.delete(threadID);
-          return message.reply(toBI(msg.creatorLeft));
-        } else {
-          values.player.splice(values.player.findIndex(item => item.id === senderID), 1);
-          global.baicaoData.set(threadID, values);
-          return message.reply(toBI(msg.leftGame));
-        }
-      }
-
-      case "start":
-      case "-s": {
-        if (!global.baicaoData.has(threadID)) {
-          return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
-        }
-        if (values.author !== senderID) {
-          return message.reply(toBI(msg.onlyCreatorStart));
-        }
-        if (values.player.length < config.minPlayers) {
-          return message.reply(toBI(msg.notEnoughPlayers.replace("{}", config.minPlayers)));
-        }
-        if (values.start == 1) {
-          return message.reply(toBI(msg.gameStarted));
-        }
-        values.start = 1;
-        global.baicaoData.set(threadID, values);
-        return message.reply(toBI(msg.gameStartSuccess));
-      }
-
-      case "info":
-      case "-i": {
-        if (!global.baicaoData.has(threadID)) {
-          return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
-        }
-        const playerNames = [];
-        for (const player of values.player) {
-          const name = await usersData.getName(player.id);
-          playerNames.push(name);
-        }
+module.exports.onStart = async function ({ event, message, args, usersData, api }) {
+    try {
+        const { senderID, threadID } = event;
+        const config = this.config.envConfig;
+        const lang = config.language || 'en';
+        const msg = messages[lang];
+        const prefix = global.config.PREFIX;
         
-        const creatorName = await usersData.getName(values.author);
-        const infoText = toBI(msg.gameInfo.replace("{}", creatorName).replace("{}", values.player.length).replace("{}", playerNames.join(", ")));
-        return message.reply(infoText);
-      }
+        // Initialize game data if not exists
+        if (!global.baicaoData) global.baicaoData = new Map();
+        
+        let values = global.baicaoData.get(threadID) || {};
 
-      default: {
-        const helpText = msg.helpMessage
-            .replace(/{}{}/g, prefix + this.config.name + " ")
-            .replace("{}", config.cardChangeLimit);
-        return message.reply(toBI(helpText));
-      }
+        switch (args[0]) {
+            case "create":
+            case "-c": {
+                if (global.baicaoData.has(threadID)) {
+                    return message.reply(toBI(msg.gameAlreadyRunning));
+                }
+                global.baicaoData.set(threadID, { 
+                    "author": senderID, 
+                    "start": 0, 
+                    "chiabai": 0, 
+                    "ready": 0, 
+                    player: [{ 
+                        "id": senderID, 
+                        "card1": 0, 
+                        "card2": 0, 
+                        "card3": 0, 
+                        "doibai": config.cardChangeLimit, 
+                        "ready": false,
+                        "tong": 0
+                    }] 
+                });
+                return message.reply(toBI(msg.gameCreated.replace("{}", prefix + this.config.name)));
+            }
+            
+            case "join":
+            case "-j": {
+                if (!global.baicaoData.has(threadID)) {
+                    return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
+                }
+                if (values.start == 1) {
+                    return message.reply(toBI(msg.gameStarted));
+                }
+                if (values.player.find(item => item.id == senderID)) {
+                    return message.reply(toBI(msg.alreadyJoined));
+                }
+                if (values.player.length >= config.maxPlayers) {
+                    return message.reply(toBI(`🚫 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑝𝑙𝑎𝑦𝑒𝑟𝑠 𝑟𝑒𝑎𝑐ℎ𝑒𝑑 (${config.maxPlayers})`));
+                }
+                values.player.push({ 
+                    "id": senderID, 
+                    "card1": 0, 
+                    "card2": 0, 
+                    "card3": 0, 
+                    "tong": 0, 
+                    "doibai": config.cardChangeLimit, 
+                    "ready": false 
+                });
+                global.baicaoData.set(threadID, values);
+                return message.reply(toBI(msg.joinSuccess));
+            }
+
+            case "leave":
+            case "-l": {
+                if (!global.baicaoData.has(threadID)) {
+                    return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
+                }
+                if (!values.player.some(item => item.id == senderID)) {
+                    return message.reply(toBI(msg.notInGame));
+                }
+                if (values.start == 1) {
+                    return message.reply(toBI(msg.gameStarted));
+                }
+                if (values.author == senderID) {
+                    global.baicaoData.delete(threadID);
+                    return message.reply(toBI(msg.creatorLeft));
+                } else {
+                    values.player.splice(values.player.findIndex(item => item.id === senderID), 1);
+                    global.baicaoData.set(threadID, values);
+                    return message.reply(toBI(msg.leftGame));
+                }
+            }
+
+            case "start":
+            case "-s": {
+                if (!global.baicaoData.has(threadID)) {
+                    return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
+                }
+                if (values.author !== senderID) {
+                    return message.reply(toBI(msg.onlyCreatorStart));
+                }
+                if (values.player.length < config.minPlayers) {
+                    return message.reply(toBI(msg.notEnoughPlayers.replace("{}", config.minPlayers)));
+                }
+                if (values.start == 1) {
+                    return message.reply(toBI(msg.gameStarted));
+                }
+                values.start = 1;
+                global.baicaoData.set(threadID, values);
+                return message.reply(toBI(msg.gameStartSuccess));
+            }
+
+            case "info":
+            case "-i": {
+                if (!global.baicaoData.has(threadID)) {
+                    return message.reply(toBI(msg.noGameRunning.replace("{}", prefix + this.config.name)));
+                }
+                const playerNames = [];
+                for (const player of values.player) {
+                    const name = await usersData.getName(player.id);
+                    playerNames.push(name);
+                }
+                
+                const creatorName = await usersData.getName(values.author);
+                const infoText = toBI(msg.gameInfo.replace("{}", creatorName).replace("{}", values.player.length).replace("{}", playerNames.join(", ")));
+                return message.reply(infoText);
+            }
+
+            default: {
+                const helpText = msg.helpMessage
+                    .replace(/{}{}/g, prefix + this.config.name + " ")
+                    .replace("{}", config.cardChangeLimit);
+                return message.reply(toBI(helpText));
+            }
+        }
+    } catch (error) {
+        console.error("𝐵𝑎𝑖 𝐶𝑎𝑜 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑖𝑛 𝑡ℎ𝑒 𝑔𝑎𝑚𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑");
     }
 };
 
 module.exports.onChat = async function({ event, message, usersData, api }) {
-    const { senderID, threadID, body } = event;
-    const config = this.config.envConfig;
-    const lang = config.language || 'en';
-    const msg = messages[lang];
-    
-    if (!body || !global.baicaoData || !global.baicaoData.has(threadID)) return;
-    
-    let values = global.baicaoData.get(threadID);
-    if (values.start != 1) return;
-
-    if (body.toLowerCase().includes("chia bai")) {
-      if (values.chiabai == 1) return;
-      for(let i = 0; i < values.player.length; i++) {
-        const player = values.player[i];
-        const card1 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
-        const card2 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
-        const card3 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
-        let tong = card1 + card2 + card3;
-        if (tong >= config.winningScore) tong = tong % 10;
+    try {
+        const { senderID, threadID, body } = event;
+        const config = this.config.envConfig;
+        const lang = config.language || 'en';
+        const msg = messages[lang];
         
-        player.card1 = card1;
-        player.card2 = card2;
-        player.card3 = card3;
-        player.tong = tong;
+        if (!body || !global.baicaoData || !global.baicaoData.has(threadID)) return;
         
-        try {
-          await api.sendMessage(toBI(msg.cardMessage.replace("{}", card1).replace("{}", card2).replace("{}", card3).replace("{}", tong)), player.id);
-        } catch (error) {
-          await message.reply(toBI(msg.cantSendCards.replace("{}", player.id)));
-        }
-      }
-      values.chiabai = 1;
-      global.baicaoData.set(threadID, values);
-      return message.reply(toBI(msg.cardsDealt));
-    }
+        let values = global.baicaoData.get(threadID);
+        if (values.start != 1) return;
 
-    if (body.toLowerCase().includes("doi bai")) {
-      if (values.chiabai != 1) return;
-      let player = values.player.find(item => item.id == senderID);
-      if (!player) return;
-      if (player.doibai == 0) return message.reply(toBI(msg.noCardChanges));
-      if (player.ready) return message.reply(toBI(msg.alreadyReady));
-      
-      const cards = ["card1", "card2", "card3"];
-      const randomCard = cards[Math.floor(Math.random() * cards.length)];
-      player[randomCard] = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
-      player.tong = player.card1 + player.card2 + player.card3;
-      if (player.tong >= config.winningScore) player.tong = player.tong % 10;
-      player.doibai -= 1;
-      global.baicaoData.set(threadID, values);
-      
-      try {
-        await api.sendMessage(toBI(msg.newCardMessage.replace("{}", player.card1).replace("{}", player.card2).replace("{}", player.card3).replace("{}", player.tong)), player.id);
-      } catch (error) {
-        await message.reply(toBI(msg.cantSendCards.replace("{}", player.id)));
-      }
-    }
-
-    if (body.toLowerCase().includes("ready")) {
-      if (values.chiabai != 1) return;
-      let player = values.player.find(item => item.id == senderID);
-      if (!player) return;
-      if (player.ready) return;
-      
-      const name = await usersData.getName(senderID);
-      values.ready += 1;
-      player.ready = true;
-      
-      if (values.player.length == values.ready) {
-        const sortedPlayers = [...values.player].sort((a, b) => b.tong - a.tong);
-        let ranking = [];
-        let num = 1;
-
-        for (const info of sortedPlayers) {
-          const playerName = await usersData.getName(info.id);
-          ranking.push(toBI(`${num++}. ${playerName} - 🃏 ${info.card1} | ${info.card2} | ${info.card3} => 📊 ${info.tong} 𝑝𝑜𝑖𝑛𝑡𝑠`));
+        if (body.toLowerCase().includes("chia bai")) {
+            if (values.chiabai == 1) return;
+            for(let i = 0; i < values.player.length; i++) {
+                const player = values.player[i];
+                const card1 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
+                const card2 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
+                const card3 = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
+                let tong = card1 + card2 + card3;
+                if (tong >= config.winningScore) tong = tong % 10;
+                
+                player.card1 = card1;
+                player.card2 = card2;
+                player.card3 = card3;
+                player.tong = tong;
+                
+                try {
+                    await api.sendMessage(toBI(msg.cardMessage.replace("{}", card1).replace("{}", card2).replace("{}", card3).replace("{}", tong)), player.id);
+                } catch (error) {
+                    await message.reply(toBI(msg.cantSendCards.replace("{}", player.id)));
+                }
+            }
+            values.chiabai = 1;
+            global.baicaoData.set(threadID, values);
+            return message.reply(toBI(msg.cardsDealt));
         }
 
-        global.baicaoData.delete(threadID);
-        return message.reply(toBI(msg.finalResults.replace("{}", ranking.join("\n"))));
-      } else {
-        return message.reply(toBI(msg.playerReady.replace("{}", name).replace("{}", values.player.length - values.ready)));
-      }
-    }
-    
-    if (body.toLowerCase().includes("nonready")) {
-      const notReadyPlayers = values.player.filter(item => !item.ready);
-      let playerNames = [];
+        if (body.toLowerCase().includes("doi bai")) {
+            if (values.chiabai != 1) return;
+            let player = values.player.find(item => item.id == senderID);
+            if (!player) return;
+            if (player.doibai == 0) return message.reply(toBI(msg.noCardChanges));
+            if (player.ready) return message.reply(toBI(msg.alreadyReady));
+            
+            const cards = ["card1", "card2", "card3"];
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            player[randomCard] = Math.floor(Math.random() * config.maxCardValue) + config.minCardValue;
+            player.tong = player.card1 + player.card2 + player.card3;
+            if (player.tong >= config.winningScore) player.tong = player.tong % 10;
+            player.doibai -= 1;
+            global.baicaoData.set(threadID, values);
+            
+            try {
+                await api.sendMessage(toBI(msg.newCardMessage.replace("{}", player.card1).replace("{}", player.card2).replace("{}", player.card3).replace("{}", player.tong)), player.id);
+            } catch (error) {
+                await message.reply(toBI(msg.cantSendCards.replace("{}", player.id)));
+            }
+        }
 
-      for (const player of notReadyPlayers) {
-        const name = await usersData.getName(player.id);
-        playerNames.push(name);
-      }
-      if (playerNames.length > 0) {
-        return message.reply(toBI(msg.notReadyPlayers.replace("{}", playerNames.join(", "))));
-      }
+        if (body.toLowerCase().includes("ready")) {
+            if (values.chiabai != 1) return;
+            let player = values.player.find(item => item.id == senderID);
+            if (!player) return;
+            if (player.ready) return;
+            
+            const name = await usersData.getName(senderID);
+            values.ready += 1;
+            player.ready = true;
+            
+            if (values.player.length == values.ready) {
+                const sortedPlayers = [...values.player].sort((a, b) => b.tong - a.tong);
+                let ranking = [];
+                let num = 1;
+
+                for (const info of sortedPlayers) {
+                    const playerName = await usersData.getName(info.id);
+                    ranking.push(toBI(`${num++}. ${playerName} - 🃏 ${info.card1} | ${info.card2} | ${info.card3} => 📊 ${info.tong} 𝑝𝑜𝑖𝑛𝑡𝑠`));
+                }
+
+                global.baicaoData.delete(threadID);
+                return message.reply(toBI(msg.finalResults.replace("{}", ranking.join("\n"))));
+            } else {
+                return message.reply(toBI(msg.playerReady.replace("{}", name).replace("{}", values.player.length - values.ready)));
+            }
+        }
+        
+        if (body.toLowerCase().includes("nonready")) {
+            const notReadyPlayers = values.player.filter(item => !item.ready);
+            let playerNames = [];
+
+            for (const player of notReadyPlayers) {
+                const name = await usersData.getName(player.id);
+                playerNames.push(name);
+            }
+            if (playerNames.length > 0) {
+                return message.reply(toBI(msg.notReadyPlayers.replace("{}", playerNames.join(", "))));
+            }
+        }
+    } catch (error) {
+        console.error("𝐵𝑎𝑖 𝐶𝑎𝑜 𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑖𝑛 𝑡ℎ𝑒 𝑔𝑎𝑚𝑒");
     }
 };
