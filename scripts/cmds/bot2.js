@@ -3,13 +3,21 @@ const moment = require("moment-timezone");
 
 module.exports.config = {
     name: "goibot2",
+    aliases: ["musicbot", "autoresponder"],
     version: "1.0.2",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🎵 Music Bot Auto-Respond System",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 3,
+    role: 0,
     category: "system",
-    usages: "[]",
-    cooldowns: 3,
+    shortDescription: {
+        en: "🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝐴𝑢𝑡𝑜-𝑅𝑒𝑠𝑝𝑜𝑛𝑑 𝑆𝑦𝑠𝑡𝑒𝑚"
+    },
+    longDescription: {
+        en: "🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝐴𝑢𝑡𝑜-𝑅𝑒𝑠𝑝𝑜𝑛𝑑 𝑆𝑦𝑠𝑡𝑒𝑚 𝑤𝑖𝑡ℎ 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑠𝑜𝑛𝑔 𝑞𝑢𝑜𝑡𝑒𝑠"
+    },
+    guide: {
+        en: "{p}goibot2"
+    },
     dependencies: {
         "moment-timezone": "",
         "fs-extra": ""
@@ -21,17 +29,17 @@ module.exports.config = {
 
 module.exports.languages = {
     "en": {
-        "welcome": "🎵 Music Bot Activated",
-        "response": "✨ Auto-Responder Active"
+        "welcome": "🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝐴𝑐𝑡𝑖𝑣𝑎𝑡𝑒𝑑",
+        "response": "✨ 𝐴𝑢𝑡𝑜-𝑅𝑒𝑠𝑝𝑜𝑛𝑑𝑒𝑟 𝐴𝑐𝑡𝑖𝑣𝑒"
     },
     "bn": {
-        "welcome": "🎵 মিউজিক বট চালু হয়েছে",
-        "response": "✨ অটো-রেসপন্ডার সক্রিয় হয়েছে"
+        "welcome": "🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝐴𝑐𝑡𝑖𝑣𝑎𝑡𝑒𝑑",
+        "response": "✨ 𝐴𝑢𝑡𝑜-𝑅𝑒𝑠𝑝𝑜𝑛𝑑𝑒𝑟 𝐴𝑐𝑡𝑖𝑣𝑒"
     }
 };
 
 module.exports.onLoad = function () {
-    console.log('\x1b[36m%s\x1b[0m', '🎵 Music Bot Module Loaded Successfully');
+    console.log('\x1b[36m%s\x1b[0m', '🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝑀𝑜𝑑𝑢𝑙𝑒 𝐿𝑜𝑎𝑑𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦');
 };
 
 // Utility function: Convert normal text to Mathematical Bold Italic
@@ -47,7 +55,7 @@ function toMathBoldItalic(text) {
     return text.split('').map(char => map[char] || char).join('');
 }
 
-module.exports.handleEvent = async function ({ api, event, Users }) {
+module.exports.onChat = async function ({ event, api, Users }) {
     try {
         const { threadID, messageID, senderID, body } = event;
         const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY ║ HH:mm:ss");
@@ -56,16 +64,16 @@ module.exports.handleEvent = async function ({ api, event, Users }) {
             const name = await Users.getNameUser(senderID);
 
             const tl = [
-                "🎶 Tumi amar hoye thako na, ami tomak bhalobashi bolbo na 🌹",
-                "💔 Tumi je amar hobe, tahole tobo sob kichu dine parbo na 🎵",
-                "🌟 Amar praner majhe tumi, tumi chara kono gan nei 🎤",
-                "🌠 Tumi amar sondhan, amar sob kichu, amar shesh obidhan 🎶",
-                "🌹 Tumi eka bar fire aso, ami tomake nijer kore nebo 💫",
-                "🎵 Amar diba rati tumi, amar sob sokho tumi 🌙",
-                "✨ Tumi jokhon amar kache, tokhon sob kichu pai 🌟",
-                "🎶 Amar moner kotha shuno, tumi chara keu nei 💭",
-                "🌌 Tumi amar hoye thakle, ami bechete pari ni 💖",
-                "🎵 Amar priyo hobo tumi, ami sob cheye priyo 🌟"
+                "🎶 𝑇𝑢𝑚𝑖 𝑎𝑚𝑎𝑟 ℎ𝑜𝑦𝑒 𝑡ℎ𝑎𝑘𝑜 𝑛𝑎, 𝑎𝑚𝑖 𝑡𝑜𝑚𝑎𝑘 𝑏ℎ𝑎𝑙𝑜𝑏𝑎𝑠ℎ𝑖 𝑏𝑜𝑙𝑏𝑜 𝑛𝑎 🌹",
+                "💔 𝑇𝑢𝑚𝑖 𝑗𝑒 𝑎𝑚𝑎𝑟 ℎ𝑜𝑏𝑒, 𝑡𝑎ℎ𝑜𝑙𝑒 𝑡𝑜𝑏𝑜 𝑠𝑜𝑏 𝑘𝑖𝑐ℎ𝑢 𝑑𝑖𝑛𝑒 𝑝𝑎𝑟𝑏𝑜 𝑛𝑎 🎵",
+                "🌟 𝐴𝑚𝑎𝑟 𝑝𝑟𝑎𝑛𝑒𝑟 𝑚𝑎𝑗ℎ𝑒 𝑡𝑢𝑚𝑖, 𝑡𝑢𝑚𝑖 𝑐ℎ𝑎𝑟𝑎 𝑘𝑜𝑛𝑜 𝑔𝑎𝑛 𝑛𝑒𝑖 🎤",
+                "🌠 𝑇𝑢𝑚𝑖 𝑎𝑚𝑎𝑟 𝑠𝑜𝑛𝑑ℎ𝑎𝑛, 𝑎𝑚𝑎𝑟 𝑠𝑜𝑏 𝑘𝑖𝑐ℎ𝑢, 𝑎𝑚𝑎𝑟 𝑠ℎ𝑒𝑠ℎ 𝑜𝑏𝑖𝑑ℎ𝑎𝑛 🎶",
+                "🌹 𝑇𝑢𝑚𝑖 𝑒𝑘𝑎 𝑏𝑎𝑟 𝑓𝑖𝑟𝑒 𝑎𝑠𝑜, 𝑎𝑚𝑖 𝑡𝑜𝑚𝑎𝑘𝑒 𝑛𝑖𝑗𝑒𝑟 𝑘𝑜𝑟𝑒 𝑛𝑒𝑏𝑜 💫",
+                "🎵 𝐴𝑚𝑎𝑟 𝑑𝑖𝑏𝑎 𝑟𝑎𝑡𝑖 𝑡𝑢𝑚𝑖, 𝑎𝑚𝑎𝑟 𝑠𝑜𝑏 𝑠𝑜𝑘ℎ𝑜 𝑡𝑢𝑚𝑖 🌙",
+                "✨ 𝑇𝑢𝑚𝑖 𝑗𝑜𝑘ℎ𝑜𝑛 𝑎𝑚𝑎𝑟 𝑘𝑎𝑐ℎ𝑒, 𝑡𝑜𝑘ℎ𝑜𝑛 𝑠𝑜𝑏 𝑘𝑖𝑐ℎ𝑢 𝑝𝑎𝑖 🌟",
+                "🎶 𝐴𝑚𝑎𝑟 𝑚𝑜𝑛𝑒𝑟 𝑘𝑜𝑡ℎ𝑎 𝑠ℎ𝑢𝑛𝑜, 𝑡𝑢𝑚𝑖 𝑐ℎ𝑎𝑟𝑎 𝑘𝑒𝑢 𝑛𝑒𝑖 💭",
+                "🌌 𝑇𝑢𝑚𝑖 𝑎𝑚𝑎𝑟 ℎ𝑜𝑦𝑒 𝑡ℎ𝑎𝑘𝑙𝑒, 𝑎𝑚𝑖 𝑏𝑒𝑐ℎ𝑒𝑡𝑒 𝑝𝑎𝑟𝑖 𝑛𝑖 💖",
+                "🎵 𝐴𝑚𝑎𝑟 𝑝𝑟𝑖𝑦𝑜 ℎ𝑜𝑏𝑜 𝑡𝑢𝑚𝑖, 𝑎𝑚𝑖 𝑠𝑜𝑏 𝑐ℎ𝑒𝑦𝑒 𝑝𝑟𝑖𝑦𝑜 🌟"
             ];
 
             const rand = tl[Math.floor(Math.random() * tl.length)];
@@ -73,30 +81,33 @@ module.exports.handleEvent = async function ({ api, event, Users }) {
 
             const msg = {
                 body: `╔═════ஜ۩۞۩ஜ═════╗
-🎵 Hello ${name} 💖
+🎵 𝐻𝑒𝑙𝑙𝑜 ${name} 💖
 ╚═════ஜ۩۞۩ஜ═════╝
 
 『 ${rand} 』
 
 ✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦
 
-📌 Credits » ${creditName}
-⏰ Time » ${time}
+📌 𝐶𝑟𝑒𝑑𝑖𝑡𝑠 » ${creditName}
+⏰ 𝑇𝑖𝑚𝑒 » ${time}
 ✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦⋆⋅☆⋅⋆✦`
             };
 
             return api.sendMessage(msg, threadID, messageID);
         }
     } catch (error) {
-        console.error('Error in handleEvent:', error);
+        console.error('𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑛𝐶ℎ𝑎𝑡:', error);
     }
 };
 
-// Fixed the function name to onStart
-module.exports.onStart = function ({ api, event }) {
-    api.sendMessage(
-        "🎵 Music Bot Is Active\n\n💬 Send 'song' to trigger auto-response",
-        event.threadID,
-        event.messageID
-    );
+module.exports.onStart = async function ({ api, event }) {
+    try {
+        await api.sendMessage(
+            "🎵 𝑀𝑢𝑠𝑖𝑐 𝐵𝑜𝑡 𝐼𝑠 𝐴𝑐𝑡𝑖𝑣𝑒\n\n💬 𝑆𝑒𝑛𝑑 '𝑠𝑜𝑛𝑔' 𝑡𝑜 𝑡𝑟𝑖𝑔𝑔𝑒𝑟 𝑎𝑢𝑡𝑜-𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒",
+            event.threadID,
+            event.messageID
+        );
+    } catch (error) {
+        console.error('𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑛𝑆𝑡𝑎𝑟𝑡:', error);
+    }
 };
