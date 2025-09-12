@@ -1,96 +1,115 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const { createCanvas, loadImage } = require("canvas");
+
 module.exports.config = {
-	name: "enrile",
-	version: "2.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "💬 𝑬𝒏𝒓𝒊𝒍𝒆'𝒔 𝒃𝒂𝒍𝒍𝒐𝒐𝒏 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒐𝒓",
-	category: "🎨 𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
-	usages: "[𝒕𝒆𝒙𝒕]",
-	cooldowns: 15,
-	dependencies: {
-		"canvas": "",
-		"axios": "",
-		"fs-extra": "",
-		"discord-image-generation": ""
-	},
-	envConfig: {
-		fontStyle: "bold 60px Arial",
-		textColor: "#FFFFFF",
-		textX: 500,
-		textY: 450,
-		maxWidth: 600
-	}
+    name: "enrile",
+    aliases: ["enrilecomment", "balloon"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 15,
+    role: 0,
+    category: "edit-image",
+    shortDescription: {
+        en: "𝐸𝑛𝑟𝑖𝑙𝑒'𝑠 𝑏𝑎𝑙𝑙𝑜𝑜𝑛 𝑐𝑜𝑚𝑚𝑒𝑛𝑡 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟"
+    },
+    longDescription: {
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑠 𝑎 𝑏𝑎𝑙𝑙𝑜𝑜𝑛 𝑐𝑜𝑚𝑚𝑒𝑛𝑡 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝐸𝑛𝑟𝑖𝑙𝑒'𝑠 𝑠𝑡𝑦𝑙𝑒"
+    },
+    guide: {
+        en: "{p}enrile [𝑡𝑒𝑥𝑡]"
+    },
+    dependencies: {
+        "canvas": "",
+        "axios": "",
+        "fs-extra": ""
+    },
+    envConfig: {
+        fontStyle: "𝑏𝑜𝑙𝑑 60𝑝𝑥 𝐴𝑟𝑖𝑎𝑙",
+        textColor: "#𝐹𝐹𝐹𝐹𝐹𝐹",
+        textX: 500,
+        textY: 450,
+        maxWidth: 600
+    }
 };
 
-module.exports.onStart = async function({ api, event, args, config }) {
-	try {
-		const { createCanvas, loadImage, registerFont } = require("canvas");
-		const fs = global.nodemodule["fs-extra"];
-		const axios = global.nodemodule["axios"];
-		const { makeWanted } = global.nodemodule["discord-image-generation"];
+module.exports.onStart = async function({ message, args, api }) {
+    try {
+        // Check dependencies
+        if (!axios || !fs || !createCanvas || !loadImage) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
 
-		let pathImg = __dirname + '/cache/enrile_edit.png';
-		const text = args.join(" ");
-		
-		if (!text) return api.sendMessage("✨ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒚𝒐𝒖𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒇𝒐𝒓 𝑬𝒏𝒓𝒊𝒍𝒆'𝒔 𝒃𝒂𝒍𝒍𝒐𝒐𝒏!", event.threadID, event.messageID);
+        const text = args.join(" ");
+        
+        if (!text) {
+            return message.reply("✨ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑦𝑜𝑢𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑓𝑜𝑟 𝐸𝑛𝑟𝑖𝑙𝑒'𝑠 𝑏𝑎𝑙𝑙𝑜𝑜𝑛!");
+        }
 
-		// Download base image
-		const { data } = await axios.get("https://i.imgur.com/1plDf6o.png", { 
-			responseType: 'arraybuffer' 
-		});
-		fs.writeFileSync(pathImg, Buffer.from(data, 'utf-8'));
+        let pathImg = __dirname + '/cache/enrile_edit.png';
 
-		// Process image
-		const baseImage = await loadImage(pathImg);
-		const canvas = createCanvas(baseImage.width, baseImage.height);
-		const ctx = canvas.getContext("2d");
+        // Download base image
+        const { data } = await axios.get("https://i.imgur.com/1plDf6o.png", { 
+            responseType: 'arraybuffer' 
+        });
+        await fs.writeFileSync(pathImg, Buffer.from(data, 'utf-8'));
 
-		ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-		
-		// Text styling
-		ctx.font = config.envConfig.fontStyle;
-		ctx.fillStyle = config.envConfig.textColor;
-		ctx.textAlign = "start";
-		
-		// Text wrapping
-		const wrapText = (ctx, text, maxWidth) => {
-			const words = text.split(' ');
-			const lines = [];
-			let line = '';
+        // Process image
+        const baseImage = await loadImage(pathImg);
+        const canvas = createCanvas(baseImage.width, baseImage.height);
+        const ctx = canvas.getContext("2d");
 
-			while (words.length > 0) {
-				let split = false;
-				while (ctx.measureText(words[0]).width >= maxWidth) {
-					const temp = words[0];
-					words[0] = temp.slice(0, -1);
-					split ? words[1] = `${temp.slice(-1)}${words[1]}` : words.splice(1, 0, temp.slice(-1));
-					split = true;
-				}
-				if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) {
-					line += `${words.shift()} `;
-				} else {
-					lines.push(line.trim());
-					line = '';
-				}
-				if (words.length === 0) lines.push(line.trim());
-			}
-			return lines;
-		};
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        
+        // Text styling
+        ctx.font = this.config.envConfig.fontStyle;
+        ctx.fillStyle = this.config.envConfig.textColor;
+        ctx.textAlign = "start";
+        
+        // Text wrapping function
+        const wrapText = (ctx, text, maxWidth) => {
+            const words = text.split(' ');
+            const lines = [];
+            let line = '';
 
-		const lines = wrapText(ctx, text, config.envConfig.maxWidth);
-		ctx.fillText(lines.join('\n'), config.envConfig.textX, config.envConfig.textY);
+            while (words.length > 0) {
+                let split = false;
+                while (ctx.measureText(words[0]).width >= maxWidth) {
+                    const temp = words[0];
+                    words[0] = temp.slice(0, -1);
+                    split ? words[1] = `${temp.slice(-1)}${words[1]}` : words.splice(1, 0, temp.slice(-1));
+                    split = true;
+                }
+                if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) {
+                    line += `${words.shift()} `;
+                } else {
+                    lines.push(line.trim());
+                    line = '';
+                }
+                if (words.length === 0) lines.push(line.trim());
+            }
+            return lines;
+        };
 
-		// Save and send
-		const buffer = canvas.toBuffer();
-		fs.writeFileSync(pathImg, buffer);
-		
-		await api.sendMessage({
-			body: `🎈 𝑬𝒏𝒓𝒊𝒍𝒆'𝒔 𝒃𝒂𝒍𝒍𝒐𝒐𝒏 𝒄𝒐𝒎𝒎𝒆𝒏𝒕:\n"${text}"`,
-			attachment: fs.createReadStream(pathImg)
-		}, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
+        const lines = wrapText(ctx, text, this.config.envConfig.maxWidth);
+        ctx.fillText(lines.join('\n'), this.config.envConfig.textX, this.config.envConfig.textY);
 
-	} catch (error) {
-		console.error(error);
-		api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒊𝒎𝒂𝒈𝒆", event.threadID, event.messageID);
-	}
+        // Save and send
+        const buffer = canvas.toBuffer();
+        await fs.writeFileSync(pathImg, buffer);
+        
+        await message.reply({
+            body: `🎈 𝐸𝑛𝑟𝑖𝑙𝑒'𝑠 𝑏𝑎𝑙𝑙𝑜𝑜𝑛 𝑐𝑜𝑚𝑚𝑒𝑛𝑡:\n"${text}"`,
+            attachment: fs.createReadStream(pathImg)
+        });
+
+        // Clean up
+        if (fs.existsSync(pathImg)) {
+            fs.unlinkSync(pathImg);
+        }
+
+    } catch (error) {
+        console.error("𝐸𝑛𝑟𝑖𝑙𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒");
+    }
 };
