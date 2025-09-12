@@ -1,25 +1,35 @@
 module.exports.config = {
-	name: "fact",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "𝑹𝒂𝒏𝒅𝒐𝒎 𝒇𝒂𝒄𝒕𝒔 𝒋𝒂𝒏𝒂𝒏",
-	category: "fun",
-	usages: "[blank]",
-	cooldowns: 5,
-	dependencies: {
-		"axios": ""
-	}
+    name: "fact",
+    aliases: ["randomfact", "funfact"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "fun",
+    shortDescription: {
+        en: "𝑅𝑎𝑛𝑑𝑜𝑚 𝑓𝑎𝑐𝑡𝑠"
+    },
+    longDescription: {
+        en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑖𝑛𝑔 𝑓𝑎𝑐𝑡𝑠"
+    },
+    guide: {
+        en: "{p}fact"
+    },
+    dependencies: {
+        "axios": ""
+    }
 };
 
-module.exports.onStart = async function({ api, event, args }) {
-	const axios = require("axios");
-	try {
-		const response = await axios.get('https://api.popcat.xyz/fact');
-		const fact = response.data.fact;
-		api.sendMessage(`🔮 | 𝐑𝐚𝐧𝐝𝐨𝐦 𝐅𝐚𝐜𝐭 𝐅𝐨𝐫 𝐘𝐨𝐮\n\n✨ | 𝐅𝐚𝐜𝐭: ${fact}\n\n💫 | 𝐂𝐫𝐞𝐚𝐭𝐨𝐫: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`, event.threadID, event.messageID);
-	} catch (error) {
-		console.error(error);
-		api.sendMessage("❌ | 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐟𝐞𝐭𝐜𝐡 𝐟𝐚𝐜𝐭. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.", event.threadID);
-	}
+module.exports.onStart = async function({ message, args }) {
+    try {
+        const axios = require("axios");
+        const response = await axios.get('https://api.popcat.xyz/fact');
+        const fact = response.data.fact;
+        
+        await message.reply(`🔮 | 𝑅𝑎𝑛𝑑𝑜𝑚 𝐹𝑎𝑐𝑡 𝐹𝑜𝑟 𝑌𝑜𝑢\n\n✨ | 𝐹𝑎𝑐𝑡: ${fact}\n\n💫 | 𝐶𝑟𝑒𝑎𝑡𝑜𝑟: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`);
+        
+    } catch (error) {
+        console.error("𝐹𝑎𝑐𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑓𝑎𝑐𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+    }
 };
