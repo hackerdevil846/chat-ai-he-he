@@ -1,12 +1,20 @@
 module.exports.config = {
     name: "choose",
+    aliases: ["select", "pick"],
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Apnar poschand ekti option bacher korte sahayyo kore 🤔",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "utilities",
-    usages: "[Option 1] | [Option 2]",
-    cooldowns: 5
+    shortDescription: {
+        en: "𝐻𝑒𝑙𝑝𝑠 𝑦𝑜𝑢 𝑐ℎ𝑜𝑜𝑠𝑒 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 𝑜𝑝𝑡𝑖𝑜𝑛𝑠"
+    },
+    longDescription: {
+        en: "𝐴𝑠𝑠𝑖𝑠𝑡𝑠 𝑖𝑛 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑛𝑔 𝑎𝑛 𝑜𝑝𝑡𝑖𝑜𝑛 𝑓𝑟𝑜𝑚 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑐ℎ𝑜𝑖𝑐𝑒𝑠"
+    },
+    guide: {
+        en: "{p}choose [𝑂𝑝𝑡𝑖𝑜𝑛 1] | [𝑂𝑝𝑡𝑖𝑜𝑛 2]"
+    }
 };
 
 function toMathBoldItalic(text) {
@@ -22,31 +30,35 @@ function toMathBoldItalic(text) {
 }
 
 module.exports.languages = {
-    "vi": {
-        "return": toMathBoldItalic("%1 apnar sathe beshi mil kore, amar mote 🤔")
-    },
     "en": {
-        "return": toMathBoldItalic("%1 apnar sathe beshi mil kore, amar mote 🤔")
+        "return": toMathBoldItalic("%1 𝑖𝑠 𝑡ℎ𝑒 𝑏𝑒𝑠𝑡 𝑐ℎ𝑜𝑖𝑐𝑒 𝑓𝑜𝑟 𝑦𝑜𝑢, 𝑖𝑛 𝑚𝑦 𝑜𝑝𝑖𝑛𝑖𝑜𝑛 🤔")
     }
 };
 
-module.exports.onStart = async function({ api, event, args, getText }) {
-    const { threadID, messageID } = event;
+module.exports.onStart = async function({ message, event, args, getText }) {
+    try {
+        const { threadID, messageID } = event;
 
-    let input = args.join(" ").trim();
-    if (!input) {
-        const errorMsg = toMathBoldItalic("❌ Kichu option din! Usage: choose option1 | option2");
-        return global.utils.throwError(this.config.name, threadID, messageID, errorMsg);
+        let input = args.join(" ").trim();
+        if (!input) {
+            const errorMsg = toMathBoldItalic("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑠𝑜𝑚𝑒 𝑜𝑝𝑡𝑖𝑜𝑛𝑠! 𝑈𝑠𝑎𝑔𝑒: 𝑐ℎ𝑜𝑜𝑠𝑒 𝑜𝑝𝑡𝑖𝑜𝑛1 | 𝑜𝑝𝑡𝑖𝑜𝑛2");
+            return message.reply(errorMsg);
+        }
+
+        let array = input.split(" | ");
+        if (array.length < 2) {
+            const errorMsg = toMathBoldItalic("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎𝑡 𝑙𝑒𝑎𝑠𝑡 2 𝑜𝑝𝑡𝑖𝑜𝑛𝑠! 𝑈𝑠𝑎𝑔𝑒: 𝑐ℎ𝑜𝑜𝑠𝑒 𝑜𝑝𝑡𝑖𝑜𝑛1 | 𝑜𝑝𝑡𝑖𝑜𝑛2");
+            return message.reply(errorMsg);
+        }
+
+        const selected = array[Math.floor(Math.random() * array.length)];
+        const result = getText("return", selected);
+
+        return message.reply(`🎯 𝑅𝑒𝑠𝑢𝑙𝑡: ${result}`);
+
+    } catch (error) {
+        console.error("𝐶ℎ𝑜𝑜𝑠𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+        const errorMsg = toMathBoldItalic("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
+        return message.reply(errorMsg);
     }
-
-    let array = input.split(" | ");
-    if (array.length < 2) {
-        const errorMsg = toMathBoldItalic("❌ Dui ba tar beshi option din! Usage: choose option1 | option2");
-        return api.sendMessage(errorMsg, threadID, messageID);
-    }
-
-    const selected = array[Math.floor(Math.random() * array.length)];
-    const result = getText("return", selected);
-
-    return api.sendMessage(`🎯 Result: ${result}`, threadID, messageID);
 };
