@@ -1,63 +1,76 @@
 module.exports.config = {
-	name: "daily",
-	version: "2.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "💰 𝗗𝗔𝗜𝗟𝗬 𝗥𝗘𝗪𝗔𝗥𝗗 𝗦𝗬𝗦𝗧𝗘𝗠 | 𝗚𝗲𝘁 𝟭𝟵𝗕+ 𝗖𝗼𝗶𝗻𝘀 𝗘𝘃𝗲𝗿𝘆 𝟭𝟮 𝗛𝗼𝘂𝗿𝘀",
-	category: "economy",
-	usages: "daily",
-	cooldowns: 5,
-	envConfig: {
-		cooldownTime: 43200000,
-		rewardCoin: 19011310000
-	}
+    name: "daily",
+    aliases: ["reward", "claim"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "economy",
+    shortDescription: {
+        en: "💰 𝐷𝐴𝐼𝐿𝑌 𝑅𝐸𝑊𝐴𝑅𝐷 𝑆𝑌𝑆𝑇𝐸𝑀 | 𝐺𝑒𝑡 19𝐵+ 𝐶𝑜𝑖𝑛𝑠 𝐸𝑣𝑒𝑟𝑦 12 𝐻𝑜𝑢𝑟𝑠"
+    },
+    longDescription: {
+        en: "𝐶𝑙𝑎𝑖𝑚 𝑦𝑜𝑢𝑟 𝑑𝑎𝑖𝑙𝑦 𝑟𝑒𝑤𝑎𝑟𝑑 𝑜𝑓 19𝐵+ 𝑐𝑜𝑖𝑛𝑠 𝑒𝑣𝑒𝑟𝑦 12 ℎ𝑜𝑢𝑟𝑠"
+    },
+    guide: {
+        en: "{p}daily"
+    },
+    envConfig: {
+        cooldownTime: 43200000,
+        rewardCoin: 19011310000
+    }
 };
 
 module.exports.languages = {
-	"en": {
-		"cooldown": "🕒 ╔════════════════╗\n      𝗗𝗔𝗜𝗟𝗬 𝗖𝗢𝗢𝗟𝗗𝗢𝗪𝗡\n╚════════════════╝\n\n⏳ 𝗥𝗲𝗺𝗮𝗶𝗻𝗶𝗻𝗴 𝗧𝗶𝗺𝗲:\n   ⇝ %1𝗁 %2ᴍ %3𝘴\n\n📌 𝗡𝗼𝘁𝗲: 𝗬𝗼𝘂 𝗰𝗮𝗻 𝗰𝗹𝗮𝗶𝗺 𝗮𝗴𝗮𝗶𝗻 𝗶𝗻 𝟭𝟮 𝗵𝗼𝘂𝗿𝘀",
-		"rewarded": "✨ ╔══════════════════════╗\n       𝗥𝗘𝗪𝗔𝗥𝗗 𝗖𝗟𝗔𝗜𝗠𝗘𝗗!\n╚══════════════════════╝\n\n💰 𝗔𝗺𝗼𝘂𝗻𝘁 𝗥𝗲𝗰𝗲𝗶𝘃𝗲𝗱:\n   ⇝ %1 𝖢𝗈𝗂𝗇𝗌\n\n🎯 𝗡𝗲𝘅𝘁 𝗥𝗲𝘄𝗮𝗿𝗱 𝗶𝗻:\n   ⇝ 12 𝙷𝚘𝚞𝚛𝚜\n\n💡 𝗧𝗶𝗽: 𝗖𝗼𝗺𝗲 𝗯𝗮𝗰𝗸 𝗱𝗮𝗶𝗹𝘆 𝗳𝗼𝗿 𝗺𝗼𝗿𝗲 𝗿𝗲𝘄𝗮𝗿𝗱𝘀!",
-		"firstTime": "🎊 ╔══════════════════════╗\n     𝗙𝗜𝗥𝗦𝗧 𝗧𝗜𝗠𝗘 𝗕𝗢𝗡𝗨𝗦!\n╚══════════════════════╝\n\n✨ 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝗗𝗮𝗶𝗹𝘆 𝗥𝗲𝘄𝗮𝗿𝗱𝘀!\n\n💰 𝗔𝗺𝗼𝘂𝗻𝘁 𝗥𝗲𝗰𝗲𝗶𝘃𝗲𝗱:\n   ⇝ %1 𝖢𝗈𝗂𝗇𝗌\n\n🎯 𝗡𝗲𝘅𝘁 𝗥𝗲𝘄𝗮𝗿𝗱 𝗶𝗻:\n   ⇝ 12 𝙷𝚘𝚞𝚛𝚜\n\n💡 𝗧𝗶𝗽: 𝗖𝗹𝗮𝗶𝗺 𝗱𝗮𝗶𝗹𝘆 𝘁𝗼 𝗯𝘂𝗶𝗹𝗱 𝘆𝗼𝘂𝗿 𝗳𝗼𝗿𝘁𝘂𝗻𝗲!"
-	}
-}
+    "en": {
+        "cooldown": "🕒 ╔════════════════╗\n      𝐷𝐴𝐼𝐿𝑌 𝐶𝑂𝑂𝐿𝐷𝑂𝑊𝑁\n╚════════════════╝\n\n⏳ 𝑅𝑒𝑚𝑎𝑖𝑛𝑖𝑛𝑔 𝑇𝑖𝑚𝑒:\n   ⇝ %1𝗁 %2ᴍ %3𝘴\n\n📌 𝑁𝑜𝑡𝑒: 𝑌𝑜𝑢 𝑐𝑎𝑛 𝑐𝑙𝑎𝑖𝑚 𝑎𝑔𝑎𝑖𝑛 𝑖𝑛 12 ℎ𝑜𝑢𝑟𝑠",
+        "rewarded": "✨ ╔══════════════════════╗\n       𝑅𝐸𝑊𝐴𝑅𝐷 𝐶𝐿𝐴𝐼𝑀𝐸𝐷!\n╚══════════════════════╝\n\n💰 𝐴𝑚𝑜𝑢𝑛𝑡 𝑅𝑒𝑐𝑒𝑖𝑣𝑒𝑑:\n   ⇝ %1 𝖢𝗈𝗂𝗇𝗌\n\n🎯 𝑁𝑒𝑥𝑡 𝑅𝑒𝑤𝑎𝑟𝑑 𝑖𝑛:\n   ⇝ 12 𝐻𝑜𝑢𝑟𝑠\n\n💡 𝑇𝑖𝑝: 𝐶𝑜𝑚𝑒 𝑏𝑎𝑐𝑘 𝑑𝑎𝑖𝑙𝑦 𝑓𝑜𝑟 𝑚𝑜𝑟𝑒 𝑟𝑒𝑤𝑎𝑟𝑑𝑠!",
+        "firstTime": "🎊 ╔══════════════════════╗\n     𝐹𝐼𝑅𝑆𝑇 𝑇𝐼𝑀𝐸 𝐵𝑂𝑁𝑈𝑆!\n╚══════════════════════╝\n\n✨ 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑡𝑜 𝐷𝑎𝑖𝑙𝑦 𝑅𝑒𝑤𝑎𝑟𝑑𝑠!\n\n💰 𝐴𝑚𝑜𝑢𝑛𝑡 𝑅𝑒𝑐𝑒𝑖𝑣𝑒𝑑:\n   ⇝ %1 𝖢𝗈𝗂𝗇𝗌\n\n🎯 𝑁𝑒𝑥𝑡 𝑅𝑒𝑤𝑎𝑟𝑑 𝑖𝑛:\n   ⇝ 12 𝐻𝑜𝑢𝑟𝑠\n\n💡 𝑇𝑖𝑝: 𝐶𝑙𝑎𝑖𝑚 𝑑𝑎𝑖𝑙𝑦 𝑡𝑜 𝑏𝑢𝑖𝑙𝑑 𝑦𝑜𝑢𝑟 𝑓𝑜𝑟𝑡𝑢𝑛𝑒!"
+    }
+};
 
-module.exports.onStart = async ({ event, api, Currencies, getText }) => {
-	const { daily } = global.configModule;
-	const { cooldownTime, rewardCoin } = daily;
-	const { senderID, threadID, messageID } = event;
+module.exports.onStart = async function({ event, api, Currencies, getText }) {
+    try {
+        const { cooldownTime, rewardCoin } = this.config.envConfig;
+        const { senderID, threadID, messageID } = event;
 
-	const userData = await Currencies.getData(senderID);
-	const data = userData.data || {};
-	
-	// Check if user has claimed before
-	const isFirstTime = !data.hasClaimedDaily;
-	
-	if (data.dailyCoolDown && Date.now() - data.dailyCoolDown < cooldownTime) {
-		const remaining = cooldownTime - (Date.now() - data.dailyCoolDown);
-		const hours = Math.floor(remaining / 3600000);
-		const minutes = Math.floor((remaining % 3600000) / 60000);
-		const seconds = Math.floor((remaining % 60000) / 1000);
-		
-		return api.sendMessage(
-			getText("cooldown", hours, minutes, seconds), 
-			threadID, 
-			messageID
-		);
-	}
+        const userData = await Currencies.getData(senderID);
+        const data = userData.data || {};
+        
+        // Check if user has claimed before
+        const isFirstTime = !data.hasClaimedDaily;
+        
+        if (data.dailyCoolDown && Date.now() - data.dailyCoolDown < cooldownTime) {
+            const remaining = cooldownTime - (Date.now() - data.dailyCoolDown);
+            const hours = Math.floor(remaining / 3600000);
+            const minutes = Math.floor((remaining % 3600000) / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            
+            return api.sendMessage(
+                getText("cooldown", hours, minutes, seconds), 
+                threadID, 
+                messageID
+            );
+        }
 
-	// Give bonus for first time claimers
-	const actualReward = isFirstTime ? Math.floor(rewardCoin * 1.5) : rewardCoin;
-	
-	await Currencies.increaseMoney(senderID, actualReward);
-	data.dailyCoolDown = Date.now();
-	data.hasClaimedDaily = true;
-	await Currencies.setData(senderID, { data });
+        // Give bonus for first time claimers
+        const actualReward = isFirstTime ? Math.floor(rewardCoin * 1.5) : rewardCoin;
+        
+        await Currencies.increaseMoney(senderID, actualReward);
+        data.dailyCoolDown = Date.now();
+        data.hasClaimedDaily = true;
+        await Currencies.setData(senderID, { data });
 
-	const formattedCoin = actualReward.toLocaleString('en-US');
-	
-	return api.sendMessage(
-		getText(isFirstTime ? "firstTime" : "rewarded", formattedCoin), 
-		threadID, 
-		messageID
-	);
+        const formattedCoin = actualReward.toLocaleString('en-US');
+        
+        return api.sendMessage(
+            getText(isFirstTime ? "firstTime" : "rewarded", formattedCoin), 
+            threadID, 
+            messageID
+        );
+
+    } catch (error) {
+        console.error("𝐷𝑎𝑖𝑙𝑦 𝑅𝑒𝑤𝑎𝑟𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑑𝑎𝑖𝑙𝑦 𝑟𝑒𝑤𝑎𝑟𝑑.", event.threadID, event.messageID);
+    }
 };
