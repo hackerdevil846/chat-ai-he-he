@@ -7,44 +7,61 @@ const colorName = "#000000";
 
 module.exports.config = {
     name: "cardbox",
+    aliases: ["groupcard", "gcard"],
     version: "2.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "📋 Group information card with beautiful design",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 10,
+    role: 0,
     category: "𝗜𝗡𝗙𝗢",
-    usages: "[text]",
-    cooldowns: 10,
-    dependencies: {
-        canvas: "",
-        axios: "",
-        "fs-extra": "",
-        jimp: ""
+    shortDescription: {
+        en: "📋 𝐺𝑟𝑜𝑢𝑝 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑑𝑒𝑠𝑖𝑔𝑛"
     },
-    envConfig: {
-        // Add any environment config here if needed
+    longDescription: {
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑠 𝑎 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑔𝑟𝑜𝑢𝑝 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑑𝑒𝑡𝑎𝑖𝑙𝑠"
+    },
+    guide: {
+        en: "{p}cardbox [𝑡𝑒𝑥𝑡]"
+    },
+    dependencies: {
+        "canvas": "",
+        "axios": "",
+        "fs-extra": "",
+        "jimp": "",
+        "moment-timezone": "",
+        "path": ""
     }
 };
 
 module.exports.languages = {
     "en": {
-        "missingText": "⚠️ Please enter text to display on the card"
+        "missingText": "⚠️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑑𝑖𝑠𝑝𝑙𝑎𝑦 𝑜𝑛 𝑡ℎ𝑒 𝑐𝑎𝑟𝑑"
     }
-}
+};
 
 module.exports.circle = async (image) => {
-    const jimp = global.nodemodule["jimp"];
+    const jimp = require("jimp");
     image = await jimp.read(image);
     image.circle();
     return await image.getBufferAsync("image/png");
-}
+};
 
-module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies }) {
+module.exports.onStart = async function ({ api, event, args, message }) {
     try {
+        // Check dependencies
+        const requiredModules = ["canvas", "axios", "fs-extra", "jimp", "path"];
+        for (const mod of requiredModules) {
+            try {
+                require.resolve(mod);
+            } catch {
+                throw new Error(`${mod} 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑`);
+            }
+        }
+
         const { loadImage, createCanvas } = require("canvas");
-        const request = require('request');
-        const fs = global.nodemodule["fs-extra"];
-        const axios = global.nodemodule["axios"];
-        const jimp = global.nodemodule["jimp"];
+        const fs = require("fs-extra");
+        const axios = require("axios");
+        const jimp = require("jimp");
+        const path = require("path");
         
         let { senderID, threadID, messageID } = event;
         let pathImg = __dirname + `/cache/${senderID}123.png`;
@@ -78,8 +95,7 @@ module.exports.onStart = async function ({ api, event, args, Users, Threads, Cur
         let qtv = threadInfo.adminIDs.length;
         let sl = threadInfo.messageCount;
         let threadMem = threadInfo.participantIDs.length;
-        const path = global.nodemodule["path"];
-        const Canvas = global.nodemodule["canvas"];
+        const Canvas = require("canvas");
         const __root = path.resolve(__dirname, "cache");
         var qtv2 = threadInfo.adminIDs;
         var idad = qtv2[Math.floor(Math.random() * qtv)];
@@ -148,17 +164,17 @@ module.exports.onStart = async function ({ api, event, args, Users, Threads, Cur
         ctx.font = `${fontsInfo}px Lobster`;
         ctx.fillStyle = "#000000";
         ctx.textAlign = "start";
-        ctx.fillText(`👥 Members: ${threadMem}`, 439, 199);
-        ctx.fillText(`👑 Admins: ${qtv}`, 439, 243);
-        ctx.fillText(`🚹 Males: ${nam}`, 439, 287);
-        ctx.fillText(`🚺 Females: ${nu}`, 439, 331);
-        ctx.fillText(`💬 Messages: ${sl}`, 439, 379);
+        ctx.fillText(`👥 𝑀𝑒𝑚𝑏𝑒𝑟𝑠: ${threadMem}`, 439, 199);
+        ctx.fillText(`👑 𝐴𝑑𝑚𝑖𝑛𝑠: ${qtv}`, 439, 243);
+        ctx.fillText(`🚹 𝑀𝑎𝑙𝑒𝑠: ${nam}`, 439, 287);
+        ctx.fillText(`🚺 𝐹𝑒𝑚𝑎𝑙𝑒𝑠: ${nu}`, 439, 331);
+        ctx.fillText(`💬 𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠: ${sl}`, 439, 379);
         
         ctx.font = `${fontsOthers}px Lobster`;
         ctx.fillStyle = "#000000";
         ctx.textAlign = "start";
-        ctx.fillText(`📦 Box ID: ${id}`, 18, 470);
-        ctx.fillText(`➕ And ${parseInt(threadMem)-3} other members...`, 607, 453);
+        ctx.fillText(`📦 𝐵𝑜𝑥 𝐼𝐷: ${id}`, 18, 470);
+        ctx.fillText(`➕ 𝐴𝑛𝑑 ${parseInt(threadMem)-3} 𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑏𝑒𝑟𝑠...`, 607, 453);
         
         ctx.beginPath();
         const imageBuffer = canvas.toBuffer();
@@ -168,18 +184,13 @@ module.exports.onStart = async function ({ api, event, args, Users, Threads, Cur
         fs.removeSync(pathAvata2);
         fs.removeSync(pathAvata3);
 
-        return api.sendMessage(
-            { 
-                body: "✅ Group information card generated successfully!",
-                attachment: fs.createReadStream(pathImg) 
-            },
-            threadID,
-            () => fs.unlinkSync(pathImg),
-            messageID
-        );
+        return message.reply({
+            body: "✅ 𝐺𝑟𝑜𝑢𝑝 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
+            attachment: fs.createReadStream(pathImg)
+        }, () => fs.unlinkSync(pathImg));
         
     } catch (error) {
         console.error(error);
-        return api.sendMessage("❌ An error occurred while processing the command.", event.threadID, event.messageID);
+        return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
     }
 };
