@@ -1,72 +1,78 @@
 const axios = require('axios');
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "call",
-    author: "Asif",
+    aliases: ["callbomb", "cbomb"],
     version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 30,
+    role: 0,
     category: "utility",
-    shortDescription: "Call bomber (Educational use only)",
-    longDescription: "Simulates call bombing for Bangladeshi numbers. Use responsibly.",
-    guide: {
-      en: "{prefix}call [01xxxxxxxxx]"
+    shortDescription: {
+        en: "𝐶𝑎𝑙𝑙 𝑏𝑜𝑚𝑏𝑒𝑟 (𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑢𝑠𝑒 𝑜𝑛𝑙𝑦)"
     },
-    priority: 0,
-    cooldowns: 30
-  },
-
-  onStart: async function ({ api, event, args }) {
-    const { messageID, threadID } = event;
-    const input = args[0];
-
-    // Help message if no input
-    if (!input) {
-      return api.sendMessage(
-        `📞 Call Command Usage:\n» .call [phone number]\n\nExample: .call 01712345678\n\nℹ️ This tool is for educational purposes only. Misuse for harassment is illegal.`,
-        threadID,
-        messageID
-      );
+    longDescription: {
+        en: "𝑆𝑖𝑚𝑢𝑙𝑎𝑡𝑒𝑠 𝑐𝑎𝑙𝑙 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑓𝑜𝑟 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 𝑛𝑢𝑚𝑏𝑒𝑟𝑠. 𝑈𝑠𝑒 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑖𝑏𝑙𝑦."
+    },
+    guide: {
+        en: "{p}call [01𝑥𝑥𝑥𝑥𝑥𝑥𝑥𝑥𝑥𝑥]"
+    },
+    dependencies: {
+        "axios": ""
     }
+};
 
-    // Validate Bangladeshi phone number format
-    if (!/^01[0-9]{9}$/.test(input)) {
-      return api.sendMessage(
-        "❌ Invalid format! Please provide a valid Bangladeshi number (11 digits starting with '01')\n\nExample: 01712345678",
-        threadID,
-        messageID
-      );
-    }
-
+module.exports.onStart = async function ({ api, event, args }) {
     try {
-      const processingMsg = await api.sendMessage(
-        `📞 Initiating call sequence to: ${input}\n⏱️ Please wait 90 seconds...\n\n⚠️ Reminder: Use responsibly. Unethical use violates laws.`,
-        threadID
-      );
+        const { messageID, threadID } = event;
+        const input = args[0];
 
-      // Make API request to call service
-      await axios.get(`https://tbblab.shop/callbomber.php?mobile=${input}`);
-
-      // Delete processing message after 90 seconds and send result
-      setTimeout(async () => {
-        try {
-          await api.unsendMessage(processingMsg.messageID);
-          api.sendMessage(
-            `✅ Successfully completed call sequence to: ${input}\n\n📢 Educational reminder:\nThis simulation demonstrates security vulnerabilities. Always respect privacy laws and use knowledge ethically.`,
-            threadID,
-            messageID
-          );
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
+        // Help message if no input
+        if (!input) {
+            return api.sendMessage(
+                `📞 𝐶𝑎𝑙𝑙 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑈𝑠𝑎𝑔𝑒:\n» .call [𝑝ℎ𝑜𝑛𝑒 𝑛𝑢𝑚𝑏𝑒𝑟]\n\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: .call 01712345678\n\nℹ️ 𝑇ℎ𝑖𝑠 𝑡𝑜𝑜𝑙 𝑖𝑠 𝑓𝑜𝑟 𝑒𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑝𝑢𝑟𝑝𝑜𝑠𝑒𝑠 𝑜𝑛𝑙𝑦. 𝑀𝑖𝑠𝑢𝑠𝑒 𝑓𝑜𝑟 ℎ𝑎𝑟𝑎𝑠𝑠𝑚𝑒𝑛𝑡 𝑖𝑠 𝑖𝑙𝑙𝑒𝑔𝑎𝑙.`,
+                threadID,
+                messageID
+            );
         }
-      }, 90000);
+
+        // Validate Bangladeshi phone number format
+        if (!/^01[0-9]{9}$/.test(input)) {
+            return api.sendMessage(
+                "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑓𝑜𝑟𝑚𝑎𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 𝑛𝑢𝑚𝑏𝑒𝑟 (11 𝑑𝑖𝑔𝑖𝑡𝑠 𝑠𝑡𝑎𝑟𝑡𝑖𝑛𝑔 𝑤𝑖𝑡ℎ '01')\n\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: 01712345678",
+                threadID,
+                messageID
+            );
+        }
+
+        const processingMsg = await api.sendMessage(
+            `📞 𝐼𝑛𝑖𝑡𝑖𝑎𝑡𝑖𝑛𝑔 𝑐𝑎𝑙𝑙 𝑠𝑒𝑞𝑢𝑒𝑛𝑐𝑒 𝑡𝑜: ${input}\n⏱️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 90 𝑠𝑒𝑐𝑜𝑛𝑑𝑠...\n\n⚠️ 𝑅𝑒𝑚𝑖𝑛𝑑𝑒𝑟: 𝑈𝑠𝑒 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑖𝑏𝑙𝑦. 𝑈𝑛𝑒𝑡ℎ𝑖𝑐𝑎𝑙 𝑢𝑠𝑒 𝑣𝑖𝑜𝑙𝑎𝑡𝑒𝑠 𝑙𝑎𝑤𝑠.`,
+            threadID
+        );
+
+        // Make API request to call service
+        await axios.get(`https://tbblab.shop/callbomber.php?mobile=${input}`);
+
+        // Delete processing message after 90 seconds and send result
+        setTimeout(async () => {
+            try {
+                await api.unsendMessage(processingMsg.messageID);
+                api.sendMessage(
+                    `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐𝑜𝑚𝑝𝑙𝑒𝑡𝑒𝑑 𝑐𝑎𝑙𝑙 𝑠𝑒𝑞𝑢𝑒𝑛𝑐𝑒 𝑡𝑜: ${input}\n\n📢 𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑟𝑒𝑚𝑖𝑛𝑑𝑒𝑟:\n𝑇ℎ𝑖𝑠 𝑠𝑖𝑚𝑢𝑙𝑎𝑡𝑖𝑜𝑛 𝑑𝑒𝑚𝑜𝑛𝑠𝑡𝑟𝑎𝑡𝑒𝑠 𝑠𝑒𝑐𝑢𝑟𝑖𝑡𝑦 𝑣𝑢𝑙𝑛𝑒𝑟𝑎𝑏𝑖𝑙𝑖𝑡𝑖𝑒𝑠. 𝐴𝑙𝑤𝑎𝑦𝑠 𝑟𝑒𝑠𝑝𝑒𝑐𝑡 𝑝𝑟𝑖𝑣𝑎𝑐𝑦 𝑙𝑎𝑤𝑠 𝑎𝑛𝑑 𝑢𝑠𝑒 𝑘𝑛𝑜𝑤𝑙𝑒𝑑𝑔𝑒 𝑒𝑡ℎ𝑖𝑐𝑎𝑙𝑙𝑦.`,
+                    threadID,
+                    messageID
+                );
+            } catch (cleanupError) {
+                console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupError);
+            }
+        }, 90000);
 
     } catch (error) {
-      console.error("Call Command Error:", error);
-      api.sendMessage(
-        `❌ Failed to initiate calls: ${error.message}\n\nPossible reasons:\n• Service temporarily unavailable\n• Invalid number format\n• Server connection failed\n\nPlease try again later.`,
-        threadID,
-        messageID
-      );
+        console.error("𝐶𝑎𝑙𝑙 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage(
+            `❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑖𝑛𝑖𝑡𝑖𝑎𝑡𝑒 𝑐𝑎𝑙𝑙𝑠: ${error.message}\n\n𝑃𝑜𝑠𝑠𝑖𝑏𝑙𝑒 𝑟𝑒𝑎𝑠𝑜𝑛𝑠:\n• 𝑆𝑒𝑟𝑣𝑖𝑐𝑒 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑟𝑖𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒\n• 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟 𝑓𝑜𝑟𝑚𝑎𝑡\n• 𝑆𝑒𝑟𝑣𝑒𝑟 𝑐𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛 𝑓𝑎𝑖𝑙𝑒𝑑\n\n𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.`,
+            event.threadID,
+            event.messageID
+        );
     }
-  }
 };
