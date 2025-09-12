@@ -1,121 +1,88 @@
 const axios = require('axios');
 const jimp = require("jimp");
-const fs = require("fs");
+const fs = require("fs-extra");
 
 module.exports.config = {
     name: "condom",
+    aliases: ["condomfail", "cfail"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Make fun of your friends using crazy condom fails 😆",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "fun",
-    usages: "tag someone",
-    cooldowns: 5,
-    dependencies: {
-        "axios": "latest",
-        "jimp": "latest"
+    shortDescription: {
+        en: "𝑀𝑎𝑘𝑒 𝑓𝑢𝑛 𝑜𝑓 𝑦𝑜𝑢𝑟 𝑓𝑟𝑖𝑒𝑛𝑑𝑠 𝑢𝑠𝑖𝑛𝑔 𝑐𝑟𝑎𝑧𝑦 𝑐𝑜𝑛𝑑𝑜𝑚 𝑓𝑎𝑖𝑙𝑠 😆"
     },
-    envConfig: {}
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑓𝑢𝑛𝑛𝑦 𝑐𝑜𝑛𝑑𝑜𝑚 𝑓𝑎𝑖𝑙 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟'𝑠 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒"
+    },
+    guide: {
+        en: "{p}condom @𝑡𝑎𝑔"
+    },
+    dependencies: {
+        "axios": "",
+        "jimp": "",
+        "fs-extra": ""
+    }
 };
 
 module.exports.languages = {
     "en": {
-        MISSING_TAG: "❗ You must tag a person to use this command.",
-        CREATING_IMAGE: "🔧 Creating crazy condom fail... please wait!",
-        SEND_ERROR: "⚠️ An error occurred while sending the image.",
-        GEN_ERROR: "⚠️ An error occurred while generating the image."
-    },
-    "bn": {
-        MISSING_TAG: "❗ একজনকে ট্যাগ করতে হবে এই কমান্ড ব্যবহার করার জন্য।",
-        CREATING_IMAGE: "🔧 ছবি তৈরির হচ্ছে... একটু অপেক্ষা করো!",
-        SEND_ERROR: "⚠️ ছবি পাঠানোর সময় সমস্যা হয়েছে।",
-        GEN_ERROR: "⚠️ ছবি তৈরির সময় সমস্যা হয়েছে।"
+        "MISSING_TAG": "❗ 𝑌𝑜𝑢 𝑚𝑢𝑠𝑡 𝑡𝑎𝑔 𝑎 𝑝𝑒𝑟𝑠𝑜𝑛 𝑡𝑜 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.",
+        "CREATING_IMAGE": "🔧 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑐𝑟𝑎𝑧𝑦 𝑐𝑜𝑛𝑑𝑜𝑚 𝑓𝑎𝑖𝑙... 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡!",
+        "SEND_ERROR": "⚠️ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒.",
+        "GEN_ERROR": "⚠️ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒."
     }
 };
 
-module.exports.onLoad = function () {
-    // No special setup required on load for this module.
-};
-
-module.exports.onStart = async function ({ api, event, args, getText }) {
+module.exports.onStart = async function({ message, event, args, getText }) {
     try {
-        // getText helper fallback
-        const t = (key) => {
-            try {
-                return getText(key);
-            } catch {
-                // fallback to english strings if getText not available
-                const lang = module.exports.languages.en;
-                return lang[key] || key;
-            }
-        };
-        
-        // Validate mentions
-        const mentions = event.mentions || {};
-        const mentionIds = Object.keys(mentions);
-        if (!mentionIds.length) {
-            return api.sendMessage({ body: t("MISSING_TAG"), threadID: event.threadID, replyTo: event.messageID });
+        // Check dependencies
+        if (!axios || !jimp || !fs) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
+
+        const mentions = Object.keys(event.mentions || {});
+        if (!mentions.length) {
+            return message.reply(getText("MISSING_TAG"));
         }
         
-        // Choose first mention (keeps original behaviour)
-        const targetId = mentionIds[0];
+        const targetId = mentions[0];
+        const targetName = event.mentions[targetId];
         
-        // Inform user (optional short notice)
-        await api.sendMessage({ body: t("CREATING_IMAGE"), threadID: event.threadID, replyTo: event.messageID });
+        await message.reply(getText("CREATING_IMAGE"));
         
-        // Generate image
         const imagePath = await generateImageFor(targetId);
         
-        // Send image to thread
-        try {
-            await api.sendMessage({
-                body: `Ops Crazy Condom Fails 😆\nMade for: ${mentions[targetId] || targetId}\n\nCredits: ${module.exports.config.credits}`,
-                attachment: fs.createReadStream(imagePath)
-            }, event.threadID, event.messageID);
-        } catch (sendErr) {
-            console.error("Send error:", sendErr);
-            await api.sendMessage({ body: t("SEND_ERROR"), threadID: event.threadID, replyTo: event.messageID });
-        } finally {
-            // cleanup - remove the generated file if exists
-            try {
-                if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-            } catch (e) {
-                // non-fatal
-                console.warn("Failed to delete temp file:", e);
-            }
+        await message.reply({
+            body: `𝑂𝑝𝑠 𝐶𝑟𝑎𝑧𝑦 𝐶𝑜𝑛𝑑𝑜𝑚 𝐹𝑎𝑖𝑙𝑠 😆\n𝑀𝑎𝑑𝑒 𝑓𝑜𝑟: ${targetName}\n\n𝐶𝑟𝑒𝑑𝑖𝑡𝑠: ${this.config.author}`,
+            attachment: fs.createReadStream(imagePath)
+        });
+
+        // Clean up
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
         }
-    } catch (err) {
-        console.error("Generation error:", err);
-        await api.sendMessage({ body: module.exports.languages.en.GEN_ERROR, threadID: event.threadID, replyTo: event.messageID });
+
+    } catch (error) {
+        console.error("𝐶𝑜𝑛𝑑𝑜𝑚 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        await message.reply(getText("GEN_ERROR"));
     }
 };
 
-/**
- * Generates the composite image and returns the local file path.
- * Keeps the original links/paths unchanged as requested.
- */
 async function generateImageFor(userId) {
     const avatarUrl = `https://graph.facebook.com/${userId}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
     const templateUrl = "https://i.imgur.com/cLEixM0.jpg";
-    const outputPath = "condom.png"; // kept exactly as original request
+    const outputPath = "condom.png";
     
-    try {
-        // Read avatar and template (jimp supports URLs)
-        const avatar = await jimp.read(avatarUrl);
-        const image = await jimp.read(templateUrl);
-        
-        // Compose exactly like original logic
-        image.resize(512, 512);
-        avatar.resize(263, 263);
-        
-        // Composite avatar onto template at the same coordinates as original
-        image.composite(avatar, 256, 258);
-        
-        // Write file
-        await image.writeAsync(outputPath);
-        return outputPath;
-    } catch (e) {
-        // bubble up error to caller
-        throw e;
-    }
+    const avatar = await jimp.read(avatarUrl);
+    const image = await jimp.read(templateUrl);
+    
+    image.resize(512, 512);
+    avatar.resize(263, 263);
+    
+    image.composite(avatar, 256, 258);
+    
+    await image.writeAsync(outputPath);
+    return outputPath;
 }
