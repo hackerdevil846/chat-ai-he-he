@@ -1,22 +1,28 @@
 module.exports.config = {
     name: "dot",
+    aliases: ["animation", "dots"],
     version: "1.0.0",
-    hasPermssion: 2,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💫 War In Chatbox Animation",
-    category: "wargroup",
-    usages: "[mention]",
-    cooldowns: 7,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 7,
+    role: 2,
+    category: "fun",
+    shortDescription: {
+        en: "💫 𝑊𝑎𝑟 𝐼𝑛 𝐶ℎ𝑎𝑡𝑏𝑜𝑥 𝐴𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑎 𝑠𝑒𝑞𝑢𝑒𝑛𝑐𝑒 𝑜𝑓 𝑎𝑛𝑖𝑚𝑎𝑡𝑒𝑑 𝑑𝑜𝑡𝑠 𝑎𝑛𝑑 𝑠𝑦𝑚𝑏𝑜𝑙𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡𝑏𝑜𝑥"
+    },
+    guide: {
+        en: "{p}dot"
+    },
     dependencies: {
         "fs-extra": "",
         "axios": ""
     }
 };
 
-module.exports.onStart = async function({ api, event }) {
+module.exports.onStart = async function({ message, event }) {
     try {
-        const a = (message) => api.sendMessage(message, event.threadID);
-        
         // ✨ Animation sequence
         const animation = [
             { delay: 1000, text: "." },
@@ -51,12 +57,13 @@ module.exports.onStart = async function({ api, event }) {
         ];
 
         // 🚀 Execute animation
-        animation.forEach(({ delay, text }) => {
-            setTimeout(() => a(text), delay);
-        });
+        for (const frame of animation) {
+            await new Promise(resolve => setTimeout(resolve, frame.delay));
+            await message.reply(frame.text);
+        }
 
     } catch (error) {
-        console.error("✨ Error in dot command:", error);
-        api.sendMessage("❌ An error occurred while executing the animation.", event.threadID);
+        console.error("✨ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑑𝑜𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑎𝑛𝑖𝑚𝑎𝑡𝑖𝑜𝑛.");
     }
 };
