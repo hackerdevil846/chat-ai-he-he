@@ -5,141 +5,166 @@ const fontsInfo = 28;
 const colorName = "#000000";
 
 module.exports.config = {
-  name: "cardinfov4",
-  version: "2.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "📝 Create Facebook user information card",
-  category: "info",
-  usages: "",
-  cooldowns: 5,
-  dependencies: {
-    canvas: "",
-    axios: "",
-    "fs-extra": "",
-    jimp: ""
-  }
+    name: "cardinfov4",
+    aliases: ["infocard", "profilecard"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "info",
+    shortDescription: {
+        en: "📝 𝐶𝑟𝑒𝑎𝑡𝑒 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑"
+    },
+    longDescription: {
+        en: "📝 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛"
+    },
+    guide: {
+        en: "{p}cardinfov4 [𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑢𝑠𝑒𝑟]"
+    },
+    dependencies: {
+        "canvas": "",
+        "axios": "",
+        "fs-extra": "",
+        "jimp": "",
+        "moment-timezone": ""
+    }
 };
 
 // Circular avatar processing
 module.exports.circle = async (image) => {
-  const jimp = global.nodemodule["jimp"];
-  image = await jimp.read(image);
-  image.circle();
-  return await image.getBufferAsync("image/png");
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
 };
 
 // Convert normal text to Mathematical Bold Italic
 function toMathBoldItalic(text) {
-  const map = {
-    'A': '𝑨','B': '𝑩','C': '𝑪','D': '𝑫','E': '𝑬','F': '𝑭','G': '𝑮','H': '𝑯','I': '𝑰','J': '𝑱','K': '𝑲','L': '𝑳','M': '𝑴',
-    'N': '𝑵','O': '𝑶','P': '𝑷','Q': '𝑸','R': '𝑹','S': '𝑺','T': '𝑻','U': '𝑼','V': '𝑽','W': '𝑾','X': '𝑿','Y': '𝒀','Z': '𝒁',
-    'a': '𝒂','b': '𝒃','c': '𝒄','d': '𝒅','e': '𝒆','f': '𝒇','g': '𝒈','h': '𝒉','i': '𝒊','j': '𝒋','k': '𝒌','l': '𝒍','m': '𝒎',
-    'n': '𝒏','o': '𝒐','p': '𝒑','q': '𝒒','r': '𝒓','s': '𝒔','t': '𝒕','u': '𝒖','v': '𝒗','w': '𝒘','x': '𝒙','y': '𝒚','z': '𝒛',
-    '0':'𝟎','1':'𝟏','2':'𝟐','3':'𝟑','4':'𝟒','5':'𝟓','6':'𝟔','7':'𝟕','8':'𝟖','9':'𝟗',
-    ' ':' ','-':'-','_':'_','/':'/','.':'.',':':':','>':'>','(': '(' ,')':')','[':'[',']':']','{':'{','}':'}'
-  };
-  return text.split('').map(c => map[c] || c).join('');
+    const map = {
+        'A': '𝑨','B': '𝑩','C': '𝑪','D': '𝑫','E': '𝑬','F': '𝑭','G': '𝑮','H': '𝑯','I': '𝑰','J': '𝑱','K': '𝑲','L': '𝑳','M': '𝑴',
+        'N': '𝑵','O': '𝑶','P': '𝑷','Q': '𝑸','R': '𝑹','S': '𝑺','T': '𝑻','U': '𝑼','V': '𝑽','W': '𝑾','X': '𝑿','Y': '𝒀','Z': '𝒁',
+        'a': '𝒂','b': '𝒃','c': '𝒄','d': '𝒅','e': '𝒆','f': '𝒇','g': '𝒈','h': '𝒉','i': '𝒊','j': '𝒋','k': '𝒌','l': '𝒍','m': '𝒎',
+        'n': '𝒏','o': '𝒐','p': '𝒑','q': '𝒒','r': '𝒓','s': '𝒔','t': '𝒕','u': '𝒖','v': '𝒗','w': '𝒘','x': '𝒙','y': '𝒚','z': '𝒛',
+        '0':'𝟎','1':'𝟏','2':'𝟐','3':'𝟑','4':'𝟒','5':'𝟓','6':'𝟔','7':'𝟕','8':'𝟖','9':'𝟗',
+        ' ':' ','-':'-','_':'_','/':'/','.':'.',':':':','>':'>','(': '(' ,')':')','[':'[',']':']','{':'{','}':'}'
+    };
+    return text.split('').map(c => map[c] || c).join('');
 }
 
 module.exports.onStart = async function({ api, event, args, Users }) {
-  if (this.config.credits !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") { 
-    return api.sendMessage("⚠️ Detected: Credits have been changed!", event.threadID, event.messageID);
-  }
+    try {
+        // Check dependencies
+        const requiredDeps = ["canvas", "axios", "fs-extra", "jimp"];
+        for (const dep of requiredDeps) {
+            try {
+                require.resolve(dep);
+            } catch {
+                throw new Error(`𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: ${dep}`);
+            }
+        }
 
-  const { senderID, threadID, messageID } = event;
-  const { loadImage, createCanvas, registerFont } = require("canvas");
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
+        if (this.config.credits !== "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑") { 
+            return api.sendMessage("⚠️ 𝐷𝑒𝑡𝑒𝑐𝑡𝑒𝑑: 𝐶𝑟𝑒𝑑𝑖𝑡𝑠 ℎ𝑎𝑣𝑒 𝑏𝑒𝑒𝑛 𝑐ℎ𝑎𝑛𝑔𝑒𝑑!", event.threadID, event.messageID);
+        }
 
-  const pathImg = __dirname + `/cache/${senderID}123${threadID}.png`;
-  const pathAvata = __dirname + `/cache/avtuserrd.png`;
+        const { senderID, threadID, messageID } = event;
+        const { loadImage, createCanvas, registerFont } = require("canvas");
+        const fs = require("fs-extra");
+        const axios = require("axios");
 
-  let uid = event.type === "message_reply" ? event.messageReply.senderID : senderID;
+        const pathImg = __dirname + `/cache/${senderID}123${threadID}.png`;
+        const pathAvata = __dirname + `/cache/avtuserrd.png`;
 
-  const res = await api.getUserInfoV2(uid);
+        let uid = event.type === "message_reply" ? event.messageReply.senderID : senderID;
 
-  // Fetch avatar
-  const getAvatarOne = (await axios.get(
-    `https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-    { responseType: 'arraybuffer' }
-  )).data;
+        const res = await api.getUserInfoV2(uid);
 
-  // Fetch background
-  const bg = (await axios.get(encodeURI(`https://i.imgur.com/fBgFUr8.png`), { responseType: "arraybuffer" })).data;
+        // Fetch avatar
+        const getAvatarOne = (await axios.get(
+            `https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+            { responseType: 'arraybuffer' }
+        )).data;
 
-  fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
-  const avataruser = await this.circle(pathAvata);
-  fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
+        // Fetch background
+        const bg = (await axios.get(encodeURI(`https://i.imgur.com/fBgFUr8.png`), { responseType: "arraybuffer" })).data;
 
-  // Download font if not exists
-  if (!fs.existsSync(__dirname + fonts)) {
-    const getfont = (await axios.get(downfonts, { responseType: "arraybuffer" })).data;
-    fs.writeFileSync(__dirname + fonts, Buffer.from(getfont, "utf-8"));
-  }
+        fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, 'utf-8'));
+        const avataruser = await this.circle(pathAvata);
+        fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
 
-  // Load canvas
-  const baseImage = await loadImage(pathImg);
-  const baseAvata = await loadImage(avataruser);
-  const canvas = createCanvas(baseImage.width, baseImage.height);
-  const ctx = canvas.getContext("2d");
+        // Download font if not exists
+        if (!fs.existsSync(__dirname + fonts)) {
+            const getfont = (await axios.get(downfonts, { responseType: "arraybuffer" })).data;
+            fs.writeFileSync(__dirname + fonts, Buffer.from(getfont, "utf-8"));
+        }
 
-  ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-  ctx.drawImage(baseAvata, 100, 97, 255, 255);
+        // Load canvas
+        const baseImage = await loadImage(pathImg);
+        const baseAvata = await loadImage(avataruser);
+        const canvas = createCanvas(baseImage.width, baseImage.height);
+        const ctx = canvas.getContext("2d");
 
-  // Default text
-  const notFoundText = toMathBoldItalic("Not Found");
-  const notPublicText = toMathBoldItalic("Not public");
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(baseAvata, 100, 97, 255, 255);
 
-  if (!res.location || res.location === "Không Có Dữ Liệu") res.location = notFoundText;
-  if (!res.birthday || res.birthday === "Không Có Dữ Liệu") res.birthday = notFoundText;
-  if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệu") res.relationship_status = notFoundText;
-  if (!res.follow || res.follow === "Không Có Dữ Liệu") res.follow = notFoundText;
+        // Default text
+        const notFoundText = toMathBoldItalic("𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑");
+        const notPublicText = toMathBoldItalic("𝑁𝑜𝑡 𝑝𝑢𝑏𝑙𝑖𝑐");
 
-  const gender = res.gender === 'male' ? toMathBoldItalic("male") : res.gender === 'female' ? toMathBoldItalic("female") : notPublicText;
-  const birthday = res.birthday ? toMathBoldItalic(res.birthday) : notPublicText;
-  const love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : notPublicText;
-  const location = res.location ? toMathBoldItalic(res.location) : notPublicText;
-  const nameText = toMathBoldItalic(res.name);
-  const uidText = toMathBoldItalic(uid.toString());
+        if (!res.location || res.location === "𝐾ℎô𝑛𝑔 𝐶ó 𝐷ữ 𝐿𝑖ệ𝑢") res.location = notFoundText;
+        if (!res.birthday || res.birthday === "𝐾ℎô𝑛𝑔 𝐶ó 𝐷ữ 𝐿𝑖ệ𝑢") res.birthday = notFoundText;
+        if (!res.relationship_status || res.relationship_status === "𝐾ℎô𝑛𝑔 𝐶ó 𝐷ữ 𝐿𝑖ệ𝑢") res.relationship_status = notFoundText;
+        if (!res.follow || res.follow === "𝐾ℎô𝑛𝑔 𝐶ó 𝐷ữ 𝐿𝑖ệ𝑢") res.follow = notFoundText;
 
-  // Register font
-  registerFont(__dirname + fonts, { family: "Play-Bold" });
+        const gender = res.gender === 'male' ? toMathBoldItalic("𝑚𝑎𝑙𝑒") : res.gender === 'female' ? toMathBoldItalic("𝑓𝑒𝑚𝑎𝑙𝑒") : notPublicText;
+        const birthday = res.birthday ? toMathBoldItalic(res.birthday) : notPublicText;
+        const love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : notPublicText;
+        const location = res.location ? toMathBoldItalic(res.location) : notPublicText;
+        const nameText = toMathBoldItalic(res.name);
+        const uidText = toMathBoldItalic(uid.toString());
 
-  // Labels
-  const nameLabel = toMathBoldItalic("» Name:");
-  const sexLabel = toMathBoldItalic("» Sex:");
-  const followLabel = toMathBoldItalic("» Follow:");
-  const relationshipLabel = toMathBoldItalic("» Relationship:");
-  const birthdayLabel = toMathBoldItalic("» Birthday:");
-  const locationLabel = toMathBoldItalic("» Location:");
-  const uidLabel = toMathBoldItalic("» UID:");
-  const profileLabel = toMathBoldItalic("» Profile:");
+        // Register font
+        registerFont(__dirname + fonts, { family: "𝑃𝑙𝑎𝑦-𝐵𝑜𝑙𝑑" });
 
-  ctx.font = `${fontsInfo}px Play-Bold`;
-  ctx.fillStyle = "#ffff";
-  ctx.textAlign = "start";
+        // Labels
+        const nameLabel = toMathBoldItalic("» 𝑁𝑎𝑚𝑒:");
+        const sexLabel = toMathBoldItalic("» 𝑆𝑒𝑥:");
+        const followLabel = toMathBoldItalic("» 𝐹𝑜𝑙𝑙𝑜𝑤:");
+        const relationshipLabel = toMathBoldItalic("» 𝑅𝑒𝑙𝑎𝑡𝑖𝑜𝑛𝑠ℎ𝑖𝑝:");
+        const birthdayLabel = toMathBoldItalic("» 𝐵𝑖𝑟𝑡ℎ𝑑𝑎𝑦:");
+        const locationLabel = toMathBoldItalic("» 𝐿𝑜𝑐𝑎𝑡𝑖𝑜𝑛:");
+        const uidLabel = toMathBoldItalic("» 𝑈𝐼𝐷:");
+        const profileLabel = toMathBoldItalic("» 𝑃𝑟𝑜𝑓𝑖𝑙𝑒:");
 
-  // Draw user info
-  ctx.fillText(`${nameLabel} ${nameText}`, 455, 172);
-  ctx.fillText(`${sexLabel} ${gender}`, 455, 208);
-  ctx.fillText(`${followLabel} ${res.follow}`, 455, 244);
-  ctx.fillText(`${relationshipLabel} ${love}`, 455, 281);
-  ctx.fillText(`${birthdayLabel} ${birthday}`, 455, 320);
-  ctx.fillText(`${locationLabel} ${location}`, 455, 357);
-  ctx.fillText(`${uidLabel} ${uidText}`, 455, 397);
+        ctx.font = `${fontsInfo}px 𝑃𝑙𝑎𝑦-𝐵𝑜𝑙𝑑`;
+        ctx.fillStyle = "#𝑓𝑓𝑓𝑓";
+        ctx.textAlign = "𝑠𝑡𝑎𝑟𝑡";
 
-  ctx.font = `${fontsLink}px Play-Bold`;
-  ctx.fillText(`${profileLabel} ${res.link}`, 19, 468);
+        // Draw user info
+        ctx.fillText(`${nameLabel} ${nameText}`, 455, 172);
+        ctx.fillText(`${sexLabel} ${gender}`, 455, 208);
+        ctx.fillText(`${followLabel} ${res.follow}`, 455, 244);
+        ctx.fillText(`${relationshipLabel} ${love}`, 455, 281);
+        ctx.fillText(`${birthdayLabel} ${birthday}`, 455, 320);
+        ctx.fillText(`${locationLabel} ${location}`, 455, 357);
+        ctx.fillText(`${uidLabel} ${uidText}`, 455, 397);
 
-  const imageBuffer = canvas.toBuffer();
-  fs.writeFileSync(pathImg, imageBuffer);
-  fs.removeSync(pathAvata);
+        ctx.font = `${fontsLink}px 𝑃𝑙𝑎𝑦-𝐵𝑜𝑙𝑑`;
+        ctx.fillText(`${profileLabel} ${res.link}`, 19, 468);
 
-  return api.sendMessage(
-    { attachment: fs.createReadStream(pathImg) },
-    threadID,
-    () => fs.unlinkSync(pathImg),
-    messageID
-  );
+        const imageBuffer = canvas.toBuffer();
+        fs.writeFileSync(pathImg, imageBuffer);
+        fs.removeSync(pathAvata);
+
+        return api.sendMessage(
+            { attachment: fs.createReadStream(pathImg) },
+            threadID,
+            () => fs.unlinkSync(pathImg),
+            messageID
+        );
+
+    } catch (error) {
+        console.error("𝐶𝑎𝑟𝑑𝐼𝑛𝑓𝑜 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑: " + error.message, event.threadID, event.messageID);
+    }
 };
