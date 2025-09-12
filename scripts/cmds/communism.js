@@ -2,54 +2,66 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-module.exports = {
-  config: {
-    name: "communism", // changed for consistency
+module.exports.config = {
+    name: "communism",
+    aliases: ["comrade", "soviet"],
     version: "1.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
     role: 0,
     shortDescription: {
-      en: "Apply communism effect to profile photo"
+        en: "𝐴𝑝𝑝𝑙𝑦 𝑐𝑜𝑚𝑚𝑢𝑛𝑖𝑠𝑚 𝑒𝑓𝑓𝑒𝑐𝑡 𝑡𝑜 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝ℎ𝑜𝑡𝑜"
     },
-    description: {
-      en: "Adds a communist-style red filter to your or someone else's avatar"
+    longDescription: {
+        en: "𝐴𝑑𝑑𝑠 𝑎 𝑐𝑜𝑚𝑚𝑢𝑛𝑖𝑠𝑡-𝑠𝑡𝑦𝑙𝑒 𝑟𝑒𝑑 𝑓𝑖𝑙𝑡𝑒𝑟 𝑡𝑜 𝑦𝑜𝑢𝑟 𝑜𝑟 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑒𝑙𝑠𝑒'𝑠 𝑎𝑣𝑎𝑡𝑎𝑟"
     },
-    category: "𝗙𝗨𝗡 & 𝗚𝗔𝗠𝗘",
+    category: "𝑓𝑢𝑛",
     guide: {
-      en: "{p}communism [@mention or reply]\n\nDefault: Your own profile picture"
+        en: "{p}communism [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦]\n\n𝐷𝑒𝑓𝑎𝑢𝑙𝑡: 𝑌𝑜𝑢𝑟 𝑜𝑤𝑛 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒"
+    },
+    dependencies: {
+        "axios": "",
+        "fs": "",
+        "path": ""
     }
-  },
+};
 
-  onStart: async function ({ api, event, message }) {
-    const { senderID, mentions, type, messageReply } = event;
-
-    let uid;
-    if (Object.keys(mentions).length > 0) {
-      uid = Object.keys(mentions)[0];
-    } else if (type === "message_reply") {
-      uid = messageReply.senderID;
-    } else {
-      uid = senderID;
-    }
-
-    const avatarURL = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=350685531728|62f8ce9f74b12f84c123cc23437a4a32`;
-
+module.exports.onStart = async function({ api, event, message }) {
     try {
-      const res = await axios.get(`https://api.popcat.xyz/v2/communism?image=${encodeURIComponent(avatarURL)}`, {
-        responseType: "arraybuffer"
-      });
+        const { senderID, mentions, type, messageReply } = event;
 
-      const filePath = path.join(__dirname, "cache", `communism_${uid}_${Date.now()}.jpg`);
-      fs.writeFileSync(filePath, res.data);
+        let uid;
+        if (Object.keys(mentions).length > 0) {
+            uid = Object.keys(mentions)[0];
+        } else if (type === "message_reply") {
+            uid = messageReply.senderID;
+        } else {
+            uid = senderID;
+        }
 
-      message.reply({
-        body: "☭ | The revolution has begun!",
-        attachment: fs.createReadStream(filePath)
-      }, () => fs.unlinkSync(filePath));
+        const avatarURL = `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=350685531728|62f8ce9f74b12f84c123cc23437a4a32`;
+
+        const res = await axios.get(`https://api.popcat.xyz/v2/communism?image=${encodeURIComponent(avatarURL)}`, {
+            responseType: "arraybuffer"
+        });
+
+        const cacheDir = path.join(__dirname, "cache");
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+
+        const filePath = path.join(cacheDir, `communism_${uid}_${Date.now()}.jpg`);
+        fs.writeFileSync(filePath, res.data);
+
+        await message.reply({
+            body: "☭ | 𝑇ℎ𝑒 𝑟𝑒𝑣𝑜𝑙𝑢𝑡𝑖𝑜𝑛 ℎ𝑎𝑠 𝑏𝑒𝑔𝑢𝑛!",
+            attachment: fs.createReadStream(filePath)
+        });
+
+        fs.unlinkSync(filePath);
+
     } catch (err) {
-      console.error(err);
-      message.reply("❌ | Failed to generate Communist meme.");
+        console.error("𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑠𝑚 𝐸𝑟𝑟𝑜𝑟:", err);
+        await message.reply("❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝐶𝑜𝑚𝑚𝑢𝑛𝑖𝑠𝑡 𝑚𝑒𝑚𝑒.");
     }
-  }
 };
