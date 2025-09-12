@@ -1,100 +1,100 @@
 module.exports.config = {
-  name: "celebrate",
-  version: "1.4.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Start a joyful celebration in chat with interactive messages and emojis",
-  category: "fun",
-  usages: "[@mention or name]",
-  cooldowns: 60
-};
-
-module.exports.languages = {
-  "en": {}
-};
-
-module.exports.onLoad = function () {
-  // No special loading needed for this command
+    name: "celebrate",
+    aliases: ["party", "celebration"],
+    version: "1.4.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 60,
+    role: 0,
+    category: "fun",
+    shortDescription: {
+        en: "𝑆𝑡𝑎𝑟𝑡 𝑎 𝑗𝑜𝑦𝑓𝑢𝑙 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑖𝑛 𝑐ℎ𝑎𝑡"
+    },
+    longDescription: {
+        en: "𝑆𝑡𝑎𝑟𝑡 𝑎 𝑗𝑜𝑦𝑓𝑢𝑙 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑖𝑛 𝑐ℎ𝑎𝑡 𝑤𝑖𝑡ℎ 𝑖𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑎𝑛𝑑 𝑒𝑚𝑜𝑗𝑖𝑠"
+    },
+    guide: {
+        en: "{p}celebrate [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑟 𝑛𝑎𝑚𝑒]"
+    }
 };
 
 module.exports.onStart = async function({ api, event, args }) {
-  try {
-    const { threadID, messageID, mentions } = event;
+    try {
+        const { threadID, messageID, mentions } = event;
 
-    // Determine who to celebrate
-    let name = "everyone";
-    let isMentioned = false;
+        // Determine who to celebrate
+        let name = "𝑒𝑣𝑒𝑟𝑦𝑜𝑛𝑒";
+        let isMentioned = false;
 
-    if (Object.keys(mentions).length > 0) {
-      const mentionedID = Object.keys(mentions)[0];
-      name = mentions[mentionedID];
-      isMentioned = true;
-    } else if (args.length > 0) {
-      name = args.join(" ");
+        if (Object.keys(mentions).length > 0) {
+            const mentionedID = Object.keys(mentions)[0];
+            name = mentions[mentionedID];
+            isMentioned = true;
+        } else if (args.length > 0) {
+            name = args.join(" ");
+        }
+
+        // Initial message
+        await api.sendMessage(
+            `🎉 𝐿𝐸𝑇'𝑆 𝐶𝐸𝐿𝐸𝐵𝑅𝐴𝑇𝐸 ${name.toUpperCase()}! 🎉\n` +
+            "━━━━━━━━━━━━━━\n" +
+            `𝐺𝑒𝑡 𝑟𝑒𝑎𝑑𝑦 𝑓𝑜𝑟 𝑎𝑛 80-𝑠𝑒𝑐𝑜𝑛𝑑 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 ${isMentioned ? '𝑤𝑖𝑡ℎ 𝑠𝑝𝑒𝑐𝑖𝑎𝑙 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑠!' : '𝑓𝑢𝑙𝑙 𝑜𝑓 𝑗𝑜𝑦!'}\n` +
+            "🎈 𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑙𝑙 𝑎𝑝𝑝𝑒𝑎𝑟 𝑒𝑣𝑒𝑟𝑦 3 𝑠𝑒𝑐𝑜𝑛𝑑𝑠...",
+            threadID
+        );
+
+        // Celebration messages with delays
+        const celebrationMessages = [
+            {delay: 3, msg: "🎇 𝐿𝑒𝑡 𝑡ℎ𝑒 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑏𝑒𝑔𝑖𝑛! 🎇"},
+            {delay: 6, msg: `🌟 ${name} 𝑖𝑠 𝑡ℎ𝑒 𝑠𝑡𝑎𝑟 𝑜𝑓 𝑡ℎ𝑒 𝑠ℎ𝑜𝑤! 🌟`},
+            {delay: 9, msg: "✨ 𝑃𝑜𝑠𝑖𝑡𝑖𝑣𝑒 𝑣𝑖𝑏𝑒𝑠 𝑜𝑛𝑙𝑦! ✨"},
+            {delay: 12, msg: "🥳 𝑇𝑖𝑚𝑒 𝑡𝑜 𝑑𝑎𝑛𝑐𝑒! 🕺💃"},
+            {delay: 15, msg: "🎈 𝐿𝑒𝑡'𝑠 𝑠𝑝𝑟𝑒𝑎𝑑 𝑗𝑜𝑦 𝑎𝑛𝑑 ℎ𝑎𝑝𝑝𝑖𝑛𝑒𝑠𝑠! 🎈"},
+            {delay: 18, msg: "🌈 𝐿𝑖𝑓𝑒 𝑖𝑠 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙! 🌈"},
+            {delay: 21, msg: `💖 𝑌𝑜𝑢'𝑟𝑒 𝑎𝑚𝑎𝑧𝑖𝑛𝑔, ${name}! 💖`},
+            {delay: 24, msg: "🎊 𝐶𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑡𝑖𝑚𝑒! 🎊"},
+            {delay: 27, msg: "🥂 𝐶ℎ𝑒𝑒𝑟𝑠 𝑡𝑜 𝑔𝑜𝑜𝑑 𝑡𝑖𝑚𝑒𝑠! 🥂"},
+            {delay: 30, msg: "🌠 𝑀𝑎𝑘𝑒 𝑎 𝑤𝑖𝑠ℎ! 🌠"},
+            {delay: 33, msg: "🎵 𝑀𝑢𝑠𝑖𝑐 𝑚𝑎𝑘𝑒𝑠 𝑒𝑣𝑒𝑟𝑦𝑡ℎ𝑖𝑛𝑔 𝑏𝑒𝑡𝑡𝑒𝑟! 🎵"},
+            {delay: 36, msg: "😊 𝑆𝑚𝑖𝑙𝑒 - 𝑖𝑡'𝑠 𝑐𝑜𝑛𝑡𝑎𝑔𝑖𝑜𝑢𝑠! 😊"},
+            {delay: 39, msg: `🌟 𝑆ℎ𝑖𝑛𝑒 𝑏𝑟𝑖𝑔ℎ𝑡 𝑙𝑖𝑘𝑒 𝑎 𝑑𝑖𝑎𝑚𝑜𝑛𝑑, ${name}! 🌟`},
+            {delay: 42, msg: "🕊️ 𝑃𝑒𝑎𝑐𝑒 𝑎𝑛𝑑 𝑙𝑜𝑣𝑒 𝑡𝑜 𝑎𝑙𝑙! 🕊️"},
+            {delay: 45, msg: "🙌 𝐺𝑟𝑜𝑢𝑝 ℎ𝑢𝑔 𝑡𝑖𝑚𝑒! 🤗"},
+            {delay: 48, msg: "🎁 𝑆𝑢𝑟𝑝𝑟𝑖𝑠𝑒! 𝑌𝑜𝑢'𝑟𝑒 𝑎𝑤𝑒𝑠𝑜𝑚𝑒! 🎁"},
+            {delay: 51, msg: "💫 𝑀𝑎𝑔𝑖𝑐𝑎𝑙 𝑚𝑜𝑚𝑒𝑛𝑡𝑠 𝑤𝑖𝑡ℎ 𝑓𝑟𝑖𝑒𝑛𝑑𝑠! 💫"},
+            {delay: 54, msg: "🎤 𝐿𝑒𝑡'𝑠 𝑠𝑖𝑛𝑔 𝑡𝑜𝑔𝑒𝑡ℎ𝑒𝑟! 🎶"},
+            {delay: 57, msg: "🌻 𝑆𝑝𝑟𝑒𝑎𝑑 𝑘𝑖𝑛𝑑𝑛𝑒𝑠𝑠 𝑙𝑖𝑘𝑒 𝑠𝑢𝑛𝑠ℎ𝑖𝑛𝑒! 🌻"},
+            {delay: 60, msg: `🏆 𝑌𝑜𝑢'𝑟𝑒 𝑎 𝑤𝑖𝑛𝑛𝑒𝑟, ${name}! 🏆`},
+            {delay: 63, msg: "🎨 𝐿𝑖𝑓𝑒 𝑖𝑠 𝑦𝑜𝑢𝑟 𝑐𝑎𝑛𝑣𝑎𝑠 - 𝑝𝑎𝑖𝑛𝑡 𝑖𝑡 𝑏𝑟𝑖𝑔ℎ𝑡! 🎨"},
+            {delay: 66, msg: "🤝 𝑇𝑜𝑔𝑒𝑡ℎ𝑒𝑟 𝑤𝑒'𝑟𝑒 𝑠𝑡𝑟𝑜𝑛𝑔𝑒𝑟! 🤝"},
+            {delay: 69, msg: "🌍 𝑀𝑎𝑘𝑒 𝑡ℎ𝑒 𝑤𝑜𝑟𝑙𝑑 𝑎 𝑏𝑒𝑡𝑡𝑒𝑟 𝑝𝑙𝑎𝑐𝑒! 🌍"},
+            {delay: 72, msg: "🎉 𝑇ℎ𝑒 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒𝑠! 🎉"},
+            {delay: 75, msg: "❤️ 𝑇ℎ𝑎𝑛𝑘 𝑦𝑜𝑢 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑗𝑜𝑦𝑓𝑢𝑙 𝑚𝑜𝑚𝑒𝑛𝑡! ❤️"},
+            {delay: 78, msg: "🎆 𝐹𝑖𝑛𝑎𝑙 𝑓𝑖𝑟𝑒𝑤𝑜𝑟𝑘𝑠! 𝑊ℎ𝑎𝑡 𝑎𝑛 𝑎𝑚𝑎𝑧𝑖𝑛𝑔 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛! 🎆"}
+        ];
+
+        for (const {delay, msg} of celebrationMessages) {
+            await new Promise(resolve => setTimeout(resolve, delay * 1000));
+            await api.sendMessage(msg, threadID);
+        }
+
+        // Final message
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        await api.sendMessage(
+            `🎊 𝐶𝐸𝐿𝐸𝐵𝑅𝐴𝑇𝐼𝑂𝑁 𝐶𝑂𝑀𝑃𝐿𝐸𝑇𝐸! 🎊\n` +
+            "━━━━━━━━━━━━━━\n" +
+            `𝑇ℎ𝑎𝑛𝑘𝑠 𝑓𝑜𝑟 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑛𝑔 𝑤𝑖𝑡ℎ 𝑢𝑠, ${name}! ❤️\n` +
+            "𝑌𝑜𝑢 𝑚𝑎𝑑𝑒 𝑡ℎ𝑖𝑠 𝑚𝑜𝑚𝑒𝑛𝑡 𝑠𝑝𝑒𝑐𝑖𝑎𝑙! 🥰",
+            threadID,
+            messageID
+        );
+
+    } catch (error) {
+        console.error("🎈 𝐶𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage(
+            "🎭 𝑇ℎ𝑒 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑖𝑜𝑛 𝑐𝑜𝑢𝑙𝑑𝑛'𝑡 𝑐𝑜𝑛𝑡𝑖𝑛𝑢𝑒 𝑑𝑢𝑒 𝑡𝑜 𝑎𝑛 𝑢𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟.\n" +
+            "𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 𝑜𝑟 𝑐𝑒𝑙𝑒𝑏𝑟𝑎𝑡𝑒 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑒𝑙𝑠𝑒!",
+            event.threadID,
+            event.messageID
+        );
     }
-
-    // Initial message
-    await api.sendMessage(
-      `🎉 LET'S CELEBRATE ${name.toUpperCase()}! 🎉\n` +
-      "━━━━━━━━━━━━━━\n" +
-      `Get ready for an 80-second celebration ${isMentioned ? 'with special mentions!' : 'full of joy!'}\n` +
-      "🎈 Messages will appear every 3 seconds...",
-      threadID
-    );
-
-    // Celebration messages with delays
-    const celebrationMessages = [
-      {delay: 3, msg: "🎇 Let the celebration begin! 🎇"},
-      {delay: 6, msg: `🌟 ${name} is the star of the show! 🌟`},
-      {delay: 9, msg: "✨ Positive vibes only! ✨"},
-      {delay: 12, msg: "🥳 Time to dance! 🕺💃"},
-      {delay: 15, msg: "🎈 Let's spread joy and happiness! 🎈"},
-      {delay: 18, msg: "🌈 Life is beautiful! 🌈"},
-      {delay: 21, msg: `💖 You're amazing, ${name}! 💖`},
-      {delay: 24, msg: "🎊 Celebration time! 🎊"},
-      {delay: 27, msg: "🥂 Cheers to good times! 🥂"},
-      {delay: 30, msg: "🌠 Make a wish! 🌠"},
-      {delay: 33, msg: "🎵 Music makes everything better! 🎵"},
-      {delay: 36, msg: "😊 Smile - it's contagious! 😊"},
-      {delay: 39, msg: `🌟 Shine bright like a diamond, ${name}! 🌟`},
-      {delay: 42, msg: "🕊️ Peace and love to all! 🕊️"},
-      {delay: 45, msg: "🙌 Group hug time! 🤗"},
-      {delay: 48, msg: "🎁 Surprise! You're awesome! 🎁"},
-      {delay: 51, msg: "💫 Magical moments with friends! 💫"},
-      {delay: 54, msg: "🎤 Let's sing together! 🎶"},
-      {delay: 57, msg: "🌻 Spread kindness like sunshine! 🌻"},
-      {delay: 60, msg: `🏆 You're a winner, ${name}! 🏆`},
-      {delay: 63, msg: "🎨 Life is your canvas - paint it bright! 🎨"},
-      {delay: 66, msg: "🤝 Together we're stronger! 🤝"},
-      {delay: 69, msg: "🌍 Make the world a better place! 🌍"},
-      {delay: 72, msg: "🎉 The celebration continues! 🎉"},
-      {delay: 75, msg: "❤️ Thank you for this joyful moment! ❤️"},
-      {delay: 78, msg: "🎆 Final fireworks! What an amazing celebration! 🎆"}
-    ];
-
-    for (const {delay, msg} of celebrationMessages) {
-      await new Promise(resolve => setTimeout(resolve, delay * 1000));
-      await api.sendMessage(msg, threadID);
-    }
-
-    // Final message
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    await api.sendMessage(
-      `🎊 CELEBRATION COMPLETE! 🎊\n` +
-      "━━━━━━━━━━━━━━\n" +
-      `Thanks for celebrating with us, ${name}! ❤️\n` +
-      "You made this moment special! 🥰",
-      threadID,
-      messageID
-    );
-
-  } catch (error) {
-    console.error("🎈 Celebration Error:", error);
-    api.sendMessage(
-      "🎭 The celebration couldn't continue due to an unexpected error.\n" +
-      "Please try again later or celebrate someone else!",
-      event.threadID,
-      event.messageID
-    );
-  }
 };
