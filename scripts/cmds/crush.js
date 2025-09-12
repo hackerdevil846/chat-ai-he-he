@@ -1,91 +1,150 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
+
 module.exports.config = {
-  name: "crush",
-  version: "7.3.1",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "💖 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒂 𝒍𝒐𝒗𝒆 𝒑𝒂𝒊𝒓 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒄𝒓𝒖𝒔𝒉",
-  category: "💝 𝑳𝒐𝒗𝒆",
-  usages: "[@𝒎𝒆𝒏𝒕𝒊𝒐𝒏]",
-  cooldowns: 5,
-  dependencies: {
-    "axios": "",
-    "fs-extra": "",
-    "path": "",
-    "jimp": ""
-  }
+    name: "crush",
+    aliases: ["lovepair", "couple"],
+    version: "7.3.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "𝑙𝑜𝑣𝑒",
+    shortDescription: {
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑙𝑜𝑣𝑒 𝑝𝑎𝑖𝑟 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒 𝑝𝑎𝑖𝑟𝑖𝑛𝑔 𝑦𝑜𝑢 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
+    },
+    guide: {
+        en: "{p}crush [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
+    dependencies: {
+        "axios": "",
+        "fs-extra": "",
+        "path": "",
+        "jimp": ""
+    }
 };
 
 module.exports.onLoad = async () => {
-  const path = require("path");
-  const fs = require("fs-extra");
-  const { existsSync, mkdirSync } = fs;
-  const { downloadFile } = global.utils;
-  const dirMaterial = __dirname + `/cache/canvas/`;
-  const filePath = path.resolve(__dirname, 'cache/canvas', 'crush.png');
-  
-  if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-  if (!existsSync(filePath)) await downloadFile("https://i.imgur.com/PlVBaM1.jpg", filePath);
+    const { existsSync, mkdirSync } = fs;
+    const dirMaterial = path.join(__dirname, 'cache', 'canvas');
+    const filePath = path.join(dirMaterial, 'crush.png');
+    
+    if (!existsSync(dirMaterial)) {
+        mkdirSync(dirMaterial, { recursive: true });
+    }
+    
+    if (!existsSync(filePath)) {
+        try {
+            const imageData = await axios.get("https://i.imgur.com/PlVBaM1.jpg", { 
+                responseType: 'arraybuffer' 
+            });
+            await fs.writeFile(filePath, Buffer.from(imageData.data));
+        } catch (error) {
+            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑐𝑟𝑢𝑠ℎ 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒:", error);
+        }
+    }
 };
 
-module.exports.onStart = async function({ event, api, args }) {
-  const fs = require("fs-extra");
-  const path = require("path");
-  const { threadID, messageID, senderID } = event;
-  const mention = Object.keys(event.mentions);
-  
-  if (!mention[0]) return api.sendMessage("💖 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒔𝒐𝒎𝒆𝒐𝒏𝒆 𝒕𝒐 𝒄𝒓𝒆𝒂𝒕𝒆 𝒂 𝒍𝒐𝒗𝒆 𝒑𝒂𝒊𝒓!", threadID, messageID);
+module.exports.onStart = async function({ message, event, args }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const mention = Object.keys(event.mentions);
+        
+        if (!mention[0]) {
+            return message.reply("💖 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎 𝑙𝑜𝑣𝑒 𝑝𝑎𝑖𝑟!", threadID, messageID);
+        }
 
-  try {
-    const one = senderID;
-    const two = mention[0];
-    const userName = (await global.utils.getUserInfo(two))[two].name;
-    
-    const makeImage = async ({ one, two }) => {
-      const jimp = require("jimp");
-      const axios = require("axios");
-      const __root = path.resolve(__dirname, "cache", "canvas");
-      
-      const crushImg = await jimp.read(__root + "/crush.png");
-      const pathImg = __root + `/crush_${one}_${two}.png`;
-      const avatarOne = __root + `/avt_${one}.png`;
-      const avatarTwo = __root + `/avt_${two}.png`;
+        const one = senderID;
+        const two = mention[0];
+        
+        // Get user info using global utils
+        const userInfo = await global.utils.getUserInfo(two);
+        const userName = userInfo[two]?.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
 
-      const getAvatar = async (uid, path) => {
-        const data = (await axios.get(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-        fs.writeFileSync(path, Buffer.from(data, 'utf-8'));
-      };
+        const makeImage = async ({ one, two }) => {
+            const __root = path.join(__dirname, "cache", "canvas");
+            const crushImgPath = path.join(__root, "crush.png");
+            const resultPath = path.join(__root, `crush_${one}_${two}.png`);
+            const avatarOnePath = path.join(__root, `avt_${one}.png`);
+            const avatarTwoPath = path.join(__root, `avt_${two}.png`);
 
-      await getAvatar(one, avatarOne);
-      await getAvatar(two, avatarTwo);
+            // Download avatars
+            const getAvatar = async (uid, avatarPath) => {
+                try {
+                    const avatarData = await axios.get(
+                        `https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
+                        { responseType: 'arraybuffer' }
+                    );
+                    await fs.writeFile(avatarPath, Buffer.from(avatarData.data));
+                } catch (error) {
+                    console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎𝑣𝑎𝑡𝑎𝑟 𝑓𝑜𝑟 ${uid}:`, error);
+                    throw error;
+                }
+            };
 
-      const circle = async (imagePath) => {
-        const image = await jimp.read(imagePath);
-        image.circle();
-        return await image.getBufferAsync("image/png");
-      };
+            await getAvatar(one, avatarOnePath);
+            await getAvatar(two, avatarTwoPath);
 
-      const circleOne = await jimp.read(await circle(avatarOne));
-      const circleTwo = await jimp.read(await circle(avatarTwo));
-      
-      crushImg.composite(circleOne.resize(191, 191), 93, 111)
-              .composite(circleTwo.resize(190, 190), 434, 107);
+            // Create circular avatars
+            const createCircularAvatar = async (inputPath) => {
+                const image = await jimp.read(inputPath);
+                const size = Math.min(image.bitmap.width, image.bitmap.height);
+                
+                return new Promise((resolve) => {
+                    image.circle();
+                    image.getBuffer(jimp.MIME_PNG, (err, buffer) => {
+                        if (err) throw err;
+                        resolve(buffer);
+                    });
+                });
+            };
 
-      const raw = await crushImg.getBufferAsync("image/png");
-      fs.writeFileSync(pathImg, raw);
-      
-      [avatarOne, avatarTwo].forEach(path => fs.unlinkSync(path));
-      return pathImg;
-    };
+            // Process the main image
+            const crushImage = await jimp.read(crushImgPath);
+            const circleOneBuffer = await createCircularAvatar(avatarOnePath);
+            const circleTwoBuffer = await createCircularAvatar(avatarTwoPath);
+            
+            const circleOne = await jimp.read(circleOneBuffer);
+            const circleTwo = await jimp.read(circleTwoBuffer);
 
-    const resultPath = await makeImage({ one, two });
-    
-    return api.sendMessage({
-      body: `💘 𝑳𝒐𝒗𝒆 𝑪𝒐𝒏𝒏𝒆𝒄𝒕𝒊𝒐𝒏 💘\n\n╔═════❖•❁❖═════╗\n\n   🫶 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍 𝑷𝒂𝒊𝒓𝒊𝒏𝒈 🫶\n\n╚═════❖•❁❖═════╝\n\n✨ 𝑯𝒆𝒓𝒆'𝒔 𝒚𝒐𝒖𝒓 𝒄𝒓𝒖𝒔𝒉 𝒘𝒊𝒕𝒉 ${userName}!\n💌 𝑮𝒓𝒂𝒃 𝒕𝒉𝒆𝒎 𝒂𝒏𝒅 𝒎𝒂𝒌𝒆 𝒊𝒕 𝒐𝒇𝒇𝒊𝒄𝒊𝒂𝒍! 💕\n\n🔮 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
-      attachment: fs.createReadStream(resultPath)
-    }, threadID, () => fs.unlinkSync(resultPath), messageID);
+            // Composite the avatars onto the main image
+            crushImage.composite(circleOne.resize(191, 191), 93, 111);
+            crushImage.composite(circleTwo.resize(190, 190), 434, 107);
 
-  } catch (error) {
-    console.error(error);
-    return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒊𝒎𝒂𝒈𝒆", threadID, messageID);
-  }
+            // Save the result
+            await new Promise((resolve, reject) => {
+                crushImage.write(resultPath, (err) => {
+                    if (err) reject(err);
+                    else resolve();
+                });
+            });
+
+            // Clean up temporary files
+            await fs.remove(avatarOnePath);
+            await fs.remove(avatarTwoPath);
+
+            return resultPath;
+        };
+
+        const resultPath = await makeImage({ one, two });
+        
+        await message.reply({
+            body: `💘 𝐿𝑜𝑣𝑒 𝐶𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛 💘\n\n╔═════❖•❁❖═════╗\n\n   🫶 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙 𝑃𝑎𝑖𝑟𝑖𝑛𝑔 🫶\n\n╚═════❖•❁❖═════╝\n\n✨ 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ 𝑤𝑖𝑡ℎ ${userName}!\n💌 𝐺𝑟𝑎𝑏 𝑡ℎ𝑒𝑚 𝑎𝑛𝑑 𝑚𝑎𝑘𝑒 𝑖𝑡 𝑜𝑓𝑓𝑖𝑐𝑖𝑎𝑙! 💕\n\n🔮 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
+            attachment: fs.createReadStream(resultPath)
+        }, threadID, async () => {
+            try {
+                await fs.remove(resultPath);
+            } catch (cleanupError) {
+                console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑙𝑒𝑎𝑛 𝑢𝑝 𝑡𝑒𝑚𝑝 𝑓𝑖𝑙𝑒:", cleanupError);
+            }
+        }, messageID);
+
+    } catch (error) {
+        console.error("𝐶𝑟𝑢𝑠ℎ 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        return message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", event.threadID, event.messageID);
+    }
 };
