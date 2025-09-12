@@ -3,36 +3,50 @@ const fs = require("fs-extra");
 const path = require("path");
 
 // 🔒 Enhanced security with immutable credits
-const lockedCredits = Object.freeze("𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅");
-const lockedTagline = Object.freeze("💚 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅");
+const lockedCredits = Object.freeze("𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑");
+const lockedTagline = Object.freeze("💚 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑");
 
 // 🔐 Tamper-proof verification
 function verifyTagline(text) {
   if (!text.includes(lockedTagline)) {
-    throw new Error("🚫 𝑼𝒏𝒂𝒖𝒕𝒉𝒐𝒓𝒊𝒛𝒆𝒅 𝒎𝒐𝒅𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒕𝒆𝒄𝒕𝒆𝒅");
+    throw new Error("🚫 𝑈𝑛𝑎𝑢𝑡ℎ𝑜𝑟𝑖𝑧𝑒𝑑 𝑚𝑜𝑑𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛 𝑑𝑒𝑡𝑒𝑐𝑡𝑒𝑑");
   }
 }
 
 module.exports.config = {
   name: "pintrest",
+  aliases: ["pinterest", "dpsearch"],
   version: "2.0.0",
-  hasPermssion: 0,
-  credits: lockedCredits,
-  description: "📸 𝑭𝒆𝒕𝒄𝒉 𝒄𝒐𝒖𝒑𝒍𝒆 𝒅𝒑 𝒊𝒎𝒂𝒈𝒆𝒔 𝒇𝒓𝒐𝒎 𝑷𝒊𝒏𝒕𝒆𝒓𝒆𝒔𝒕",
-  category: "𝗙𝗨𝗡",
-  usages: "[query] - [number]",
-  cooldowns: 3,
+  author: lockedCredits,
+  countDown: 3,
+  role: 0,
+  category: "𝑓𝑢𝑛",
+  shortDescription: {
+    en: "𝐹𝑒𝑡𝑐ℎ 𝑐𝑜𝑢𝑝𝑙𝑒 𝑑𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡"
+  },
+  longDescription: {
+    en: "𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑐𝑜𝑢𝑝𝑙𝑒 𝑑𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡"
+  },
+  guide: {
+    en: "{p}pintrest [𝑞𝑢𝑒𝑟𝑦] - [𝑛𝑢𝑚𝑏𝑒𝑟]"
+  },
   dependencies: {
     "axios": "",
-    "fs-extra": ""
+    "fs-extra": "",
+    "path": ""
   }
 };
 
-module.exports.onStart = async function({ api, event, args }) {
+module.exports.onStart = async function({ message, event, args }) {
   try {
+    // Check dependencies
+    if (!axios || !fs || !path) {
+      throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+    }
+
     const query = args.join(" ");
     if (!query.includes("-")) {
-      return api.sendMessage(`✨ 𝗨𝘀𝗮𝗴𝗲 𝗚𝘂𝗶𝗱𝗲:\n${this.config.name} [query] - [number]\n📌 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: ${this.config.name} cute couple - 5`, event.threadID);
+      return message.reply(`✨ 𝑈𝑠𝑎𝑔𝑒 𝐺𝑢𝑖𝑑𝑒:\n${this.config.name} [𝑞𝑢𝑒𝑟𝑦] - [𝑛𝑢𝑚𝑏𝑒𝑟]\n📌 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${this.config.name} 𝑐𝑢𝑡𝑒 𝑐𝑜𝑢𝑝𝑙𝑒 - 5`, event.threadID);
     }
 
     const [searchTerm, countStr] = query.split("-").map(str => str.trim());
@@ -45,7 +59,7 @@ module.exports.onStart = async function({ api, event, args }) {
     const response = await axios.get(apiUrl, { timeout: 15000 });
 
     if (!response.data?.data?.length) {
-      return api.sendMessage("❌ 𝗡𝗼 𝗶𝗺𝗮𝗴𝗲𝘀 𝗳𝗼𝘂𝗻𝗱. 𝗧𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝘀𝗲𝗮𝗿𝗰𝗵 𝘁𝗲𝗿𝗺!", event.threadID);
+      return message.reply("❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑢𝑛𝑑. 𝑇𝑟𝑦 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚!", event.threadID);
     }
 
     const images = response.data.data.slice(0, count);
@@ -62,29 +76,38 @@ module.exports.onStart = async function({ api, event, args }) {
         await fs.writeFile(imagePath, imageResponse.data);
         attachments.push(fs.createReadStream(imagePath));
       } catch (error) {
-        console.error(`Error downloading image ${index + 1}:`, error.message);
+        console.error(`𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒 ${index + 1}:`, error.message);
       }
     }
 
-    const successMessage = `✅ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗳𝗲𝘁𝗰𝗵𝗲𝗱 ${attachments.length} 𝗶𝗺𝗮𝗴𝗲(𝘀) 𝘂𝘀𝗶𝗻𝗴 "${searchTerm}"\n${lockedTagline}`;
+    if (attachments.length === 0) {
+      return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑛𝑦 𝑖𝑚𝑎𝑔𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.", event.threadID);
+    }
+
+    const successMessage = `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑓𝑒𝑡𝑐ℎ𝑒𝑑 ${attachments.length} 𝑖𝑚𝑎𝑔𝑒(𝑠) 𝑢𝑠𝑖𝑛𝑔 "${searchTerm}"\n${lockedTagline}`;
     verifyTagline(successMessage);
 
-    await api.sendMessage({
+    await message.reply({
       body: successMessage,
       attachment: attachments
     }, event.threadID);
 
     // Cleanup
-    for (const file of attachments) {
+    setTimeout(async () => {
       try {
-        fs.unlinkSync(file.path);
+        const files = await fs.readdir(cacheDir);
+        for (const file of files) {
+          if (file.includes('pinterest_')) {
+            await fs.unlink(path.join(cacheDir, file));
+          }
+        }
       } catch (cleanupError) {
-        console.error("Cleanup error:", cleanupError.message);
+        console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupError.message);
       }
-    }
+    }, 5000);
 
   } catch (error) {
-    console.error("Command error:", error.message);
-    api.sendMessage("⚠️ 𝗘𝗿𝗿𝗼𝗿 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗿𝗲𝗾𝘂𝗲𝘀𝘁. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿!", event.threadID);
+    console.error("𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error.message);
+    message.reply("⚠️ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟!", event.threadID);
   }
 };
