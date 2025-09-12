@@ -1,55 +1,61 @@
 module.exports.config = {
     name: "coin",
+    aliases: ["balance", "money"],
     version: "1.2.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💰 Check coin balances in the economy system",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 3,
+    role: 0,
     category: "economy",
-    usages: "[@mention | help]",
-    cooldowns: 3,
-    dependencies: {},
+    shortDescription: {
+        en: "💰 𝐶ℎ𝑒𝑐𝑘 𝑐𝑜𝑖𝑛 𝑏𝑎𝑙𝑎𝑛𝑐𝑒𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑒𝑐𝑜𝑛𝑜𝑚𝑦 𝑠𝑦𝑠𝑡𝑒𝑚"
+    },
+    longDescription: {
+        en: "💰 𝐶ℎ𝑒𝑐𝑘 𝑐𝑜𝑖𝑛 𝑏𝑎𝑙𝑎𝑛𝑐𝑒𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑒𝑐𝑜𝑛𝑜𝑚𝑦 𝑠𝑦𝑠𝑡𝑒𝑚"
+    },
+    guide: {
+        en: "{p}coin [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛 | ℎ𝑒𝑙𝑝]"
+    },
+    dependencies: {
+        "axios": ""
+    },
     envConfig: {}
 };
 
 module.exports.languages = {
     "en": {
-        "own_balance": "💰 𝗬𝗢𝗨𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n🪙 | You currently have: %1 coins\n\n💹 | Keep earning more coins through activities!",
-        "other_balance": "💰 𝗨𝗦𝗘𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n👤 | User: %1\n🪙 | Balance: %2 coins",
-        "no_user": "⚠️ 𝗨𝗦𝗘𝗥 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗\n━━━━━━━━━━━━━━\nPlease mention a valid user to check their balance",
-        "error": "❌ 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗘𝗥𝗥𝗢𝗿\n━━━━━━━━━━━━━━\nFailed to fetch balance. Please try again later.",
+        "own_balance": "💰 𝗬𝗢𝗨𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n🪙 | 𝑌𝑜𝑢 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 ℎ𝑎𝑣𝑒: %1 𝑐𝑜𝑖𝑛𝑠\n\n💹 | 𝐾𝑒𝑒𝑝 𝑒𝑎𝑟𝑛𝑖𝑛𝑔 𝑚𝑜𝑟𝑒 𝑐𝑜𝑖𝑛𝑠 𝑡ℎ𝑟𝑜𝑢𝑔ℎ 𝑎𝑐𝑡𝑖𝑣𝑖𝑡𝑖𝑒𝑠!",
+        "other_balance": "💰 𝗨𝗦𝗘𝗥 𝗕𝗔𝗟𝗔𝗡𝗖𝗘\n━━━━━━━━━━━━━━\n👤 | 𝑈𝑠𝑒𝑟: %1\n🪙 | 𝐵𝑎𝑙𝑎𝑛𝑐𝑒: %2 𝑐𝑜𝑖𝑛𝑠",
+        "no_user": "⚠️ 𝗨𝗦𝗘𝗥 𝗡𝗢𝗧 𝗙𝗢𝗨𝗡𝗗\n━━━━━━━━━━━━━━\n𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑒𝑟 𝑡𝑜 𝑐ℎ𝑒𝑐𝑘 𝑡ℎ𝑒𝑖𝑟 𝑏𝑎𝑙𝑎𝑛𝑐𝑒",
+        "error": "❌ 𝗕𝗔𝗟𝗔𝗡𝗖𝗘 𝗘𝗥𝗥𝗢𝗿\n━━━━━━━━━━━━━━\n𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑏𝑎𝑙𝑎𝑛𝑐𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.",
         "help": "💎 𝗖𝗢𝗜𝗡 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗛𝗘𝗟𝗣\n━━━━━━━━━━━━━━\n\n" +
                 "📌 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗨𝘀𝗮𝗴𝗲:\n" +
-                "• {p}coin - Check your own balance\n" +
-                "• {p}coin @mention - Check someone else's balance\n" +
-                "• {p}coin help - Show this help message\n\n" +
+                "• {p}𝑐𝑜𝑖𝑛 - 𝐶ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑜𝑤𝑛 𝑏𝑎𝑙𝑎𝑛𝑐𝑒\n" +
+                "• {p}𝑐𝑜𝑖𝑛 @𝑚𝑒𝑛𝑡𝑖𝑜𝑛 - 𝐶ℎ𝑒𝑐𝑘 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑒𝑙𝑠𝑒'𝑠 𝑏𝑎𝑙𝑎𝑛𝑐𝑒\n" +
+                "• {p}𝑐𝑜𝑖𝑛 ℎ𝑒𝑙𝑝 - 𝑆ℎ𝑜𝑤 𝑡ℎ𝑖𝑠 ℎ𝑒𝑙𝑝 𝑚𝑒𝑠𝑠𝑎𝑔𝑒\n\n" +
                 "💡 𝗔𝗯𝗼𝘂𝘁 𝗖𝗼𝗶𝗻𝘀:\n" +
-                "• Coins are earned through activities, games, and rewards\n" +
-                "• Use coins to purchase items, play games, or access premium features\n" +
-                "• Check your balance regularly to track your earnings!\n\n" +
-                "✨ 𝗧𝗶𝗽: Stay active to earn more coins daily!"
+                "• 𝐶𝑜𝑖𝑛𝑠 𝑎𝑟𝑒 𝑒𝑎𝑟𝑛𝑒𝑑 𝑡ℎ𝑟𝑜𝑢𝑔ℎ 𝑎𝑐𝑡𝑖𝑣𝑖𝑡𝑖𝑒𝑠, 𝑔𝑎𝑚𝑒𝑠, 𝑎𝑛𝑑 𝑟𝑒𝑤𝑎𝑟𝑑𝑠\n" +
+                "• 𝑈𝑠𝑒 𝑐𝑜𝑖𝑛𝑠 𝑡𝑜 𝑝𝑢𝑟𝑐ℎ𝑎𝑠𝑒 𝑖𝑡𝑒𝑚𝑠, 𝑝𝑙𝑎𝑦 𝑔𝑎𝑚𝑒𝑠, 𝑜𝑟 𝑎𝑐𝑐𝑒𝑠𝑠 𝑝𝑟𝑒𝑚𝑖𝑢𝑚 𝑓𝑒𝑎𝑡𝑢𝑟𝑒𝑠\n" +
+                "• 𝐶ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑏𝑎𝑙𝑎𝑛𝑐𝑒 𝑟𝑒𝑔𝑢𝑙𝑎𝑟𝑙𝑦 𝑡𝑜 𝑡𝑟𝑎𝑐𝑘 𝑦𝑜𝑢𝑟 𝑒𝑎𝑟𝑛𝑖𝑛𝑔𝑠!\n\n" +
+                "✨ 𝗧𝗶𝗽: 𝑆𝑡𝑎𝑦 𝑎𝑐𝑡𝑖𝑣𝑒 𝑡𝑜 𝑒𝑎𝑟𝑛 𝑚𝑜𝑟𝑒 𝑐𝑜𝑖𝑛𝑠 𝑑𝑎𝑖𝑙𝑦!"
     }
 };
 
 module.exports.onLoad = function() {
-    console.log("✅ Coin command loaded successfully!");
+    console.log("✅ 𝐶𝑜𝑖𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!");
 };
 
-module.exports.onStart = async function({ api, event, args, Users, Currencies, getText }) {
+module.exports.onStart = async function({ message, event, args, Users, Currencies, getText }) {
     try {
         const { threadID, messageID, senderID, mentions } = event;
 
         if (args[0]?.toLowerCase() === "help") {
-            return api.sendMessage(getText("help"), threadID, messageID);
+            return message.reply(getText("help"));
         }
 
         if (args.length === 0 || Object.keys(mentions).length === 0) {
             const userData = await Currencies.getData(senderID);
             const balance = userData.money || 0;
-            return api.sendMessage(
-                getText("own_balance", balance.toLocaleString()), 
-                threadID,
-                messageID
-            );
+            return message.reply(getText("own_balance", balance.toLocaleString()));
         }
 
         const targetID = Object.keys(mentions)[0];
@@ -57,28 +63,20 @@ module.exports.onStart = async function({ api, event, args, Users, Currencies, g
         const targetData = await Currencies.getData(targetID);
 
         if (!targetData) {
-            return api.sendMessage(getText("no_user"), threadID, messageID);
+            return message.reply(getText("no_user"));
         }
 
         const targetBalance = targetData.money || 0;
-        return api.sendMessage(
-            {
-                body: getText("other_balance", targetName, targetBalance.toLocaleString()),
-                mentions: [{
-                    tag: targetName,
-                    id: targetID
-                }]
-            },
-            threadID,
-            messageID
-        );
+        return message.reply({
+            body: getText("other_balance", targetName, targetBalance.toLocaleString()),
+            mentions: [{
+                tag: targetName,
+                id: targetID
+            }]
+        });
 
     } catch (error) {
-        console.error("Coin command error:", error);
-        return api.sendMessage(
-            getText("error"),
-            event.threadID,
-            event.messageID
-        );
+        console.error("𝐶𝑜𝑖𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        return message.reply(getText("error"));
     }
 };
