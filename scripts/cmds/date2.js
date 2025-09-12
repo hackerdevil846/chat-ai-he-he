@@ -1,12 +1,25 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
+
 module.exports.config = {
     name: "date2",
+    aliases: ["couple", "ship"],
     version: "2.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💝 Create couple ship images with your partner",
-    category: "𝗜𝗠𝗔𝗚𝗘",
-    usages: "[@mention]",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "image",
+    shortDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑜𝑢𝑝𝑙𝑒 𝑠ℎ𝑖𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑝𝑎𝑟𝑡𝑛𝑒𝑟"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑐𝑜𝑢𝑝𝑙𝑒 𝑠ℎ𝑖𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑝𝑎𝑟𝑡𝑛𝑒𝑟"
+    },
+    guide: {
+        en: "{p}date2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -16,59 +29,68 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const path = require("path");
-    const fs = require("fs-extra");
-    const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/canvas/`;
     const imagePath = path.resolve(__dirname, 'cache/canvas', 'joshua.png');
     
     if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
-    if (!fs.existsSync(imagePath)) await downloadFile("https://i.imgur.com/ha8gxu5.jpg", imagePath);
+    if (!fs.existsSync(imagePath)) {
+        try {
+            const imageData = await axios.get("https://i.imgur.com/ha8gxu5.jpg", { responseType: 'arraybuffer' });
+            fs.writeFileSync(imagePath, Buffer.from(imageData.data));
+        } catch (error) {
+            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑏𝑎𝑠𝑒 𝑖𝑚𝑎𝑔𝑒:", error);
+        }
+    }
 };
 
-module.exports.onStart = async function ({ event, api, args }) {
-    const fs = global.nodemodule["fs-extra"];
+module.exports.onStart = async function ({ event, message, args }) {
     const { threadID, messageID, senderID } = event;
     
-    if (!args[0]) return api.sendMessage("💢 𝐏𝐥𝐞𝐚𝐬𝐞 𝐦𝐞𝐧𝐭𝐢𝐨𝐧 𝐚 𝐮𝐬𝐞𝐫 𝐭𝐨 𝐬𝐡𝐢𝐩 𝐰𝐢𝐭𝐡!", threadID, messageID);
+    if (!args[0]) {
+        return message.reply("💢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑎 𝑢𝑠𝑒𝑟 𝑡𝑜 𝑠ℎ𝑖𝑝 𝑤𝑖𝑡ℎ!", threadID, messageID);
+    }
     
     const mention = Object.keys(event.mentions)[0];
-    if (!mention) return api.sendMessage("❌ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐦𝐞𝐧𝐭𝐢𝐨𝐧!", threadID, messageID);
+    if (!mention) {
+        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑚𝑒𝑛𝑡𝑖𝑜𝑛!", threadID, messageID);
+    }
     
     const tag = event.mentions[mention].replace("@", "");
     const one = senderID, two = mention;
 
     try {
         const path = await makeImage({ one, two });
-        return api.sendMessage({
-            body: `💕 𝐒𝐡𝐢𝐩𝐩𝐞𝐝 𝐰𝐢𝐭𝐡 ${tag}!\n𝐋𝐨𝐯𝐞 𝐢𝐬 𝐢𝐧 𝐭𝐡𝐞 𝐚𝐢𝐫! 💞`,
+        return message.reply({
+            body: `💕 𝑆ℎ𝑖𝑝𝑝𝑒𝑑 𝑤𝑖𝑡ℎ ${tag}!\n𝐿𝑜𝑣𝑒 𝑖𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑎𝑖𝑟! 💞`,
             mentions: [{
                 tag: tag,
                 id: mention
             }],
             attachment: fs.createReadStream(path)
-        }, threadID, () => fs.unlinkSync(path), messageID);
+        }, () => fs.unlinkSync(path));
     } catch (error) {
-        console.error(error);
-        return api.sendMessage("❌ 𝐄𝐫𝐫𝐨𝐫 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐢𝐦𝐚𝐠𝐞!", threadID, messageID);
+        console.error("𝐼𝑚𝑎𝑔𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑒𝑟𝑟𝑜𝑟:", error);
+        return message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒!", threadID, messageID);
     }
 };
 
 async function makeImage({ one, two }) {
-    const fs = global.nodemodule["fs-extra"];
-    const path = global.nodemodule["path"];
-    const axios = global.nodemodule["axios"];
-    const jimp = global.nodemodule["jimp"];
     const __root = path.resolve(__dirname, "cache", "canvas");
-
     const batgiam_img = await jimp.read(__root + "/joshua.png");
     const pathImg = __root + `/ship_${one}_${two}.png`;
     const avatarOne = __root + `/avt_${one}.png`;
     const avatarTwo = __root + `/avt_${two}.png`;
 
     const getAvatar = async (id, path) => {
-        const data = (await axios.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-        fs.writeFileSync(path, Buffer.from(data, 'utf-8'));
+        try {
+            const data = await axios.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
+                responseType: 'arraybuffer' 
+            });
+            fs.writeFileSync(path, Buffer.from(data.data, 'utf-8'));
+        } catch (error) {
+            console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎𝑣𝑎𝑡𝑎𝑟 𝑓𝑜𝑟 ${id}:`, error);
+            throw error;
+        }
     };
 
     await Promise.all([
@@ -85,15 +107,15 @@ async function makeImage({ one, two }) {
     const raw = await batgiam_img.getBufferAsync("image/png");
     fs.writeFileSync(pathImg, raw);
     
-    fs.unlinkSync(avatarOne);
-    fs.unlinkSync(avatarTwo);
+    // Clean up temporary files
+    if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
+    if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
     
     return pathImg;
 }
 
 async function circle(image) {
-    const jimp = global.nodemodule["jimp"];
-    image = await jimp.read(image);
-    image.circle();
-    return await image.getBufferAsync("image/png");
+    const img = await jimp.read(image);
+    img.circle();
+    return await img.getBufferAsync("image/png");
 }
