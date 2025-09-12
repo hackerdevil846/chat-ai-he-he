@@ -5,207 +5,179 @@ const fontsInfo = 28;
 const colorName = "#000000";
 
 module.exports.config = {
-  name: "cardinfov2",
-  version: "2.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒖𝒔𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒕𝒖𝒎𝒊 𝒌𝒂𝒋 𝒌𝒐𝒓𝒃𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-  category: "𝒊𝒏𝒇𝒐",
-  usages: "",
-  cooldowns: 5,
-  dependencies: {
-    canvas: "",
-    axios: "",
-    "fs-extra": "",
-    jimp: ""
-  },
-};
-
-module.exports.languages = {
-  "en": {
-    "success": "✅ Your info card is ready!"
-  },
-  "bn": {
-    "success": "✅ তোমার ইনফো কার্ড তৈরি হয়ে গেছে!"
-  }
+    name: "cardinfov2",
+    aliases: ["infocard", "profilecard"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "info",
+    shortDescription: {
+        en: "𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑢𝑠𝑒𝑟 𝑑𝑒𝑡𝑎𝑖𝑙𝑠"
+    },
+    guide: {
+        en: "{p}cardinfov2 [𝑢𝑠𝑒𝑟𝐼𝐷] 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
+    },
+    dependencies: {
+        "canvas": "",
+        "axios": "",
+        "fs-extra": "",
+        "jimp": "",
+        "moment-timezone": ""
+    }
 };
 
 module.exports.onLoad = function () {
-  // ensure cache dir exists with proper error handling
-  try {
-    const fs = require('fs-extra') || (global.nodemodule && global.nodemodule["fs-extra"]);
-    if (fs) {
-      fs.ensureDirSync(__dirname + "/cache");
-    }
-  } catch (e) { 
-    // fallback to regular fs if fs-extra not available
     try {
-      const fs = require('fs');
-      if (!fs.existsSync(__dirname + "/cache")) {
-        fs.mkdirSync(__dirname + "/cache", { recursive: true });
-      }
-    } catch (err) { 
-      /* ignore */ 
+        const fs = require('fs-extra');
+        if (fs) {
+            fs.ensureDirSync(__dirname + "/cache");
+        }
+    } catch (e) { 
+        try {
+            const fs = require('fs');
+            if (!fs.existsSync(__dirname + "/cache")) {
+                fs.mkdirSync(__dirname + "/cache", { recursive: true });
+            }
+        } catch (err) { 
+            console.log("𝐶𝑎𝑐ℎ𝑒 𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑦 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑠𝑘𝑖𝑝𝑝𝑒𝑑");
+        }
     }
-  }
 };
 
-/**
- * Create circular avatar buffer using jimp
- */
 module.exports.circle = async (image) => {
-  const jimp = global.nodemodule["jimp"];
-  image = await jimp.read(image);
-  image.circle();
-  return await image.getBufferAsync("image/png");
+    const jimp = require("jimp");
+    image = await jimp.read(image);
+    image.circle();
+    return await image.getBufferAsync("image/png");
 };
 
-/**
- * Convert ASCII chars to Mathematical Bold Italic equivalents where mapped
- */
 function toMathBoldItalic(text) {
-  const map = {
-    'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴',
-    'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻', 'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿', 'Y': '𝒀', 'Z': '𝒁',
-    'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋', 'k': '𝒌', 'l': '𝒍', 'm': '𝒎',
-    'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕', 'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚', 'z': '𝒛',
-    '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗',
-    ' ': ' ', ':': ':', '>': '>', '-': '-', '_': '_', '/': '/', '.': '.', '(': '(', ')': ')', '[': '[', ']': ']', '{': '{', '}': '}'
-  };
-  return String(text).split('').map(char => map[char] || char).join('');
+    const map = {
+        'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴',
+        'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻', 'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿', 'Y': '𝒀', 'Z': '𝒁',
+        'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋', 'k': '𝒌', 'l': '𝒍', 'm': '𝒎',
+        'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕', 'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚', 'z': '𝒛',
+        '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗',
+        ' ': ' ', ':': ':', '>': '>', '-': '-', '_': '_', '/': '/', '.': '.', '(': '(', ')': ')', '[': '[', ']': ']', '{': '{', '}': '}'
+    };
+    return String(text).split('').map(char => map[char] || char).join('');
 }
 
-module.exports.onStart = async function ({ api, event, args, Users, Threads, Currencies, permssion }) {
-  // prevent credit tampering
-  if ((this.config.credits) !== "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅") {
-    return api.sendMessage(`⚠️ ক্রেডিট পাল্টানো যাবে না!`, event.threadID, event.messageID);
-  }
-
-  const { senderID, threadID, messageID } = event;
-  const Canvas = global.nodemodule["canvas"];
-  const { loadImage, createCanvas } = Canvas;
-  const axios = global.nodemodule["axios"];
-  const fs = global.nodemodule["fs-extra"];
-
-  // prepare paths (keep exact as requested)
-  let pathImg = __dirname + `/cache/${senderID}123${threadID}.png`;
-  let pathAvata = __dirname + `/cache/avtuserrd.png`;
-
-  // determine uid (reply or sender)
-  let uid;
-  if (event.type == "message_reply" && event.messageReply && event.messageReply.senderID) {
-    uid = event.messageReply.senderID;
-  } else {
-    uid = event.senderID;
-  }
-
-  try {
-    // fetch user info (v2)
-    const res = await api.getUserInfoV2(uid);
-
-    // fetch avatar (keep access token and graph link unchanged)
-    const getAvatarOne = (await axios.get(`https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-
-    // background image (unchanged)
-    const bg = (await axios.get(encodeURI(`https://i.imgur.com/C8yIgMZ.png`), { responseType: "arraybuffer" })).data;
-
-    // write fetched files to cache (safe Buffer.from usage)
-    fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne));
-    fs.writeFileSync(pathImg, Buffer.from(bg));
-
-    // make circular avatar
-    const avataruser = await this.circle(pathAvata);
-
-    // ensure font exists, download if missing (link unchanged)
-    if (!fs.existsSync(__dirname + `${fonts}`)) {
-      let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
-      fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont));
-    }
-
-    // load images into canvas
-    let baseImage = await loadImage(pathImg);
-    let baseAvata = await loadImage(avataruser);
-    let canvas = createCanvas(baseImage.width, baseImage.height);
-    let ctx = canvas.getContext("2d");
-
-    // draw background and avatar
-    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-    ctx.drawImage(baseAvata, 610, 83, 255, 255);
-
-    // Convert text to Mathematical Bold Italic (labels & fallbacks)
-    const notFoundText = toMathBoldItalic("𝑷𝒂𝒘𝒂 𝒋𝒂𝒚𝒏𝒊");
-    const maleText = toMathBoldItalic("𝑷𝒖𝒓𝒖𝒔𝒉");
-    const femaleText = toMathBoldItalic("𝑴𝒐𝒉𝒊𝒍𝒂");
-    const secretText = toMathBoldItalic("𝑮𝒐𝒑𝒐𝒏 𝒓𝒂𝒌𝒉𝒔𝒆");
-    const unknownText = toMathBoldItalic("𝑱𝒂𝒏𝒆𝒏 𝒏𝒂");
-
-    // normalize fields (keep original checks for 'Không Có Dữ Liệu')
-    if (!res.location || res.location === "Không Có Dữ Liệu") res.location = notFoundText;
-    if (!res.birthday || res.birthday === "Không Có Dữ Liệu") res.birthday = notFoundText;
-    if (!res.relationship_status || res.relationship_status === "Không Có Dữ Liệu") res.relationship_status = notFoundText;
-    if (!res.follow || res.follow === "Không Có Dữ Liệu") res.follow = notFoundText;
-
-    // assign converted values
-    var gender = res.gender == 'male' ? maleText : res.gender == 'female' ? femaleText : secretText;
-    var birthday = res.birthday ? toMathBoldItalic(res.birthday) : unknownText;
-    var love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : unknownText;
-    var location = res.location ? toMathBoldItalic(res.location) : unknownText;
-    const nameText = toMathBoldItalic(res.name || notFoundText);
-    const uidText = toMathBoldItalic(uid.toString());
-    const linkText = toMathBoldItalic(res.link || notFoundText);
-
-    // register font (exact path preserved)
+module.exports.onStart = async function ({ api, event, args }) {
     try {
-      Canvas.registerFont(__dirname + `${fonts}`, { family: "Play-Bold" });
-    } catch (e) { /* ignore if already registered */ }
+        if ((this.config.author) !== "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑") {
+            return api.sendMessage(`⚠️ 𝐶𝑟𝑒𝑑𝑖𝑡 𝑐𝑎𝑛𝑛𝑜𝑡 𝑏𝑒 𝑐ℎ𝑎𝑛𝑔𝑒𝑑!`, event.threadID, event.messageID);
+        }
 
-    // labels in Mathematical Bold Italic
-    const nameLabel = toMathBoldItalic("» 𝑵𝒂𝒎:");
-    const genderLabel = toMathBoldItalic("» 𝑳𝒊𝒏𝒈𝒈𝒐:");
-    const followLabel = toMathBoldItalic("» 𝑭𝒐𝒍𝒐𝒘𝒆𝒓𝒔:");
-    const loveLabel = toMathBoldItalic("» 𝑹𝒆𝒍𝒂𝒕𝒊𝒐𝒏𝒔𝒉𝒊𝒑:");
-    const bdayLabel = toMathBoldItalic("» 𝑱𝒐𝒏𝒎𝒐𝒅𝒊𝒏:");
-    const locationLabel = toMathBoldItalic("» 𝑱𝒂𝒈𝒂:");
+        const { senderID, threadID, messageID } = event;
+        const Canvas = require("canvas");
+        const { loadImage, createCanvas } = Canvas;
+        const axios = require("axios");
+        const fs = require("fs-extra");
 
-    // draw text
-    ctx.font = `${fontsInfo}px Play-Bold`;
-    ctx.fillStyle = colorName || "#000000";
-    ctx.textAlign = "start";
+        let pathImg = __dirname + `/cache/${senderID}123${threadID}.png`;
+        let pathAvata = __dirname + `/cache/avtuserrd.png`;
 
-    ctx.fillText(`${nameLabel} ${nameText}`, 111, 160);
-    ctx.fillText(`${genderLabel} ${gender}`, 111, 200);
-    ctx.fillText(`${followLabel} ${toMathBoldItalic(String(res.follow || notFoundText))}`, 111, 240);
-    ctx.fillText(`${loveLabel} ${love}`, 111, 280);
-    ctx.fillText(`${bdayLabel} ${birthday}`, 111, 320);
-    ctx.fillText(`${locationLabel} ${location}`, 111, 360);
-    ctx.fillText(uidText, 1010, 466);
+        let uid;
+        if (event.type == "message_reply" && event.messageReply && event.messageReply.senderID) {
+            uid = event.messageReply.senderID;
+        } else if (args[0]) {
+            uid = args[0];
+        } else {
+            uid = event.senderID;
+        }
 
-    ctx.font = `${fontsLink}px Play-Bold`;
-    ctx.fillText(linkText, 145, 47);
+        const res = await api.getUserInfoV2(uid);
+        const getAvatarOne = (await axios.get(`https://graph.facebook.com/${uid}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+        const bg = (await axios.get(encodeURI(`https://i.imgur.com/C8yIgMZ.png`), { responseType: "arraybuffer" })).data;
 
-    // finalize image
-    const imageBuffer = canvas.toBuffer();
-    fs.writeFileSync(pathImg, imageBuffer);
-    try { fs.removeSync(pathAvata); } catch (e) { /* ignore */ }
+        fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne));
+        fs.writeFileSync(pathImg, Buffer.from(bg));
 
-    // send message with emoji-rich body (message converted to math bold italic)
-    const doneMessage = toMathBoldItalic("✅ 𝑨𝒑𝒏𝒂𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒄𝒂𝒓𝒅 𝒑𝒓𝒐𝒔𝒕𝒖𝒕 𝒉𝒐𝒚𝒆𝒄𝒉𝒆! 🎉✨");
+        const avataruser = await this.circle(pathAvata);
 
-    return api.sendMessage(
-      {
-        body: doneMessage,
-        attachment: fs.createReadStream(pathImg)
-      },
-      threadID,
-      () => {
-        try { fs.unlinkSync(pathImg); } catch (e) { /* ignore */ }
-      },
-      messageID
-    );
+        if (!fs.existsSync(__dirname + `${fonts}`)) {
+            let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
+            fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont));
+        }
 
-  } catch (error) {
-    // graceful error message with emoji
-    const errText = `❌ কিছু ভুল হয়েছে!\nError: ${error && error.message ? error.message : String(error)}\n(আবার চেষ্টা করো বা আমাকে বলো)`;
-    return api.sendMessage(errText, threadID, messageID);
-  }
+        let baseImage = await loadImage(pathImg);
+        let baseAvata = await loadImage(avataruser);
+        let canvas = createCanvas(baseImage.width, baseImage.height);
+        let ctx = canvas.getContext("2d");
+
+        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(baseAvata, 610, 83, 255, 255);
+
+        const notFoundText = toMathBoldItalic("𝐷𝑎𝑡𝑎 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
+        const maleText = toMathBoldItalic("𝑀𝑎𝑙𝑒");
+        const femaleText = toMathBoldItalic("𝐹𝑒𝑚𝑎𝑙𝑒");
+        const secretText = toMathBoldItalic("𝑃𝑟𝑖𝑣𝑎𝑡𝑒");
+        const unknownText = toMathBoldItalic("𝑈𝑛𝑘𝑛𝑜𝑤𝑛");
+
+        if (!res.location || res.location === "𝐾ℎ𝑜𝑛𝑔 𝐶𝑜 𝐷𝑢 𝑙𝑖𝑒𝑢") res.location = notFoundText;
+        if (!res.birthday || res.birthday === "𝐾ℎ𝑜𝑛𝑔 𝐶𝑜 𝐷𝑢 𝑙𝑖𝑒𝑢") res.birthday = notFoundText;
+        if (!res.relationship_status || res.relationship_status === "𝐾ℎ𝑜𝑛𝑔 𝐶𝑜 𝐷𝑢 𝑙𝑖𝑒𝑢") res.relationship_status = notFoundText;
+        if (!res.follow || res.follow === "𝐾ℎ𝑜𝑛𝑔 𝐶𝑜 𝐷𝑢 𝑙𝑖𝑒𝑢") res.follow = notFoundText;
+
+        var gender = res.gender == 'male' ? maleText : res.gender == 'female' ? femaleText : secretText;
+        var birthday = res.birthday ? toMathBoldItalic(res.birthday) : unknownText;
+        var love = res.relationship_status ? toMathBoldItalic(res.relationship_status) : unknownText;
+        var location = res.location ? toMathBoldItalic(res.location) : unknownText;
+        const nameText = toMathBoldItalic(res.name || notFoundText);
+        const uidText = toMathBoldItalic(uid.toString());
+        const linkText = toMathBoldItalic(res.link || notFoundText);
+
+        try {
+            Canvas.registerFont(__dirname + `${fonts}`, { family: "Play-Bold" });
+        } catch (e) { }
+
+        const nameLabel = toMathBoldItalic("» 𝑁𝑎𝑚𝑒:");
+        const genderLabel = toMathBoldItalic("» 𝐺𝑒𝑛𝑑𝑒𝑟:");
+        const followLabel = toMathBoldItalic("» 𝐹𝑜𝑙𝑙𝑜𝑤𝑒𝑟𝑠:");
+        const loveLabel = toMathBoldItalic("» 𝑅𝑒𝑙𝑎𝑡𝑖𝑜𝑛𝑠ℎ𝑖𝑝:");
+        const bdayLabel = toMathBoldItalic("» 𝐵𝑖𝑟𝑡ℎ𝑑𝑎𝑦:");
+        const locationLabel = toMathBoldItalic("» 𝐿𝑜𝑐𝑎𝑡𝑖𝑜𝑛:");
+
+        ctx.font = `${fontsInfo}px Play-Bold`;
+        ctx.fillStyle = colorName;
+        ctx.textAlign = "start";
+
+        ctx.fillText(`${nameLabel} ${nameText}`, 111, 160);
+        ctx.fillText(`${genderLabel} ${gender}`, 111, 200);
+        ctx.fillText(`${followLabel} ${toMathBoldItalic(String(res.follow || notFoundText))}`, 111, 240);
+        ctx.fillText(`${loveLabel} ${love}`, 111, 280);
+        ctx.fillText(`${bdayLabel} ${birthday}`, 111, 320);
+        ctx.fillText(`${locationLabel} ${location}`, 111, 360);
+        ctx.fillText(uidText, 1010, 466);
+
+        ctx.font = `${fontsLink}px Play-Bold`;
+        ctx.fillText(linkText, 145, 47);
+
+        const imageBuffer = canvas.toBuffer();
+        fs.writeFileSync(pathImg, imageBuffer);
+        try { fs.removeSync(pathAvata); } catch (e) { }
+
+        const doneMessage = toMathBoldItalic("✅ 𝑌𝑜𝑢𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑐𝑎𝑟𝑑 𝑖𝑠 𝑟𝑒𝑎𝑑𝑦! 🎉✨");
+
+        return api.sendMessage(
+            {
+                body: doneMessage,
+                attachment: fs.createReadStream(pathImg)
+            },
+            threadID,
+            () => {
+                try { fs.unlinkSync(pathImg); } catch (e) { }
+            },
+            messageID
+        );
+
+    } catch (error) {
+        console.error("𝐸𝑟𝑟𝑜𝑟:", error);
+        return api.sendMessage(`❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑: ${error.message}`, event.threadID, event.messageID);
+    }
 };
