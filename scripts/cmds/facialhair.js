@@ -1,41 +1,72 @@
 const fs = require("fs-extra");
 const path = require("path");
 const https = require("https");
+const axios = require("axios");
 
-module.exports = {
-  config: {
+module.exports.config = {
     name: "facialhair",
+    aliases: ["beard", "mustache"],
     version: "1.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     shortDescription: {
-      en: "Random beard style avatar"
+        en: "𝑅𝑎𝑛𝑑𝑜𝑚 𝑏𝑒𝑎𝑟𝑑 𝑠𝑡𝑦𝑙𝑒 𝑎𝑣𝑎𝑡𝑎𝑟"
     },
     longDescription: {
-      en: "Sends a randomly generated masculine facial hair image"
+        en: "𝑆𝑒𝑛𝑑𝑠 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚𝑙𝑦 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑚𝑎𝑠𝑐𝑢𝑙𝑖𝑛𝑒 𝑓𝑎𝑐𝑖𝑎𝑙 ℎ𝑎𝑖𝑟 𝑖𝑚𝑎𝑔𝑒"
     },
-    category: "fun",
+    category: "𝑓𝑢𝑛",
     guide: {
-      en: "{pn}"
+        en: "{p}facialhair"
+    },
+    dependencies: {
+        "fs-extra": "",
+        "axios": "",
+        "https": ""
     }
-  },
+};
 
-  onStart: async function({ message }) {
-    const imgUrl = "https://placebeard.it/400x400";
-    const filePath = path.join(__dirname, "cache/beard.jpg");
-    const file = fs.createWriteStream(filePath);
+module.exports.onStart = async function({ message }) {
+    try {
+        // Check dependencies
+        if (!fs.existsSync || !axios || !https) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
 
-    https.get(imgUrl, res => {
-      res.pipe(file);
-      file.on("finish", () => {
-        message.reply({
-          body: "🧔 𝗥𝗮𝗻𝗱𝗼𝗺 𝗙𝗮𝗰𝗶𝗮𝗹 𝗛𝗮𝗶𝗿 𝗔𝘃𝗮𝘁𝗮𝗿",
-          attachment: fs.createReadStream(filePath)
+        const imgUrl = "https://placebeard.it/400x400";
+        const filePath = path.join(__dirname, "cache/beard.jpg");
+        
+        // Create cache directory if it doesn't exist
+        const cacheDir = path.dirname(filePath);
+        if (!fs.existsSync(cacheDir)) {
+            fs.mkdirSync(cacheDir, { recursive: true });
+        }
+
+        const file = fs.createWriteStream(filePath);
+
+        https.get(imgUrl, response => {
+            response.pipe(file);
+            file.on("finish", () => {
+                file.close(() => {
+                    message.reply({
+                        body: "🧔 𝑅𝑎𝑛𝑑𝑜𝑚 𝐹𝑎𝑐𝑖𝑎𝑙 𝐻𝑎𝑖𝑟 𝐴𝑣𝑎𝑡𝑎𝑟",
+                        attachment: fs.createReadStream(filePath)
+                    }).then(() => {
+                        // Clean up after sending
+                        fs.unlinkSync(filePath);
+                    }).catch(error => {
+                        console.error("𝑀𝑒𝑠𝑠𝑎𝑔𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
+                    });
+                });
+            });
+        }).on("error", (error) => {
+            console.error("𝐻𝑇𝑇𝑃𝑆 𝑒𝑟𝑟𝑜𝑟:", error);
+            message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑓𝑎𝑐𝑖𝑎𝑙 ℎ𝑎𝑖𝑟 𝑎𝑣𝑎𝑡𝑎𝑟.");
         });
-      });
-    }).on("error", () => {
-      message.reply("❌ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗴𝗲𝘁 𝗳𝗮𝗰𝗶𝗮𝗹 𝗵𝗮𝗶𝗿 𝗮𝘃𝗮𝘁𝗮𝗿.");
-    });
-  }
+
+    } catch (error) {
+        console.error("𝐹𝑎𝑐𝑖𝑎𝑙𝐻𝑎𝑖𝑟 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒.");
+    }
 };
