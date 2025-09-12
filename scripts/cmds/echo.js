@@ -1,27 +1,35 @@
 module.exports.config = {
-	name: "echo",
-	version: "1.0.0",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "📣 𝑷𝒂𝒕𝒉𝒂𝒏𝒐 𝒕𝒆𝒙𝒕 𝒕𝒂 𝒑𝒉𝒊𝒓𝒆 𝒑𝒂𝒕𝒉𝒂𝒏𝒐",
-	category: "utility",
-	usages: "[text]",
-	cooldowns: 0,
-	dependencies: {}
+    name: "echo",
+    aliases: ["repeat", "say"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 0,
+    role: 0,
+    category: "utility",
+    shortDescription: {
+        en: "𝑅𝑒𝑝𝑒𝑎𝑡 𝑡𝑒𝑥𝑡 𝑏𝑎𝑐𝑘 𝑡𝑜 𝑦𝑜𝑢"
+    },
+    longDescription: {
+        en: "𝑅𝑒𝑝𝑒𝑎𝑡𝑠 𝑡ℎ𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒𝑑 𝑡𝑒𝑥𝑡 𝑏𝑎𝑐𝑘 𝑡𝑜 𝑡ℎ𝑒 𝑢𝑠𝑒𝑟"
+    },
+    guide: {
+        en: "{p}echo [𝑡𝑒𝑥𝑡]"
+    },
+    dependencies: {}
 };
 
-module.exports.onStart = async function({ api, event, args }) {
-	try {
-		const inputText = args.join(" ");
-		
-		if (!inputText) {
-			return api.sendMessage("✨ 𝐏𝐥𝐞𝐚𝐬𝐞 𝐩𝐫𝐨𝐯𝐢𝐝𝐞 𝐭𝐞𝐱𝐭 𝐭𝐨 𝐞𝐜𝐡𝐨!\n💡 𝐔𝐬𝐚𝐠𝐞: echo [text]", event.threadID, event.messageID);
-		}
+module.exports.onStart = async function({ message, args, event }) {
+    try {
+        const inputText = args.join(" ");
+        
+        if (!inputText) {
+            return message.reply("✨ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑒𝑐ℎ𝑜!\n💡 𝑈𝑠𝑎𝑔𝑒: 𝑒𝑐ℎ𝑜 [𝑡𝑒𝑥𝑡]");
+        }
 
-		return api.sendMessage(`📢 ${inputText}`, event.threadID, event.messageID);
-		
-	} catch (error) {
-		console.error("🔴 Error in echo command:", error);
-		return api.sendMessage("❌ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐭𝐡𝐞 𝐫𝐞𝐪𝐮𝐞𝐬𝐭.", event.threadID);
-	}
+        return message.reply(`📢 ${inputText}`);
+        
+    } catch (error) {
+        console.error("🔴 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑒𝑐ℎ𝑜 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
+        return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑟𝑒𝑞𝑢𝑒𝑠𝑡.");
+    }
 };
