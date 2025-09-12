@@ -1,19 +1,27 @@
 module.exports.config = {
     name: "emoji",
+    aliases: ["emojicode", "emojicipher"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑬𝒎𝒐𝒋𝒊 𝒅𝒊𝒚𝒆 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒆𝒏𝒄𝒓𝒚𝒑𝒕 𝒂𝒓 𝒅𝒆𝒄𝒓𝒚𝒑𝒕 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-    category: "𝑻𝒐𝒐𝒍",
-    usages: "𝒆𝒎𝒐𝒋𝒊 𝒆𝒏 <𝒕𝒆𝒙𝒕>\n𝒆𝒎𝒐𝒋𝒊 𝒅𝒆 <𝒕𝒆𝒙𝒕>",
-    cooldowns: 5
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "tool",
+    shortDescription: {
+        en: "𝐸𝑚𝑜𝑗𝑖 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑒𝑛𝑐𝑟𝑦𝑝𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑑𝑒𝑐𝑟𝑦𝑝𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "𝐸𝑛𝑐𝑜𝑑𝑒 𝑎𝑛𝑑 𝑑𝑒𝑐𝑜𝑑𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑢𝑠𝑖𝑛𝑔 𝑒𝑚𝑜𝑗𝑖𝑠"
+    },
+    guide: {
+        en: "{p}emoji 𝑒𝑛 <𝑡𝑒𝑥𝑡>\n{p}emoji 𝑑𝑒 <𝑡𝑒𝑥𝑡>"
+    }
 };
 
-module.exports.onStart = async function ({ api, event, args }) {
+module.exports.onStart = async function({ message, args, event }) {
     const { threadID, messageID } = event;
     
     if (args.length < 2) {
-        return api.sendMessage(`✨ 𝑼𝒔𝒂𝒈𝒆:\n${this.config.usages}`, threadID, messageID);
+        return message.reply(`✨ 𝑈𝑠𝑎𝑔𝑒:\n${this.config.guide.en}`, threadID, messageID);
     }
 
     const type = args[0].toLowerCase();
@@ -57,7 +65,7 @@ module.exports.onStart = async function ({ api, event, args }) {
         encoded = encoded.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, "")
                          .replace(/\u02C6|\u0306|\u031B/g, "");
 
-        return api.sendMessage(`🔐 𝐄𝐧𝐜𝐨𝐝𝐞𝐝 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 ✨\n━━━━━━━━━━━━━━\n${encoded}\n━━━━━━━━━━━━━━`, threadID, messageID);
+        return message.reply(`🔐 𝐸𝑛𝑐𝑜𝑑𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 ✨\n━━━━━━━━━━━━━━\n${encoded}\n━━━━━━━━━━━━━━`, threadID, messageID);
     } 
     else if (type === 'decode' || type === 'de') {
         const mapping = {
@@ -95,9 +103,9 @@ module.exports.onStart = async function ({ api, event, args }) {
             decoded = decoded.replace(regex, char);
         }
 
-        return api.sendMessage(`🔓 𝐃𝐞𝐜𝐨𝐝𝐞𝐝 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 ✨\n━━━━━━━━━━━━━━\n${decoded}\n━━━━━━━━━━━━━━`, threadID, messageID);
+        return message.reply(`🔓 𝐷𝑒𝑐𝑜𝑑𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 ✨\n━━━━━━━━━━━━━━\n${decoded}\n━━━━━━━━━━━━━━`, threadID, messageID);
     } 
     else {
-        return api.sendMessage(`❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝑶𝒑𝒆𝒓𝒂𝒕𝒊𝒐𝒏\n✨ 𝑼𝒔𝒂𝒈𝒆:\n${this.config.usages}`, threadID, messageID);
+        return message.reply(`❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛\n✨ 𝑈𝑠𝑎𝑔𝑒:\n${this.config.guide.en}`, threadID, messageID);
     }
 };
