@@ -1,35 +1,57 @@
 module.exports.config = {
-	name: "delmsg",
-	version: "1.0.0",
-	hasPermssion: 2,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🧹 𝐃𝐞𝐥𝐞𝐭𝐞 𝐚𝐥𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬 𝐨𝐫 𝐠𝐫𝐨𝐮𝐩 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬",
-	category: "🛡️ 𝐒𝐲𝐬𝐭𝐞𝐦",
-	usages: "[thread/all]",
-	cooldowns: 0
+    name: "delmsg",
+    aliases: ["clearchat", "deleteall"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 0,
+    role: 2,
+    category: "system",
+    shortDescription: {
+        en: "𝐷𝑒𝑙𝑒𝑡𝑒 𝑎𝑙𝑙 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑜𝑟 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠"
+    },
+    longDescription: {
+        en: "𝐷𝑒𝑙𝑒𝑡𝑒 𝑎𝑙𝑙 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑖𝑛 𝑖𝑛𝑏𝑜𝑥 𝑜𝑟 𝑔𝑟𝑜𝑢𝑝 𝑐ℎ𝑎𝑡𝑠"
+    },
+    guide: {
+        en: "{p}delmsg [𝑡ℎ𝑟𝑒𝑎𝑑/𝑎𝑙𝑙]"
+    }
 };
 
-module.exports.onStart = async function({ api, event, args }) {
+module.exports.onStart = async function({ message, args, api, event }) {
     try {
         if (args[0] == "all") {
             const threadList = await api.getThreadList(1000, null, ["INBOX"]);
+            let deletedCount = 0;
+            
             for (const item of threadList) {
                 if (item.threadID !== event.threadID) {
-                    await api.deleteThread(item.threadID);
+                    try {
+                        await api.deleteThread(item.threadID);
+                        deletedCount++;
+                    } catch (error) {
+                        console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑒𝑙𝑒𝑡𝑒 𝑡ℎ𝑟𝑒𝑎𝑑 ${item.threadID}:`, error);
+                    }
                 }
             }
-            api.sendMessage("✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐝𝐞𝐥𝐞𝐭𝐞𝐝 𝐚𝐥𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬!", event.threadID);
+            message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑑𝑒𝑙𝑒𝑡𝑒𝑑 ${deletedCount} 𝑡ℎ𝑟𝑒𝑎𝑑𝑠!`);
         } else {
             const threadList = await api.getThreadList(1000, null, ["INBOX"]);
+            let deletedCount = 0;
+            
             for (const item of threadList) {
                 if (item.isGroup && item.threadID !== event.threadID) {
-                    await api.deleteThread(item.threadID);
+                    try {
+                        await api.deleteThread(item.threadID);
+                        deletedCount++;
+                    } catch (error) {
+                        console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑒𝑙𝑒𝑡𝑒 𝑔𝑟𝑜𝑢𝑝 ${item.threadID}:`, error);
+                    }
                 }
             }
-            api.sendMessage("✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐝𝐞𝐥𝐞𝐭𝐞𝐝 𝐚𝐥𝐥 𝐠𝐫𝐨𝐮𝐩 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬!", event.threadID);
+            message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑑𝑒𝑙𝑒𝑡𝑒𝑑 ${deletedCount} 𝑔𝑟𝑜𝑢𝑝 𝑡ℎ𝑟𝑒𝑎𝑑𝑠!`);
         }
     } catch (error) {
-        console.error(error);
-        api.sendMessage("❌ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐝𝐞𝐥𝐞𝐭𝐢𝐧𝐠 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬.", event.threadID);
+        console.error("𝐷𝑒𝑙𝑒𝑡𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑒𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑑𝑒𝑙𝑒𝑡𝑖𝑛𝑔 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠.");
     }
 };
