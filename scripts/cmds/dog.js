@@ -1,35 +1,47 @@
+const axios = require('axios');
+const request = require('request');
+const fs = require("fs-extra");
+
 module.exports.config = {
-	name: "dog",
-	version: "1.0.1",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🐶 𝑩𝒐𝒔𝒔 𝒌𝒆 𝒅𝒆𝒌𝒉𝒂𝒓 𝒋𝒐𝒏𝒏𝒐",
-	category: "🖼️ 𝑷𝒊𝒄𝒕𝒖𝒓𝒆",
-	usages: "🐾 𝒅𝒐𝒈",
-	cooldowns: 1,
-	dependencies: {
-		"axios": "",
-		"request": ""
-	}
+    name: "dog",
+    aliases: ["puppy", "doggie"],
+    version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 1,
+    role: 0,
+    category: "𝑚𝑒𝑑𝑖𝑎",
+    shortDescription: {
+        en: "🐶 𝐵𝑜𝑠𝑠 𝑘𝑒 𝑑𝑒𝑘ℎ𝑎𝑟 𝑗𝑜𝑛𝑛𝑜"
+    },
+    longDescription: {
+        en: "🐾 𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑑𝑜𝑔 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
+    },
+    guide: {
+        en: "{p}dog"
+    },
+    dependencies: {
+        "axios": "",
+        "request": "",
+        "fs-extra": ""
+    }
 };
 
-module.exports.onStart = async function({ api, event }) {
-	const axios = require('axios');
-	const request = require('request');
-	const fs = require("fs");
-	
-	try {
-		const response = await axios.get('https://nekos.life/api/v2/img/woof');
-		const ext = response.data.url.substring(response.data.url.lastIndexOf(".") + 1);
-		const path = __dirname + `/cache/dog.${ext}`;
-		
-		request(response.data.url).pipe(fs.createWriteStream(path)).on("close", () => {
-			api.sendMessage({
-				body: `🐕‍🦺 | 𝑫𝒐𝒈 𝑷𝒊𝒄 𝒇𝒐𝒓 𝒚𝒐𝒖 𝒃𝒐𝒔𝒔!`,
-				attachment: fs.createReadStream(path)
-			}, event.threadID, () => fs.unlinkSync(path), event.messageID);
-		});
-	} catch (error) {
-		api.sendMessage("❌ | 𝑬𝒓𝒓𝒐𝒓 𝒇𝒆𝒕𝒄𝒉𝒊𝒏𝒈 𝒅𝒐𝒈 𝒊𝒎𝒂𝒈𝒆!", event.threadID, event.messageID);
-	}
+module.exports.onStart = async function({ message, event }) {
+    try {
+        const response = await axios.get('https://nekos.life/api/v2/img/woof');
+        const ext = response.data.url.substring(response.data.url.lastIndexOf(".") + 1);
+        const path = __dirname + `/cache/dog.${ext}`;
+        
+        request(response.data.url).pipe(fs.createWriteStream(path)).on("close", () => {
+            message.reply({
+                body: `🐕‍🦺 | 𝐷𝑜𝑔 𝑃𝑖𝑐 𝑓𝑜𝑟 𝑦𝑜𝑢 𝑏𝑜𝑠𝑠!`,
+                attachment: fs.createReadStream(path)
+            }, (err) => {
+                if (!err) fs.unlinkSync(path);
+            });
+        });
+    } catch (error) {
+        console.error("𝐷𝑜𝑔 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ | 𝐸𝑟𝑟𝑜𝑟 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑑𝑜𝑔 𝑖𝑚𝑎𝑔𝑒!");
+    }
 };
