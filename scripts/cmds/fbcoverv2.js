@@ -1,12 +1,24 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const request = require("request");
+
 module.exports.config = {
     name: "fbcoverv2",
+    aliases: ["cover", "fbcover"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Facebook cover creation tool",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "image",
-    usages: "",
-    cooldowns: 5,
+    shortDescription: {
+        en: "𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑐𝑜𝑣𝑒𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑡𝑜𝑜𝑙"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑐𝑜𝑣𝑒𝑟𝑠 𝑤𝑖𝑡ℎ 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠 𝑎𝑛𝑑 𝑐𝑜𝑙𝑜𝑟𝑠"
+    },
+    guide: {
+        en: "{p}fbcoverv2\n{p}fbcoverv2 list\n{p}fbcoverv2 find <𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟>\n{p}fbcoverv2 color"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -15,87 +27,102 @@ module.exports.config = {
 };
 
 module.exports.onStart = async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    const axios = require("axios");
-    const fs = require("fs-extra");
-    const request = require("request");
-    
     try {
+        const { threadID, messageID, senderID } = event;
+        
         if (args[0] == "list") {
             const res = await axios.get("https://api.nguyenmanh.name.vn/taoanhdep/list");
             
-            var trang = 1;
-            trang = parseInt(args[1]) || 1;
-            trang < -1 ? trang = 1 : "";
-            var limit = 11;
-            var danhsach = res.data.listAnime.length;
-            var soTrang = Math.ceil(danhsach / limit);
-            var msg = [];
-      
-            for (var i = limit * (trang - 1); i < limit * (trang - 1) + limit; i++) {
-                if (i >= danhsach) break;
-                var nv = res.data.listAnime[i].name;
-                msg += `${i + 0}. ${nv}\n`
+            let page = parseInt(args[1]) || 1;
+            page = page < 1 ? 1 : page;
+            const limit = 11;
+            const totalCharacters = res.data.listAnime.length;
+            const totalPages = Math.ceil(totalCharacters / limit);
+            
+            let msg = [];
+            for (let i = limit * (page - 1); i < limit * (page - 1) + limit; i++) {
+                if (i >= totalCharacters) break;
+                const character = res.data.listAnime[i].name;
+                msg += `${i + 0}. ${character}\n`;
             }
       
-            msg += `» 𝑨𝒍𝒍 ${danhsach} 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓\n» 𝑷𝒂𝒈𝒆𝒔 (${trang}/${soTrang})\n» 𝑼𝒔𝒆 ${global.config.PREFIX}fbcover list <𝒑𝒂𝒈𝒆 𝒏𝒖𝒎𝒃𝒆𝒓> 𝒕𝒐 𝒔𝒆𝒆 𝒎𝒐𝒓𝒆`;
-            return api.sendMessage(`●─●𝑬𝒎𝒊𝒍𝒊𝒂●──●\n` + msg + `\n●──●𝑬𝒏𝒅●──●`, threadID, messageID);
+            msg += `» 𝐴𝑙𝑙 ${totalCharacters} 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠\n» 𝑃𝑎𝑔𝑒𝑠 (${page}/${totalPages})\n» 𝑈𝑠𝑒 {p}fbcoverv2 list <𝑝𝑎𝑔𝑒 𝑛𝑢𝑚𝑏𝑒𝑟> 𝑡𝑜 𝑠𝑒𝑒 𝑚𝑜𝑟𝑒`;
+            
+            return api.sendMessage(`●─●𝐸𝑚𝑖𝑙𝑖𝑎●──●\n` + msg + `\n●──●𝐸𝑛𝑑●──●`, threadID, messageID);
             
         } else if (args[0] == "find") {
-            if (!args[1]) return api.sendMessage("❌ Please enter a character name to search", threadID, messageID);
+            if (!args[1]) {
+                return api.sendMessage("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑛𝑎𝑚𝑒 𝑡𝑜 𝑠𝑒𝑎𝑟𝑐ℎ", threadID, messageID);
+            }
             
-            var char = args.slice(1).join(" ");
+            const char = args.slice(1).join(" ");
             const res = await axios.get(`https://api.nguyenmanh.name.vn/taoanhdep/search?key=${encodeURIComponent(char)}`);
-            var id = res.data.ID;
-            return api.sendMessage(`𝑰𝑫 𝒐𝒇 ${char}: ${id - 1}`, threadID, messageID);
+            const id = res.data.ID;
+            
+            return api.sendMessage(`𝐼𝐷 𝑜𝑓 ${char}: ${id - 1}`, threadID, messageID);
         } 
           
         else if (args[0] == "color") {
-            const mautienganh = "https://4.bp.blogspot.com/-_nVsmtO-a8o/VYfZIUJXydI/AAAAAAAACBQ/FHfioHYszpk/w1200-h630-p-k-no-nu/cac-mau-trong-tieng-anh.jpg";
-            var callback = () => {
+            const colorImageUrl = "https://4.bp.blogspot.com/-_nVsmtO-a8o/VYfZIUJXydI/AAAAAAAACBQ/FHfioHYszpk/w1200-h630-p-k-no-nu/cac-mau-trong-tieng-anh.jpg";
+            
+            const callback = () => {
                 api.sendMessage({
-                    body: "[ 𝑬𝒏𝒈𝒍𝒊𝒔𝒉 𝒄𝒐𝒍𝒐𝒓 𝒍𝒊𝒔𝒕 ]",
-                    attachment: fs.createReadStream(__dirname + `/cache/mautienganh.jpg`)
-                }, threadID, () => fs.unlinkSync(__dirname + `/cache/mautienganh.jpg`))
+                    body: "[ 𝐸𝑛𝑔𝑙𝑖𝑠ℎ 𝑐𝑜𝑙𝑜𝑟 𝑙𝑖𝑠𝑡 ]",
+                    attachment: fs.createReadStream(__dirname + `/cache/colors.jpg`)
+                }, threadID, () => fs.unlinkSync(__dirname + `/cache/colors.jpg`));
             };
-            request(encodeURI(mautienganh)).pipe(fs.createWriteStream(__dirname + `/cache/mautienganh.jpg`)).on("close", callback);
+            
+            request(encodeURI(colorImageUrl))
+                .pipe(fs.createWriteStream(__dirname + `/cache/colors.jpg`))
+                .on("close", callback);
+                
         } else {
-            return api.sendMessage(`» 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑰𝑫 𝒚𝒐𝒖 𝒘𝒂𝒏𝒕 𝒕𝒐 𝒄𝒉𝒐𝒐𝒔𝒆`, threadID, (error, info) => {
-                if (error) return console.error(error);
-                global.client.handleReply.push ({
+            return api.sendMessage(`» 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝐼𝐷 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑐ℎ𝑜𝑜𝑠𝑒`, threadID, (error, info) => {
+                if (error) {
+                    console.error(error);
+                    return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒", threadID, messageID);
+                }
+                
+                global.client.handleReply.push({
                     type: "characters",
                     name: this.config.name,
                     author: senderID,
                     messageID: info.messageID
                 });
-            }, event.messageID);
+            }, messageID);
         }
     } catch (error) {
         console.error(error);
-        return api.sendMessage("❌ An error occurred while processing your request", threadID, messageID);
+        return api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡", event.threadID, event.messageID);
     }
-}
+};
 
-module.exports.handleReply = async function({ api, event, handleReply }) {
-    const axios = require("axios");
-    const fs = require("fs-extra");
-    const request = require("request");
-    
-    if (handleReply.author != event.senderID) return api.sendMessage('𝑨𝒑𝒏𝒂𝒓 𝒑𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒏𝒆𝒊', event.threadID, event.messageID);
-    const { threadID, messageID, senderID } = event;
-  
+module.exports.onReply = async function({ api, event, handleReply }) {
     try {
+        const { threadID, messageID, senderID } = event;
+        
+        if (handleReply.author != senderID) {
+            return api.sendMessage('𝑌𝑜𝑢 𝑑𝑜 𝑛𝑜𝑡 ℎ𝑎𝑣𝑒 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑', threadID, messageID);
+        }
+
         switch (handleReply.type) {
             case "characters": {
                 const id = parseInt(event.body);
-                if (isNaN(id)) return api.sendMessage("❌ Please enter a valid number", threadID, messageID);
+                if (isNaN(id)) {
+                    return api.sendMessage("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟", threadID, messageID);
+                }
                 
                 const res = await axios.get(`https://api.nguyenmanh.name.vn/taoanhdep/search/id?id=${id + 1}`);
-                var name = res.data.name
+                const name = res.data.name;
                 
                 api.unsendMessage(handleReply.messageID);
-                return api.sendMessage(`» 𝑨𝒑𝒏𝒊 𝒔𝒆𝒍𝒆𝒄𝒕𝒆𝒅 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓: ${name}\n» 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒏𝒂𝒎𝒆`, threadID, (error, info) => {
-                    if (error) return console.error(error);
+                
+                return api.sendMessage(`» 𝑌𝑜𝑢𝑟 𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟: ${name}\n» 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑛𝑎𝑚𝑒`, threadID, (error, info) => {
+                    if (error) {
+                        console.error(error);
+                        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒", threadID, messageID);
+                    }
+                    
                     global.client.handleReply.push({
                         type: 'subname',
                         name: this.config.name,
@@ -108,8 +135,13 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
             
             case "subname": {
                 api.unsendMessage(handleReply.messageID);
-                return api.sendMessage(`» 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒔𝒆𝒄𝒐𝒏𝒅𝒂𝒓𝒚 𝒏𝒂𝒎𝒆`, threadID, (error, info) => {
-                    if (error) return console.error(error);
+                
+                return api.sendMessage(`» 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑠𝑒𝑐𝑜𝑛𝑑𝑎𝑟𝑦 𝑛𝑎𝑚𝑒`, threadID, (error, info) => {
+                    if (error) {
+                        console.error(error);
+                        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒", threadID, messageID);
+                    }
+                    
                     global.client.handleReply.push({
                         type: 'color',
                         name: this.config.name,
@@ -123,8 +155,13 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
       
             case "color": {
                 api.unsendMessage(handleReply.messageID);
-                return api.sendMessage(`» 𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒕𝒉𝒊𝒔 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒃𝒂𝒄𝒌𝒈𝒓𝒐𝒖𝒏𝒅 𝒄𝒐𝒍𝒐𝒓\n» 𝑼𝒔𝒆 "${global.config.PREFIX}fbcover color" 𝒕𝒐 𝒔𝒆𝒆 𝒄𝒐𝒍𝒐𝒓 𝒍𝒊𝒔𝒕`, threadID, (error, info) => {
-                    if (error) return console.error(error);
+                
+                return api.sendMessage(`» 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑐𝑜𝑙𝑜𝑟\n» 𝑈𝑠𝑒 "{p}fbcoverv2 color" 𝑡𝑜 𝑠𝑒𝑒 𝑐𝑜𝑙𝑜𝑟 𝑙𝑖𝑠𝑡`, threadID, (error, info) => {
+                    if (error) {
+                        console.error(error);
+                        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒", threadID, messageID);
+                    }
+                    
                     global.client.handleReply.push({
                         type: 'create',
                         name: this.config.name,
@@ -138,35 +175,41 @@ module.exports.handleReply = async function({ api, event, handleReply }) {
             }
             
             case "create": {
-                var idchar = handleReply.characters;
-                var name_ = handleReply.name_s;
-                var subname_ = handleReply.subname;
-                var color_ = event.body;
+                const idchar = handleReply.characters;
+                const name_ = handleReply.name_s;
+                const subname_ = handleReply.subname;
+                const color_ = event.body;
                 
                 api.unsendMessage(handleReply.messageID);
-                return api.sendMessage(`𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒄𝒐𝒗𝒆𝒓 𝒃𝒂𝒏𝒂𝒄𝒄𝒉𝒆... ✨`, event.threadID, async (error, info) => {
-                    if (error) return console.error(error);
+                
+                return api.sendMessage(`𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑐𝑜𝑣𝑒𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔... ✨`, threadID, async (error, info) => {
+                    if (error) {
+                        console.error(error);
+                        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒", threadID, messageID);
+                    }
                     
-                    await new Promise(resolve => setTimeout(resolve, 3 * 1000));
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    
                     try {
-                        var imag = (await axios.get(`https://api.nguyenmanh.name.vn/fbcover/v2?name=${encodeURIComponent(name_)}&id=${idchar}&subname=${encodeURIComponent(subname_)}&color=${encodeURIComponent(color_)}&apikey=KeyTest`, {
+                        const imageStream = await axios.get(`https://api.nguyenmanh.name.vn/fbcover/v2?name=${encodeURIComponent(name_)}&id=${idchar}&subname=${encodeURIComponent(subname_)}&color=${encodeURIComponent(color_)}&apikey=KeyTest`, {
                             responseType: "stream"
-                        })).data;
+                        });
                         
-                        var msg = {
-                            body: `𝑵𝒊𝒋𝒆𝒓 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝒄𝒐𝒗𝒆𝒓 ⚡`,
-                            attachment: imag
+                        const msg = {
+                            body: `𝑁𝑖𝑗𝑒𝑟 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑐𝑜𝑣𝑒𝑟 ⚡`,
+                            attachment: imageStream.data
                         };
-                        return api.sendMessage(msg, event.threadID, event.messageID);
+                        
+                        return api.sendMessage(msg, threadID, messageID);
                     } catch (error) {
                         console.error(error);
-                        return api.sendMessage("❌ Failed to generate cover. Please try again later.", event.threadID, event.messageID);
+                        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑐𝑜𝑣𝑒𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
                     }
-                }, event.messageID);
+                }, messageID);
             }
         }
     } catch (error) {
         console.error(error);
-        return api.sendMessage("❌ An error occurred while processing your request", threadID, messageID);
+        return api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡", event.threadID, event.messageID);
     }
-}
+};
