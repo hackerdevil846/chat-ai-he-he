@@ -5,13 +5,21 @@ const jimp = require("jimp");
 
 module.exports.config = {
     name: "fampair",
+    aliases: ["familypair", "fpair"],
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "👨‍👩‍👧‍👦 Family Pair Command for Boys",
-    category: "💞 LOVE",
-    usages: "fampair",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "𝑙𝑜𝑣𝑒",
+    shortDescription: {
+        en: "👨‍👩‍👧‍👦 𝐹𝑎𝑚𝑖𝑙𝑦 𝑃𝑎𝑖𝑟 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑓𝑜𝑟 𝐵𝑜𝑦𝑠"
+    },
+    longDescription: {
+        en: "👨‍👩‍👧‍👦 𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝𝑎𝑖𝑟 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠"
+    },
+    guide: {
+        en: "{p}fampair"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -42,7 +50,7 @@ async function downloadFile(url, filePath, maxRetries = 3) {
             });
         } catch (error) {
             if (attempt === maxRetries) {
-                throw new Error(`Failed to download file after ${maxRetries} attempts: ${error.message}`);
+                throw new Error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑖𝑙𝑒 𝑎𝑓𝑡𝑒𝑟 ${maxRetries} 𝑎𝑡𝑡𝑒𝑚𝑝𝑡𝑠: ${error.message}`);
             }
             // Wait before retry (exponential backoff)
             await new Promise(resolve => setTimeout(resolve, attempt * 2000));
@@ -51,17 +59,18 @@ async function downloadFile(url, filePath, maxRetries = 3) {
 }
 
 module.exports.onLoad = async () => {
-    const { existsSync, mkdirSync } = fs;
     const dirMaterial = path.resolve(__dirname, "cache", "canvas");
     
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) {
+        fs.mkdirSync(dirMaterial, { recursive: true });
+    }
     
     const bgPath = path.resolve(dirMaterial, "araa2.jpg");
-    if (!existsSync(bgPath)) {
+    if (!fs.existsSync(bgPath)) {
         try {
             await downloadFile("https://imgur.com/D35mTwa.jpg", bgPath);
         } catch (error) {
-            console.log("Background image download failed, will use fallback during execution");
+            console.log("𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑, 𝑤𝑖𝑙𝑙 𝑢𝑠𝑒 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑑𝑢𝑟𝑖𝑛𝑔 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑜𝑛");
         }
     }
 };
@@ -152,7 +161,7 @@ module.exports.onStart = async function({ api, event, Users }) {
         const participantIDs = threadInfo.participantIDs.filter(id => id !== senderID);
         
         if (participantIDs.length < 2) {
-            return api.sendMessage("👥 | Group e at least 2 jon member thakte hobe ei command use korte!", threadID, messageID);
+            return api.sendMessage("👥 | 𝐺𝑟𝑜𝑢𝑝 𝑒 𝑎𝑡 𝑙𝑒𝑎𝑠𝑡 2 𝑗𝑜𝑛 𝑚𝑒𝑚𝑏𝑒𝑟 𝑡ℎ𝑎𝑘𝑡𝑒 ℎ𝑜𝑏𝑒 𝑒𝑖 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑢𝑠𝑒 𝑘𝑜𝑟𝑡𝑒!", threadID, messageID);
         }
         
         // Select two random participants
@@ -168,12 +177,12 @@ module.exports.onStart = async function({ api, event, Users }) {
         const name1 = (await Users.getData(e)).name;
         const name2 = (await Users.getData(r)).name;
         
-        api.sendMessage("🔄 | Family pair image create hocche... ⏳", threadID, messageID);
+        api.sendMessage("🔄 | 𝐹𝑎𝑚𝑖𝑙𝑦 𝑝𝑎𝑖𝑟 𝑖𝑚𝑎𝑔𝑒 𝑐𝑟𝑒𝑎𝑡𝑒 ℎ𝑜𝑐𝑐ℎ𝑒... ⏳", threadID, messageID);
         
         const imagePath = await makeImage({ one: senderID, two: e, three: r });
         
         return api.sendMessage({ 
-            body: `👨‍👩‍👧‍👦 | 𝐅𝐚𝐦𝐢𝐥𝐲 𝐏𝐚𝐢𝐫 𝐑𝐞𝐬𝐮𝐥𝐭\n\n✨ ${nameSender}, tumi successfully ${name1} ar ${name2} er sathe Family Pair hoye gecho!\n💞 Tomader Compatibility: ${tle}`,
+            body: `👨‍👩‍👧‍👦 | 𝐹𝑎𝑚𝑖𝑙𝑦 𝑃𝑎𝑖𝑟 𝑅𝑒𝑠𝑢𝑙𝑡\n\n✨ ${nameSender}, 𝑡𝑢𝑚𝑖 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 ${name1} 𝑎𝑟 ${name2} 𝑒𝑟 𝑠𝑎𝑡ℎ𝑒 𝐹𝑎𝑚𝑖𝑙𝑦 𝑃𝑎𝑖𝑟 ℎ𝑜𝑦𝑒 𝑔𝑒𝑐ℎ𝑜!\n💞 𝑇𝑜𝑚𝑎𝑑𝑒𝑟 𝐶𝑜𝑚𝑝𝑎𝑡𝑖𝑏𝑖𝑙𝑖𝑡𝑦: ${tle}`,
             mentions: [
                 { tag: nameSender, id: senderID },
                 { tag: name1, id: e },
@@ -186,6 +195,6 @@ module.exports.onStart = async function({ api, event, Users }) {
         
     } catch (error) {
         console.error(error);
-        api.sendMessage("❌ | Kisu problem hoye geche command execute korte!", event.threadID, event.messageID);
+        api.sendMessage("❌ | 𝐾𝑖𝑠𝑢 𝑝𝑟𝑜𝑏𝑙𝑒𝑚 ℎ𝑜𝑦𝑒 𝑔𝑒𝑐ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑥𝑒𝑐𝑢𝑡𝑒 𝑘𝑜𝑟𝑡𝑒!", event.threadID, event.messageID);
     }
 };
