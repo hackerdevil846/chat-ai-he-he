@@ -1,25 +1,35 @@
 const sendWaiting = true;
-const textWaiting = "𝑰𝒎𝒂𝒈𝒆 𝒊𝒏𝒊𝒕𝒊𝒂𝒍𝒊𝒛𝒂𝒕𝒊𝒐𝒏, 𝒅𝒆𝒓𝒊 𝒌𝒉𝒖𝒏 𝒆𝒌𝒕𝒖 𝒐𝒑𝒆𝒌𝒌𝒉𝒂 𝒌𝒐𝒓𝒖𝒏";
-const fonts = "/cache/Play-Bold.ttf"
-const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTMH5R8gW8&export=download"
-const fontsLink = 20
-const fontsInfo = 28
-const colorName = "#00FFFF"
+const textWaiting = "𝐼𝑚𝑎𝑔𝑒 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...";
+const fonts = "/cache/Play-Bold.ttf";
+const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTMH5R8gW8&export=download";
+const fontsLink = 20;
+const fontsInfo = 28;
+const colorName = "#00FFFF";
 
 module.exports.config = {
     name: "fbpost-tag",
+    aliases: ["fbpost", "facebookpost"],
     version: "7.3.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "📝 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑷𝒐𝒔𝒕 𝑪𝒓𝒆𝒂𝒕𝒆 𝒌𝒐𝒓𝒆",
-    category: "🖼️ 𝑬𝒅𝒊𝒕-𝑰𝒎𝒂𝒈𝒆",
-    usages: "@𝒎𝒆𝒏𝒕𝒊𝒐𝒏 = 𝒕𝒆𝒙𝒕",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "𝑒𝑑𝑖𝑡-𝑖𝑚𝑎𝑔𝑒",
+    shortDescription: {
+        en: "𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑃𝑜𝑠𝑡 𝐶𝑟𝑒𝑎𝑡𝑜𝑟"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘-𝑠𝑡𝑦𝑙𝑒 𝑝𝑜𝑠𝑡𝑠 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑠"
+    },
+    guide: {
+        en: "{p}fbpost-tag @𝑚𝑒𝑛𝑡𝑖𝑜𝑛 = 𝑡𝑒𝑥𝑡"
+    },
     dependencies: {
         "canvas": "",
         "axios": "",
         "fs-extra": "",
-    },
+        "jimp": "",
+        "moment-timezone": ""
+    }
 };
 
 module.exports.wrapText = (ctx, text, maxWidth) => {
@@ -52,46 +62,45 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
 };
 
 module.exports.circle = async (image) => {
-    const jimp = global.nodemodule["jimp"];
+    const jimp = require("jimp");
     image = await jimp.read(image);
     image.circle();
     return await image.getBufferAsync("image/png");
 };
 
-module.exports.onStart = async function({ api, event, args, Users }) {
-    const { loadImage, createCanvas, registerFont } = require("canvas");
-    const request = require('request');
-    const fs = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"];
-    const Canvas = global.nodemodule["canvas"];
-    
-    let pathImg = __dirname + `/cache/fbv1.png`;
-    let pathAvata = __dirname + `/cache/fbv2.png`;
-    
-    let uid;
-    if (event.type == "message_reply") {
-        uid = event.messageReply.senderID;
-    } else if (Object.keys(event.mentions).length > 0) {
-        uid = Object.keys(event.mentions)[0];
-    } else {
-        return api.sendMessage("❌ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒖𝒔𝒆𝒓!", event.threadID, event.messageID);
-    }
-
-    const res = await api.getUserInfoV2(uid);
-    const work = args.join(" ");
-    const fw = work.indexOf(" = ");
-    
-    if (fw === -1) {
-        return api.sendMessage("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒇𝒐𝒓𝒎𝒂𝒕! 𝑼𝒔𝒆: @𝒎𝒆𝒏𝒕𝒊𝒐𝒏 = 𝒕𝒆𝒙𝒕", event.threadID, event.messageID);
-    }
-
-    const text = work.slice(fw + 3, work.length);
-    
-    if (sendWaiting) {
-        api.sendMessage(textWaiting, event.threadID, event.messageID);
-    }
-
+module.exports.onStart = async function({ api, event, args, message, Users }) {
     try {
+        const { loadImage, createCanvas, registerFont } = require("canvas");
+        const fs = require("fs-extra");
+        const axios = require("axios");
+        const Canvas = require("canvas");
+
+        let pathImg = __dirname + `/cache/fbv1.png`;
+        let pathAvata = __dirname + `/cache/fbv2.png`;
+        
+        let uid;
+        if (event.type == "message_reply") {
+            uid = event.messageReply.senderID;
+        } else if (Object.keys(event.mentions).length > 0) {
+            uid = Object.keys(event.mentions)[0];
+        } else {
+            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑢𝑠𝑒𝑟!");
+        }
+
+        const res = await api.getUserInfoV2(uid);
+        const work = args.join(" ");
+        const fw = work.indexOf(" = ");
+        
+        if (fw === -1) {
+            return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑓𝑜𝑟𝑚𝑎𝑡! 𝑈𝑠𝑒: @𝑚𝑒𝑛𝑡𝑖𝑜𝑛 = 𝑡𝑒𝑥𝑡");
+        }
+
+        const text = work.slice(fw + 3, work.length);
+        
+        if (sendWaiting) {
+            message.reply(textWaiting);
+        }
+
         const [getAvatarOne, bg] = await Promise.all([
             axios.get(`https://graph.facebook.com/${uid}/picture?height=1500&width=1500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' }),
             axios.get(encodeURI(`https://i.ibb.co/xq3jLQm/Picsart-22-08-15-23-51-29-721.jpg`), { responseType: "arraybuffer" })
@@ -130,16 +139,16 @@ module.exports.onStart = async function({ api, event, args, Users }) {
         const imageBuffer = canvas.toBuffer();
         fs.writeFileSync(pathImg, imageBuffer);
         
-        api.sendMessage({
-            body: "✅ 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑷𝒐𝒔𝒕 𝑪𝒓𝒆𝒂𝒕𝒆𝒅! 💬",
+        message.reply({
+            body: "✅ 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑃𝑜𝑠𝑡 𝐶𝑟𝑒𝑎𝑡𝑒𝑑! 💬",
             attachment: fs.createReadStream(pathImg)
-        }, event.threadID, () => {
+        }).then(() => {
             fs.unlinkSync(pathImg);
             fs.unlinkSync(pathAvata);
-        }, event.messageID);
+        });
 
     } catch (error) {
-        console.error(error);
-        return api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒊𝒎𝒂𝒈𝒆", event.threadID, event.messageID);
+        console.error("𝐹𝐵𝑃𝑜𝑠𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒");
     }
 };
