@@ -1,13 +1,21 @@
 module.exports.config = {
-	name: "fire",
-	version: "1.0.2",
-	hasPermssion: 2,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🔥 Special command by Asif with delayed messaging",
-	category: "group",
-	usages: "[@mention]",
-	cooldowns: 5,
-	dependencies: {}
+    name: "fire",
+    aliases: ["burn", "roast"],
+    version: "1.0.2",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 2,
+    category: "group",
+    shortDescription: {
+        en: "🔥 𝑆𝑝𝑒𝑐𝑖𝑎𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑤𝑖𝑡ℎ 𝑑𝑒𝑙𝑎𝑦𝑒𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑖𝑛𝑔"
+    },
+    longDescription: {
+        en: "🔥 𝑆𝑝𝑒𝑐𝑖𝑎𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑤𝑖𝑡ℎ 𝑑𝑒𝑙𝑎𝑦𝑒𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑖𝑛𝑔"
+    },
+    guide: {
+        en: "{p}fire [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
+    dependencies: {}
 };
 
 const toMathBoldItalic = (text) => {
@@ -23,76 +31,86 @@ const toMathBoldItalic = (text) => {
     return text.split('').map(char => boldItalicMap[char] || char).join('');
 };
 
-module.exports.onStart = async function({ api, event, args, Users, Threads }) {
-    const mention = Object.keys(event.mentions)[0];
-    if (!mention) return api.sendMessage(`❌ ${toMathBoldItalic("Please tag someone to use this command")}`, event.threadID);
-    
-    const name = event.mentions[mention];
-    const arraytag = [{ id: mention, tag: name }];
-    
-    const send = (msg, mentions = null) => api.sendMessage(msg, event.threadID, null, mentions);
-    
-    // Messages with emojis for better visual appeal
-    const messages = [
-        { text: "🔥 Chuda lo", delay: 0 },
-        { text: "🤬 Khan kir pola, tor ma re chudi", delay: 3000, tag: true },
-        { text: "💢 Tor kochi bon re chudi", delay: 5000, tag: true },
-        { text: "👺 Madarchod, tor ammur pom pom khan kir po", delay: 7000, tag: true },
-        { text: "😈 Tor kochi voda voda kamor dimu", delay: 9000, tag: true },
-        { text: "👹 Khan ki magir pola, kotha kom kom tor ammu re chude banamu item bom", delay: 12000, tag: true },
-        { text: "😵 Depression thekeo tor ma re chuda", delay: 15000, tag: true },
-        { text: "🥵 Tor ammu re achar er lob dekhi chudi magir pola", delay: 17000, tag: true },
-        { text: "🤢 Bandir pola, tor kochi boner voda fak kore thutu diye voda dukamu", delay: 20000, tag: true },
-        { text: "😼 Bandi magir pola, tor ammu re chudi tor dula vai er kande fele", delay: 23000, tag: true },
-        { text: "💦 Uff khadama magir pola, tor ammur kala voday amar mal out, tor kochi bon re upta kore abar chudbo", delay: 25000, tag: true },
-        { text: "💢 Online e gali baji hoye gecho magir pola, emon chuda dimu lifetime mone rakhbi", delay: 28500, tag: true },
-        { text: "🗣️ Batiya shun, tor ammu re chudle rag korbi na? Taile accha, ja rag koris na. Tor ammur kala voday ar chudlam na, to bon er jama ta khule de", delay: 31000, tag: true },
-        { text: "😾 Hai madarchod, tor bashar joto ammu re ador kore kore chudi", delay: 36000, tag: true },
-        { text: "🔥 Chuda ki aro khabi magir pola?", delay: 39000 },
-        { text: "🤬 Khan kir pola", delay: 42000, tag: true },
-        { text: "👺 Madarchod", delay: 48000, tag: true },
-        { text: "🏠 Bashar pola", delay: 51000, tag: true },
-        { text: "🗣️ Bhasha magir pola", delay: 54000, tag: true },
-        { text: "🔄 Potita magir pola", delay: 57000, tag: true },
-        { text: "😵 Depression thekeo tor ma re chuda", delay: 59400, tag: true },
-        { text: "🔥 Tor ma re chudi", delay: 63000, tag: true },
-        { text: "🤥 Nat bol magir pola", delay: 66000, tag: true },
-        { text: "👖 Tor bon re payjama khule chudi", delay: 69000, tag: true },
-        { text: "🍑 Ummmma tor bon er kochi voda", delay: 72000, tag: true },
-        { text: "🧬 DNA test korle dekhabe amar chudai tei tor jonmo", delay: 75000, tag: true },
-        { text: "🌺 Kamla magir pola", delay: 81000, tag: true },
-        { text: "👶 Bastard er baccha, bastir pola", delay: 87000, tag: true },
-        { text: "👨‍👦 Amar jarjar shontan", delay: 93000 },
-        { text: "👋 Welcome magir pola", delay: 99000, tag: true },
-        { text: "🍑 Tor kochi bon er pom pom", delay: 105000, tag: true },
-        { text: "🏠 Bashar pola, kotha shun tor ammu re chudi gamcha pechiye", delay: 111000, tag: true },
-        { text: "👋 Hi Asif er jarjar magir pola", delay: 114000, tag: true },
-        { text: "💵 20 taka e potita magir pola", delay: 120000, tag: true },
-        { text: "😵 Depression thekeo tor ma re chuda", delay: 126000, tag: true },
-        { text: "👑 Bastir chele, online er king", delay: 132000, tag: true },
-        { text: "🔄 Tukai magir pola", delay: 138000, tag: true },
-        { text: "👖 Tor ammu re payjama khule chudi", delay: 144000, tag: true },
-        { text: "🍑 Ummmma tor bon er kochi voda", delay: 150000, tag: true },
-        { text: "🧬 DNA test korle dekhabe amar chudai tei tor jonmo", delay: 156000, tag: true },
-        { text: "🚻 Hijra magir pola", delay: 162000, tag: true },
-        { text: "👶 Bastir dala er baccha, bastir pola", delay: 168000, tag: true },
-        { text: "👨‍👦 Amar jarjar shontan, ja vag", delay: 171000 },
-        { text: "🐷 Welcome shuorer baccha", delay: 174000, tag: true },
-        { text: "🐶 Kuttar baccha, tor kochi bon er pom pom", delay: 177000, tag: true },
-        { text: "🤬 Khan kir pola, kotha shun tor ammu re chudi gamcha pechiye", delay: 180000, tag: true }
-    ];
+module.exports.onStart = async function({ api, event, args }) {
+    try {
+        const mention = Object.keys(event.mentions)[0];
+        if (!mention) {
+            return api.sendMessage(`❌ ${toMathBoldItalic("𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑")}`, event.threadID, event.messageID);
+        }
+        
+        const name = event.mentions[mention];
+        const arraytag = [{ id: mention, tag: name }];
+        
+        const send = (msg, mentions = null) => {
+            return api.sendMessage(msg, event.threadID, mentions ? { mentions } : null, event.messageID);
+        };
 
-    // Send initial confirmation
-    send(`🔥 ${toMathBoldItalic("Starting fire command on")} ${name}`, arraytag);
+        // Messages with emojis for better visual appeal
+        const messages = [
+            { text: "🔥 𝐶ℎ𝑢𝑑𝑎 𝑙𝑜", delay: 0 },
+            { text: "🤬 𝐾ℎ𝑎𝑛 𝑘𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑡𝑜𝑟 𝑚𝑎 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 3000, tag: true },
+            { text: "💢 𝑇𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑏𝑜𝑛 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 5000, tag: true },
+            { text: "👺 𝑀𝑎𝑑𝑎𝑟𝑐ℎ𝑜𝑑, 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢𝑟 𝑝𝑜𝑚 𝑝𝑜𝑚 𝑘ℎ𝑎𝑛 𝑘𝑖𝑟 𝑝𝑜", delay: 7000, tag: true },
+            { text: "😈 𝑇𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑣𝑜𝑑𝑎 𝑣𝑜𝑑𝑎 𝑘𝑎𝑚𝑜𝑟 𝑑𝑖𝑚𝑢", delay: 9000, tag: true },
+            { text: "👹 𝐾ℎ𝑎𝑛 𝑘𝑖 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑘𝑜𝑡ℎ𝑎 𝑘𝑜𝑚 𝑘𝑜𝑚 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑐ℎ𝑢𝑑𝑒 𝑏𝑎𝑛𝑎𝑚𝑢 𝑖𝑡𝑒𝑚 𝑏𝑜𝑚", delay: 12000, tag: true },
+            { text: "😵 𝐷𝑒𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛 𝑡ℎ𝑒𝑘𝑒𝑜 𝑡𝑜𝑟 𝑚𝑎 𝑟𝑒 𝑐ℎ𝑢𝑑𝑎", delay: 15000, tag: true },
+            { text: "🥵 𝑇𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑎𝑐ℎ𝑎𝑟 𝑒𝑟 𝑙𝑜𝑏 𝑑𝑒𝑘ℎ𝑖 𝑐ℎ𝑢𝑑𝑖 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 17000, tag: true },
+            { text: "🤢 𝐵𝑎𝑛𝑑𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑡𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑏𝑜𝑛𝑒𝑟 𝑣𝑜𝑑𝑎 𝑓𝑎𝑘 𝑘𝑜𝑟𝑒 𝑡ℎ𝑢𝑡𝑢 𝑑𝑖𝑦𝑒 𝑣𝑜𝑑𝑎 𝑑𝑢𝑘𝑎𝑚𝑢", delay: 20000, tag: true },
+            { text: "😼 𝐵𝑎𝑛𝑑𝑖 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖 𝑡𝑜𝑟 𝑑𝑢𝑙𝑎 𝑣𝑎𝑖 𝑒𝑟 𝑘𝑎𝑛𝑑𝑒 𝑓𝑒𝑙𝑒", delay: 23000, tag: true },
+            { text: "💦 𝑈𝑓𝑓 𝑘ℎ𝑎𝑑𝑎𝑚𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢𝑟 𝑘𝑎𝑙𝑎 𝑣𝑜𝑑𝑎𝑦 𝑎𝑚𝑎𝑟 𝑚𝑎𝑙 𝑜𝑢𝑡, 𝑡𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑏𝑜𝑛 𝑟𝑒 𝑢𝑝𝑡𝑎 𝑘𝑜𝑟𝑒 𝑎𝑏𝑎𝑟 𝑐ℎ𝑢𝑑𝑏𝑜", delay: 25000, tag: true },
+            { text: "💢 𝑂𝑛𝑙𝑖𝑛𝑒 𝑒 𝑔𝑎𝑙𝑖 𝑏𝑎𝑗𝑖 ℎ𝑜𝑦𝑒 𝑔𝑒𝑐ℎ𝑜 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑒𝑚𝑜𝑛 𝑐ℎ𝑢𝑑𝑎 𝑑𝑖𝑚𝑢 𝑙𝑖𝑓𝑒𝑡𝑖𝑚𝑒 𝑚𝑜𝑛𝑒 𝑟𝑎𝑘ℎ𝑏𝑖", delay: 28500, tag: true },
+            { text: "🗣️ 𝐵𝑎𝑡𝑖𝑦𝑎 𝑠ℎ𝑢𝑛, 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑐ℎ𝑢𝑑𝑙𝑒 𝑟𝑎𝑔 𝑘𝑜𝑟𝑏𝑖 𝑛𝑎? 𝑇𝑎𝑖𝑙𝑒 𝑎𝑐𝑐ℎ𝑎, 𝑗𝑎 𝑟𝑎𝑔 𝑘𝑜𝑟𝑖𝑠 𝑛𝑎. 𝑇𝑜𝑟 𝑎𝑚𝑚𝑢𝑟 𝑘𝑎𝑙𝑎 𝑣𝑜𝑑𝑎𝑦 𝑎𝑟 𝑐ℎ𝑢𝑑𝑙𝑎𝑚 𝑛𝑎, 𝑡𝑜 𝑏𝑜𝑛 𝑒𝑟 𝑗𝑎𝑚𝑎 𝑡𝑎 𝑘ℎ𝑢𝑙𝑒 𝑑𝑒", delay: 31000, tag: true },
+            { text: "😾 𝐻𝑎𝑖 𝑚𝑎𝑑𝑎𝑟𝑐ℎ𝑜𝑑, 𝑡𝑜𝑟 𝑏𝑎𝑠ℎ𝑎𝑟 𝑗𝑜𝑡𝑜 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑎𝑑𝑜𝑟 𝑘𝑜𝑟𝑒 𝑘𝑜𝑟𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 36000, tag: true },
+            { text: "🔥 𝐶ℎ𝑢𝑑𝑎 𝑘𝑖 𝑎𝑟𝑜 𝑘ℎ𝑎𝑏𝑖 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎?", delay: 39000 },
+            { text: "🤬 𝐾ℎ𝑎𝑛 𝑘𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 42000, tag: true },
+            { text: "👺 𝑀𝑎𝑑𝑎𝑟𝑐ℎ𝑜𝑑", delay: 48000, tag: true },
+            { text: "🏠 𝐵𝑎𝑠ℎ𝑎𝑟 𝑝𝑜𝑙𝑎", delay: 51000, tag: true },
+            { text: "🗣️ 𝐵ℎ𝑎𝑠ℎ𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 54000, tag: true },
+            { text: "🔄 𝑃𝑜𝑡𝑖𝑡𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 57000, tag: true },
+            { text: "😵 𝐷𝑒𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛 𝑡ℎ𝑒𝑘𝑒𝑜 𝑡𝑜𝑟 𝑚𝑎 𝑟𝑒 𝑐ℎ𝑢𝑑𝑎", delay: 59400, tag: true },
+            { text: "🔥 𝑇𝑜𝑟 𝑚𝑎 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 63000, tag: true },
+            { text: "🤥 𝑁𝑎𝑡 𝑏𝑜𝑙 𝑚𝑎𝑔𝑖𝑟 �𝑝𝑜𝑙𝑎", delay: 66000, tag: true },
+            { text: "👖 𝑇𝑜𝑟 𝑏𝑜𝑛 𝑟𝑒 𝑝𝑎𝑦𝑗𝑎𝑚𝑎 𝑘ℎ𝑢𝑙𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 69000, tag: true },
+            { text: "🍑 𝑈𝑚𝑚𝑚𝑚𝑎 𝑡𝑜𝑟 𝑏𝑜𝑛 𝑒𝑟 𝑘𝑜𝑐ℎ𝑖 𝑣𝑜𝑑𝑎", delay: 72000, tag: true },
+            { text: "🧬 𝐷𝑁𝐴 𝑡𝑒𝑠𝑡 𝑘𝑜𝑟𝑙𝑒 𝑑𝑒𝑘ℎ𝑎𝑏𝑒 𝑎𝑚𝑎𝑟 𝑐ℎ𝑢𝑑𝑎𝑖 𝑡𝑒𝑖 𝑡𝑜𝑟 𝑗𝑜𝑛𝑚𝑜", delay: 75000, tag: true },
+            { text: "🌺 𝐾𝑎𝑚𝑙𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 81000, tag: true },
+            { text: "👶 𝐵𝑎𝑠𝑡𝑎𝑟𝑑 𝑒𝑟 𝑏𝑎𝑐𝑐ℎ𝑎, 𝑏𝑎𝑠𝑡𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 87000, tag: true },
+            { text: "👨‍👦 𝐴𝑚𝑎𝑟 𝑗𝑎𝑟𝑗𝑎𝑟 𝑠ℎ𝑜𝑛𝑡𝑎𝑛", delay: 93000 },
+            { text: "👋 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 99000, tag: true },
+            { text: "🍑 𝑇𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑏𝑜𝑛 𝑒𝑟 𝑝𝑜𝑚 𝑝𝑜𝑚", delay: 105000, tag: true },
+            { text: "🏠 𝐵𝑎𝑠ℎ𝑎𝑟 𝑝𝑜𝑙𝑎, 𝑘𝑜𝑡ℎ𝑎 𝑠ℎ𝑢𝑛 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖 𝑔𝑎𝑚𝑐ℎ𝑎 𝑝𝑒𝑐ℎ𝑖𝑦𝑒", delay: 111000, tag: true },
+            { text: "👋 𝐻𝑖 𝐴𝑠𝑖𝑓 𝑒𝑟 𝑗𝑎𝑟𝑗𝑎𝑟 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 114000, tag: true },
+            { text: "💵 20 𝑡𝑎𝑘𝑎 𝑒 𝑝𝑜𝑡𝑖𝑡𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 120000, tag: true },
+            { text: "😵 𝐷𝑒𝑝𝑟𝑒𝑠𝑠𝑖𝑜𝑛 𝑡ℎ𝑒𝑘𝑒𝑜 𝑡𝑜𝑟 𝑚𝑎 𝑟𝑒 𝑐ℎ𝑢𝑑𝑎", delay: 126000, tag: true },
+            { text: "👑 𝐵𝑎𝑠𝑡𝑖𝑟 𝑐ℎ𝑒𝑙𝑒, 𝑜𝑛𝑙𝑖𝑛𝑒 𝑒𝑟 𝑘𝑖𝑛𝑔", delay: 132000, tag: true },
+            { text: "🔄 𝑇𝑢𝑘𝑎𝑖 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 138000, tag: true },
+            { text: "👖 𝑇𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑝𝑎𝑦𝑗𝑎𝑚𝑎 𝑘ℎ𝑢𝑙𝑒 𝑐ℎ𝑢𝑑𝑖", delay: 144000, tag: true },
+            { text: "🍑 𝑈𝑚𝑚𝑚𝑚𝑎 𝑡𝑜𝑟 𝑏𝑜𝑛 𝑒𝑟 𝑘𝑜𝑐ℎ𝑖 𝑣𝑜𝑑𝑎", delay: 150000, tag: true },
+            { text: "🧬 𝐷𝑁𝐴 𝑡𝑒𝑠𝑡 𝑘𝑜𝑟𝑙𝑒 𝑑𝑒𝑘ℎ𝑎𝑏𝑒 𝑎𝑚𝑎𝑟 𝑐ℎ𝑢𝑑𝑎𝑖 𝑡𝑒𝑖 𝑡𝑜𝑟 𝑗𝑜𝑛𝑚𝑜", delay: 156000, tag: true },
+            { text: "🚻 𝐻𝑖𝑗𝑟𝑎 𝑚𝑎𝑔𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 162000, tag: true },
+            { text: "👶 𝐵𝑎𝑠𝑡𝑖𝑟 𝑑𝑎𝑙𝑎 𝑒𝑟 𝑏𝑎𝑐𝑐ℎ𝑎, 𝑏𝑎𝑠𝑡𝑖𝑟 𝑝𝑜𝑙𝑎", delay: 168000, tag: true },
+            { text: "👨‍👦 𝐴𝑚𝑎𝑟 𝑗𝑎𝑟𝑗𝑎𝑟 𝑠ℎ𝑜𝑛𝑡𝑎𝑛, 𝑗𝑎 𝑣𝑎𝑔", delay: 171000 },
+            { text: "🐷 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑠ℎ𝑢𝑜𝑟𝑒𝑟 𝑏𝑎𝑐𝑐ℎ𝑎", delay: 174000, tag: true },
+            { text: "🐶 𝐾𝑢𝑡𝑡𝑎𝑟 𝑏𝑎𝑐𝑐ℎ𝑎, 𝑡𝑜𝑟 𝑘𝑜𝑐ℎ𝑖 𝑏𝑜𝑛 𝑒𝑟 𝑝𝑜𝑚 𝑝𝑜𝑚", delay: 177000, tag: true },
+            { text: "🤬 𝐾ℎ𝑎𝑛 𝑘𝑖𝑟 𝑝𝑜𝑙𝑎, 𝑘𝑜𝑡ℎ𝑎 𝑠ℎ𝑢𝑛 𝑡𝑜𝑟 𝑎𝑚𝑚𝑢 𝑟𝑒 𝑐ℎ𝑢𝑑𝑖 𝑔𝑎𝑚𝑐ℎ𝑎 𝑝𝑒𝑐ℎ𝑖𝑦𝑒", delay: 180000, tag: true }
+        ];
 
-    messages.forEach(({ text, delay, tag }) => {
-        setTimeout(() => {
-            if (tag) {
-                const formattedText = toMathBoldItalic(text);
-                send(`🔥 ${formattedText} ${name}`, arraytag);
-            } else {
-                send(`💬 ${toMathBoldItalic(text)}`);
-            }
-        }, delay);
-    });
+        // Send initial confirmation
+        send(`🔥 ${toMathBoldItalic("𝑆𝑡𝑎𝑟𝑡𝑖𝑛𝑔 𝑓𝑖𝑟𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑜𝑛")} ${name}`, arraytag);
+
+        messages.forEach(({ text, delay, tag }) => {
+            setTimeout(() => {
+                if (tag) {
+                    const formattedText = toMathBoldItalic(text);
+                    send(`🔥 ${formattedText} ${name}`, arraytag);
+                } else {
+                    send(`💬 ${toMathBoldItalic(text)}`);
+                }
+            }, delay);
+        });
+
+    } catch (error) {
+        console.error("𝐹𝑖𝑟𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑓𝑖𝑟𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑", event.threadID, event.messageID);
+    }
 };
