@@ -1,156 +1,159 @@
 const axios = require("axios");
 
 module.exports.config = {
-	name: "flux",
-	version: "2.5",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🎨 Generate stunning AI-powered images with Flux technology",
-	category: "image",
-	usages: "[prompt] --ratio [width:height]",
-	cooldowns: 20,
-	dependencies: {
-		"axios": ""
-	},
-	envConfig: {
-		maxPromptLength: 500
-	}
+    name: "flux",
+    aliases: ["aiimage", "fluxai"],
+    version: "2.5",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 20,
+    role: 0,
+    category: "image",
+    shortDescription: {
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝐴𝐼-𝑝𝑜𝑤𝑒𝑟𝑒𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝐹𝑙𝑢𝑥 𝑡𝑒𝑐ℎ𝑛𝑜𝑙𝑜𝑔𝑦"
+    },
+    longDescription: {
+        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑠𝑡𝑢𝑛𝑛𝑖𝑛𝑔 𝐴𝐼-𝑝𝑜𝑤𝑒𝑟𝑒𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝐹𝑙𝑢𝑥 𝑡𝑒𝑐ℎ𝑛𝑜𝑙𝑜𝑔𝑦"
+    },
+    guide: {
+        en: "{p}flux [𝑝𝑟𝑜𝑚𝑝𝑡] --𝑟𝑎𝑡𝑖𝑜 [𝑤𝑖𝑑𝑡ℎ:ℎ𝑒𝑖𝑔ℎ𝑡]"
+    },
+    dependencies: {
+        "axios": ""
+    },
+    envConfig: {
+        maxPromptLength: 500
+    }
 };
 
-module.exports.onStart = async function ({ api, event, args }) {
-	const apiUrl = "https://www.noobs-api.rf.gd/dipto/flux";
-	const { maxPromptLength } = module.exports.config.envConfig;
-	
-	try {
-		if (args.length === 0) {
-			return api.sendMessage(
-				`✨ 𝗙𝗟𝗨𝗫 𝗔𝗜 𝗜𝗠𝗔𝗚𝗘 𝗚𝗘𝗡𝗘𝗥𝗔𝗧𝗢𝗥 ✨
+module.exports.onStart = async function({ message, event, args }) {
+    const apiUrl = "https://www.noobs-api.rf.gd/dipto/flux";
+    const { maxPromptLength } = module.exports.config.envConfig;
+    
+    try {
+        if (args.length === 0) {
+            return message.reply(
+                `✨ 𝐹𝐿𝑈𝑋 𝐴𝐼 𝐼𝑀𝐴𝐺𝐸 𝐺𝐸𝑁𝐸𝑅𝐴𝑇𝑂𝑅 ✨
 
-📝 𝗨𝘀𝗮𝗴𝗲: 
-   flux [prompt] --ratio [dimensions]
+📝 𝑈𝑠𝑎𝑔𝑒: 
+   flux [𝑝𝑟𝑜𝑚𝑝𝑡] --𝑟𝑎𝑡𝑖𝑜 [𝑑𝑖𝑚𝑒𝑛𝑠𝑖𝑜𝑛𝑠]
    
-🎯 𝗘𝘅𝗮𝗺𝗽𝗹𝗲𝘀:
-   • flux cyberpunk city at night --ratio 16:9
-   • flux beautiful waterfall --ratio 9:16
-   • flux portrait of a warrior --ratio 1:1
+🎯 𝐸𝑥𝑎𝑚𝑝𝑙𝑒𝑠:
+   • flux 𝑐𝑦𝑏𝑒𝑟𝑝𝑢𝑛𝑘 𝑐𝑖𝑡𝑦 𝑎𝑡 𝑛𝑖𝑔ℎ𝑡 --𝑟𝑎𝑡𝑖𝑜 16:9
+   • flux 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑤𝑎𝑡𝑒𝑟𝑓𝑎𝑙𝑙 --𝑟𝑎𝑡𝑖𝑜 9:16
+   • flux 𝑝𝑜𝑟𝑡𝑟𝑎𝑖𝑡 𝑜𝑓 𝑎 𝑤𝑎𝑟𝑟𝑖𝑜𝑟 --𝑟𝑎𝑡𝑖𝑜 1:1
 
-📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗥𝗮𝘁𝗶𝗼𝘀:
+📋 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑅𝑎𝑡𝑖𝑜𝑠:
    ▫️ 1:1  ▫️ 16:9  ▫️ 9:16
    ▫️ 4:3  ▫️ 3:4   ▫️ 2:3
    ▫️ 3:2  ▫️ 4:5   ▫️ 5:4
 
-💡 𝗧𝗶𝗽: Be descriptive for better results!
-🔮 𝗖𝗿𝗲𝗱𝗶𝘁𝘀: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`, 
-				event.threadID, 
-				event.messageID
-			);
-		}
+💡 𝑇𝑖𝑝: 𝐵𝑒 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑣𝑒 𝑓𝑜𝑟 𝑏𝑒𝑡𝑡𝑒𝑟 𝑟𝑒𝑠𝑢𝑙𝑡𝑠!
+🔮 𝐶𝑟𝑒𝑑𝑖𝑡𝑠: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`
+            );
+        }
 
-		const fullPrompt = args.join(" ");
-		
-		if (fullPrompt.length > maxPromptLength) {
-			return api.sendMessage(
-				`⚠️ 𝗣𝗿𝗼𝗺𝗽𝘁 𝗧𝗼𝗼 𝗟𝗼𝗻𝗴!\n\nYour prompt exceeds the maximum length of ${maxPromptLength} characters.\n\nCurrent length: ${fullPrompt.length} characters\n\nPlease shorten your prompt and try again.`,
-				event.threadID,
-				event.messageID
-			);
-		}
+        const fullPrompt = args.join(" ");
+        
+        if (fullPrompt.length > maxPromptLength) {
+            return message.reply(
+                `⚠️ 𝑃𝑟𝑜𝑚𝑝𝑡 𝑇𝑜𝑜 𝐿𝑜𝑛𝑔!
 
-		let prompt, ratio = "1:1";
+𝑌𝑜𝑢𝑟 𝑝𝑟𝑜𝑚𝑝𝑡 𝑒𝑥𝑐𝑒𝑒𝑑𝑠 𝑡ℎ𝑒 𝑚𝑎𝑥𝑖𝑚𝑢𝑚 𝑙𝑒𝑛𝑔𝑡ℎ 𝑜𝑓 ${maxPromptLength} 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠.
 
-		if (fullPrompt.includes("--ratio")) {
-			const parts = fullPrompt.split("--ratio");
-			prompt = parts[0].trim();
-			ratio = parts[1] ? parts[1].trim() : "1:1";
-		} else {
-			prompt = fullPrompt;
-		}
+𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝑙𝑒𝑛𝑔𝑡ℎ: ${fullPrompt.length} 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠
 
-		if (!ratio.match(/^\d+:\d+$/)) {
-			return api.sendMessage(
-				`⚠️ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗥𝗮𝘁𝗶𝗼 𝗙𝗼𝗿𝗺𝗮𝘁!
+𝑃𝑙𝑒𝑎𝑠𝑒 𝑠ℎ𝑜𝑟𝑡𝑒𝑛 𝑦𝑜𝑢𝑟 𝑝𝑟𝑜𝑚𝑝𝑡 𝑎𝑛𝑑 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.`
+            );
+        }
 
-Please use one of these formats:
+        let prompt, ratio = "1:1";
+
+        if (fullPrompt.includes("--ratio")) {
+            const parts = fullPrompt.split("--ratio");
+            prompt = parts[0].trim();
+            ratio = parts[1] ? parts[1].trim() : "1:1";
+        } else {
+            prompt = fullPrompt;
+        }
+
+        if (!ratio.match(/^\d+:\d+$/)) {
+            return message.reply(
+                `⚠️ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑅𝑎𝑡𝑖𝑜 𝐹𝑜𝑟𝑚𝑎𝑡!
+
+𝑃𝑙𝑒𝑎𝑠𝑒 𝑢𝑠𝑒 𝑜𝑛𝑒 𝑜𝑓 𝑡ℎ𝑒𝑠𝑒 𝑓𝑜𝑟𝑚𝑎𝑡𝑠:
 ▫️ 16:9    ▫️ 1:1    ▫️ 4:3
 ▫️ 9:16    ▫️ 3:4    ▫️ 2:3
 
-Your input: "${ratio}"
+𝑌𝑜𝑢𝑟 𝑖𝑛𝑝𝑢𝑡: "${ratio}"
 
-💡 𝗧𝗶𝗽: Use --ratio after your prompt to specify dimensions`,
-				event.threadID, 
-				event.messageID
-			);
-		}
+💡 𝑇𝑖𝑝: 𝑈𝑠𝑒 --𝑟𝑎𝑡𝑖𝑜 𝑎𝑓𝑡𝑒𝑟 𝑦𝑜𝑢𝑟 𝑝𝑟𝑜𝑚𝑝𝑡 𝑡𝑜 𝑠𝑝𝑒𝑐𝑖𝑓𝑦 𝑑𝑖𝑚𝑒𝑛𝑠𝑖𝑜𝑛𝑠`
+            );
+        }
 
-		const waitMsg = await api.sendMessage(
-			`🔄 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗶𝗻𝗴 𝗬𝗼𝘂𝗿 𝗙𝗹𝘂𝘅 𝗜𝗺𝗮𝗴𝗲...
+        const waitMsg = await message.reply(
+            `🔄 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑌𝑜𝑢𝑟 𝐹𝑙𝑢𝑥 𝐼𝑚𝑎𝑔𝑒...
 
-⏳ 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁 𝟭𝟬-𝟮𝟬 𝘀𝗲𝗰𝗼𝗻𝗱𝘀
+⏳ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 10-20 𝑠𝑒𝑐𝑜𝑛𝑑𝑠
 
-📝 𝗣𝗿𝗼𝗺𝗽𝘁: ${prompt}
-📐 𝗥𝗮𝘁𝗶𝗼: ${ratio}
+📝 𝑃𝑟𝑜𝑚𝑝𝑡: ${prompt}
+📐 𝑅𝑎𝑡𝑖𝑜: ${ratio}
 
-🌟 𝗖𝗿𝗲𝗮𝘁𝗶𝘃𝗶𝘁𝘆 𝗶𝗻 𝗽𝗿𝗼𝗴𝗿𝗲𝘀𝘀...`,
-			event.threadID
-		);
+🌟 𝐶𝑟𝑒𝑎𝑡𝑖𝑣𝑖𝑡𝑦 𝑖𝑛 𝑝𝑟𝑜𝑔𝑟𝑒𝑠𝑠...`
+        );
 
-		const startTime = Date.now();
-		
-		const response = await axios.get(`${apiUrl}?prompt=${encodeURIComponent(prompt)}&ratio=${ratio}`, {
-			responseType: "stream",
-			timeout: 120000
-		});
+        const startTime = Date.now();
+        
+        const response = await axios.get(`${apiUrl}?prompt=${encodeURIComponent(prompt)}&ratio=${ratio}`, {
+            responseType: "stream",
+            timeout: 120000
+        });
 
-		const generationTime = ((Date.now() - startTime) / 1000).toFixed(2);
-		await api.unsendMessage(waitMsg.messageID);
+        const generationTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        await message.unsend(waitMsg.messageID);
 
-		return api.sendMessage(
-			{
-				body: `✨ 𝗙𝗟𝗨𝗫 𝗜𝗠𝗔𝗚𝗘 𝗚𝗘𝗡𝗘𝗥𝗔𝗧𝗘𝗗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗙𝗨𝗟𝗟𝗬!
+        return message.reply({
+            body: `✨ 𝐹𝐿𝑈𝑋 𝐼𝑀𝐴𝐺𝐸 𝐺𝐸𝑁𝐸𝑅𝐴𝑇𝐸𝐷 𝑆𝑈𝐶𝐶𝐸𝑆𝑆𝐹𝑈𝐿𝐿𝑌!
 
-⏱️ 𝗚𝗲𝗻𝗲𝗿𝗮𝘁𝗶𝗼𝗻 𝗧𝗶𝗺𝗲: ${generationTime} seconds
-📝 𝗣𝗿𝗼𝗺𝗽𝘁: "${prompt}"
-📐 𝗔𝘀𝗽𝗲𝗰𝘁 𝗥𝗮𝘁𝗶𝗼: ${ratio}
+⏱️ 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝑇𝑖𝑚𝑒: ${generationTime} 𝑠𝑒𝑐𝑜𝑛𝑑𝑠
+📝 𝑃𝑟𝑜𝑚𝑝𝑡: "${prompt}"
+📐 𝐴𝑠𝑝𝑒𝑐𝑡 𝑅𝑎𝑡𝑖𝑜: ${ratio}
 
-🎨 𝗣𝗼𝘄𝗲𝗿𝗲𝗱 𝗯𝘆 𝗙𝗹𝘂𝘅 𝗔𝗜 𝗧𝗲𝗰𝗵𝗻𝗼𝗹𝗼𝗴𝘆
-🔮 𝗖𝗿𝗲𝗱𝗶𝘁𝘀: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅
+🎨 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐹𝑙𝑢𝑥 𝐴𝐼 𝑇𝑒𝑐ℎ𝑛𝑜𝑙𝑜𝑔𝑦
+🔮 𝐶𝑟𝑒𝑑𝑖𝑡𝑠: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
 
-💡 𝗧𝗶𝗽: Use descriptive prompts for even better results!`,
-				attachment: response.data
-			},
-			event.threadID,
-			event.messageID
-		);
+💡 𝑇𝑖𝑝: 𝑈𝑠𝑒 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑣𝑒 𝑝𝑟𝑜𝑚𝑝𝑡𝑠 𝑓𝑜𝑟 𝑒𝑣𝑒𝑛 𝑏𝑒𝑡𝑡𝑒𝑟 𝑟𝑒𝑠𝑢𝑙𝑡𝑠!`,
+            attachment: response.data
+        });
 
-	} catch (error) {
-		console.error("Flux Command Error:", error);
-		
-		let errorMessage = `⚠️ 𝗜𝗠𝗔𝗚𝗘 𝗚𝗘𝗡𝗘𝗥𝗔𝗧𝗜𝗢𝗡 𝗙𝗔𝗜𝗟𝗘𝗗!
+    } catch (error) {
+        console.error("𝐹𝑙𝑢𝑥 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        
+        let errorMessage = `⚠️ 𝐼𝑀𝐴𝐺𝐸 𝐺𝐸𝑁𝐸𝑅𝐴𝑇𝐼𝑂𝑁 𝐹𝐴𝐼𝐿𝐸𝐷!
 
-🔸 𝗥𝗲𝗮𝘀𝗼𝗻: `;
-		
-		if (error.response?.status === 503) {
-			errorMessage += "Server is busy or overloaded";
-		} else if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
-			errorMessage += "Request timeout - try a simpler prompt";
-		} else if (error.response?.status === 429) {
-			errorMessage += "Too many requests - please wait before trying again";
-		} else if (error.response?.status === 400) {
-			errorMessage += "Invalid prompt or parameters";
-		} else {
-			errorMessage += "Unexpected error occurred";
-		}
-		
-		errorMessage += `
+🔸 𝑅𝑒𝑎𝑠𝑜𝑛: `;
+        
+        if (error.response?.status === 503) {
+            errorMessage += "𝑆𝑒𝑟𝑣𝑒𝑟 𝑖𝑠 𝑏𝑢𝑠𝑦 𝑜𝑟 𝑜𝑣𝑒𝑟𝑙𝑜𝑎𝑑𝑒𝑑";
+        } else if (error.code === "ECONNABORTED" || error.message.includes("timeout")) {
+            errorMessage += "𝑅𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑜𝑢𝑡 - 𝑡𝑟𝑦 𝑎 𝑠𝑖𝑚𝑝𝑙𝑒𝑟 𝑝𝑟𝑜𝑚𝑝𝑡";
+        } else if (error.response?.status === 429) {
+            errorMessage += "𝑇𝑜𝑜 𝑚𝑎𝑛𝑦 𝑟𝑒𝑞𝑢𝑒𝑠𝑡𝑠 - 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 𝑏𝑒𝑓𝑜𝑟𝑒 𝑡𝑟𝑦𝑖𝑛𝑔 𝑎𝑔𝑎𝑖𝑛";
+        } else if (error.response?.status === 400) {
+            errorMessage += "𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑝𝑟𝑜𝑚𝑝𝑡 𝑜𝑟 𝑝𝑎𝑟𝑎𝑚𝑒𝑡𝑒𝑟𝑠";
+        } else {
+            errorMessage += "𝑈𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑";
+        }
+        
+        errorMessage += `
 
-💡 𝗧𝗿𝘆 𝗧𝗵𝗲𝘀𝗲 𝗙𝗶𝘅𝗲𝘀:
-▫️ Use a simpler or shorter prompt
-▫️ Try a different aspect ratio
-▫️ Wait a minute before trying again
-▫️ Check your prompt for inappropriate content
+💡 𝑇𝑟𝑦 𝑇ℎ𝑒𝑠𝑒 𝐹𝑖𝑥𝑒𝑠:
+▫️ 𝑈𝑠𝑒 𝑎 𝑠𝑖𝑚𝑝𝑙𝑒𝑟 𝑜𝑟 𝑠ℎ𝑜𝑟𝑡𝑒𝑟 𝑝𝑟𝑜𝑚𝑝𝑡
+▫️ 𝑇𝑟𝑦 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑎𝑠𝑝𝑒𝑐𝑡 𝑟𝑎𝑡𝑖𝑜
+▫️ 𝑊𝑎𝑖𝑡 𝑎 𝑚𝑖𝑛𝑢𝑡𝑒 𝑏𝑒𝑓𝑜𝑟𝑒 𝑡𝑟𝑦𝑖𝑛𝑔 𝑎𝑔𝑎𝑖𝑛
+▫️ 𝐶ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑝𝑟𝑜𝑚𝑝𝑡 𝑓𝑜𝑟 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡
 
-🔮 𝗖𝗿𝗲𝗱𝗶𝘁𝘀: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
-		
-		return api.sendMessage(errorMessage, event.threadID, event.messageID);
-	}
+🔮 𝐶𝑟𝑒𝑑𝑖𝑡𝑠: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
+        
+        return message.reply(errorMessage);
+    }
 };
