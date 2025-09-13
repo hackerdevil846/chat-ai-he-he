@@ -1,19 +1,32 @@
+const fs = require("fs-extra");
+const axios = require("axios");
+const Canvas = require("canvas");
+const jimp = require("jimp");
+const superfetch = require("node-superfetch");
+
 module.exports.config = {
     name: "family",
+    aliases: ["familyphoto", "groupphoto"],
     version: "2.0.0",
-    hasPermssion: 1,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Create beautiful family photos with group members' avatars",
-    category: "𝑭𝒐𝒕𝒐 𝒆𝒅𝒊𝒕",
-    usages: "family [size] [#color] [title text]",
-    cooldowns: 15,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 15,
+    role: 1,
+    category: "𝑝ℎ𝑜𝑡𝑜 𝑒𝑑𝑖𝑡",
+    shortDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜𝑠 𝑤𝑖𝑡ℎ 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠' 𝑎𝑣𝑎𝑡𝑎𝑟𝑠"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜𝑠 𝑤𝑖𝑡ℎ 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠' 𝑎𝑣𝑎𝑡𝑎𝑟𝑠"
+    },
+    guide: {
+        en: "{p}family [𝑠𝑖𝑧𝑒] [#𝑐𝑜𝑙𝑜𝑟] [𝑡𝑖𝑡𝑙𝑒 𝑡𝑒𝑥𝑡]"
+    },
     dependencies: {
         "fs-extra": "",
         "axios": "",
         "canvas": "",
         "jimp": "",
-        "node-superfetch": "",
-        "chalk": ""
+        "node-superfetch": ""
     },
     envConfig: {
         maxParticipants: 100,
@@ -24,25 +37,22 @@ module.exports.config = {
     }
 };
 
-module.exports.onStart = async function({ api, event, args, Threads }) {
-    const fs = global.nodemodule["fs-extra"];
-    const axios = global.nodemodule["axios"];
-    const Canvas = global.nodemodule["canvas"];
-    const jimp = global.nodemodule["jimp"];
-    const superfetch = global.nodemodule["node-superfetch"];
-    const chalk = global.nodemodule["chalk"];
-    
-    const { threadID, messageID } = event;
-    const TOKEN = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
-    
+module.exports.onStart = async function({ api, event, args, threadsData }) {
     try {
+        // Check dependencies
+        if (!fs.existsSync || !axios || !Canvas || !jimp || !superfetch) {
+            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+        }
+
         // Check if command is already running
         if (global.client.family) {
-            return api.sendMessage("🔄 Another family request is being processed. Please wait...", threadID, messageID);
+            return api.sendMessage("🔄 𝐴𝑛𝑜𝑡ℎ𝑒𝑟 𝑓𝑎𝑚𝑖𝑙𝑦 𝑟𝑒𝑞𝑢𝑒𝑠𝑡 𝑖𝑠 𝑏𝑒𝑖𝑛𝑔 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...", event.threadID, event.messageID);
         }
         global.client.family = true;
         
         const timestart = Date.now();
+        const { threadID, messageID } = event;
+        const TOKEN = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
         
         // Ensure cache directory exists
         if (!fs.existsSync(__dirname + '/cache')) {
@@ -51,7 +61,7 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
         
         // Download font if not exists
         if (!fs.existsSync(__dirname + '/cache/VNCORSI.ttf')) {
-            api.sendMessage("📥 Downloading required font...", threadID, messageID);
+            await api.sendMessage("📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑓𝑜𝑛𝑡...", threadID, messageID);
             const fontData = await axios.get(module.exports.envConfig.fontUrl, { responseType: "arraybuffer" });
             fs.writeFileSync(__dirname + "/cache/VNCORSI.ttf", Buffer.from(fontData.data));
         }
@@ -78,14 +88,14 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
         }
         
         // Get thread information
-        const threadInfo = await Threads.getInfo(threadID);
-        const adminIDs = threadInfo.adminIDs.map(admin => admin.id);
-        const participantIDs = threadInfo.participantIDs;
+        const threadInfo = await threadsData.get(threadID);
+        const adminIDs = threadInfo.adminIDs ? threadInfo.adminIDs.map(admin => admin.id) : [];
+        const participantIDs = threadInfo.participantIDs || [];
         
         // Validate participant count
         if (participantIDs.length > module.exports.envConfig.maxParticipants) {
             global.client.family = false;
-            return api.sendMessage(`❌ This group has too many members (${participantIDs.length}). Maximum allowed is ${module.exports.envConfig.maxParticipants}.`, threadID, messageID);
+            return api.sendMessage(`❌ 𝑇ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 𝑡𝑜𝑜 𝑚𝑎𝑛𝑦 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 (${participantIDs.length}). 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑎𝑙𝑙𝑜𝑤𝑒𝑑 𝑖𝑠 ${module.exports.envConfig.maxParticipants}.`, threadID, messageID);
         }
         
         // Load background image
@@ -102,7 +112,7 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
             const area = xbground * (ybground - 200);
             const areaPerUser = Math.floor(area / participantIDs.length);
             size = Math.floor(Math.sqrt(areaPerUser));
-            mode = " (Auto-size)";
+            mode = " (𝐴𝑢𝑡𝑜-𝑠𝑖𝑧𝑒)";
         }
         
         const spacing = parseInt(size / 15);
@@ -136,21 +146,21 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
         if (size > Math.min(xbground, ybground)) {
             global.client.family = false;
             return api.sendMessage(
-                `❌ Avatar size is too large for the background!\n` +
-                `📐 Background size: ${xbground}x${ybground} pixels\n` +
-                `📏 Maximum allowed size: ${Math.min(xbground, ybground)} pixels`,
+                `❌ 𝐴𝑣𝑎𝑡𝑎𝑟 𝑠𝑖𝑧𝑒 𝑖𝑠 𝑡𝑜𝑜 𝑙𝑎𝑟𝑔𝑒 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑!\n` +
+                `📐 𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑠𝑖𝑧𝑒: ${xbground}x${ybground} 𝑝𝑖𝑥𝑒𝑙𝑠\n` +
+                `📏 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑎𝑙𝑙𝑜𝑤𝑒𝑑 𝑠𝑖𝑧𝑒: ${Math.min(xbground, ybground)} 𝑝𝑖𝑥𝑒𝑙𝑠`,
                 threadID, messageID
             );
         }
         
         // Send processing message
         const processingMsg = await api.sendMessage(
-            `🔄 𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗙𝗮𝗺𝗶𝗹𝘆 𝗣𝗵𝗼𝘁𝗼...\n\n` +
-            `👥 𝗠𝗲𝗺𝗯𝗲𝗿𝘀: ${participantIDs.length}\n` +
-            `📐 𝗔𝘃𝗮𝘁𝗮𝗿 𝗦𝗶𝘇𝗲: ${size}px${mode}\n` +
-            `🎨 𝗧𝗶𝘁𝗹𝗲 𝗖𝗼𝗹𝗼𝗿: ${color}\n` +
-            `📝 𝗧𝗶𝘁𝗹𝗲: ${title}\n\n` +
-            `⏳ Please wait, this may take a while...`,
+            `🔄 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝐹𝑎𝑚𝑖𝑙𝑦 𝑃ℎ𝑜𝑡𝑜...\n\n` +
+            `👥 𝑀𝑒𝑚𝑏𝑒𝑟𝑠: ${participantIDs.length}\n` +
+            `📐 𝐴𝑣𝑎𝑡𝑎𝑟 𝑆𝑖𝑧𝑒: ${size}px${mode}\n` +
+            `🎨 𝑇𝑖𝑡𝑙𝑒 𝐶𝑜𝑙𝑜𝑟: ${color}\n` +
+            `📝 𝑇𝑖𝑡𝑙𝑒: ${title}\n\n` +
+            `⏳ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡, 𝑡ℎ𝑖𝑠 𝑚𝑎𝑦 𝑡𝑎𝑘𝑒 𝑎 𝑤ℎ𝑖𝑙𝑒...`,
             threadID
         );
         
@@ -168,7 +178,7 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
             try {
                 // Fetch avatar
                 const avatar = await superfetch.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${TOKEN}`);
-                if (avatar.url.includes(".gif")) throw new Error("GIF avatars not supported");
+                if (avatar.url.includes(".gif")) throw new Error("𝐺𝐼𝐹 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑛𝑜𝑡 𝑠𝑢𝑝𝑝𝑜𝑟𝑡𝑒𝑑");
                 
                 // Handle positioning
                 if (x + size > xbground) {
@@ -180,7 +190,7 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
                 
                 // Check if we exceed background height
                 if (y + size > ybground) {
-                    api.sendMessage("⚠️ Not all avatars could fit in the image due to size constraints", threadID);
+                    api.sendMessage("⚠️ 𝑁𝑜𝑡 𝑎𝑙𝑙 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑐𝑜𝑢𝑙𝑑 𝑓𝑖𝑡 𝑖𝑛 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒 𝑑𝑢𝑒 𝑡𝑜 𝑠𝑖𝑧𝑒 𝑐𝑜𝑛𝑠𝑡𝑟𝑎𝑖𝑛𝑡𝑠", threadID);
                     break;
                 }
                 
@@ -197,13 +207,13 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
                 x += size + spacing;
             } catch (error) {
                 filteredUsers++;
-                console.error(`Error processing user ${id}:`, error.message);
+                console.error(`𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 ${id}:`, error.message);
             }
         }
         
         // Add title text
-        Canvas.registerFont(__dirname + "/cache/VNCORSI.ttf", { family: "Dancing Script" });
-        ctx.font = `110px Dancing Script`;
+        Canvas.registerFont(__dirname + "/cache/VNCORSI.ttf", { family: "𝐷𝑎𝑛𝑐𝑖𝑛𝑔 𝑆𝑐𝑟𝑖𝑝𝑡" });
+        ctx.font = `110px 𝐷𝑎𝑛𝑐𝑖𝑛𝑔 𝑆𝑐𝑟𝑖𝑝𝑡`;
         ctx.fillStyle = color;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -232,12 +242,12 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
         
         // Send result
         await api.sendMessage({
-            body: `✅ 𝗙𝗔𝗠𝗜𝗟𝗬 𝗣𝗛𝗢𝗧𝗢 𝗖𝗥𝗘𝗔𝗧𝗘𝗗 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗙𝗨𝗟𝗟𝗬!\n\n` +
-                  `👥 𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗲𝗱: ${processedCount} members\n` +
-                  `🚫 𝗙𝗶𝗹𝘁𝗲𝗿𝗲𝗱: ${filteredUsers} members\n` +
-                  `📐 𝗔𝘃𝗮𝘁𝗮𝗿 𝗦𝗶𝘇𝗲: ${size}px${mode}\n` +
-                  `🎨 𝗧𝗶𝘁𝗹𝗲 𝗖𝗼𝗹𝗼𝗿: ${color}\n` +
-                  `⏱️ 𝗣𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝗧𝗶𝗺𝗲: ${processingTime} seconds`,
+            body: `✅ 𝐹𝐴𝑀𝐼𝐿𝑌 𝑃𝐻𝑂𝑇𝑂 𝐶𝑅𝐸𝐴𝑇𝐸𝐷 𝑆𝑈𝐶𝐶𝐸𝑆𝑆𝐹𝑈𝐿𝐿𝑌!\n\n` +
+                  `👥 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑒𝑑: ${processedCount} 𝑚𝑒𝑚𝑏𝑒𝑟𝑠\n` +
+                  `🚫 𝐹𝑖𝑙𝑡𝑒𝑟𝑒𝑑: ${filteredUsers} 𝑚𝑒𝑚𝑏𝑒𝑟𝑠\n` +
+                  `📐 𝐴𝑣𝑎𝑡𝑎𝑟 𝑆𝑖𝑧𝑒: ${size}px${mode}\n` +
+                  `🎨 𝑇𝑖𝑡𝑙𝑒 𝐶𝑜𝑙𝑜𝑟: ${color}\n` +
+                  `⏱️ 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑇𝑖𝑚𝑒: ${processingTime} 𝑠𝑒𝑐𝑜𝑛𝑑𝑠`,
             attachment: fs.createReadStream(outputPath)
         }, threadID, async (err) => {
             // Clean up
@@ -254,14 +264,14 @@ module.exports.onStart = async function({ api, event, args, Threads }) {
         });
         
     } catch (error) {
-        console.error("Family command error:", error);
+        console.error("𝐹𝑎𝑚𝑖𝑙𝑦 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
         global.client.family = false;
         
         api.sendMessage(
-            `❌ 𝗘𝗥𝗥𝗢𝗥: Failed to create family photo\n` +
-            `📝 𝗗𝗲𝘁𝗮𝗶𝗹𝘀: ${error.message}\n\n` +
-            `Please try again later or use a smaller size.`,
-            threadID, messageID
+            `❌ 𝐸𝑅𝑅𝑂𝑅: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜\n` +
+            `📝 𝐷𝑒𝑡𝑎𝑖𝑙𝑠: ${error.message}\n\n` +
+            `𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 𝑜𝑟 𝑢𝑠𝑒 𝑎 𝑠𝑚𝑎𝑙𝑙𝑒𝑟 𝑠𝑖𝑧𝑒.`,
+            event.threadID, event.messageID
         );
     }
 };
