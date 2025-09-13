@@ -1,6 +1,7 @@
 module.exports = {
   config: {
     name: "fast",
+    aliases: ["speedtest", "checkspeed"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 2,
@@ -16,12 +17,15 @@ module.exports = {
     },
     countDown: 15,
     dependencies: {
-      "fast-speedtest-api": ""
+      "fast-speedtest-api": "",
+      "request": "",
+      "fs-extra": ""
     }
   },
 
-  onStart: async function ({ message, event, api }) {
+  onStart: async function({ message, event, api }) {
     try {
+      // Dependency check
       const fast = global.nodemodule["fast-speedtest-api"];
       const speedTest = new fast({
         token: "YXNkZmFzZGxmbnNkYWZoYXNkZmhrYWxm",
