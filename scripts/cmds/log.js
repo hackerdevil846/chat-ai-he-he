@@ -1,92 +1,73 @@
 module.exports.config = {
-  name: "log",
-  version: "1.0.0",
-  hasPermssion: 0, // 0 = all members
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑺𝒚𝒔𝒕𝒆𝒎 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒏",
-  category: "system",
-  usages: "",
-  cooldowns: 3,
-  dependencies: {}
+    name: "log",
+    aliases: ["settings", "systemlog"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 3,
+    role: 0,
+    category: "system",
+    shortDescription: {
+        en: "𝑆𝑦𝑠𝑡𝑒𝑚 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠 𝑣𝑖𝑒𝑤𝑒𝑟"
+    },
+    longDescription: {
+        en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑠𝑦𝑠𝑡𝑒𝑚 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠 𝑎𝑛𝑑 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛"
+    },
+    guide: {
+        en: "{p}log"
+    },
+    dependencies: {}
 };
 
-module.exports.languages = {
-  "en": {},
-  "bn": {}
-};
+module.exports.onStart = async function({ message, event, threadsData }) {
+    const { threadID, messageID } = event;
 
-module.exports.onLoad = async function () {
-  // nothing required on load, but kept for compatibility
-};
+    try {
+        // Use the threadsData parameter directly (Mirai/TBot standard)
+        const dataThread = await threadsData.get(threadID);
+        const data = (dataThread && dataThread.data) ? dataThread.data : {};
 
-/**
- * Main onStart function
- * Receives the Threads controller if the bot framework passes it.
- * If not passed, it will attempt to fall back to common global locations safely.
- */
-module.exports.onStart = async function ({ api, event, args, models, Users, Threads, Currencies, permssion }) {
-  const { threadID, messageID } = event;
+        // Default settings
+        const settingsRaw = {
+            log: data.log ?? 'true',
+            rankup: data.rankup ?? 'false',
+            resend: data.resend ?? 'false',
+            tagadmin: data.tagadmin ?? 'true',
+            guard: data.guard ?? 'true',
+            antiout: data.antiout ?? 'true'
+        };
 
-  // Safe resolution of Threads controller (accept passed Threads or fallback)
-  const ThreadsController = Threads
-    || (global && global.controllers && global.controllers.Threads)
-    || (global && global.Threads)
-    || null;
+        // Convert to friendly status text
+        const toStatus = (v) => {
+            if (v === true || v === 'true' || String(v).toLowerCase() === 'true') return '✅ 𝐸𝑛𝑎𝑏𝑙𝑒𝑑';
+            if (v === false || v === 'false' || String(v).toLowerCase() === 'false') return '❌ 𝐷𝑖𝑠𝑎𝑏𝑙𝑒𝑑';
+            return String(v);
+        };
 
-  if (!ThreadsController || typeof ThreadsController.getData !== "function") {
-    // If Threads controller is not available, return an informative message (in Banglish + English)
-    const errMsg = `⚠️ System error: Threads controller not found.\n` +
-      `Please make sure your bot framework provides a Threads controller to commands.\n` +
-      `(Threads.getData not available)`;
-    return api.sendMessage(errMsg, threadID, messageID);
-  }
-
-  try {
-    const dataThread = await ThreadsController.getData(threadID);
-    const data = (dataThread && dataThread.data) ? dataThread.data : {};
-
-    // Defaults kept as original logic (strings 'true'/'false' or booleans)
-    const settingsRaw = {
-      log: data.log ?? 'true',
-      rankup: data.rankup ?? 'false',
-      resend: data.resend ?? 'false',
-      tagadmin: data.tagadmin ?? 'true',
-      guard: data.guard ?? 'true',
-      antiout: data.antiout ?? 'true'
-    };
-
-    // Normalize to friendly text
-    const toStatus = (v) => {
-      if (v === true || v === 'true' || String(v).toLowerCase() === 'true') return '✅ Enabled';
-      if (v === false || v === 'false' || String(v).toLowerCase() === 'false') return '❌ Disabled';
-      // fallback: show raw value
-      return String(v);
-    };
-
-    const message = `
+        const messageText = `
 ╭━━━━━━━━━━━━━━━━━━━━╮
-┃   🧾  𝑺𝒀𝑺𝑻𝑬𝑴 𝑳𝑶𝑮𝑺   ┃
+┃   🧾  𝑆𝑌𝑆𝑇𝐸𝑀 𝐿𝑂𝐺𝑆   ┃
 ╰━━━━━━━━━━━━━━━━━━━━╯
 
 ╭───────────────────────
-│ 📝 𝑳𝒐𝒈: ${toStatus(settingsRaw.log)}
-│ ⬆️ 𝑹𝒂𝒏𝒌𝒖𝒑: ${toStatus(settingsRaw.rankup)}
-│ 🔁 𝑹𝒆𝒔𝒆𝒏𝒅: ${toStatus(settingsRaw.resend)}
-│ 👨‍💼 𝑻𝒂𝒈 𝑨𝒅𝒎𝒊𝒏: ${toStatus(settingsRaw.tagadmin)}
-│ 🛡️ 𝑨𝒏𝒕𝒊𝒓𝒐𝒃𝒃𝒆𝒓𝒚: ${toStatus(settingsRaw.guard)}
-│ 🚪 𝑨𝒏𝒕𝒊𝒐𝒖𝒕: ${toStatus(settingsRaw.antiout)}
+│ 📝 𝐿𝑜𝑔: ${toStatus(settingsRaw.log)}
+│ ⬆️ 𝑅𝑎𝑛𝑘𝑢𝑝: ${toStatus(settingsRaw.rankup)}
+│ 🔁 𝑅𝑒𝑠𝑒𝑛𝑑: ${toStatus(settingsRaw.resend)}
+│ 👨‍💼 𝑇𝑎𝑔 𝐴𝑑𝑚𝑖𝑛: ${toStatus(settingsRaw.tagadmin)}
+│ 🛡️ 𝐴𝑛𝑡𝑖𝑟𝑜𝑏𝑏𝑒𝑟𝑦: ${toStatus(settingsRaw.guard)}
+│ 🚪 𝐴𝑛𝑡𝑖𝑜𝑢𝑡: ${toStatus(settingsRaw.antiout)}
 ╰───────────────────────
 
-© ${module.exports.config.credits}
-    `.trim();
+© 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
+        `.trim();
 
-    return api.sendMessage(message, threadID, messageID);
-  } catch (error) {
-    console.error('Log error:', error);
-    return api.sendMessage(
-      '⚠️ 𝑳𝒐𝒈 𝒔𝒆𝒕𝒕𝒊𝒏𝒈𝒔 𝒅𝒆𝒌𝒉𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊',
-      threadID,
-      messageID
-    );
-  }
+        await message.reply(messageText);
+
+    } catch (error) {
+        console.error('𝐿𝑜𝑔 𝑒𝑟𝑟𝑜𝑟:', error);
+        await message.reply(
+            '⚠️ 𝐿𝑜𝑔 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠 𝑐𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑏𝑒 𝑑𝑖𝑠𝑝𝑙𝑎𝑦𝑒𝑑',
+            threadID,
+            messageID
+        );
+    }
 };
