@@ -1,63 +1,80 @@
 module.exports.config = {
-	name: "kick",
-	version: "1.0.1", 
-	hasPermssion: 1,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🚫 𝑮𝒓𝒐𝒖𝒑 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒄𝒐𝒎𝒎𝒂𝒏𝒅", 
-	category: "⚙️ 𝑺𝒚𝒔𝒕𝒆𝒎", 
-	usages: "[@𝒕𝒂𝒈]", 
-	cooldowns: 5,
-	dependencies: {},
-	envConfig: {}
+    name: "kick",
+    aliases: ["remove", "boot"],
+    version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 1,
+    category: "𝑎𝑑𝑚𝑖𝑛",
+    shortDescription: {
+        en: "𝐺𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑘𝑖𝑐𝑘 𝑐𝑜𝑚𝑚𝑎𝑛𝑑"
+    },
+    longDescription: {
+        en: "𝐾𝑖𝑐𝑘 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝 𝑏𝑦 𝑡𝑎𝑔𝑔𝑖𝑛𝑔 𝑡ℎ𝑒𝑚"
+    },
+    guide: {
+        en: "{p}kick [@𝑡𝑎𝑔]"
+    },
+    dependencies: {}
 };
 
 module.exports.languages = {
-	"en": {
-		"error": "❌ 𝑬𝒓𝒓𝒐𝒓! 𝑬𝒌𝒕𝒂 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒚𝒆𝒄𝒉𝒆. 𝑷𝒖𝒏𝒂𝒓𝒃𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏!",
-		"needPermssion": "🔒 𝑮𝒓𝒐𝒖𝒑 𝒆𝒓 𝒂𝒅𝒎𝒊𝒏 𝒅𝒂𝒌𝒉𝒕𝒆 𝒉𝒐𝒃𝒆\n𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒂𝒅𝒅 𝒌𝒐𝒓𝒆 𝒑𝒖𝒏𝒂𝒓𝒃𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏!",
-		"missingTag": "📍 𝑲𝒊𝒄𝒌 𝒌𝒐𝒓𝒕𝒆 𝒕𝒖𝒎𝒊 𝒌𝒂𝒓𝒐 𝒔𝒐𝒎𝒆𝒐𝒏𝒆 𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒐",
-		"success": "🚫 𝑺𝒖𝒄𝒄𝒆𝒔𝒇𝒖𝒍𝒍𝒚 𝒌𝒊𝒄𝒌𝒆𝒅: @%1"
-	}
+    "en": {
+        "error": "❌ 𝐸𝑟𝑟𝑜𝑟! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛!",
+        "needPermssion": "🔒 𝐵𝑜𝑡 𝑛𝑒𝑒𝑑𝑠 𝑎𝑑𝑚𝑖𝑛 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑘𝑖𝑐𝑘 𝑚𝑒𝑚𝑏𝑒𝑟𝑠\n𝑃𝑙𝑒𝑎𝑠𝑒 𝑎𝑑𝑑 𝑏𝑜𝑡 𝑎𝑠 𝑎𝑑𝑚𝑖𝑛 𝑎𝑛𝑑 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛!",
+        "missingTag": "📍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑘𝑖𝑐𝑘 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝",
+        "success": "🚫 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑘𝑖𝑐𝑘𝑒𝑑: @%1",
+        "noPermission": "❌ 𝑌𝑜𝑢 𝑑𝑜𝑛'𝑡 ℎ𝑎𝑣𝑒 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑘𝑖𝑐𝑘 𝑚𝑒𝑚𝑏𝑒𝑟𝑠!"
+    }
 };
 
-module.exports.onStart = async function({ api, event, getText, Threads, Users }) {
-	const { threadID, messageID, senderID } = event;
-	const mention = Object.keys(event.mentions);
-	
-	try {
-		const dataThread = (await Threads.getData(threadID)).threadInfo;
-		
-		// Check bot admin permission
-		if (!dataThread.adminIDs.some(item => item.id == api.getCurrentUserID())) 
-			return api.sendMessage(getText("needPermssion"), threadID, messageID);
-		
-		if (!mention.length) 
-			return api.sendMessage(getText("missingTag"), threadID, messageID);
-		
-		// Check user admin permission
-		if (!dataThread.adminIDs.some(item => item.id == senderID)) 
-			return api.sendMessage("❌ 𝑨𝒑𝒏𝒊 𝒑𝒂𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 𝒏𝒆𝒊 𝒌𝒊𝒄𝒌 𝒌𝒐𝒓𝒕𝒆!", threadID, messageID);
-		
-		for (const id of mention) {
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			api.removeUserFromGroup(id, threadID);
-			api.sendMessage({
-				body: getText("success", event.mentions[id].replace("@", "")),
-				mentions: [{
-					tag: event.mentions[id],
-					id: id
-				}]
-			}, threadID);
-		}
-		
-	} catch (error) {
-		console.error(error);
-		return api.sendMessage(getText("error"), threadID, messageID);
-	}
+module.exports.onStart = async function({ message, event, api, getText }) {
+    const { threadID, messageID, senderID } = event;
+    const mention = Object.keys(event.mentions);
+    
+    try {
+        const threadInfo = await api.getThreadInfo(threadID);
+        const botID = api.getCurrentUserID();
+        
+        // Check if bot is admin
+        const isBotAdmin = threadInfo.adminIDs.some(admin => admin.id === botID);
+        if (!isBotAdmin) {
+            return message.reply(getText("needPermssion"));
+        }
+        
+        // Check if user is admin
+        const isUserAdmin = threadInfo.adminIDs.some(admin => admin.id === senderID);
+        if (!isUserAdmin && senderID !== threadInfo.threadID) {
+            return message.reply(getText("noPermission"));
+        }
+        
+        if (!mention.length) {
+            return message.reply(getText("missingTag"));
+        }
+        
+        for (const id of mention) {
+            // Don't kick admins or the bot itself
+            if (threadInfo.adminIDs.some(admin => admin.id === id) || id === botID) {
+                continue;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            try {
+                await api.removeUserFromGroup(id, threadID);
+                message.reply({
+                    body: getText("success", event.mentions[id].replace("@", "")),
+                    mentions: [{
+                        tag: event.mentions[id],
+                        id: id
+                    }]
+                });
+            } catch (kickError) {
+                console.error("𝐾𝑖𝑐𝑘 𝑒𝑟𝑟𝑜𝑟:", kickError);
+            }
+        }
+        
+    } catch (error) {
+        console.error("𝑀𝑎𝑖𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+        return message.reply(getText("error"));
+    }
 };
-
-module.exports.onLoad = function() {};
-module.exports.handleReaction = function() {};
-module.exports.handleReply = function() {};
-module.exports.handleEvent = function() {};
-module.exports.handleSchedule = function() {};
