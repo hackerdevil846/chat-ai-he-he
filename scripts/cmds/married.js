@@ -5,13 +5,21 @@ const jimp = require("jimp");
 
 module.exports.config = {
     name: "married",
+    aliases: ["marry", "wedding"],
     version: "3.1.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💍 Biye korar image banay",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "edit-img",
-    usages: "[@mention]",
-    cooldowns: 5,
+    shortDescription: {
+        en: "💍 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒𝑠"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑎𝑛𝑛𝑜𝑢𝑛𝑐𝑒𝑚𝑒𝑛𝑡 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟"
+    },
+    guide: {
+        en: "{p}married [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -42,7 +50,7 @@ async function makeImage({ one, two }) {
 
     // Check if background exists
     if (!fs.existsSync(bgPath)) {
-        throw new Error("Background image not found. Please ensure married.png exists in cache/canvas");
+        throw new Error("𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑠𝑢𝑟𝑒 𝑚𝑎𝑟𝑟𝑖𝑒𝑑.𝑝𝑛𝑔 𝑒𝑥𝑖𝑠𝑡𝑠 𝑖𝑛 𝑐𝑎𝑐ℎ𝑒/𝑐𝑎𝑛𝑣𝑎𝑠");
     }
 
     let pathImg = path.join(__root, `married_${one}_${two}.png`);
@@ -78,13 +86,13 @@ async function makeImage({ one, two }) {
     return pathImg;
 }
 
-module.exports.onStart = async function ({ api, event }) {
+module.exports.onStart = async function ({ api, event, message }) {
     const { threadID, messageID, senderID } = event;
     const mention = Object.keys(event.mentions);
 
     if (!mention[0]) {
-        return api.sendMessage(
-            "💍 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒔𝒐𝒎𝒆𝒐𝒏𝒆 𝒕𝒐 𝒎𝒂𝒓𝒓𝒚!",
+        return message.reply(
+            "💍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑚𝑎𝑟𝑟𝑦!",
             threadID,
             messageID
         );
@@ -95,19 +103,17 @@ module.exports.onStart = async function ({ api, event }) {
         const two = mention[0];
         const pathImg = await makeImage({ one, two });
         
-        api.sendMessage(
-            {
-                body: `💖 𝑪𝒐𝒏𝒈𝒓𝒂𝒕𝒖𝒍𝒂𝒕𝒊𝒐𝒏𝒔 𝒇𝒐𝒓 𝒚𝒐𝒖𝒓 𝒎𝒂𝒓𝒓𝒊𝒂𝒈𝒆! 💑\n━━━━━━━━━━━━━━━━\n💐 𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
-                attachment: fs.createReadStream(pathImg),
-            },
-            threadID,
-            () => fs.unlinkSync(pathImg),
-            messageID
-        );
+        await message.reply({
+            body: `💖 𝐶𝑜𝑛𝑔𝑟𝑎𝑡𝑢𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒! 💑\n━━━━━━━━━━━━━━━━\n💐 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
+            attachment: fs.createReadStream(pathImg)
+        }, threadID, () => {
+            fs.unlinkSync(pathImg);
+        }, messageID);
+        
     } catch (error) {
-        console.error(error);
-        api.sendMessage(
-            `❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒊𝒏𝒈 𝒊𝒎𝒂𝒈𝒆: ${error.message}`,
+        console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply(
+            `❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒: ${error.message}`,
             threadID,
             messageID
         );
