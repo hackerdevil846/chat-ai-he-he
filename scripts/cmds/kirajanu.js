@@ -1,38 +1,49 @@
+const axios = require("axios");
+
 module.exports.config = {
     name: "kirajanu",
+    aliases: ["ai", "deepseek"],
     version: "4.3.10",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "✨ AI-powered chatbot using DeepSeek API",
-    category: "🤖| AI Chat",
-    usages: "[on | off | your_message]",
-    cooldowns: 5,
-    dependencies: { 
-        "axios": "" 
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "🤖| 𝐴𝐼 𝐶ℎ𝑎𝑡",
+    shortDescription: {
+        en: "✨ 𝐴𝐼-𝑝𝑜𝑤𝑒𝑟𝑒𝑑 𝑐ℎ𝑎𝑡𝑏𝑜𝑡 𝑢𝑠𝑖𝑛𝑔 𝐷𝑒𝑒𝑝𝑆𝑒𝑒𝑘 𝐴𝑃𝐼"
+    },
+    longDescription: {
+        en: "✨ 𝐴𝐼-𝑝𝑜𝑤𝑒𝑟𝑒𝑑 𝑐ℎ𝑎𝑡𝑏𝑜𝑡 𝑢𝑠𝑖𝑛𝑔 𝐷𝑒𝑒𝑝𝑆𝑒𝑒𝑘 𝐴𝑃𝐼"
+    },
+    guide: {
+        en: "{p}kirajanu [𝑜𝑛 | 𝑜𝑓𝑓 | 𝑦𝑜𝑢𝑟_𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
+    },
+    dependencies: {
+        "axios": ""
     },
     envConfig: {
-        DEEPSEEK_API_KEY: "sk-0c82a4df00704663a260cb3c71a4f718"
+        "DEEPSEEK_API_KEY": "𝑠𝑘-0𝑐82𝑎4𝑑𝑓00704663𝑎260𝑐𝑏3𝑐71𝑎4𝑓718"
     }
 };
 
 module.exports.languages = {
     "en": {
-        "onMessage": "🧠 | AI Chat has been turned ON for this conversation",
-        "offMessage": "⭕ | AI Chat has been turned OFF for this conversation",
-        "alreadyOn": "ℹ️ | AI is already active in this chat",
-        "alreadyOff": "ℹ️ | AI is not active in this chat",
-        "errorMessage": "❌ | API Error: Please contact the bot owner"
+        "onMessage": "🧠 | 𝐴𝐼 𝐶ℎ𝑎𝑡 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑡𝑢𝑟𝑛𝑒𝑑 𝑂𝑁 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑐𝑜𝑛𝑣𝑒𝑟𝑠𝑎𝑡𝑖𝑜𝑛",
+        "offMessage": "⭕ | 𝐴𝐼 𝐶ℎ𝑎𝑡 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑡𝑢𝑟𝑛𝑒𝑑 𝑂𝐹𝐹 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑐𝑜𝑛𝑣𝑒𝑟𝑠𝑎𝑡𝑖𝑜𝑛",
+        "alreadyOn": "ℹ️ | 𝐴𝐼 𝑖𝑠 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑎𝑐𝑡𝑖𝑣𝑒 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑐ℎ𝑎𝑡",
+        "alreadyOff": "ℹ️ | 𝐴𝐼 𝑖𝑠 𝑛𝑜𝑡 𝑎𝑐𝑡𝑖𝑣𝑒 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑐ℎ𝑎𝑡",
+        "errorMessage": "❌ | 𝐴𝑃𝐼 𝐸𝑟𝑟𝑜𝑟: 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐𝑜𝑛𝑡𝑎𝑐𝑡 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑜𝑤𝑛𝑒𝑟",
+        "usage": "💡 | 𝑈𝑠𝑎𝑔𝑒: 𝑘𝑖𝑟𝑎𝑗𝑎𝑛𝑢 [𝑜𝑛/𝑜𝑓𝑓/𝑦𝑜𝑢𝑟_𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
     }
 };
 
 module.exports.onLoad = function() {
     if (!global.kirajanu) global.kirajanu = new Map();
-    console.log("🤖 Kirajanu AI initialized");
+    console.log("🤖 𝐾𝑖𝑟𝑎𝑗𝑎𝑛𝑢 𝐴𝐼 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑒𝑑");
 };
 
-module.exports.handleEvent = async function({ api, event }) {
+module.exports.onChat = async function({ api, event, getText }) {
     const { threadID, messageID, senderID, body } = event;
-    const { DEEPSEEK_API_KEY } = global.configModule.kirajanu;
+    const { DEEPSEEK_API_KEY } = global.configModule[this.config.name].envConfig;
 
     if (global.kirajanu.has(threadID) && 
         senderID != api.getCurrentUserID() && 
@@ -40,7 +51,6 @@ module.exports.handleEvent = async function({ api, event }) {
         messageID != global.kirajanu.get(threadID)) {
         
         try {
-            const axios = require("axios");
             const response = await axios.post(
                 "https://api.deepseek.com/chat/completions",
                 {
@@ -51,7 +61,7 @@ module.exports.handleEvent = async function({ api, event }) {
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                        "Authorization": `𝐵𝑒𝑎𝑟𝑒𝑟 ${DEEPSEEK_API_KEY}`
                     }
                 }
             );
@@ -60,37 +70,37 @@ module.exports.handleEvent = async function({ api, event }) {
                 api.sendMessage(`🤖 ${response.data.choices[0].message.content}`, threadID, messageID);
             }
         } catch (error) {
-            api.sendMessage(this.languages.en.errorMessage, threadID, messageID);
+            console.error("𝐴𝐼 𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+            api.sendMessage(getText("errorMessage"), threadID, messageID);
         }
     }
 };
 
-module.exports.onStart = async function({ api, event, args }) {
+module.exports.onStart = async function({ api, event, args, getText }) {
     const { threadID, messageID } = event;
-    const { DEEPSEEK_API_KEY } = global.configModule.kirajanu;
+    const { DEEPSEEK_API_KEY } = global.configModule[this.config.name].envConfig;
 
     if (!args[0]) {
-        return api.sendMessage("💡 | Usage: kirajanu [on/off/your_message]", threadID, messageID);
+        return api.sendMessage(getText("usage"), threadID, messageID);
     }
 
     switch (args[0].toLowerCase()) {
         case "on":
             if (global.kirajanu.has(threadID)) {
-                return api.sendMessage(this.languages.en.alreadyOn, threadID, messageID);
+                return api.sendMessage(getText("alreadyOn"), threadID, messageID);
             }
             global.kirajanu.set(threadID, true);
-            return api.sendMessage(this.languages.en.onMessage, threadID, messageID);
+            return api.sendMessage(getText("onMessage"), threadID, messageID);
 
         case "off":
             if (!global.kirajanu.has(threadID)) {
-                return api.sendMessage(this.languages.en.alreadyOff, threadID, messageID);
+                return api.sendMessage(getText("alreadyOff"), threadID, messageID);
             }
             global.kirajanu.delete(threadID);
-            return api.sendMessage(this.languages.en.offMessage, threadID, messageID);
+            return api.sendMessage(getText("offMessage"), threadID, messageID);
 
         default:
             try {
-                const axios = require("axios");
                 const prompt = args.join(" ");
                 
                 const response = await axios.post(
@@ -103,7 +113,7 @@ module.exports.onStart = async function({ api, event, args }) {
                     {
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${DEEPSEEK_API_KEY}`
+                            "Authorization": `𝐵𝑒𝑎𝑟𝑒𝑟 ${DEEPSEEK_API_KEY}`
                         }
                     }
                 );
@@ -112,7 +122,8 @@ module.exports.onStart = async function({ api, event, args }) {
                     api.sendMessage(`🤖 ${response.data.choices[0].message.content}`, threadID, messageID);
                 }
             } catch (error) {
-                api.sendMessage(this.languages.en.errorMessage, threadID, messageID);
+                console.error("𝐴𝐼 𝑅𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+                api.sendMessage(getText("errorMessage"), threadID, messageID);
             }
     }
 };
