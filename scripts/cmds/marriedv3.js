@@ -5,13 +5,21 @@ const jimp = require("jimp");
 
 module.exports.config = {
     name: "marriedv3",
+    aliases: ["marriage", "sadhu"],
     version: "3.1.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑺𝒂𝒅𝒉𝒖𝒃𝒂𝒔𝒉𝒂 𝒊𝒎𝒂𝒈𝒆 𝒄𝒓𝒆𝒂𝒕𝒆 𝒌𝒐𝒓𝒖𝒏",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
     category: "image",
-    usages: "[@mention]",
-    cooldowns: 5,
+    shortDescription: {
+        en: "𝑆𝑎𝑑ℎ𝑢𝑏𝑎𝑠ℎ𝑎 𝑖𝑚𝑎𝑔𝑒 𝑐𝑟𝑒𝑎𝑡𝑒"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑎𝑛𝑛𝑜𝑢𝑛𝑐𝑒𝑚𝑒𝑛𝑡 𝑖𝑚𝑎𝑔𝑒𝑠"
+    },
+    guide: {
+        en: "{p}marriedv3 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -21,19 +29,23 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const dirMaterial = path.join(__dirname, "cache", "canvas");
-    const filePath = path.join(dirMaterial, "marriedv3.png");
+    try {
+        const dirMaterial = path.join(__dirname, "cache", "canvas");
+        const filePath = path.join(dirMaterial, "marriedv3.png");
 
-    if (!fs.existsSync(dirMaterial)) {
-        fs.mkdirSync(dirMaterial, { recursive: true });
-    }
+        if (!fs.existsSync(dirMaterial)) {
+            fs.mkdirSync(dirMaterial, { recursive: true });
+        }
 
-    if (!fs.existsSync(filePath)) {
-        const { data } = await axios.get(
-            "https://i.ibb.co/5TwSHpP/Guardian-Place-full-1484178.jpg",
-            { responseType: "arraybuffer" }
-        );
-        fs.writeFileSync(filePath, Buffer.from(data, "utf-8"));
+        if (!fs.existsSync(filePath)) {
+            const { data } = await axios.get(
+                "https://i.ibb.co/5TwSHpP/Guardian-Place-full-1484178.jpg",
+                { responseType: "arraybuffer" }
+            );
+            fs.writeFileSync(filePath, Buffer.from(data, "utf-8"));
+        }
+    } catch (error) {
+        console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑𝑣3 𝑜𝑛𝐿𝑜𝑎𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
     }
 };
 
@@ -85,26 +97,28 @@ async function circle(image) {
     return await img.getBufferAsync("image/png");
 }
 
-module.exports.onStart = async function ({ event, api, args }) {
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
+module.exports.onStart = async function ({ message, event, args }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const mention = Object.keys(event.mentions);
 
-    if (!mention[0]) {
-        return api.sendMessage("⚠️ Ekjon ke tag korun 😊", threadID, messageID);
-    } else {
-        const one = senderID;
-        const two = mention[0];
+        if (!mention[0]) {
+            return message.reply("⚠️ 𝐸𝑘𝑗𝑜𝑛 𝑘𝑒 𝑡𝑎𝑔 𝑘𝑜𝑟𝑢𝑛 😊", threadID, messageID);
+        } else {
+            const one = senderID;
+            const two = mention[0];
 
-        return makeImage({ one, two }).then((pathImg) =>
-            api.sendMessage(
-                {
-                    body: "💍 Sadhubasha er image ta ready hoye gese! 💖",
-                    attachment: fs.createReadStream(pathImg),
-                },
-                threadID,
-                () => fs.unlinkSync(pathImg),
-                messageID
-            )
-        );
+            const pathImg = await makeImage({ one, two });
+            
+            await message.reply({
+                body: "💍 𝑆𝑎𝑑ℎ𝑢𝑏𝑎𝑠ℎ𝑎 𝑒𝑟 𝑖𝑚𝑎𝑔𝑒 𝑡𝑎 𝑟𝑒𝑎𝑑𝑦 ℎ𝑜𝑦𝑒 𝑔𝑒𝑠𝑒! 💖",
+                attachment: fs.createReadStream(pathImg)
+            }, threadID);
+            
+            fs.unlinkSync(pathImg);
+        }
+    } catch (error) {
+        console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑𝑣3 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒.", event.threadID, event.messageID);
     }
 };
