@@ -27,8 +27,17 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, args, message }) {
+  onStart: async function ({ message, event, args }) {
     try {
+      // Dependency check
+      try {
+        require("axios");
+        require("jimp");
+        require("fs-extra");
+      } catch (e) {
+        return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑗𝑖𝑚𝑝, 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+      }
+
       const mention = Object.keys(event.mentions);
       if (mention.length === 0) {
         return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑚𝑎𝑟𝑟𝑦!");
@@ -36,6 +45,28 @@ module.exports = {
 
       const userOne = event.senderID;
       const userTwo = mention[0];
+
+      // Function to generate the marriage image
+      async function generateMarriageImage(one, two) {
+        const path = __dirname + "/cache/marryv4.png";
+
+        const [avatarOne, avatarTwo, background] = await Promise.all([
+          jimp.read(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`),
+          jimp.read(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`),
+          jimp.read("https://i.postimg.cc/XN1TcH3L/tumblr-mm9nfpt7w-H1s490t5o1-1280.jpg")
+        ]);
+
+        avatarOne.circle();
+        avatarTwo.circle();
+
+        background
+          .resize(1024, 684)
+          .composite(avatarOne.resize(85, 85), 204, 160)
+          .composite(avatarTwo.resize(80, 80), 315, 105);
+
+        await background.writeAsync(path);
+        return path;
+      }
 
       const imagePath = await generateMarriageImage(userOne, userTwo);
 
@@ -51,29 +82,7 @@ module.exports = {
 
     } catch (error) {
       console.error("𝑀𝑎𝑟𝑟𝑦 𝑒𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝑀𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑓𝑎𝑖𝑙𝑒𝑑! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔.");
+      await message.reply("❌ 𝑀𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑓𝑎𝑖𝑙𝑒𝑑! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔.");
     }
   }
 };
-
-// Function to generate the marriage image
-async function generateMarriageImage(one, two) {
-  const path = __dirname + "/cache/marryv4.png";
-
-  const [avatarOne, avatarTwo, background] = await Promise.all([
-    jimp.read(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`),
-    jimp.read(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`),
-    jimp.read("https://i.postimg.cc/XN1TcH3L/tumblr-mm9nfpt7w-H1s490t5o1-1280.jpg")
-  ]);
-
-  avatarOne.circle();
-  avatarTwo.circle();
-
-  background
-    .resize(1024, 684)
-    .composite(avatarOne.resize(85, 85), 204, 160)
-    .composite(avatarTwo.resize(80, 80), 315, 105);
-
-  await background.writeAsync(path);
-  return path;
-}
