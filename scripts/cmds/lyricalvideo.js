@@ -1,22 +1,34 @@
-module.exports = {
-  config: {
+const fs = require('fs-extra');
+const path = require('path');
+
+module.exports.config = {
     name: "lyricalvideo",
     aliases: ["lyricseditvibe", "lyricsvideo", "lyricaledit"],
     version: "2.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 20,
     role: 0,
-    shortDescription: "Get random lyrical video",
-    longDescription: "Sends random lyrical videos from Lyrics Edit Vibe group collection",
-    category: "music",
-    guide: "{pn} lyricalvideo"
-  },
+    shortDescription: {
+        en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑙𝑦𝑟𝑖𝑐𝑎𝑙 𝑣𝑖𝑑𝑒𝑜"
+    },
+    longDescription: {
+        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑙𝑦𝑟𝑖𝑐𝑎𝑙 𝑣𝑖𝑑𝑒𝑜𝑠 𝑓𝑟𝑜𝑚 𝐿𝑦𝑟𝑖𝑐𝑠 𝐸𝑑𝑖𝑡 𝑉𝑖𝑏𝑒 𝑔𝑟𝑜𝑢𝑝 𝑐𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛"
+    },
+    category: "𝑚𝑢𝑠𝑖𝑐",
+    guide: {
+        en: "{p}lyricalvideo"
+    },
+    dependencies: {
+        "fs-extra": "",
+        "axios": ""
+    }
+};
 
-  onStart: async function ({ api, event, message }) {
+module.exports.onStart = async function ({ message, event }) {
     try {
-      const loadingMessage = await message.reply("🎵 | Loading random lyrical video... Please wait! ⏳");
+        const loadingMessage = await message.reply("🎵 | 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑎𝑛𝑑𝑜𝑚 𝑙𝑦𝑟𝑖𝑐𝑎𝑙 𝑣𝑖𝑑𝑒𝑜... 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡! ⏳");
 
-      const videoLinks = [
+        const videoLinks = [
         "https://drive.google.com/uc?export=download&id=1xdoZpGGd1iC9zkTHojL-uh_Xu8pp8LwJ",
         "https://drive.google.com/uc?export=download&id=1RNZhamE4ArtjdsCvbeBWtIzhRYmMbG6z",
         "https://drive.google.com/uc?export=download&id=13cYUnYi9_hHY4-wRUqV6z3gtRci88A5I",
@@ -248,47 +260,56 @@ module.exports = {
         "https://drive.google.com/uc?export=download&id=1Bqic0ZpyK2Qcx-kGd5vPyb0_rDXk4Ui_"
       ];
 
-      // Get sent videos from persistent storage
-      let sentVideos = await this.getData(event.threadID) || [];
-      
-      // Filter available videos
-      let availableVideos = videoLinks.filter(link => !sentVideos.includes(link));
+        // Get sent videos from file storage
+        const dataPath = path.join(__dirname, 'lyricalVideos.json');
+        let sentVideos = [];
+        
+        try {
+            if (fs.existsSync(dataPath)) {
+                const data = fs.readFileSync(dataPath, 'utf8');
+                sentVideos = JSON.parse(data)[event.threadID] || [];
+            }
+        } catch (e) {
+            console.error("𝐸𝑟𝑟𝑜𝑟 𝑟𝑒𝑎𝑑𝑖𝑛𝑔 𝑑𝑎𝑡𝑎:", e);
+        }
 
-      if (availableVideos.length === 0) {
-        sentVideos = [];
-        availableVideos = [...videoLinks];
-      }
+        // Filter available videos
+        let availableVideos = videoLinks.filter(link => !sentVideos.includes(link));
 
-      const randomIndex = Math.floor(Math.random() * availableVideos.length);
-      const selectedVideo = availableVideos[randomIndex];
+        if (availableVideos.length === 0) {
+            sentVideos = [];
+            availableVideos = [...videoLinks];
+        }
 
-      // Update sent videos
-      sentVideos.push(selectedVideo);
-      await this.setData(event.threadID, sentVideos);
+        const randomIndex = Math.floor(Math.random() * availableVideos.length);
+        const selectedVideo = availableVideos[randomIndex];
 
-      // Send video
-      await message.reply({
-        body: "🎶 | Here's your lyrical video! Enjoy! 💖\n━━━━━━━━━━━━━━\n✨ | Credit: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-        attachment: await global.utils.getStreamFromURL(selectedVideo)
-      });
+        // Update sent videos
+        sentVideos.push(selectedVideo);
+        
+        try {
+            let allData = {};
+            if (fs.existsSync(dataPath)) {
+                const existingData = fs.readFileSync(dataPath, 'utf8');
+                allData = JSON.parse(existingData);
+            }
+            allData[event.threadID] = sentVideos;
+            fs.writeFileSync(dataPath, JSON.stringify(allData, null, 2));
+        } catch (e) {
+            console.error("𝐸𝑟𝑟𝑜𝑟 𝑤𝑟𝑖𝑡𝑖𝑛𝑔 𝑑𝑎𝑡𝑎:", e);
+        }
 
-      // Unsend loading message
-      await api.unsendMessage(loadingMessage.messageID);
+        // Send video
+        await message.reply({
+            body: "🎶 | 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑙𝑦𝑟𝑖𝑐𝑎𝑙 𝑣𝑖𝑑𝑒𝑜! 𝐸𝑛𝑗𝑜𝑦! 💖\n━━━━━━━━━━━━━━\n✨ | 𝐶𝑟𝑒𝑑𝑖𝑡: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+            attachment: await global.utils.getStreamFromURL(selectedVideo)
+        });
+
+        // Unsend loading message
+        message.unsend(loadingMessage.messageID);
 
     } catch (error) {
-      console.error("Error:", error);
-      message.reply("❌ | Sorry, couldn't send the video. Please try again later! 🙏");
+        console.error("𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ | 𝑆𝑜𝑟𝑟𝑦, 𝑐𝑜𝑢𝑙𝑑𝑛'𝑡 𝑠𝑒𝑛𝑑 𝑡ℎ𝑒 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟! 🙏");
     }
-  },
-
-  // Helper functions for persistent storage
-  getData: async function (threadID) {
-    // Implement your data retrieval logic here
-    return global.db ? global.db.get('lyricalVideos', threadID) : [];
-  },
-
-  setData: async function (threadID, data) {
-    // Implement your data storage logic here
-    if (global.db) await global.db.set('lyricalVideos', threadID, data);
-  }
 };
