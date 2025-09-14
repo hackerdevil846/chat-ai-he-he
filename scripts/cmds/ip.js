@@ -1,58 +1,71 @@
+const axios = require('axios');
+
 module.exports.config = {
-  name: "ip",
-  version: "1.0.0", 
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑨𝒑𝒏𝒂𝒓 𝑰𝑷 𝒃𝒂 𝒂𝒏𝒏𝒐 𝑰𝑷 𝒆𝒓 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏", 
-  category: "utility",
-  usages: "[ip address]",
-  cooldowns: 5,
-  dependencies: {"axios": ""}
+    name: "ip",
+    aliases: ["ipinfo", "ipcheck"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "utility",
+    shortDescription: {
+        en: "𝐶ℎ𝑒𝑐𝑘 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "𝐺𝑒𝑡 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑏𝑜𝑢𝑡 𝑎𝑛 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠"
+    },
+    guide: {
+        en: "{p}ip [𝑖𝑝 𝑎𝑑𝑑𝑟𝑒𝑠𝑠]"
+    },
+    dependencies: {
+        "axios": ""
+    }
 };
 
-module.exports.onStart = async function({ api, event, args }) {
-  const axios = require('axios');
-  const timeStart = Date.now();
-  
-  if (!args[0]) return api.sendMessage("❌ 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒕𝒊 𝑰𝑷 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏 𝒋𝒆 𝒕𝒂 𝒄𝒉𝒆𝒄𝒌 𝒌𝒐𝒓𝒕𝒆 𝒄𝒂𝒐 🌐", event.threadID, event.messageID);
+module.exports.onStart = async function({ message, args, event }) {
+    try {
+        const timeStart = Date.now();
+        
+        if (!args[0]) {
+            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎𝑛 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠 𝑡𝑜 𝑐ℎ𝑒𝑐𝑘 🌐");
+        }
 
-  try {
-    const { data: infoip } = await axios.get(`http://ip-api.com/json/${args[0]}?fields=66846719`);
-    
-    if (infoip.status === 'fail') {
-      return api.sendMessage(`❌ 𝑬𝒓𝒓𝒐𝒓: ${infoip.message}`, event.threadID, event.messageID);
-    }
+        const { data: infoip } = await axios.get(`http://ip-api.com/json/${args[0]}?fields=66846719`);
+        
+        if (infoip.status === 'fail') {
+            return message.reply(`❌ 𝐸𝑟𝑟𝑜𝑟: ${infoip.message}`);
+        }
 
-    const responseTime = Date.now() - timeStart;
-    
-    const messageBody = `🌐 𝑰𝑷 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 [${responseTime}ms]
+        const responseTime = Date.now() - timeStart;
+        
+        const messageBody = `🌐 𝐼𝑃 𝐼𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 [${responseTime}ms]
 ━━━━━━━━━━━━━━━━━━
-🗺️ 𝑪𝒐𝒏𝒕𝒊𝒏𝒆𝒏𝒕: ${infoip.continent}
-🏳️ 𝑵𝒂𝒕𝒊𝒐𝒏: ${infoip.country}
-🎊 𝑪𝒐𝒖𝒏𝒕𝒓𝒚 𝑪𝒐𝒅𝒆: ${infoip.countryCode}
-🕋 𝑨𝒓𝒆𝒂: ${infoip.region}
-⛱️ 𝑹𝒆𝒈𝒊𝒐𝒏/𝑺𝒕𝒂𝒕𝒆: ${infoip.regionName}
-🏙️ 𝑪𝒊𝒕𝒚: ${infoip.city}
-🛣️ 𝑫𝒊𝒔𝒕𝒓𝒊𝒄𝒕: ${infoip.district || 'N/A'}
-📮 𝒁𝑰𝑷 𝒄𝒐𝒅𝒆: ${infoip.zip}
-🧭 𝑳𝒂𝒕𝒊𝒕𝒖𝒅𝒆: ${infoip.lat}
-🧭 𝑳𝒐𝒏𝒈𝒊𝒕𝒖𝒅𝒆: ${infoip.lon}
-⏱️ 𝑻𝒊𝒎𝒆𝒛𝒐𝒏𝒆: ${infoip.timezone}
-👨‍✈️ 𝑶𝒓𝒈𝒂𝒏𝒊𝒛𝒂𝒕𝒊𝒐𝒏: ${infoip.org}
-💵 𝑪𝒖𝒓𝒓𝒆𝒏𝒄𝒚: ${infoip.currency}
+🗺️ 𝐶𝑜𝑛𝑡𝑖𝑛𝑒𝑛𝑡: ${infoip.continent}
+🏳️ 𝑁𝑎𝑡𝑖𝑜𝑛: ${infoip.country}
+🎊 𝐶𝑜𝑢𝑛𝑡𝑟𝑦 𝐶𝑜𝑑𝑒: ${infoip.countryCode}
+🕋 𝐴𝑟𝑒𝑎: ${infoip.region}
+⛱️ 𝑅𝑒𝑔𝑖𝑜𝑛/𝑆𝑡𝑎𝑡𝑒: ${infoip.regionName}
+🏙️ 𝐶𝑖𝑡𝑦: ${infoip.city}
+🛣️ 𝐷𝑖𝑠𝑡𝑟𝑖𝑐𝑡: ${infoip.district || '𝑁/𝐴'}
+📮 𝑍𝐼𝑃 𝑐𝑜𝑑𝑒: ${infoip.zip}
+🧭 𝐿𝑎𝑡𝑖𝑡𝑢𝑑𝑒: ${infoip.lat}
+🧭 𝐿𝑜𝑛𝑔𝑖𝑡𝑢𝑑𝑒: ${infoip.lon}
+⏱️ 𝑇𝑖𝑚𝑒𝑧𝑜𝑛𝑒: ${infoip.timezone}
+👨‍✈️ 𝑂𝑟𝑔𝑎𝑛𝑖𝑧𝑎𝑡𝑖𝑜𝑛: ${infoip.org}
+💵 𝐶𝑢𝑟𝑟𝑒𝑛𝑐𝑦: ${infoip.currency}
 ━━━━━━━━━━━━━━━━━━`;
 
-    return api.sendMessage({
-      body: messageBody,
-      location: {
-        latitude: infoip.lat,
-        longitude: infoip.lon,
-        current: true
-      }
-    }, event.threadID, event.messageID);
-    
-  } catch (error) {
-    console.error(error);
-    return api.sendMessage("❌ An error occurred while fetching IP information", event.threadID, event.messageID);
-  }
+        await message.reply({
+            body: messageBody,
+            location: {
+                latitude: infoip.lat,
+                longitude: infoip.lon,
+                current: true
+            }
+        });
+
+    } catch (error) {
+        console.error("𝐼𝑃 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝐼𝑃 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛");
+    }
 };
