@@ -5,13 +5,21 @@ const { loadImage, createCanvas } = require("canvas");
 
 module.exports.config = {
     name: "lexi",
+    aliases: ["lexiboard", "commentboard"],
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "📝 Lexi Friedman এর board এ comment করুন",
-    category: "Edit-Image",
-    usages: "lexi [text]",
-    cooldowns: 10,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 10,
+    role: 0,
+    category: "edit-image",
+    shortDescription: {
+        en: "𝐶𝑜𝑚𝑚𝑒𝑛𝑡 𝑜𝑛 𝐿𝑒𝑥𝑖 𝐹𝑟𝑖𝑒𝑑𝑚𝑎𝑛'𝑠 𝑏𝑜𝑎𝑟𝑑"
+    },
+    longDescription: {
+        en: "𝐴𝑑𝑑 𝑎 𝑐𝑜𝑚𝑚𝑒𝑛𝑡 𝑡𝑜 𝐿𝑒𝑥𝑖 𝐹𝑟𝑖𝑒𝑑𝑚𝑎𝑛'𝑠 𝑏𝑜𝑎𝑟𝑑 𝑖𝑚𝑎𝑔𝑒"
+    },
+    guide: {
+        en: "{p}lexi [𝑡𝑒𝑥𝑡]"
+    },
     dependencies: {
         "canvas": "",
         "axios": "",
@@ -51,14 +59,14 @@ module.exports.wrapText = (ctx, text, maxWidth) => {
     });
 }
 
-module.exports.onStart = async function ({ api, event, args }) {
-    const { threadID, messageID } = event;
-    const pathImg = path.join(__dirname, 'cache/lexi_board.png');
-
-    let text = args.join(" ");
-    if (!text) return api.sendMessage("❌ 𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒍𝒊𝒌𝒉𝒂𝒏 𝒆𝒏𝒕𝒆𝒓 𝒌𝒐𝒓𝒖𝒏 📝", threadID, messageID);
-
+module.exports.onStart = async function ({ message, event, args }) {
     try {
+        const { threadID, messageID } = event;
+        const pathImg = path.join(__dirname, 'cache/lexi_board.png');
+
+        let text = args.join(" ");
+        if (!text) return message.reply("❌ 𝐵𝑜𝑎𝑟𝑑 𝑒 𝑐𝑜𝑚𝑚𝑒𝑛𝑡 𝑙𝑖𝑘ℎ𝑎𝑛 𝑒𝑛𝑡𝑒𝑟 𝑘𝑜𝑟𝑢𝑛 📝", threadID, messageID);
+
         // Download base image
         const getImage = (await axios.get(`https://i.imgur.com/hTU9zhX.png`, { responseType: 'arraybuffer' })).data;
         fs.writeFileSync(pathImg, Buffer.from(getImage, 'utf-8'));
@@ -92,13 +100,16 @@ module.exports.onStart = async function ({ api, event, args }) {
         fs.writeFileSync(pathImg, imageBuffer);
 
         // Send message with attachment
-        api.sendMessage({
-            body: "✨ 𝑳𝒆𝒙𝒊 𝑭𝒓𝒊𝒆𝒅𝒎𝒂𝒏 𝒆𝒓 𝒃𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕! ✏️",
+        await message.reply({
+            body: "✨ 𝐿𝑒𝑥𝑖 𝐹𝑟𝑖𝑒𝑑𝑚𝑎𝑛 𝑒𝑟 𝑏𝑜𝑎𝑟𝑑 𝑒 𝑐𝑜𝑚𝑚𝑒𝑛𝑡! ✏️",
             attachment: fs.createReadStream(pathImg)
-        }, threadID, () => fs.unlinkSync(pathImg), messageID);
+        }, threadID);
+
+        // Clean up
+        fs.unlinkSync(pathImg);
 
     } catch (error) {
-        console.error(error);
-        api.sendMessage("❌ 𝑩𝒐𝒂𝒓𝒅 𝒆 𝒄𝒐𝒎𝒎𝒆𝒏𝒕 𝒃𝒂𝒏𝒂𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊 😢", threadID, messageID);
+        console.error("𝐿𝑒𝑥𝑖 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐵𝑜𝑎𝑟𝑑 𝑒 𝑐𝑜𝑚𝑚𝑒𝑛𝑡 𝑏𝑎𝑛𝑎𝑡𝑒 𝑝𝑎𝑟𝑐ℎ𝑖𝑛𝑖 😢", event.threadID, event.messageID);
     }
 };
