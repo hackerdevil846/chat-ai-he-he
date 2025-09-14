@@ -5,13 +5,21 @@ const jimp = require("jimp");
 
 module.exports.config = {
     name: "marriedv2",
+    aliases: ["marry", "wedding"],
     version: "3.1.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "💍 Married image create korun",
-    category: "Image",
-    usages: "[@mention]",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "image",
+    shortDescription: {
+        en: "💍 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒"
+    },
+    longDescription: {
+        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑐𝑒𝑟𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑒 𝑤𝑖𝑡ℎ 𝑎𝑛𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟"
+    },
+    guide: {
+        en: "{p}marriedv2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -21,15 +29,22 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async () => {
-    const { resolve } = path;
-    const { existsSync, mkdirSync } = fs;
-    const { downloadFile } = global.utils;
-    const dirMaterial = __dirname + `/cache/canvas/`;
-    const filePath = resolve(__dirname, "cache/canvas", "marriedv02.png");
+    try {
+        const dirMaterial = path.join(__dirname, "cache", "canvas");
+        const filePath = path.join(dirMaterial, "marriedv02.png");
 
-    if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-    if (!existsSync(filePath)) {
-        await downloadFile("https://i.ibb.co/mc9KNm1/1619885987-21-pibig-info-p-anime-romantika-svadba-anime-krasivo-24.jpg", filePath);
+        if (!fs.existsSync(dirMaterial)) {
+            fs.mkdirSync(dirMaterial, { recursive: true });
+        }
+
+        if (!fs.existsSync(filePath)) {
+            const imageData = await axios.get("https://i.ibb.co/mc9KNm1/1619885987-21-pibig-info-p-anime-romantika-svadba-anime-krasivo-24.jpg", {
+                responseType: "arraybuffer"
+            });
+            fs.writeFileSync(filePath, Buffer.from(imageData.data));
+        }
+    } catch (error) {
+        console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑 𝑂𝑛𝐿𝑜𝑎𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
     }
 };
 
@@ -42,12 +57,12 @@ async function circle(image) {
 
 // Make married image
 async function makeImage({ one, two }) {
-    const __root = path.resolve(__dirname, "cache", "canvas");
+    const __root = path.join(__dirname, "cache", "canvas");
 
-    let married_img = await jimp.read(__root + "/marriedv02.png");
-    let pathImg = __root + `/married_${one}_${two}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
+    let married_img = await jimp.read(path.join(__root, "marriedv02.png"));
+    let pathImg = path.join(__root, `married_${one}_${two}.png`);
+    let avatarOne = path.join(__root, `avt_${one}.png`);
+    let avatarTwo = path.join(__root, `avt_${two}.png`);
 
     // Get Avatars
     let getAvatarOne = (await axios.get(
@@ -78,29 +93,31 @@ async function makeImage({ one, two }) {
     return pathImg;
 }
 
-module.exports.onStart = async function ({ event, api }) {
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
+module.exports.onStart = async function ({ event, api, message }) {
+    try {
+        const { threadID, messageID, senderID } = event;
+        const mention = Object.keys(event.mentions);
 
-    if (!mention[0]) {
-        return api.sendMessage(
-            "💍 | 𝑷𝒍𝒆𝒂𝒔𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒂𝒏𝒐𝒕𝒉𝒆𝒓 𝒖𝒔𝒆𝒓 𝒕𝒐 𝒎𝒂𝒓𝒓𝒚!",
-            threadID,
-            messageID
-        );
-    } else {
-        const one = senderID,
-            two = mention[0];
-        return makeImage({ one, two }).then(pathImg => {
-            api.sendMessage(
-                {
-                    body: "💕 | 𝑪𝒐𝒏𝒈𝒓𝒂𝒕𝒖𝒍𝒂𝒕𝒊𝒐𝒏𝒔! 𝑴𝒂𝒓𝒓𝒊𝒂𝒈𝒆 𝒄𝒆𝒓𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒆 𝒄𝒓𝒆𝒂𝒕𝒆𝒅!\n━━━━━━━━━━━━━━\n𝑷𝒐𝒘𝒆𝒓𝒆𝒅 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-                    attachment: fs.createReadStream(pathImg)
-                },
+        if (!mention[0]) {
+            return message.reply(
+                "💍 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑎𝑛𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟 𝑡𝑜 𝑚𝑎𝑟𝑟𝑦!",
                 threadID,
-                () => fs.unlinkSync(pathImg),
                 messageID
             );
-        });
+        } else {
+            const one = senderID,
+                two = mention[0];
+            const pathImg = await makeImage({ one, two });
+            
+            await message.reply({
+                body: "💕 | 𝐶𝑜𝑛𝑔𝑟𝑎𝑡𝑢𝑙𝑎𝑡𝑖𝑜𝑛𝑠! 𝑀𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑐𝑒𝑟𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑒 𝑐𝑟𝑒𝑎𝑡𝑒𝑑!\n━━━━━━━━━━━━━━\n𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+                attachment: fs.createReadStream(pathImg)
+            }, threadID, messageID);
+            
+            fs.unlinkSync(pathImg);
+        }
+    } catch (error) {
+        console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑 𝑂𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒", event.threadID, event.messageID);
     }
 };
