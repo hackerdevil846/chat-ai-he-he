@@ -1,21 +1,25 @@
+const fs = require("fs-extra");
+const path = require("path");
+const axios = require("axios");
+const jimp = require("jimp");
+
 module.exports.config = {
     name: "marry",
+    aliases: ["propose", "marriage"],
     version: "3.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: {
-        en: "💍 Propose to someone with a marriage certificate",
-        bn: "💍 কারো সাথে বিয়ের প্রস্তাব পাঠান"
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "romance",
+    shortDescription: {
+        en: "💍 𝑃𝑟𝑜𝑝𝑜𝑠𝑒 𝑡𝑜 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑤𝑖𝑡ℎ 𝑎 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑐𝑒𝑟𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑒"
     },
-    category: {
-        en: "Romance",
-        bn: "রোমান্স"
+    longDescription: {
+        en: "💍 𝑆𝑒𝑛𝑑 𝑎 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑝𝑟𝑜𝑝𝑜𝑠𝑎𝑙 𝑤𝑖𝑡ℎ 𝑎 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑐𝑒𝑟𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑒"
     },
-    usages: {
-        en: "[@mention]",
-        bn: "[@মেনশন]"
+    guide: {
+        en: "{p}marry [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
     },
-    cooldowns: 5,
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -25,31 +29,25 @@ module.exports.config = {
 };
 
 module.exports.onLoad = async function() {
-    const path = require("path");
-    const fs = require("fs-extra");
     const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
     
-    if (!fs.existsSync(dirMaterial)) 
+    if (!fs.existsSync(dirMaterial)) {
         fs.mkdirSync(dirMaterial, { recursive: true });
+    }
     
     const bgPath = path.resolve(dirMaterial, 'marry_bg.png');
     if (!fs.existsSync(bgPath)) {
-        // ✅ use existing marrywi.png inside cache/canvas
         const sourcePath = path.resolve(__dirname, 'cache', 'canvas', 'marrywi.png');
         if (fs.existsSync(sourcePath)) {
             fs.copyFileSync(sourcePath, bgPath);
         } else {
-            throw new Error("❌ marrywi.png not found in cache/canvas folder!");
+            console.error("❌ 𝑚𝑎𝑟𝑟𝑦𝑤𝑖.𝑝𝑛𝑔 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑐𝑎𝑐ℎ𝑒/𝑐𝑎𝑛𝑣𝑎𝑠 𝑓𝑜𝑙𝑑𝑒𝑟!");
         }
     }
 };
 
-module.exports.onStart = async function({ event, api, args, Users }) {
+module.exports.onStart = async function({ message, event, args, Users }) {
     try {
-        const fs = require("fs-extra");
-        const path = require("path");
-        const axios = require("axios");
-        const jimp = require("jimp");
         const { threadID, messageID, senderID } = event;
 
         // Function to create circular profile images
@@ -61,8 +59,9 @@ module.exports.onStart = async function({ event, api, args, Users }) {
 
         // Process mentions
         const mention = Object.keys(event.mentions);
-        if (!mention[0]) 
-            return api.sendMessage("🌸 প্রিয়জনের ট্যাগ দিন 💍", threadID, messageID);
+        if (!mention[0]) {
+            return message.reply("🌸 𝑇𝑎𝑔 𝑦𝑜𝑢𝑟 𝑙𝑜𝑣𝑒𝑑 𝑜𝑛𝑒 💍", threadID, messageID);
+        }
 
         const targetID = mention[0];
         const bgPath = path.resolve(__dirname, 'cache', 'canvas', 'marry_bg.png');
@@ -96,13 +95,17 @@ module.exports.onStart = async function({ event, api, args, Users }) {
         // Save and send
         await bgImage.writeAsync(outputPath);
         
-        return api.sendMessage({
-            body: `💞 ${senderName} - ${targetName} এর বিবাহ সনদপত্র\n\n"আমার জীবনের প্রতিটি মুহূর্ত তোমার সাথে কাটাতে চাই 💍"`,
+        return message.reply({
+            body: `💞 ${senderName} - ${targetName} 𝑀𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝐶𝑒𝑟𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑒\n\n"𝐼 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑠𝑝𝑒𝑛𝑑 𝑒𝑣𝑒𝑟𝑦 𝑚𝑜𝑚𝑒𝑛𝑡 𝑜𝑓 𝑚𝑦 𝑙𝑖𝑓𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢 💍"`,
             attachment: fs.createReadStream(outputPath)
-        }, threadID, () => fs.unlinkSync(outputPath), messageID);
+        }, threadID, () => {
+            if (fs.existsSync(outputPath)) {
+                fs.unlinkSync(outputPath);
+            }
+        }, messageID);
 
     } catch (error) {
-        console.error('Marry command error:', error);
-        return api.sendMessage("❌ প্রেমের প্রস্তাব পাঠাতে সমস্যা হয়েছে! পরে আবার চেষ্টা করুন", event.threadID, event.messageID);
+        console.error('𝑀𝑎𝑟𝑟𝑦 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:', error);
+        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑝𝑟𝑜𝑝𝑜𝑠𝑎𝑙! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟", event.threadID, event.messageID);
     }
 };
