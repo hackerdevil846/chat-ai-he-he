@@ -1,38 +1,36 @@
-module.exports = {
-  config: {
+const moment = require("moment-timezone");
+
+module.exports.config = {
     name: "lich",
-    aliases: ["calendar"],
+    aliases: ["calendar", "date"],
     version: "1.0.0",
-    author: "Asif Mahmud",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     shortDescription: {
-      en: "Check calendar and show a proverb"
+        en: "𝐶ℎ𝑒𝑐𝑘 𝑐𝑎𝑙𝑒𝑛𝑑𝑎𝑟 𝑎𝑛𝑑 𝑠ℎ𝑜𝑤 𝑎 𝑝𝑟𝑜𝑣𝑒𝑟𝑏"
     },
     longDescription: {
-      en: "Displays the current Gregorian date, Lunar date (if available), time (Bangladesh), and a random proverb."
+        en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝐺𝑟𝑒𝑔𝑜𝑟𝑖𝑎𝑛 𝑑𝑎𝑡𝑒, 𝐿𝑢𝑛𝑎𝑟 𝑑𝑎𝑡𝑒, 𝑡𝑖𝑚𝑒 (𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ), 𝑎𝑛𝑑 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑝𝑟𝑜𝑣𝑒𝑟𝑏"
     },
-    category: "test",
+    category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
     guide: {
-      en: "{p}lich"
+        en: "{p}lich"
     },
     dependencies: {
-      "amlich": "",
-      "node-fetch": ""
+        "moment-timezone": "",
+        "axios": ""
     }
-  },
+};
 
-  onStart: async function ({ api, event, args }) {
+module.exports.onStart = async function({ api, event }) {
     const DEFAULT_USER_NAME = "friend";
     const TIMEZONE = "Asia/Dhaka";
 
     try {
-      const fetch = global.nodemodule["node-fetch"];
-      const amlich = global.nodemodule["amlich"];
-
-      // Proverb data (partial, add up to 268)
-      const jsoncd = {
-        "data": {
+        // Proverb data
+        const jsoncd = {
+            "data": {
           "1": "চাটুকার কথায় কান দিও না, / ফাঁদে হাত দিলে আটকে যাবে।",
           "2": "টক বাঁশ দিয়ে কাদা মাছ রান্না করলে, / জীবনের উত্থান-পতন, কখনও দুঃখ, কখনও আনন্দ।",
           "3": "ভালোবাসলে রেশম ছিঁড়ে পোশাক তৈরি করে, / ঘৃণা করলে একে অপরের কাছে ঋণ ও ঝামেলা প্রকাশ করে।",
@@ -302,59 +300,46 @@ module.exports = {
           "267": "খড় জড়িয়ে থাকলে পেট ভারী হয়।",
           "268": "ধারালো ছুরি দিয়ে খেললে একদিন হাত কাটবে।"
         }
-      }
+        };
 
-      // Random proverb selection
-      const keys = Object.keys(jsoncd.data);
-      const randKey = keys[Math.floor(Math.random() * keys.length)];
-      const proverb = jsoncd.data[randKey];
+        // Random proverb selection
+        const keys = Object.keys(jsoncd.data);
+        const randKey = keys[Math.floor(Math.random() * keys.length)];
+        const proverb = jsoncd.data[randKey];
 
-      // Current date/time in Bangladesh
-      const bangladeshTime = new Date().toLocaleString("en-US", { timeZone: TIMEZONE });
-      const d = new Date(bangladeshTime);
+        // Current date/time in Bangladesh
+        const now = moment().tz(TIMEZONE);
+        
+        const dd = now.date();
+        const mm = now.month() + 1;
+        const yyyy = now.year();
+        const h = now.format("HH");
+        const m = now.format("mm");
+        const s = now.format("ss");
+        const dayName = now.format("dddd");
 
-      const dd = d.getDate();
-      const mm = d.getMonth() + 1;
-      const yyyy = d.getFullYear();
-      const h = String(d.getHours()).padStart(2, "0");
-      const m = String(d.getMinutes()).padStart(2, "0");
-      const s = String(d.getSeconds()).padStart(2, "0");
+        // Lunar date (simplified since amlich dependency was removed)
+        const lunarText = "𝐿𝑢𝑛𝑎𝑟: 𝑁𝑜𝑡 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒";
 
-      const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-      const dayName = dayNames[d.getDay()];
+        // Get user name
+        const userInfo = await api.getUserInfo(event.senderID);
+        const name = userInfo?.[event.senderID]?.name || DEFAULT_USER_NAME;
 
-      // Lunar conversion with error handling
-      let lunarText = "Lunar: not available";
-      if (amlich && typeof amlich.convertSolar2Lunar === "function") {
-        try {
-          const zone = 0;
-          const rd = amlich.convertSolar2Lunar(dd, mm, yyyy, zone);
-          lunarText = `Lunar: ${rd[0]}/${rd[1]}/${rd[2]}`;
-        } catch (lunarError) {
-          console.error("Lunar conversion error:", lunarError);
-          lunarText = "Lunar: conversion error";
-        }
-      }
+        // Build message
+        const msg = `𝐻𝑒𝑙𝑙𝑜 ${name},
 
-      // Get user name
-      const userInfo = await api.getUserInfo(event.senderID);
-      const name = userInfo?.[event.senderID]?.name || DEFAULT_USER_NAME;
-
-      // Build message using a template literal for better readability
-      const msg = `Hello ${name},
-Gregorian: ${dd}/${mm}/${yyyy} (${dayName})
+𝐺𝑟𝑒𝑔𝑜𝑟𝑖𝑎𝑛: ${dd}/${mm}/${yyyy} (${dayName})
 ${lunarText}
-Time (Bangladesh): ${h}:${m}:${s}
+𝑇𝑖𝑚𝑒 (𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ): ${h}:${m}:${s}
 
-Proverb:
+𝑃𝑟𝑜𝑣𝑒𝑟𝑏:
 "${proverb}"`;
 
-      // Send the message
-      return api.sendMessage(msg, event.threadID, event.messageID);
+        // Send the message
+        return api.sendMessage(msg, event.threadID, event.messageID);
 
     } catch (error) {
-      console.error("Error in lich command:", error);
-      return api.sendMessage("❌ Something went wrong!", event.threadID, event.messageID);
+        console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑙𝑖𝑐ℎ 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
+        return api.sendMessage("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔!", event.threadID, event.messageID);
     }
-  }
 };
