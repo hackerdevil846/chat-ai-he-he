@@ -1,49 +1,46 @@
-const request = require('request');
+const axios = require("axios");
 
 module.exports.config = {
     name: "iss",
+    aliases: ["spacestation", "isslocation"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑰𝒏𝒕𝒆𝒓𝒏𝒂𝒕𝒊𝒐𝒏𝒂𝒍 𝑺𝒑𝒂𝒄𝒆 𝑺𝒕𝒂𝒕𝒊𝒐𝒏 𝒆𝒓 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 𝒍𝒐𝒄𝒂𝒕𝒊𝒐𝒏 𝒅𝒆𝒌𝒉𝒖𝒏",
-    category: "𝑻𝒐𝒐𝒍",
-    usages: "iss",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "tool",
+    shortDescription: {
+        en: "𝐼𝑛𝑡𝑒𝑟𝑛𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑆𝑝𝑎𝑐𝑒 𝑆𝑡𝑎𝑡𝑖𝑜𝑛 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑙𝑜𝑐𝑎𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "𝑆𝑒𝑒 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑙𝑜𝑐𝑎𝑡𝑖𝑜𝑛 𝑜𝑓 𝑡ℎ𝑒 𝐼𝑛𝑡𝑒𝑟𝑛𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑆𝑝𝑎𝑐𝑒 𝑆𝑡𝑎𝑡𝑖𝑜𝑛"
+    },
+    guide: {
+        en: "{p}iss"
+    },
     dependencies: {
-        "request": ""
+        "axios": ""
     }
 };
 
-module.exports.onStart = async function({ api, event }) {
+module.exports.onStart = async function({ message }) {
     try {
-        request(`http://api.open-notify.org/iss-now.json`, (err, response, body) => {
-            if (err) {
-                console.error(err);
-                return api.sendMessage("❌ 𝑰𝑺𝑺 𝒍𝒐𝒄𝒂𝒕𝒊𝒐𝒏 𝒋𝒂𝒏𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊𝒏𝒊! 𝑷𝒖𝒏𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
-            }
-            
-            try {
-                const jsonData = JSON.parse(body);
-                api.sendMessage(
-                    `🌌 ━━━━━━━━━━━━━━━━━━━━ 🌌\n` +
-                    `        𝑰𝑵𝑻𝑬𝑹𝑵𝑨𝑻𝑰𝑶𝑵𝑨𝑳 𝑺𝑷𝑨𝑪𝑬 𝑺𝑻𝑨𝑻𝑰𝑶𝑵\n` +
-                    `🌌 ━━━━━━━━━━━━━━━━━━━━ 🌌\n\n` +
-                    `📍 𝑳𝒂𝒕𝒊𝒕𝒖𝒅𝒆: ${jsonData.iss_position.latitude}\n` +
-                    `📍 𝑳𝒐𝒏𝒈𝒊𝒕𝒖𝒅𝒆: ${jsonData.iss_position.longitude}\n\n` +
-                    `🔭 𝑹𝒆𝒂𝒍-𝒕𝒊𝒎𝒆 𝒕𝒓𝒂𝒄𝒌𝒊𝒏𝒈:\n` +
-                    `https://spotthestation.nasa.gov/tracking_map.cfm\n\n` +
-                    `🛰️ 𝑪𝒖𝒓𝒓𝒆𝒏𝒕 𝒔𝒑𝒆𝒆𝒅: 28,000 𝒌𝒎/𝒉\n` +
-                    `🌎 𝑶𝒓𝒃𝒊𝒕 𝒕𝒊𝒎𝒆: 90 𝒎𝒊𝒏𝒖𝒕𝒆𝒔`,
-                    event.threadID,
-                    event.messageID
-                );
-            } catch (error) {
-                console.error(error);
-                api.sendMessage("❌ 𝑫𝒂𝒕𝒂 𝒑𝒓𝒐𝒄𝒆𝒔𝒔 𝒌𝒐𝒓𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒍𝒐! 𝑷𝒖𝒏𝒂𝒓 𝒄𝒉𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏", event.threadID, event.messageID);
-            }
-        });
+        const response = await axios.get("http://api.open-notify.org/iss-now.json");
+        const jsonData = response.data;
+        
+        await message.reply(
+            `🌌 ━━━━━━━━━━━━━━━━━━━━ 🌌\n` +
+            `        𝐼𝑁𝑇𝐸𝑅𝑁𝐴𝑇𝐼𝑂𝑁𝐴𝐿 𝑆𝑃𝐴𝐶𝐸 𝑆𝑇𝐴𝑇𝐼𝑂𝑁\n` +
+            `🌌 ━━━━━━━━━━━━━━━━━━━━ 🌌\n\n` +
+            `📍 𝐿𝑎𝑡𝑖𝑡𝑢𝑑𝑒: ${jsonData.iss_position.latitude}\n` +
+            `📍 𝐿𝑜𝑛𝑔𝑖𝑡𝑢𝑑𝑒: ${jsonData.iss_position.longitude}\n\n` +
+            `🔭 𝑅𝑒𝑎𝑙-𝑡𝑖𝑚𝑒 𝑡𝑟𝑎𝑐𝑘𝑖𝑛𝑔:\n` +
+            `https://spotthestation.nasa.gov/tracking_map.cfm\n\n` +
+            `🛰️ 𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝑠𝑝𝑒𝑒𝑑: 28,000 𝑘𝑚/ℎ\n` +
+            `🌎 𝑂𝑟𝑏𝑖𝑡 𝑡𝑖𝑚𝑒: 90 𝑚𝑖𝑛𝑢𝑡𝑒𝑠`
+        );
+
     } catch (error) {
-        console.error(error);
-        api.sendMessage("❌ 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒙𝒆𝒄𝒖𝒕𝒆 𝒌𝒐𝒓𝒕𝒆 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒉𝒐𝒍𝒐!", event.threadID, event.messageID);
+        console.error("𝐼𝑆𝑆 𝐸𝑟𝑟𝑜𝑟:", error);
+        await message.reply("❌ 𝐼𝑆𝑆 𝑙𝑜𝑐𝑎𝑡𝑖𝑜𝑛 𝑓𝑒𝑡𝑐ℎ 𝑓𝑎𝑖𝑙𝑒𝑑! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
 };
