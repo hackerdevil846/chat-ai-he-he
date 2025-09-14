@@ -1,231 +1,242 @@
+const moment = require("moment-timezone");
+
 module.exports.config = {
-  name: "jobcenter",
-  version: "2.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "💼 Work to earn money with various jobs - Enhanced Edition",
-  category: "economy",
-  usages: "[job number]",
-  cooldowns: 5,
-  envConfig: {
-    cooldownTime: 5000
-  },
-  dependencies: {}
+    name: "jobcenter",
+    aliases: ["work", "job"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "economy",
+    shortDescription: {
+        en: "💼 𝑊𝑜𝑟𝑘 𝑡𝑜 𝑒𝑎𝑟𝑛 𝑚𝑜𝑛𝑒𝑦 𝑤𝑖𝑡ℎ 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑗𝑜𝑏𝑠 - 𝐸𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝐸𝑑𝑖𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+        en: "💼 𝑊𝑜𝑟𝑘 𝑡𝑜 𝑒𝑎𝑟𝑛 𝑚𝑜𝑛𝑒𝑦 𝑤𝑖𝑡ℎ 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑗𝑜𝑏𝑠 - 𝐸𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝐸𝑑𝑖𝑡𝑖𝑜𝑛"
+    },
+    guide: {
+        en: "{p}jobcenter [𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟]"
+    },
+    envConfig: {
+        cooldownTime: 300000
+    },
+    dependencies: {
+        "moment-timezone": ""
+    }
 };
 
 module.exports.languages = {
-  "en": {
-    "cooldown": "⏱️ 𝗖𝗼𝗼𝗹𝗱𝗼𝘄𝗻: 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁 %1 𝗺𝗶𝗻𝘂𝘁𝗲(𝘀) %2 𝘀𝗲𝗰𝗼𝗻𝗱(𝘀) 𝗯𝗲𝗳𝗼𝗿𝗲 𝘄𝗼𝗿𝗸𝗶𝗻𝗴 𝗮𝗴𝗮𝗶𝗻 ✨",
-    "invalidNumber": "❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗻𝘂𝗺𝗯𝗲𝗿! 𝗣𝗹𝗲𝗮𝘀𝗲 𝗲𝗻𝘁𝗲𝗿 𝗮 𝘃𝗮𝗹𝗶𝗱 𝗷𝗼𝗯 𝗻𝘂𝗺𝗯𝗲𝗿 𝗯𝗲𝘁𝘄𝗲𝗲𝗻 𝟭-𝟳 🌟",
-    "invalidJob": "❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗷𝗼𝗯 𝘀𝗲𝗹𝗲𝗰𝘁𝗶𝗼𝗻! 𝗣𝗹𝗲𝗮𝘀𝗲 𝗰𝗵𝗼𝗼𝘀𝗲 𝗮 𝗷𝗼𝗯 𝗳𝗿𝗼𝗺 𝘁𝗵𝗲 𝗹𝗶𝘀𝘁 📋",
-    "jobError": "❌ 𝗝𝗼𝗯 𝗲𝗿𝗿𝗼𝗿! 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗽𝗿𝗼𝗰𝗲𝘀𝘀 𝘆𝗼𝘂𝗿 𝗷𝗼𝗯. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿 🔄",
-    "systemError": "❌ 𝗦𝘆𝘀𝘁𝗲𝗺 𝗲𝗿𝗿𝗼𝗿! 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗮𝗰𝗰𝗲𝘀𝘀 𝗷𝗼𝗯 𝗰𝗲𝗻𝘁𝗲𝗿. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿 🛠️",
-    "welcome": "💼 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝘁𝗼 𝘁𝗵𝗲 𝗘𝗹𝗶𝘁𝗲 𝗝𝗼𝗯 𝗖𝗲𝗻𝘁𝗲𝗿! 𝗘𝗮𝗿𝗻 𝗰𝗼𝗶𝗻𝘀 𝗮𝗻𝗱 𝗹𝗲𝘃𝗲𝗹 𝘂𝗽 𝘆𝗼𝘂𝗿 𝗰𝗮𝗿𝗲𝗲𝗿 🚀"
-  }
+    "en": {
+        "cooldown": "⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 %1 𝑚𝑖𝑛𝑢𝑡𝑒(𝑠) %2 𝑠𝑒𝑐𝑜𝑛𝑑(𝑠) 𝑏𝑒𝑓𝑜𝑟𝑒 𝑤𝑜𝑟𝑘𝑖𝑛𝑔 𝑎𝑔𝑎𝑖𝑛 ✨",
+        "invalidNumber": "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-7 🌟",
+        "invalidJob": "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 𝑎 𝑗𝑜𝑏 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑙𝑖𝑠𝑡 📋",
+        "jobError": "❌ 𝐽𝑜𝑏 𝑒𝑟𝑟𝑜𝑟! 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑦𝑜𝑢𝑟 𝑗𝑜𝑏. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 🔄",
+        "systemError": "❌ 𝑆𝑦𝑠𝑡𝑒𝑚 𝑒𝑟𝑟𝑜𝑟! 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑎𝑐𝑐𝑒𝑠𝑠 𝑗𝑜𝑏 𝑐𝑒𝑛𝑡𝑒𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 🛠️",
+        "welcome": "💼 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑡𝑜 𝑡ℎ𝑒 𝐸𝑙𝑖𝑡𝑒 𝐽𝑜𝑏 𝐶𝑒𝑛𝑡𝑒𝑟! 𝐸𝑎𝑟𝑛 𝑐𝑜𝑖𝑛𝑠 𝑎𝑛𝑑 𝑙𝑒𝑣𝑒𝑙 𝑢𝑝 𝑦𝑜𝑢𝑟 𝑐𝑎𝑟𝑒𝑒𝑟 🚀"
+    }
 };
 
 const jobTypes = {
-  1: {
-    name: "🏭 𝗜𝗻𝗱𝘂𝘀𝘁𝗿𝗶𝗮𝗹 𝗭𝗼𝗻𝗲",
-    tasks: [
-      "𝗵𝗶𝗿𝗶𝗻𝗴 𝘀𝘁𝗮𝗳𝗳", 
-      "𝗵𝗼𝘁𝗲𝗹 𝗮𝗱𝗺𝗶𝗻𝗶𝘀𝘁𝗿𝗮𝘁𝗼𝗿", 
-      "𝗮𝘁 𝘁𝗵𝗲 𝗽𝗼𝘄𝗲𝗿 𝗽𝗹𝗮𝗻𝘁", 
-      "𝗿𝗲𝘀𝘁𝗮𝘂𝗿𝗮𝗻𝘁 𝗰𝗵𝗲𝗳", 
-      "𝗳𝗮𝗰𝘁𝗼𝗿𝘆 𝘄𝗼𝗿𝗸𝗲𝗿"
-    ],
-    minCoins: 200,
-    maxCoins: 600,
-    emoji: "🏭"
-  },
-  2: {
-    name: "💼 𝗦𝗲𝗿𝘃𝗶𝗰𝗲 𝗔𝗿𝗲𝗮",
-    tasks: [
-      "𝗽𝗹𝘂𝗺𝗯𝗲𝗿", 
-      "𝗔𝗖 𝗿𝗲𝗽𝗮𝗶𝗿 𝘁𝗲𝗰𝗵𝗻𝗶𝗰𝗶𝗮𝗻", 
-      "𝗺𝘂𝗹𝘁𝗶-𝗹𝗲𝘃𝗲𝗹 𝘀𝗮𝗹𝗲𝘀", 
-      "𝗳𝗹𝘆𝗲𝗿 𝗱𝗶𝘀𝘁𝗿𝗶𝗯𝘂𝘁𝗶𝗼𝗻", 
-      "𝗱𝗲𝗹𝗶𝘃𝗲𝗿𝘆 𝗱𝗿𝗶𝘃𝗲𝗿", 
-      "𝗰𝗼𝗺𝗽𝘂𝘁𝗲𝗿 𝗿𝗲𝗽𝗮𝗶𝗿", 
-      "𝘁𝗼𝘂𝗿 𝗴𝘂𝗶𝗱𝗲", 
-      "𝗰𝗵𝗶𝗹𝗱 𝗰𝗮𝗿𝗲"
-    ],
-    minCoins: 200,
-    maxCoins: 1000,
-    emoji: "💼"
-  },
-  3: {
-    name: "🛢️ 𝗢𝗶𝗹 𝗙𝗶𝗲𝗹𝗱",
-    tasks: [
-      "𝗱𝗿𝗶𝗹𝗹𝗶𝗻𝗴 𝘀𝘂𝗽𝗲𝗿𝘃𝗶𝘀𝗼𝗿", 
-      "𝗽𝗶𝗽𝗲𝗹𝗶𝗻𝗲 𝘁𝗲𝗰𝗵𝗻𝗶𝗰𝗶𝗮𝗻", 
-      "𝘀𝗮𝗳𝗲𝘁𝘆 𝗶𝗻𝘀𝗽𝗲𝗰𝘁𝗼𝗿", 
-      "𝗲𝗾𝘂𝗶𝗽𝗺𝗲𝗻𝘁 𝗼𝗽𝗲𝗿𝗮𝘁𝗼𝗿", 
-      "𝗿𝗲𝗳𝗶𝗻𝗲𝗿𝘆 𝘄𝗼𝗿𝗸𝗲𝗿"
-    ],
-    minCoins: 300,
-    maxCoins: 800,
-    emoji: "🛢️"
-  },
-  4: {
-    name: "⛏️ 𝗠𝗶𝗻𝗶𝗻𝗴 𝗢𝗿𝗲",
-    tasks: [
-      "𝗶𝗿𝗼𝗻 𝗼𝗿𝗲 𝗲𝘅𝘁𝗿𝗮𝗰𝘁𝗶𝗼𝗻", 
-      "𝗴𝗼𝗹𝗱 𝗺𝗶𝗻𝗶𝗻𝗴", 
-      "𝗰𝗼𝗮𝗹 𝗺𝗶𝗻𝗶𝗻𝗴", 
-      "𝗰𝗼𝗽𝗽𝗲𝗿 𝗲𝘅𝗰𝗮𝘃𝗮𝘁𝗶𝗼𝗻", 
-      "𝗺𝗶𝗻𝗲𝗿𝗮𝗹 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴"
-    ],
-    minCoins: 250,
-    maxCoins: 750,
-    emoji: "⛏️"
-  },
-  5: {
-    name: "💎 𝗗𝗶𝗴𝗴𝗶𝗻𝗴 𝗥𝗼𝗰𝗸",
-    tasks: [
-      "𝗱𝗶𝗮𝗺𝗼𝗻𝗱 𝗽𝗿𝗼𝘀𝗽𝗲𝗰𝘁𝗶𝗻𝗴", 
-      "𝗴𝗲𝗺𝘀𝘁𝗼𝗻𝗲 𝗲𝘅𝗰𝗮𝘃𝗮𝘁𝗶𝗼𝗻", 
-      "𝗾𝘂𝗮𝗿𝗿𝘆 𝘄𝗼𝗿𝗸𝗲𝗿", 
-      "𝗴𝗲𝗼𝗹𝗼𝗴𝗶𝗰𝗮𝗹 𝘀𝘂𝗿𝘃𝗲𝘆𝗼𝗿", 
-      "𝘀𝘁𝗼𝗻𝗲 𝗰𝘂𝘁𝘁𝗶𝗻𝗴"
-    ],
-    minCoins: 200,
-    maxCoins: 500,
-    emoji: "💎"
-  },
-  6: {
-    name: "🌟 𝗦𝗽𝗲𝗰𝗶𝗮𝗹 𝗝𝗼𝗯",
-    tasks: [
-      "𝗩𝗜𝗣 𝗽𝗲𝗿𝘀𝗼𝗻𝗮𝗹 𝗮𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝘁", 
-      "𝗽𝗮𝘁𝗲𝗻𝘁 𝗰𝗼𝗻𝘀𝘂𝗹𝘁𝗮𝗻𝘁", 
-      "𝗽𝗿𝗶𝘃𝗮𝘁𝗲 𝗶𝗻𝘃𝗲𝘀𝘁𝗶𝗴𝗮𝘁𝗼𝗿", 
-      "𝗲𝘅𝗲𝗰𝘂𝘁𝗶𝘃𝗲 𝗰𝗵𝗮𝘂𝗳𝗳𝗲𝘂𝗿", 
-      "𝗹𝘂𝘅𝘂𝗿𝘆 𝗲𝘃𝗲𝗻𝘁 𝗽𝗹𝗮𝗻𝗻𝗲𝗿"
-    ],
-    minCoins: 500,
-    maxCoins: 1500,
-    emoji: "🌟"
-  },
-  7: {
-    name: "🚀 𝗘𝗹𝗶𝘁𝗲 𝗠𝗶𝘀𝘀𝗶𝗼𝗻",
-    tasks: [
-      "𝗰𝘆𝗯𝗲𝗿𝘀𝗲𝗰𝘂𝗿𝗶𝘁𝘆 𝗲𝘅𝗽𝗲𝗿𝘁", 
-      "𝗮𝗜 𝗿𝗲𝘀𝗲𝗮𝗿𝗰𝗵𝗲𝗿", 
-      "𝗾𝘂𝗮𝗻𝘁𝘂𝗺 𝗰𝗼𝗺𝗽𝘂𝘁𝗶𝗻𝗴 𝘀𝗽𝗲𝗰𝗶𝗮𝗹𝗶𝘀𝘁", 
-      "𝘀𝗽𝗮𝗰𝗲 𝗲𝗻𝗴𝗶𝗻𝗲𝗲𝗿", 
-      "𝗯𝗹𝗼𝗰𝗸𝗰𝗵𝗮𝗶𝗻 𝗱𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿"
-    ],
-    minCoins: 800,
-    maxCoins: 2500,
-    emoji: "🚀"
-  }
+    1: {
+        name: "🏭 𝐼𝑛𝑑𝑢𝑠𝑡𝑟𝑖𝑎𝑙 𝑍𝑜𝑛𝑒",
+        tasks: [
+            "ℎ𝑖𝑟𝑖𝑛𝑔 𝑠𝑡𝑎𝑓𝑓", 
+            "ℎ𝑜𝑡𝑒𝑙 𝑎𝑑𝑚𝑖𝑛𝑖𝑠𝑡𝑟𝑎𝑡𝑜𝑟", 
+            "𝑎𝑡 𝑡ℎ𝑒 𝑝𝑜𝑤𝑒𝑟 𝑝𝑙𝑎𝑛𝑡", 
+            "𝑟𝑒𝑠𝑡𝑎𝑢𝑟𝑎𝑛𝑡 𝑐ℎ𝑒𝑓", 
+            "𝑓𝑎𝑐𝑡𝑜𝑟𝑦 𝑤𝑜𝑟𝑘𝑒𝑟"
+        ],
+        minCoins: 200,
+        maxCoins: 600,
+        emoji: "🏭"
+    },
+    2: {
+        name: "💼 𝑆𝑒𝑟𝑣𝑖𝑐𝑒 𝐴𝑟𝑒𝑎",
+        tasks: [
+            "𝑝𝑙𝑢𝑚𝑏𝑒𝑟", 
+            "𝐴𝐶 𝑟𝑒𝑝𝑎𝑖𝑟 𝑡𝑒𝑐ℎ𝑛𝑖𝑐𝑖𝑎𝑛", 
+            "𝑚𝑢𝑙𝑡𝑖-𝑙𝑒𝑣𝑒𝑙 𝑠𝑎𝑙𝑒𝑠", 
+            "𝑓𝑙𝑦𝑒𝑟 𝑑𝑖𝑠𝑡𝑟𝑖𝑏𝑢𝑡𝑖𝑜𝑛", 
+            "𝑑𝑒𝑙𝑖𝑣𝑒𝑟𝑦 𝑑𝑟𝑖𝑣𝑒𝑟", 
+            "𝑐𝑜𝑚𝑝𝑢𝑡𝑒𝑟 𝑟𝑒𝑝𝑎𝑖𝑟", 
+            "𝑡𝑜𝑢𝑟 𝑔𝑢𝑖𝑑𝑒", 
+            "𝑐ℎ𝑖𝑙𝑑 𝑐𝑎𝑟𝑒"
+        ],
+        minCoins: 200,
+        maxCoins: 1000,
+        emoji: "💼"
+    },
+    3: {
+        name: "🛢️ 𝑂𝑖𝑙 𝐹𝑖𝑒𝑙𝑑",
+        tasks: [
+            "𝑑𝑟𝑖𝑙𝑙𝑖𝑛𝑔 𝑠𝑢𝑝𝑒𝑟𝑣𝑖𝑠𝑜𝑟", 
+            "𝑝𝑖𝑝𝑒𝑙𝑖𝑛𝑒 𝑡𝑒𝑐ℎ𝑛𝑖𝑐𝑖𝑎𝑛", 
+            "𝑠𝑎𝑓𝑒𝑡𝑦 𝑖𝑛𝑠𝑝𝑒𝑐𝑡𝑜𝑟", 
+            "𝑒𝑞𝑢𝑖𝑝𝑚𝑒𝑛𝑡 𝑜𝑝𝑒𝑟𝑎𝑡𝑜𝑟", 
+            "𝑟𝑒𝑓𝑖𝑛𝑒𝑟𝑦 𝑤𝑜𝑟𝑘𝑒𝑟"
+        ],
+        minCoins: 300,
+        maxCoins: 800,
+        emoji: "🛢️"
+    },
+    4: {
+        name: "⛏️ 𝑀𝑖𝑛𝑖𝑛𝑔 𝑂𝑟𝑒",
+        tasks: [
+            "𝑖𝑟𝑜𝑛 𝑜𝑟𝑒 𝑒𝑥𝑡𝑟𝑎𝑐𝑡𝑖𝑜𝑛", 
+            "𝑔𝑜𝑙𝑑 𝑚𝑖𝑛𝑖𝑛𝑔", 
+            "𝑐𝑜𝑎𝑙 𝑚𝑖𝑛𝑖𝑛𝑔", 
+            "𝑐𝑜𝑝𝑝𝑒𝑟 𝑒𝑥𝑐𝑎𝑣𝑎𝑡𝑖𝑜𝑛", 
+            "𝑚𝑖𝑛𝑒𝑟𝑎𝑙 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔"
+        ],
+        minCoins: 250,
+        maxCoins: 750,
+        emoji: "⛏️"
+    },
+    5: {
+        name: "💎 𝐷𝑖𝑔𝑔𝑖𝑛𝑔 𝑅𝑜𝑐𝑘",
+        tasks: [
+            "𝑑𝑖𝑎𝑚𝑜𝑛𝑑 𝑝𝑟𝑜𝑠𝑝𝑒𝑐𝑡𝑖𝑛𝑔", 
+            "𝑔𝑒𝑚𝑠𝑡𝑜𝑛𝑒 𝑒𝑥𝑐𝑎𝑣𝑎𝑡𝑖𝑜𝑛", 
+            "𝑞𝑢𝑎𝑟𝑟𝑦 𝑤𝑜𝑟𝑘𝑒𝑟", 
+            "𝑔𝑒𝑜𝑙𝑜𝑔𝑖𝑐𝑎𝑙 𝑠𝑢𝑟𝑣𝑒𝑦𝑜𝑟", 
+            "𝑠𝑡𝑜𝑛𝑒 𝑐𝑢𝑡𝑡𝑖𝑛𝑔"
+        ],
+        minCoins: 200,
+        maxCoins: 500,
+        emoji: "💎"
+    },
+    6: {
+        name: "🌟 𝑆𝑝𝑒𝑐𝑖𝑎𝑙 𝐽𝑜𝑏",
+        tasks: [
+            "𝑉𝐼𝑃 𝑝𝑒𝑟𝑠𝑜𝑛𝑎𝑙 𝑎𝑠𝑠𝑖𝑠𝑡𝑎𝑛𝑡", 
+            "𝑝𝑎𝑡𝑒𝑛𝑡 𝑐𝑜𝑛𝑠𝑢𝑙𝑡𝑎𝑛𝑡", 
+            "𝑝𝑟𝑖𝑣𝑎𝑡𝑒 𝑖𝑛𝑣𝑒𝑠𝑡𝑖𝑔𝑎𝑡𝑜𝑟", 
+            "𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑣𝑒 𝑐ℎ𝑎𝑢𝑓𝑓𝑒𝑢𝑟", 
+            "𝑙𝑢𝑥𝑢𝑟𝑦 𝑒𝑣𝑒𝑛𝑡 𝑝𝑙𝑎𝑛𝑛𝑒𝑟"
+        ],
+        minCoins: 500,
+        maxCoins: 1500,
+        emoji: "🌟"
+    },
+    7: {
+        name: "🚀 𝐸𝑙𝑖𝑡𝑒 𝑀𝑖𝑠𝑠𝑖𝑜𝑛",
+        tasks: [
+            "𝑐𝑦𝑏𝑒𝑟𝑠𝑒𝑐𝑢𝑟𝑖𝑡𝑦 𝑒𝑥𝑝𝑒𝑟𝑡", 
+            "𝑎𝐼 𝑟𝑒𝑠𝑒𝑎𝑟𝑐ℎ𝑒𝑟", 
+            "𝑞𝑢𝑎𝑛𝑡𝑢𝑚 𝑐𝑜𝑚𝑝𝑢𝑡𝑖𝑛𝑔 𝑠𝑝𝑒𝑐𝑖𝑎𝑙𝑖𝑠𝑡", 
+            "𝑠𝑝𝑎𝑐𝑒 𝑒𝑛𝑔𝑖𝑛𝑒𝑒𝑟", 
+            "𝑏𝑙𝑜𝑐𝑘𝑐ℎ𝑎𝑖𝑛 𝑑𝑒𝑣𝑒𝑙𝑜𝑝𝑒𝑟"
+        ],
+        minCoins: 800,
+        maxCoins: 2500,
+        emoji: "🚀"
+    }
 };
 
 module.exports.onLoad = function () {
-  console.log("🔄 Job Center command loaded successfully");
+    console.log("🔄 𝐽𝑜𝑏 𝐶𝑒𝑛𝑡𝑒𝑟 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦");
 };
 
-module.exports.handleReply = async function({ event, api, handleReply, Currencies, getText }) {
-  const { threadID, senderID, body } = event;
-  const jobType = parseInt(body);
+module.exports.onReply = async function({ event, api, handleReply, Currencies, getText }) {
+    const { threadID, senderID, body } = event;
+    const jobType = parseInt(body);
 
-  if (isNaN(jobType)) {
-    return api.sendMessage(getText("invalidNumber"), threadID);
-  }
-
-  if (!jobTypes[jobType]) {
-    return api.sendMessage(getText("invalidJob"), threadID);
-  }
-
-  try {
-    const job = jobTypes[jobType];
-    const task = job.tasks[Math.floor(Math.random() * job.tasks.length)];
-    const coinsEarned = Math.floor(Math.random() * (job.maxCoins - job.minCoins + 1)) + job.minCoins;
-    
-    // Chance for bonus coins (20% chance)
-    const bonusChance = Math.random();
-    let bonusMessage = "";
-    let totalCoins = coinsEarned;
-    
-    if (bonusChance < 0.2) {
-      const bonusCoins = Math.floor(coinsEarned * 0.5);
-      totalCoins += bonusCoins;
-      bonusMessage = `\n\n🎉 𝗕𝗢𝗡𝗨𝗦! You received an extra ${bonusCoins} coins for excellent performance!`;
+    if (isNaN(jobType)) {
+        return api.sendMessage(getText("invalidNumber"), threadID);
     }
 
-    await Currencies.increaseMoney(senderID, totalCoins);
+    if (!jobTypes[jobType]) {
+        return api.sendMessage(getText("invalidJob"), threadID);
+    }
 
-    const messages = [
-      `💼 ${job.emoji} 𝗬𝗢𝗨𝗥 𝗪𝗢𝗥𝗞 𝗥𝗘𝗦𝗨𝗟𝗧𝗦 ${job.emoji}\n\n𝗝𝗼𝗯: ${task}\n𝗔𝗿𝗲𝗮: ${job.name}\n𝗖𝗼𝗶𝗻𝘀 𝗘𝗮𝗿𝗻𝗲𝗱: ${totalCoins} 💰${bonusMessage}\n\nKeep up the great work! 🚀`,
-      `🎯 𝗪𝗢𝗥𝗞 𝗖𝗢𝗠𝗣𝗟𝗘𝗧𝗘𝗗!\n\n𝗥𝗼𝗹𝗲: ${task}\n𝗟𝗼𝗰𝗮𝘁𝗶𝗼𝗻: ${job.name}\n𝗥𝗲𝘄𝗮𝗿𝗱: ${totalCoins} coins 💵${bonusMessage}\n\nYour career is progressing! 🌟`,
-      `🏆 𝗦𝗨𝗖𝗖𝗘𝗦𝗦𝗙𝗨𝗟 𝗪𝗢𝗥𝗞 𝗗𝗔𝗬!\n\n𝗧𝗮𝘀𝗸: ${task}\n𝗗𝗲𝗽𝗮𝗿𝘁𝗺𝗲𝗻𝘁: ${job.name}\n𝗘𝗮𝗿𝗻𝗶𝗻𝗴𝘀: ${totalCoins} coins 🪙${bonusMessage}\n\nYou're building your future! 💪`
-    ];
+    try {
+        const job = jobTypes[jobType];
+        const task = job.tasks[Math.floor(Math.random() * job.tasks.length)];
+        const coinsEarned = Math.floor(Math.random() * (job.maxCoins - job.minCoins + 1)) + job.minCoins;
+        
+        const bonusChance = Math.random();
+        let bonusMessage = "";
+        let totalCoins = coinsEarned;
+        
+        if (bonusChance < 0.2) {
+            const bonusCoins = Math.floor(coinsEarned * 0.5);
+            totalCoins += bonusCoins;
+            bonusMessage = `\n\n🎉 𝐵𝑂𝑁𝑈𝑆! 𝑌𝑜𝑢 𝑟𝑒𝑐𝑒𝑖𝑣𝑒𝑑 𝑎𝑛 𝑒𝑥𝑡𝑟𝑎 ${bonusCoins} 𝑐𝑜𝑖𝑛𝑠 𝑓𝑜𝑟 𝑒𝑥𝑐𝑒𝑙𝑙𝑒𝑛𝑡 𝑝𝑒𝑟𝑓𝑜𝑟𝑚𝑎𝑛𝑐𝑒!`;
+        }
 
-    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        await Currencies.increaseMoney(senderID, totalCoins);
 
-    api.unsendMessage(handleReply.messageID);
-    api.sendMessage(randomMessage, threadID);
+        const messages = [
+            `💼 ${job.emoji} 𝑌𝑂𝑈𝑅 𝑊𝑂𝑅𝐾 𝑅𝐸𝑆𝑈𝐿𝑇𝑆 ${job.emoji}\n\n𝐽𝑜𝑏: ${task}\n𝐴𝑟𝑒𝑎: ${job.name}\n𝐶𝑜𝑖𝑛𝑠 𝐸𝑎𝑟𝑛𝑒𝑑: ${totalCoins} 💰${bonusMessage}\n\n𝐾𝑒𝑒𝑝 𝑢𝑝 𝑡ℎ𝑒 𝑔𝑟𝑒𝑎𝑡 𝑤𝑜𝑟𝑘! 🚀`,
+            `🎯 𝑊𝑂𝑅𝐾 𝐶𝑂𝑀𝑃𝐿𝐸𝑇𝐸𝐷!\n\n𝑅𝑜𝑙𝑒: ${task}\n𝐿𝑜𝑐𝑎𝑡𝑖𝑜𝑛: ${job.name}\n𝑅𝑒𝑤𝑎𝑟𝑑: ${totalCoins} 𝑐𝑜𝑖𝑛𝑠 💵${bonusMessage}\n\n𝑌𝑜𝑢𝑟 𝑐𝑎𝑟𝑒𝑒𝑟 𝑖𝑠 𝑝𝑟𝑜𝑔𝑟𝑒𝑠𝑠𝑖𝑛𝑔! 🌟`,
+            `🏆 𝑆𝑈𝐶𝐶𝐸𝑆𝑆𝐹𝑈𝐿 𝑊𝑂𝑅𝐾 𝐷𝐴𝑌!\n\n𝑇𝑎𝑠𝑘: ${task}\n𝐷𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡: ${job.name}\n𝐸𝑎𝑟𝑛𝑖𝑛𝑔𝑠: ${totalCoins} 𝑐𝑜𝑖𝑛𝑠 🪙${bonusMessage}\n\n𝑌𝑜𝑢'𝑟𝑒 𝑏𝑢𝑖𝑙𝑑𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑓𝑢𝑡𝑢𝑟𝑒! 💪`
+        ];
 
-    const userData = await Currencies.getData(senderID);
-    userData.data = userData.data || {};
-    userData.data.workTime = Date.now();
-    await Currencies.setData(senderID, userData);
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
-  } catch (error) {
-    console.error("Job Error:", error);
-    api.sendMessage(getText("jobError"), threadID);
-  }
+        api.unsendMessage(handleReply.messageID);
+        api.sendMessage(randomMessage, threadID);
+
+        const userData = await Currencies.getData(senderID);
+        userData.data = userData.data || {};
+        userData.data.workTime = Date.now();
+        await Currencies.setData(senderID, userData);
+
+    } catch (error) {
+        console.error("𝐽𝑜𝑏 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage(getText("jobError"), threadID);
+    }
 };
 
 module.exports.onStart = async function({ event, api, Currencies, getText }) {
-  const { threadID, senderID } = event;
-  const cooldownTime = this.config.envConfig.cooldownTime;
-  
-  try {
-    const userData = await Currencies.getData(senderID);
-    const workData = userData.data || {};
+    const { threadID, senderID } = event;
+    const cooldownTime = this.config.envConfig.cooldownTime;
     
-    if (workData.workTime && (Date.now() - workData.workTime) < cooldownTime) {
-      const remainingTime = cooldownTime - (Date.now() - workData.workTime);
-      const minutes = Math.floor(remainingTime / 60000);
-      const seconds = Math.floor((remainingTime % 60000) / 1000);
-      
-      return api.sendMessage(
-        getText("cooldown", minutes, seconds < 10 ? "0" + seconds : seconds), 
-        threadID
-      );
+    try {
+        const userData = await Currencies.getData(senderID);
+        const workData = userData.data || {};
+        
+        if (workData.workTime && (Date.now() - workData.workTime) < cooldownTime) {
+            const remainingTime = cooldownTime - (Date.now() - workData.workTime);
+            const minutes = Math.floor(remainingTime / 60000);
+            const seconds = Math.floor((remainingTime % 60000) / 1000);
+            
+            return api.sendMessage(
+                getText("cooldown", minutes, seconds < 10 ? "0" + seconds : seconds), 
+                threadID
+            );
+        }
+
+        let menu = `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n`;
+        menu += `         💼 𝐸𝐿𝐼𝑇𝐸 𝐽𝑂𝐵 𝐶𝐸𝑁𝑇𝐸𝑅 💼\n`;
+        menu += `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n\n`;
+        menu += `${getText("welcome")}\n\n`;
+        menu += `🎯 𝐶ℎ𝑜𝑜𝑠𝑒 𝑎 𝑗𝑜𝑏 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑤𝑖𝑡ℎ 𝑖𝑡𝑠 𝑛𝑢𝑚𝑏𝑒𝑟:\n\n`;
+        
+        for (const [id, job] of Object.entries(jobTypes)) {
+            menu += `🔸 ${id}. ${job.name} (${job.minCoins}-${job.maxCoins} 𝑐𝑜𝑖𝑛𝑠) ${job.emoji}\n`;
+        }
+        
+        menu += `\n💡 𝑇𝑖𝑝: 𝐻𝑖𝑔ℎ𝑒𝑟 𝑟𝑖𝑠𝑘 𝑗𝑜𝑏𝑠 𝑜𝑓𝑓𝑒𝑟 𝑔𝑟𝑒𝑎𝑡𝑒𝑟 𝑟𝑒𝑤𝑎𝑟𝑑𝑠!\n`;
+        menu += `⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: 5 𝑚𝑖𝑛𝑢𝑡𝑒𝑠 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 𝑗𝑜𝑏𝑠\n\n`;
+        menu += `💝 𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒 𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟 𝑡𝑜 𝑠𝑡𝑎𝑟𝑡 𝑤𝑜𝑟𝑘𝑖𝑛𝑔`;
+
+        api.sendMessage(menu, threadID, (error, info) => {
+            if (error) {
+                console.error("𝑀𝑒𝑛𝑢 𝐸𝑟𝑟𝑜𝑟:", error);
+                return api.sendMessage(getText("systemError"), threadID);
+            }
+            
+            global.client.handleReply.push({
+                name: this.config.name,
+                messageID: info.messageID,
+                author: senderID,
+                type: "jobSelection"
+            });
+        });
+
+    } catch (error) {
+        console.error("𝐽𝑜𝑏 𝑆𝑦𝑠𝑡𝑒𝑚 𝐸𝑟𝑟𝑜𝑟:", error);
+        api.sendMessage(getText("systemError"), threadID);
     }
-
-    let menu = `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n`;
-    menu += `         💼 𝗘𝗟𝗜𝗧𝗘 𝗝𝗢𝗕 𝗖𝗘𝗡𝗧𝗘𝗥 💼\n`;
-    menu += `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n\n`;
-    menu += `${getText("welcome")}\n\n`;
-    menu += `🎯 𝗖𝗵𝗼𝗼𝘀𝗲 𝗮 𝗷𝗼𝗯 𝗯𝘆 𝗿𝗲𝗽𝗹𝘆𝗶𝗻𝗴 𝘄𝗶𝘁𝗵 𝗶𝘁𝘀 𝗻𝘂𝗺𝗯𝗲𝗿:\n\n`;
-    
-    for (const [id, job] of Object.entries(jobTypes)) {
-      menu += `🔸 ${id}. ${job.name} (${job.minCoins}-${job.maxCoins} coins) ${job.emoji}\n`;
-    }
-    
-    menu += `\n💡 𝗧𝗶𝗽: Higher risk jobs offer greater rewards!\n`;
-    menu += `⏱️ 𝗖𝗼𝗼𝗹𝗱𝗼𝘄𝗻: 5 minutes between jobs\n\n`;
-    menu += `💝 𝗥𝗲𝗽𝗹𝘆 𝘄𝗶𝘁𝗵 𝘁𝗵𝗲 𝗷𝗼𝗯 𝗻𝘂𝗺𝗯𝗲𝗿 𝘁𝗼 𝘀𝘁𝗮𝗿𝘁 𝘄𝗼𝗿𝗸𝗶𝗻𝗴`;
-
-    api.sendMessage(menu, threadID, (error, info) => {
-      if (error) {
-        console.error("Menu Error:", error);
-        return api.sendMessage(getText("systemError"), threadID);
-      }
-      
-      global.client.handleReply.push({
-        name: this.config.name,
-        messageID: info.messageID,
-        author: senderID,
-        type: "jobSelection"
-      });
-    });
-
-  } catch (error) {
-    console.error("Job System Error:", error);
-    api.sendMessage(getText("systemError"), threadID);
-  }
 };
