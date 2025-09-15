@@ -1,29 +1,37 @@
-module.exports.config = {
-	name: "murgi2",
-	version: "1.0.2",
-	hasPermssion: 2,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "Interactive messaging sequence",
-	category: "fun",
-	usages: "[@mention]",
-	cooldowns: 5,
-	dependencies: {},
-	envConfig: {}
-};
+module.exports = {
+    config: {
+        name: "murgi2",
+        aliases: ["interactive"],
+        version: "1.0.2",
+        role: 2,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "𝐼𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑖𝑛𝑔 𝑠𝑒𝑞𝑢𝑒𝑛𝑐𝑒"
+        },
+        longDescription: {
+            en: "𝐼𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑖𝑛𝑔 𝑠𝑒𝑞𝑢𝑒𝑛𝑐𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑠"
+        },
+        category: "𝑓𝑢𝑛",
+        guide: {
+            en: "{p}murgi2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+        },
+        countDown: 5,
+        dependencies: {}
+    },
 
-module.exports.onStart = async function({ api, event }) {
-	try {
-		const mention = Object.keys(event.mentions)[0];
-		if (!mention) {
-			return api.sendMessage("✨ বস যে মেয়েকে ক্সুদ্দে চাউ সে মেয়েকে @ম্যানশন দেউ ✨", event.threadID);
-		}
+    onStart: async function({ message, event }) {
+        try {
+            const mention = Object.keys(event.mentions)[0];
+            if (!mention) {
+                return message.reply("✨ 𝐵𝑜𝑠 𝑗𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 𝑘𝑢𝑑𝑑𝑒 𝑐ℎ𝑎𝑢 𝑠𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 @𝑚𝑎𝑛𝑠ℎ𝑜𝑛 𝑑𝑒𝑢 ✨");
+            }
 
-		const name = event.mentions[mention];
-		const arraytag = [{ id: mention, tag: name }];
-		const send = (msg) => api.sendMessage(msg, event.threadID);
+            const name = event.mentions[mention];
+            const arraytag = [{ id: mention, tag: name }];
+            const send = (msg) => message.reply(msg);
 
-		// Message sequence with exact original content and timing
-		const messages = [
+            // Message sequence with exact original content and timing
+            const messages = [
 			{ delay: 0, msg: "💥 চুদা লো" },
 			{ delay: 3000, msg: { body: `খাংকির মেয়ে তর মারে চুদি 🥰 ${name}`, mentions: arraytag } },
 			{ delay: 5000, msg: { body: `খাংকির মেয়ে তর কচি বোন রে চুদি 😍 ${name}`, mentions: arraytag } },
@@ -97,13 +105,14 @@ module.exports.onStart = async function({ api, event }) {
 			{ delay: 39000, msg: "~ আমার মেয়ে। জা ভাগ🤖" }
 		];
 
-		// Execute all messages with precise timing
-		messages.forEach(({ delay, msg }) => {
-			setTimeout(() => send(msg), delay);
-		});
+            // Execute all messages with precise timing
+            messages.forEach(({ delay, msg }) => {
+                setTimeout(() => send(msg), delay);
+            });
 
-	} catch (error) {
-		console.error("❌ Error:", error);
-		api.sendMessage("🔥 আনএক্সপেক্টেড এরর! বট রিস্টার্ট করুন", event.threadID);
-	}
+        } catch (error) {
+            console.error("❌ 𝐸𝑟𝑟𝑜𝑟:", error);
+            message.reply("🔥 𝐴𝑛𝑢𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟! 𝐵𝑜𝑡 𝑟𝑒𝑠𝑡𝑎𝑟𝑡 𝑘𝑜𝑟𝑢𝑛");
+        }
+    }
 };
