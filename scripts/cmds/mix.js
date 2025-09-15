@@ -1,74 +1,112 @@
-module.exports.config = {
-  name: "mix",
-  version: "1.0.2",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "✨ Combine two emojis into a single image",
-  category: "image",
-  usages: "[emoji1] [emoji2]",
-  cooldowns: 5,
-  dependencies: {
-    "fs-extra": "",
-    "request": ""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
 
-module.exports.onStart = async function({ api, event, args }) {
-  const fs = global.nodemodule["fs-extra"];
-  const request = global.nodemodule["request"];
-  const { threadID, messageID } = event;
-
-  if (!args[0] || !args[1]) {
-    return api.sendMessage(
-      `🌸 𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 � 𝗲𝗺𝗼𝗷𝗶𝘀 𝘁𝗼 𝗰𝗼𝗺𝗯𝗶𝗻𝗲!\n━━━━━━━━━━━━━━━━━━\n💡 𝗨𝘀𝗮𝗴𝗲: ${global.config.PREFIX}${this.config.name} ${this.config.usages}\n📌 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: ${global.config.PREFIX}mix 😂 🥰`,
-      threadID,
-      messageID
-    );
-  }
-
-  const emoji1 = encodeURIComponent(args[0]);
-  const emoji2 = encodeURIComponent(args[1]);
-  const savePath = __dirname + `/cache/mix_${emoji1}_${emoji2}.png`;
-
-  const primaryApiUrl = `https://www.api.vyturex.com/emojimix?emoji1=${emoji1}&emoji2=${emoji2}`;
-  const backupApiUrl = `https://emojik.vercel.app/s/${emoji1}_${emoji2}?size=128`;
-
-  const tryFetch = (url, isRetry = false) => {
-    return request(url)
-      .on('error', () => {
-        if (!isRetry) {
-          tryFetch(backupApiUrl, true);
-        } else {
-          api.sendMessage(
-            `❌ 𝗙𝗮𝗶𝗹𝗲𝗱 𝘁𝗼 𝗰𝗼𝗺𝗯𝗶𝗻𝗲 "${args[0]}" 𝗮𝗻𝗱 "${args[1]}"!\n━━━━━━━━━━━━━━━━━━\n💠 𝗧𝗿𝘆 𝘂𝘀𝗶𝗻𝗴 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗲𝗺𝗼𝗷𝗶𝘀 𝗼𝗿 𝗰𝗵𝗲𝗰𝗸 𝗮𝗽𝗶 𝘀𝘁𝗮𝘁𝘂𝘀!`,
-            threadID,
-            messageID
-          );
+module.exports = {
+    config: {
+        name: "mix",
+        aliases: ["emojimix", "combineemoji"],
+        version: "1.0.2",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "𝑖𝑚𝑎𝑔𝑒",
+        shortDescription: {
+            en: "✨ 𝐶𝑜𝑚𝑏𝑖𝑛𝑒 𝑡𝑤𝑜 𝑒𝑚𝑜𝑗𝑖𝑠 𝑖𝑛𝑡𝑜 𝑎 𝑠𝑖𝑛𝑔𝑙𝑒 𝑖𝑚𝑎𝑔𝑒"
+        },
+        longDescription: {
+            en: "𝐶𝑜𝑚𝑏𝑖𝑛𝑒 𝑡𝑤𝑜 𝑒𝑚𝑜𝑗𝑖𝑠 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎 𝑓𝑢𝑠𝑒𝑑 𝑒𝑚𝑜𝑗𝑖 𝑖𝑚𝑎𝑔𝑒"
+        },
+        guide: {
+            en: "{p}mix [𝑒𝑚𝑜𝑗𝑖1] [𝑒𝑚𝑜𝑗𝑖2]"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
         }
-      })
-      .pipe(fs.createWriteStream(savePath))
-      .on('close', () => {
-        api.sendMessage(
-          {
-            body: `✨ 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆 𝗰𝗼𝗺𝗯𝗶𝗻𝗲𝗱:\n━━━━━━━━━━━━━━━━━━\n${args[0]} + ${args[1]} = 🎉`,
-            attachment: fs.createReadStream(savePath)
-          },
-          threadID,
-          () => fs.unlinkSync(savePath),
-          messageID
-        );
-      });
-  };
+    },
 
-  try {
-    tryFetch(primaryApiUrl);
-  } catch (error) {
-    console.error(error);
-    api.sendMessage(
-      "⚠️ 𝗔𝗻 𝘂𝗻𝗲𝘅𝗽𝗲𝗰𝘁𝗲𝗱 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿!",
-      threadID,
-      messageID
-    );
-    if (fs.existsSync(savePath)) fs.unlinkSync(savePath);
-  }
+    onStart: async function({ message, event, args }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+            }
+
+            if (!args[0] || !args[1]) {
+                return message.reply(
+                    `🌸 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 2 𝑒𝑚𝑜𝑗𝑖𝑠 𝑡𝑜 𝑐𝑜𝑚𝑏𝑖𝑛𝑒!\n━━━━━━━━━━━━━━━━━━\n💡 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}${this.config.name} ${this.config.guide.en}\n📌 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}mix 😂 🥰`
+                );
+            }
+
+            const emoji1 = encodeURIComponent(args[0]);
+            const emoji2 = encodeURIComponent(args[1]);
+            const savePath = __dirname + `/cache/mix_${emoji1}_${emoji2}.png`;
+
+            const primaryApiUrl = `https://www.api.vyturex.com/emojimix?emoji1=${emoji1}&emoji2=${emoji2}`;
+            const backupApiUrl = `https://emojik.vercel.app/s/${emoji1}_${emoji2}?size=128`;
+
+            try {
+                // Try primary API first
+                const response = await axios.get(primaryApiUrl, { 
+                    responseType: 'arraybuffer',
+                    timeout: 10000
+                });
+                
+                await fs.writeFile(savePath, Buffer.from(response.data));
+                
+                await message.reply({
+                    body: `✨ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐𝑜𝑚𝑏𝑖𝑛𝑒𝑑:\n━━━━━━━━━━━━━━━━━━\n${args[0]} + ${args[1]} = 🎉`,
+                    attachment: fs.createReadStream(savePath)
+                });
+
+                // Clean up
+                if (fs.existsSync(savePath)) {
+                    fs.unlinkSync(savePath);
+                }
+
+            } catch (primaryError) {
+                console.log("𝑃𝑟𝑖𝑚𝑎𝑟𝑦 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑, 𝑡𝑟𝑦𝑖𝑛𝑔 𝑏𝑎𝑐𝑘𝑢𝑝...");
+                
+                try {
+                    // Try backup API
+                    const backupResponse = await axios.get(backupApiUrl, { 
+                        responseType: 'arraybuffer',
+                        timeout: 10000
+                    });
+                    
+                    await fs.writeFile(savePath, Buffer.from(backupResponse.data));
+                    
+                    await message.reply({
+                        body: `✨ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐𝑜𝑚𝑏𝑖𝑛𝑒𝑑:\n━━━━━━━━━━━━━━━━━━\n${args[0]} + ${args[1]} = 🎉`,
+                        attachment: fs.createReadStream(savePath)
+                    });
+
+                    // Clean up
+                    if (fs.existsSync(savePath)) {
+                        fs.unlinkSync(savePath);
+                    }
+
+                } catch (backupError) {
+                    console.error("𝐵𝑜𝑡ℎ 𝐴𝑃𝐼𝑠 𝑓𝑎𝑖𝑙𝑒𝑑:", backupError);
+                    
+                    await message.reply(
+                        `❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑜𝑚𝑏𝑖𝑛𝑒 "${args[0]}" 𝑎𝑛𝑑 "${args[1]}"!\n━━━━━━━━━━━━━━━━━━\n💠 𝑇𝑟𝑦 𝑢𝑠𝑖𝑛𝑔 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑒𝑚𝑜𝑗𝑖𝑠 𝑜𝑟 𝑐ℎ𝑒𝑐𝑘 𝑎𝑝𝑖 𝑠𝑡𝑎𝑡𝑢𝑠!`
+                    );
+                    
+                    if (fs.existsSync(savePath)) {
+                        fs.unlinkSync(savePath);
+                    }
+                }
+            }
+
+        } catch (error) {
+            console.error("𝑀𝑖𝑥 𝐸𝑟𝑟𝑜𝑟:", error);
+            await message.reply(
+                "⚠️ 𝐴𝑛 𝑢𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟!"
+            );
+        }
+    }
 };
