@@ -5,10 +5,11 @@ const path = require('path');
 module.exports = {
     config: {
         name: "menu",
+        aliases: ["help", "cmd"],
         version: "1.2.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         role: 0,
-        category: "utility",
+        category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
         shortDescription: {
             en: "𝑉𝑖𝑒𝑤 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑖𝑠𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠"
         },
@@ -16,14 +17,34 @@ module.exports = {
             en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑎 𝑚𝑜𝑑𝑒𝑟𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑖𝑠𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠 𝑎𝑛𝑑 𝑏𝑜𝑡 𝑖𝑛𝑓𝑜"
         },
         guide: {
-            en: "{𝑝}𝑚𝑒𝑛𝑢 [𝑐𝑜𝑚𝑚𝑎𝑛𝑑/𝑎𝑙𝑙]"
+            en: "{p}𝑚𝑒𝑛𝑢 [𝑐𝑜𝑚𝑚𝑎𝑛𝑑/𝑎𝑙𝑙]"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": "",
+            "path": "",
+            "moment-timezone": "",
+            "string-similarity": "",
+            "systeminformation": ""
         }
     },
 
-    onStart: async function ({ event, message, usersData, threadsData, args, global }) {
+    onStart: async function ({ message, event, args, global }) {
         try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+                require("path");
+                require("moment-timezone");
+                require("string-similarity");
+                require("systeminformation");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑝𝑎𝑡ℎ, 𝑚𝑜𝑚𝑒𝑛𝑡-𝑡𝑖𝑚𝑒𝑧𝑜𝑛𝑒, 𝑠𝑡𝑟𝑖𝑛𝑔-𝑠𝑖𝑚𝑖𝑙𝑎𝑟𝑖𝑡𝑦, 𝑎𝑛𝑑 𝑠𝑦𝑠𝑡𝑒𝑚𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛.");
+            }
+
             const { events, commands } = global.client;
-            const { threadID, messageID, senderID } = event;
+            const { threadID, senderID } = event;
             const config = global.config;
             const time = process.uptime();
             const hours = Math.floor(time / (60 * 60));
@@ -32,8 +53,8 @@ module.exports = {
             const timeStart = Date.now();
             
             // System information
-            let cpuInfo = { manufacturer: "Unknown", brand: "Unknown", speed: "0", physicalCores: 0, cores: 0 };
-            let osInfo = { platform: "Unknown" };
+            let cpuInfo = { manufacturer: "𝑈𝑛𝑘𝑛𝑜𝑤𝑛", brand: "𝑈𝑛𝑘𝑛𝑜𝑤𝑛", speed: "0", physicalCores: 0, cores: 0 };
+            let osInfo = { platform: "𝑈𝑛𝑘𝑛𝑜𝑤𝑛" };
             let pidusage = { cpu: 0, memory: 0 };
             
             try {
@@ -42,7 +63,7 @@ module.exports = {
                 osInfo = await systemInfo.osInfo();
                 pidusage = await global.utils.getPidUsage(process.pid);
             } catch (e) {
-                console.error("System info error:", e);
+                console.error("𝑆𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜 𝑒𝑟𝑟𝑜𝑟:", e);
             }
             
             const moment = require("moment-timezone");
@@ -65,12 +86,12 @@ module.exports = {
             // Get prefix
             let prefix = config.PREFIX || "!";
             try {
-                const threadData = await threadsData.get(threadID);
+                const threadData = await global.threadsData.get(threadID);
                 if (threadData && threadData.PREFIX) {
                     prefix = threadData.PREFIX;
                 }
             } catch (e) {
-                console.error("Thread data error:", e);
+                console.error("𝑇ℎ𝑟𝑒𝑎𝑑 𝑑𝑎𝑡𝑎 𝑒𝑟𝑟𝑜𝑟:", e);
             }
 
             // Random icons
@@ -88,14 +109,14 @@ module.exports = {
             async function downloadImage(url) {
                 try {
                     const ext = path.extname(url.split("?")[0]).split(".").pop() || "jpg";
-                    const cacheDir = path.join(__dirname, '../scripts/cmds/cache');
+                    const cacheDir = path.join(__dirname, 'cache');
                     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
                     const filePath = path.join(cacheDir, `menu_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
                     const response = await axios({ method: 'GET', url, responseType: 'arraybuffer', timeout: 15000 });
                     fs.writeFileSync(filePath, response.data);
                     return filePath;
                 } catch (error) {
-                    console.error("Download image error:", error);
+                    console.error("𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
                     return null;
                 }
             }
@@ -118,14 +139,14 @@ module.exports = {
                     attachment = fs.createReadStream(imgPath);
                 }
             } catch (error) {
-                console.error("Image download failed:", error);
+                console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑:", error);
             }
 
             if (type == "all") {
                 let msg = "";
                 let i = 0;
                 for (const cmd of cmds.values()) {
-                    msg += `🌸 ${++i} | /${cmd.config.name}: ${cmd.config.description || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n\n`;
+                    msg += `🌸 ${++i} | /${cmd.config.name}: ${cmd.config.shortDescription?.en || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n\n`;
                 }
                 await message.reply({ body: msg, attachment });
                 if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
@@ -154,7 +175,7 @@ module.exports = {
                 }
                 
                 const cmd = cmds.get(type).config;
-                const msg = `✏️ 𝑁𝑎𝑚𝑒: ${cmd.name}\n🚫 𝑃𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛: ${TextPr(cmd.role || cmd.hasPermssion || 0)}\n📝 𝐷𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛: ${cmd.description || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n📍 𝑈𝑠𝑎𝑔𝑒: ${cmd.usages || "𝑁𝑜 𝑢𝑠𝑎𝑔𝑒"}\n🌸 𝐶𝑎𝑡𝑒𝑔𝑜𝑟𝑦: ${cmd.commandCategory || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑"}\n⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: ${cmd.cooldowns || 5}s`;
+                const msg = `✏️ 𝑁𝑎𝑚𝑒: ${cmd.name}\n🚫 𝑃𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛: ${TextPr(cmd.role || 0)}\n📝 𝐷𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛: ${cmd.shortDescription?.en || "𝑁𝑜 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛"}\n📍 𝑈𝑠𝑎𝑔𝑒: ${cmd.guide?.en || "𝑁𝑜 𝑢𝑠𝑎𝑔𝑒"}\n🌸 𝐶𝑎𝑡𝑒𝑔𝑜𝑟𝑦: ${cmd.category || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑"}\n⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: ${cmd.countDown || 5}s`;
                 await message.reply({ body: msg, attachment });
                 if (imgPath) setTimeout(() => fs.existsSync(imgPath) && fs.unlinkSync(imgPath), 60000);
                 return;
@@ -164,18 +185,18 @@ module.exports = {
             function CmdCategory() {
                 const array = [];
                 for (const cmd of cmds.values()) {
-                    const { commandCategory, role, hasPermssion, name: nameModule } = cmd.config;
-                    const category = commandCategory || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑";
-                    const perm = role !== undefined ? role : hasPermssion !== undefined ? hasPermssion : 0;
+                    const { category, role, name: nameModule } = cmd.config;
+                    const categoryName = category || "𝑈𝑛𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑖𝑧𝑒𝑑";
+                    const perm = role !== undefined ? role : 0;
                     
-                    if (!array.find(i => i.cmdCategory == category)) {
+                    if (!array.find(i => i.cmdCategory == categoryName)) {
                         array.push({
-                            cmdCategory: category,
+                            cmdCategory: categoryName,
                             permission: perm,
                             nameModule: [nameModule]
                         });
                     } else {
-                        const find = array.find(i => i.cmdCategory == category);
+                        const find = array.find(i => i.cmdCategory == categoryName);
                         find.nameModule.push(nameModule);
                     }
                 }
@@ -216,9 +237,9 @@ module.exports = {
         }
     },
 
-    onReaction: async function ({ event, message, global }) {
+    onReaction: async function ({ message, event, global }) {
         try {
-            const { threadID, messageID, userID } = event;
+            const { messageID, userID } = event;
             const handleReaction = global.client.handleReaction?.find(r => r.messageID === messageID);
             
             if (!handleReaction || userID !== handleReaction.author || event.reaction !== "❤") {
@@ -237,7 +258,7 @@ module.exports = {
                     attachment = fs.createReadStream(imgPath);
                 }
             } catch (error) {
-                console.error("Image download failed:", error);
+                console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑:", error);
             }
 
             function byte2mb(bytes) {
@@ -250,14 +271,14 @@ module.exports = {
             async function downloadImage(url) {
                 try {
                     const ext = path.extname(url.split("?")[0]).split(".").pop() || "jpg";
-                    const cacheDir = path.join(__dirname, '../scripts/cmds/cache');
+                    const cacheDir = path.join(__dirname, 'cache');
                     if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
                     const filePath = path.join(cacheDir, `menu_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
                     const response = await axios({ method: 'GET', url, responseType: 'arraybuffer', timeout: 15000 });
                     fs.writeFileSync(filePath, response.data);
                     return filePath;
                 } catch (error) {
-                    console.error("Download image error:", error);
+                    console.error("𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
                     return null;
                 }
             }
