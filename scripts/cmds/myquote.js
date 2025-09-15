@@ -1,43 +1,60 @@
 const axios = require('axios');
 const { createCanvas, loadImage } = require('canvas');
-const fs = require('fs');
+const fs = require('fs-extra');
 
-module.exports.config = {
-  name: "myquote",
-  version: "2.0",
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  hasPermssion: 0,
-  description: "✨ Create stylish quote images with beautiful backgrounds",
-  category: "fun",
-  usages: "[quote text] = [author name]",
-  cooldowns: 5,
-  dependencies: {
-    "axios": "",
-    "canvas": ""
-  }
-};
-
-module.exports.onStart = async function ({ api, event, args }) {
-  const { threadID, messageID } = event;
-  
-  try {
-    if (!args.length) {
-      return api.sendMessage("📝 𝗨𝘀𝗮𝗴𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦 𝘵𝘦𝘹𝘵] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘦]\n\n✨ 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘓𝘪𝘧𝘦 𝘪𝘴 𝘢 𝘫𝘰𝘶𝘳𝘯𝘦𝘺 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
+module.exports = {
+  config: {
+    name: "myquote",
+    aliases: ["quote", "quotemaker"],
+    version: "2.0",
+    role: 0,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    shortDescription: {
+      en: "✨ 𝐶𝑟𝑒𝑎𝑡𝑒 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑞𝑢𝑜𝑡𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑𝑠"
+    },
+    longDescription: {
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑞𝑢𝑜𝑡𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡 𝑎𝑛𝑑 𝑎𝑢𝑡ℎ𝑜𝑟 𝑛𝑎𝑚𝑒"
+    },
+    category: "𝑓𝑢𝑛",
+    guide: {
+      en: "{p}myquote [𝑞𝑢𝑜𝑡𝑒 𝑡𝑒𝑥𝑡] = [𝑎𝑢𝑡ℎ𝑜𝑟 𝑛𝑎𝑚𝑒]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "canvas": "",
+      "fs-extra": ""
     }
+  },
 
-    const input = args.join(' ').split('=');
-    if (input.length < 2) {
-      return api.sendMessage("❌ 𝗜𝗻𝘃𝗮𝗹𝗶𝗱 𝗳𝗼𝗿𝗺𝗮𝘁!\n\n✨ 𝗣𝗹𝗲𝗮𝘀𝗲 𝘂𝘀𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘦]\n\n🌠 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘋𝘳𝘦𝘢𝘮 𝘣𝘪𝘨 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
-    }
+  onStart: async function({ message, event, args }) {
+    try {
+      // Dependency check
+      try {
+        require("axios");
+        require("canvas");
+        require("fs-extra");
+      } catch (e) {
+        return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑐𝑎𝑛𝑣𝑎𝑠, 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+      }
 
-    const quoteText = input.slice(0, -1).join('=').trim();
-    const authorName = input[input.length - 1].trim();
+      if (!args.length) {
+        return message.reply("📝 𝑈𝑠𝑎𝑔𝑒:\n𝘮𝘺𝘲𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦 𝘵𝘦𝘹𝘵] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘵]\n\n✨ 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝘮𝘺𝘲𝘶𝘰𝘵𝘦 𝐿𝑖𝑓𝑒 𝑖𝑠 𝑎 𝑗𝑜𝑢𝑟𝑛𝑒𝑦 = 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑");
+      }
 
-    if (!quoteText || !authorName) {
-      return api.sendMessage("⚠️ 𝗠𝗶𝘀𝘀𝗶𝗻𝗴 𝗱𝗮𝗮𝗮𝘁𝗮!\n\n✨ 𝗣𝗹𝗲𝗮𝘀𝗲 𝗽𝗿𝗼𝘃𝗶𝗱𝗲 𝗯𝗼𝘁𝗵 𝗾𝘂𝗼𝘁𝗲 𝗮𝗻𝗱 𝗮𝘂𝘁𝗵𝗼𝗿 𝗻𝗮𝗺𝗲\n\n🌠 𝗘𝘅𝗮𝗺𝗽𝗹𝗲:\n𝘔𝘺𝘘𝘶𝘰𝘵𝘦 𝘛𝘩𝘦 𝘱𝘢𝘴𝘵 𝘪𝘴 𝘢 𝘭𝘦𝘴𝘴𝘰𝘯 = 𝘈𝘴𝘪𝘧 𝘔𝘢𝘩𝘮𝘶𝘥", threadID, messageID);
-    }
+      const input = args.join(' ').split('=');
+      if (input.length < 2) {
+        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑓𝑜𝑟𝑚𝑎𝑡!\n\n✨ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑢𝑠𝑒:\n𝘮𝘺𝘲𝘶𝘰𝘵𝘦 [𝘲𝘶𝘰𝘵𝘦] = [𝘢𝘶𝘵𝘩𝘰𝘳 𝘯𝘢𝘮𝘦]\n\n🌠 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝘮𝘺𝘲𝘶𝘰𝘵𝘦 𝐷𝑟𝑒𝑎𝑚 𝑏𝑖𝑔 = 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑");
+      }
 
-    const bgList = [
+      const quoteText = input.slice(0, -1).join('=').trim();
+      const authorName = input[input.length - 1].trim();
+
+      if (!quoteText || !authorName) {
+        return message.reply("⚠️ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑎𝑡𝑎!\n\n✨ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑏𝑜𝑡ℎ 𝑞𝑢𝑜𝑡𝑒 𝑎𝑛𝑑 𝑎𝑢𝑡ℎ𝑜𝑟 𝑛𝑎𝑚𝑒\n\n🌠 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝘮𝘺𝘲𝘶𝘰𝘵𝘦 𝑇ℎ𝑒 𝑝𝑎𝑠𝑡 𝑖𝑠 𝑎 𝑙𝑒𝑠𝑠𝑜𝑛 = 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑");
+      }
+
+      const bgList = [
         'https://i.postimg.cc/G3WNFpch/7b6eb20bccd6d9d97027e0e0650e350e.jpg',
         'https://i.postimg.cc/kMQNHMQ5/87ee51adca4b4c74b5d97089d67159d0.jpg',
         'https://i.postimg.cc/Kj01yWc0/a974ffafa41e455bcaea2299119dadfc.jpg',
@@ -80,62 +97,70 @@ module.exports.onStart = async function ({ api, event, args }) {
         'https://i.postimg.cc/JzQk453X/be21b223a65c71bcd7fea98edb632697.jpg'
       ];
 
-    const bgURL = bgList[Math.floor(Math.random() * bgList.length)];
-    const response = await axios.get(bgURL, { responseType: 'arraybuffer' });
-    const bgImg = Buffer.from(response.data, 'binary');
-    
-    const bgImage = await loadImage(bgImg);
-    const canvas = createCanvas(bgImage.width, bgImage.height);
-    const ctx = canvas.getContext('2d');
-    
-    ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-    ctx.font = 'bold 32px "Arial"';
-    ctx.fillStyle = '#FFFFFF';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-    ctx.shadowBlur = 8;
-    ctx.textAlign = 'center';
-    
-    const maxWidth = canvas.width * 0.8;
-    const lineHeight = 42;
-    const margin = 50;
-    let lines = [];
-    let currentLine = '';
-
-    quoteText.split(' ').forEach(word => {
-      const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const { width } = ctx.measureText(testLine);
+      const bgURL = bgList[Math.floor(Math.random() * bgList.length)];
+      const response = await axios.get(bgURL, { responseType: 'arraybuffer' });
+      const bgImg = Buffer.from(response.data, 'binary');
       
-      if (width > maxWidth && currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        currentLine = testLine;
-      }
-    });
-    lines.push(currentLine);
-    
-    const textY = canvas.height / 2 - (lines.length * lineHeight) / 2;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, canvas.width / 2, textY + (i * lineHeight));
-    });
-    
-    ctx.font = 'italic 28px "Georgia"';
-    ctx.fillText(`— ${authorName}`, canvas.width / 2, textY + lines.length * lineHeight + 40);
-    
-    const outputPath = `${__dirname}/cache/quote_${event.senderID}.jpg`;
-    const out = fs.createWriteStream(outputPath);
-    const stream = canvas.createJPEGStream({ quality: 0.95 });
-    
-    stream.pipe(out);
-    out.on('finish', () => {
-      api.sendMessage({
-        body: "✨ 𝗤𝘂𝗼𝘁𝗲 𝗖𝗿𝗲𝗮𝘁𝗲𝗱 𝗦𝘂𝗰𝗰𝗲𝘀𝘀𝗳𝘂𝗹𝗹𝘆!",
+      const bgImage = await loadImage(bgImg);
+      const canvas = createCanvas(bgImage.width, bgImage.height);
+      const ctx = canvas.getContext('2d');
+      
+      ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+      ctx.font = 'bold 32px "Arial"';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+      ctx.shadowBlur = 8;
+      ctx.textAlign = 'center';
+      
+      const maxWidth = canvas.width * 0.8;
+      const lineHeight = 42;
+      const margin = 50;
+      let lines = [];
+      let currentLine = '';
+
+      quoteText.split(' ').forEach(word => {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+        const { width } = ctx.measureText(testLine);
+        
+        if (width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      });
+      lines.push(currentLine);
+      
+      const textY = canvas.height / 2 - (lines.length * lineHeight) / 2;
+      lines.forEach((line, i) => {
+        ctx.fillText(line, canvas.width / 2, textY + (i * lineHeight));
+      });
+      
+      ctx.font = 'italic 28px "Georgia"';
+      ctx.fillText(`— ${authorName}`, canvas.width / 2, textY + lines.length * lineHeight + 40);
+      
+      const outputPath = `${__dirname}/cache/quote_${event.senderID}.jpg`;
+      const out = fs.createWriteStream(outputPath);
+      const stream = canvas.createJPEGStream({ quality: 0.95 });
+      
+      stream.pipe(out);
+      
+      await new Promise((resolve, reject) => {
+        out.on('finish', resolve);
+        out.on('error', reject);
+      });
+      
+      await message.reply({
+        body: "✨ 𝑄𝑢𝑜𝑡𝑒 𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
         attachment: fs.createReadStream(outputPath)
-      }, threadID, () => fs.unlinkSync(outputPath), messageID);
-    });
-    
-  } catch (error) {
-    console.error(error);
-    api.sendMessage("❌ 𝗘𝗿𝗿𝗼𝗿 𝗴𝗲𝗻𝗲𝗿𝗮𝘁𝗶𝗻𝗴 𝗾𝘂𝗼𝘁𝗲 𝗶𝗺𝗮𝗴𝗲. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿.", threadID, messageID);
+      });
+      
+      // Clean up
+      fs.unlinkSync(outputPath);
+      
+    } catch (error) {
+      console.error(error);
+      await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑞𝑢𝑜𝑡𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+    }
   }
 };
