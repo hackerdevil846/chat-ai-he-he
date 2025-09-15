@@ -1,12 +1,12 @@
 const axios = require("axios");
-const fs = require("fs");
+const fs = require("fs-extra");
 const path = require("path");
 
 function deleteAfterTimeout(filePath, timeout = 60000) {
   setTimeout(() => {
     if (fs.existsSync(filePath)) {
       fs.unlink(filePath, (err) => {
-        if (!err) console.log(`🧹 Deleted file: ${filePath}`);
+        if (!err) console.log(`🧹 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑓𝑖𝑙𝑒: ${filePath}`);
       });
     }
   }, timeout);
@@ -39,29 +39,51 @@ const YOUTUBE_API_KEY = "AIzaSyAGQrBQYworsR7T2gu0nYhLPSsi2WFVrgQ";
 module.exports = {
   config: {
     name: "musicv2",
+    aliases: ["song", "ytmusic"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "Asif Mahmud",
-    description: "YouTube music downloader with thumbnail and info",
-    category: "Media",
-    usages: "music <query> | music video <query>",
-    cooldowns: 5,
+    role: 0,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    shortDescription: {
+      en: "🎵 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑚𝑢𝑠𝑖𝑐 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑟"
+    },
+    longDescription: {
+      en: "𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑚𝑢𝑠𝑖𝑐 𝑜𝑟 𝑣𝑖𝑑𝑒𝑜𝑠 𝑓𝑟𝑜𝑚 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑤𝑖𝑡ℎ 𝑖𝑛𝑓𝑜 𝑎𝑛𝑑 𝑡ℎ𝑢𝑚𝑏𝑛𝑎𝑖𝑙"
+    },
+    guide: {
+      en: "{p}musicv2 <𝑞𝑢𝑒𝑟𝑦> | {p}musicv2 𝑣𝑖𝑑𝑒𝑜 <𝑞𝑢𝑒𝑟𝑦>"
+    },
+    countDown: 5,
+    category: "𝑚𝑒𝑑𝑖𝑎",
+    dependencies: {
+      "axios": "",
+      "fs-extra": "",
+      "path": ""
+    }
   },
 
-  onStart: async function ({ api, event, args }) {
-    if (!args[0]) return api.sendMessage("🎵 Please enter a song name!", event.threadID);
-
-    const isVideo = args[0].toLowerCase() === "video";
-    const query = isVideo ? args.slice(1).join(" ") : args.join(" ");
-    const processingMessage = await api.sendMessage(`🔍 Searching for "${query}"...`, event.threadID);
-
+  onStart: async function ({ message, event, args }) {
     try {
+      // Dependency check
+      try {
+        require("axios");
+        require("fs-extra");
+        require("path");
+      } catch (e) {
+        return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑎𝑛𝑑 𝑝𝑎𝑡ℎ.");
+      }
+
+      if (!args[0]) return message.reply("🎵 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑠𝑜𝑛𝑔 𝑛𝑎𝑚𝑒!");
+
+      const isVideo = args[0].toLowerCase() === "video";
+      const query = isVideo ? args.slice(1).join(" ") : args.join(" ");
+      const processingMessage = await message.reply(`🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑓𝑜𝑟 "${query}"...`);
+
       // Search YouTube for the video
       const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video&key=${YOUTUBE_API_KEY}`;
       const searchRes = await axios.get(searchUrl);
       
       if (!searchRes.data.items || searchRes.data.items.length === 0) {
-        throw new Error("❌ Song not found.");
+        throw new Error("❌ 𝑆𝑜𝑛𝑔 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑.");
       }
 
       const video = searchRes.data.items[0];
@@ -73,7 +95,7 @@ module.exports = {
       const detailsRes = await axios.get(detailsUrl);
       
       if (!detailsRes.data.items || detailsRes.data.items.length === 0) {
-        throw new Error("❌ Video details not found.");
+        throw new Error("❌ 𝑉𝑖𝑑𝑒𝑜 𝑑𝑒𝑡𝑎𝑖𝑙𝑠 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑.");
       }
 
       const details = detailsRes.data.items[0];
@@ -101,15 +123,15 @@ module.exports = {
       });
 
       // Send video info with thumbnail
-      await api.sendMessage({
-        body: `🎵 ${isVideo ? "Video" : "Audio"} Information:\n\n` +
-              `📌 Title: ${title}\n` +
-              `📺 Channel: ${author}\n` +
-              `👁️ Views: ${formatNumber(views)}\n` +
-              `⏱️ Duration: ${formatDuration(seconds)}\n\n` +
+      await message.reply({
+        body: `🎵 ${isVideo ? "𝑉𝑖𝑑𝑒𝑜" : "𝐴𝑢𝑑𝑖𝑜"} 𝐼𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛:\n\n` +
+              `📌 𝑇𝑖𝑡𝑙𝑒: ${title}\n` +
+              `📺 𝐶ℎ𝑎𝑛𝑛𝑒𝑙: ${author}\n` +
+              `👁️ 𝑉𝑖𝑒𝑤𝑠: ${formatNumber(views)}\n` +
+              `⏱️ 𝐷𝑢𝑟𝑎𝑡𝑖𝑜𝑛: ${formatDuration(seconds)}\n\n` +
               `🔗 ${videoUrl}`,
         attachment: fs.createReadStream(thumbPath)
-      }, event.threadID);
+      });
       deleteAfterTimeout(thumbPath);
 
       // Prepare download based on media type
@@ -129,7 +151,7 @@ module.exports = {
           
           const videoRes = await axios.request(videoOptions);
           if (!videoRes.data || videoRes.data.status !== 'ok') {
-            throw new Error("Primary video API failed");
+            throw new Error("𝑃𝑟𝑖𝑚𝑎𝑟𝑦 𝑣𝑖𝑑𝑒𝑜 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑");
           }
           
           const formats = videoRes.data.formats;
@@ -139,11 +161,11 @@ module.exports = {
             f.hasVideo && f.hasAudio
           );
           
-          if (!videoFormat) throw new Error("No suitable video format found");
+          if (!videoFormat) throw new Error("𝑁𝑜 𝑠𝑢𝑖𝑡𝑎𝑏𝑙𝑒 𝑣𝑖𝑑𝑒𝑜 𝑓𝑜𝑟𝑚𝑎𝑡 𝑓𝑜𝑢𝑛𝑑");
           fileUrl = videoFormat.url;
           fileName = `${title.replace(/[^\w\s]/gi, '_').slice(0, 30)}.mp4`;
         } catch (primaryError) {
-          console.log("Using backup video API...");
+          console.log("𝑈𝑠𝑖𝑛𝑔 𝑏𝑎𝑐𝑘𝑢𝑝 𝑣𝑖𝑑𝑒𝑜 𝐴𝑃𝐼...");
           // Backup video API
           const backupVideoOptions = {
             method: 'GET',
@@ -158,13 +180,13 @@ module.exports = {
           const backupRes = await axios.request(backupVideoOptions);
           const formats = backupRes.data.formats;
           if (!formats || formats.length === 0) {
-            throw new Error("Backup video API failed - no formats available");
+            throw new Error("𝐵𝑎𝑐𝑘𝑢𝑝 𝑣𝑖𝑑𝑒𝑜 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑 - 𝑛𝑜 𝑓𝑜𝑟𝑚𝑎𝑡𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒");
           }
           
           // Filter and sort by quality
           const videoFormats = formats.filter(f => f.container === 'mp4' && f.quality);
           if (videoFormats.length === 0) {
-            throw new Error("No MP4 format found");
+            throw new Error("𝑁𝑜 𝑀𝑃4 𝑓𝑜𝑟𝑚𝑎𝑡 𝑓𝑜𝑢𝑛𝑑");
           }
           
           const qualityScores = {
@@ -199,13 +221,13 @@ module.exports = {
           
           const audioRes = await axios.request(audioOptions);
           if (audioRes.data.status !== 'ok') {
-            throw new Error("Primary audio API failed: " + audioRes.data.msg);
+            throw new Error("𝑃𝑟𝑖𝑚𝑎𝑟𝑦 𝑎𝑢𝑑𝑖𝑜 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑: " + audioRes.data.msg);
           }
           
           fileUrl = audioRes.data.link;
           fileName = `${title.replace(/[^\w\s]/gi, '_').slice(0, 30)}.mp3`;
         } catch (primaryError) {
-          console.log("Using backup audio API...");
+          console.log("𝑈𝑠𝑖𝑛𝑔 𝑏𝑎𝑐𝑘𝑢𝑝 𝑎𝑢𝑑𝑖𝑜 𝐴𝑃𝐼...");
           // Backup audio API
           const backupAudioOptions = {
             method: 'GET',
@@ -219,7 +241,7 @@ module.exports = {
           
           const backupRes = await axios.request(backupAudioOptions);
           if (backupRes.data.status !== 'ok') {
-            throw new Error("Backup audio API failed: " + (backupRes.data.msg || ''));
+            throw new Error("𝐵𝑎𝑐𝑘𝑢𝑝 𝑎𝑢𝑑𝑖𝑜 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑: " + (backupRes.data.msg || ''));
           }
           
           fileUrl = backupRes.data.link;
@@ -244,19 +266,16 @@ module.exports = {
       });
 
       // Send media file
-      api.setMessageReaction("✅", event.messageID, (err) => {}, true);
-      await api.sendMessage({
-        body: `✅ ${isVideo ? "Video" : "Music"} downloaded successfully!`,
+      await message.reply({
+        body: `✅ ${isVideo ? "𝑉𝑖𝑑𝑒𝑜" : "𝑀𝑢𝑠𝑖𝑐"} 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!`,
         attachment: fs.createReadStream(filePath)
-      }, event.threadID);
+      });
       
       deleteAfterTimeout(filePath);
 
     } catch (err) {
       console.error(err);
-      api.sendMessage(`❌ Error: ${err.message}`, event.threadID);
-    } finally {
-      api.unsendMessage(processingMessage.messageID);
+      await message.reply(`❌ 𝐸𝑟𝑟𝑜𝑟: ${err.message}`);
     }
-  },
+  }
 };
