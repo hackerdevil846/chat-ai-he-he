@@ -1,51 +1,60 @@
-module.exports.config = {
-  name: "mentionbot",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "⚡️ Bot admin mention detection & auto-response system",
-  category: "system",
-  usages: "",
-  cooldowns: 1,
-  envConfig: {}
-};
+module.exports = {
+    config: {
+        name: "mentionbot",
+        version: "1.0.0",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 1,
+        category: "𝑠𝑦𝑠𝑡𝑒𝑚",
+        shortDescription: {
+            en: "⚡️ 𝐵𝑜𝑡 𝑎𝑑𝑚𝑖𝑛 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑑𝑒𝑡𝑒𝑐𝑡𝑖𝑜𝑛 & 𝑎𝑢𝑡𝑜-𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑠𝑦𝑠𝑡𝑒𝑚"
+        },
+        longDescription: {
+            en: "𝐷𝑒𝑡𝑒𝑐𝑡𝑠 𝑤ℎ𝑒𝑛 𝑏𝑜𝑡 𝑎𝑑𝑚𝑖𝑛 𝑖𝑠 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒𝑠"
+        },
+        guide: {
+            en: ""
+        },
+        dependencies: {}
+    },
 
-module.exports.onLoad = function() {
-  // Initialization placeholder
-};
+    onLoad: function() {
+        // 𝐼𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛 𝑝𝑙𝑎𝑐𝑒ℎ𝑜𝑙𝑑𝑒𝑟
+    },
 
-module.exports.handleEvent = function({ api, event }) {
-  try {
-    const botAdmin = "61571630409265";
-    const allowedIDs = ["61571630409265", ""];
-    
-    if (event.senderID === botAdmin) return;
-    
-    const mentionedIDs = Object.keys(event.mentions);
-    const trigger = mentionedIDs.some(id => allowedIDs.includes(id));
-    
-    if (trigger) {
-      const responses = [
-        "🙄 Amake disturb korona",
-        "🙈 Amake dakish na, ami jaanu er sathe busy",
-        "🫡 Bola nai mention korish na, dur theko",
-        "😒 Ki hoyeche, keno dakchish?",
-        "💢 Hayre, amar sharam lagche evabe dakish na",
-        "🤫 Chup kor",
-        "💌 Bolo na jaanu",
-        "🐣 Haa jaan, dakchish keno?",
-        "👑 Bolen mere sarkar"
-      ];
-      
-      const selectedResponse = responses[Math.floor(Math.random() * responses.length)];
-      
-      api.sendMessage({
-        body: `⛔️ ${selectedResponse}`
-      }, event.threadID, event.messageID);
+    onChat: async function({ event, message }) {
+        try {
+            const botAdmin = "61571630409265";
+            const allowedIDs = ["61571630409265", ""];
+            
+            if (event.senderID === botAdmin) return;
+            
+            const mentionedIDs = Object.keys(event.mentions);
+            const trigger = mentionedIDs.some(id => allowedIDs.includes(id));
+            
+            if (trigger) {
+                const responses = [
+                    "🙄 𝐴𝑚𝑎𝑘𝑒 𝑑𝑖𝑠𝑡𝑢𝑟𝑏 𝑘𝑜𝑟𝑜𝑛𝑎",
+                    "🙈 𝐴𝑚𝑎𝑘𝑒 𝑑𝑎𝑘𝑖𝑠ℎ 𝑛𝑎, 𝑎𝑚𝑖 𝑗𝑎𝑎𝑛𝑢 𝑒𝑟 𝑠𝑎𝑡ℎ𝑒 𝑏𝑢𝑠𝑦",
+                    "🫡 𝐵𝑜𝑙𝑎 𝑛𝑎𝑖 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑘𝑜𝑟𝑖𝑠ℎ 𝑛𝑎, 𝑑𝑢𝑟 𝑡ℎ𝑒𝑘𝑜",
+                    "😒 𝐾𝑖 ℎ𝑜𝑦𝑒𝑐ℎ𝑒, 𝑘𝑒𝑛𝑜 𝑑𝑎𝑘𝑐ℎ𝑖𝑠ℎ?",
+                    "💢 𝐻𝑎𝑦𝑟𝑒, 𝑎𝑚𝑎𝑟 𝑠ℎ𝑎𝑟𝑎𝑚 𝑙𝑎𝑔𝑐ℎ𝑒 𝑒𝑣𝑎𝑏𝑒 𝑑𝑎𝑘𝑖𝑠ℎ 𝑛𝑎",
+                    "🤫 𝐶ℎ𝑢𝑝 𝑘𝑜𝑟",
+                    "💌 𝐵𝑜𝑙𝑜 𝑛𝑎 𝑗𝑎𝑎𝑛𝑢",
+                    "🐣 𝐻𝑎𝑎 𝑗𝑎𝑎𝑛, 𝑑𝑎𝑘𝑐ℎ𝑖𝑠ℎ 𝑘𝑒𝑛𝑜?",
+                    "👑 𝐵𝑜𝑙𝑒𝑛 𝑚𝑒𝑟𝑒 𝑠𝑎𝑟𝑘𝑎𝑟"
+                ];
+                
+                const selectedResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                await message.reply(`⛔️ ${selectedResponse}`);
+            }
+        } catch (error) {
+            console.error("⚠️ 𝑀𝑒𝑛𝑡𝑖𝑜𝑛𝐵𝑜𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+        }
+    },
+
+    onStart: async function() {
+        // 𝐸𝑚𝑝𝑡𝑦 𝑠𝑡𝑎𝑟𝑡 𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛
     }
-  } catch (error) {
-    console.error("⚠️ MentionBot Error:", error);
-  }
 };
-
-module.exports.onStart = function() {};
