@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "goat",
-    aliases: ["lm10"],
+    aliases: ["messi"],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
