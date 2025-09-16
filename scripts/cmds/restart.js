@@ -1,55 +1,79 @@
 const { createCanvas, loadImage } = require('canvas');
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "restart",
+    aliases: ["reboot", "refresh"],
     version: "1.0.0",
-    hasPermssion: 2, // 2 = bot admins/owners
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🔄 Bot ke punarabar suru korano",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 2,
     category: "system",
-    usages: "",
-    cooldowns: 5,
-    dependencies: {
-        "canvas": "latest"
+    shortDescription: {
+      en: "🔄 Restart the bot"
     },
-    envConfig: {}
-};
+    longDescription: {
+      en: "🔄 Restart the bot with stylish canvas message"
+    },
+    guide: {
+      en: "{p}restart"
+    },
+    dependencies: {
+      "canvas": ""
+    }
+  },
 
-module.exports.languages = {
-    "bn": {},
-    "en": {}
-}
-
-module.exports.onLoad = function () {
+  onLoad: function () {
     console.log("✅ Restart command loaded successfully.");
-}
+  },
 
-module.exports.onStart = async function ({ api, event, args }) {
-    const { threadID, messageID } = event;
+  onStart: async function ({ api, event }) {
+    try {
+      // Check dependencies
+      try {
+        if (!createCanvas || !loadImage) {
+          throw new Error("Missing required dependencies");
+        }
+      } catch (err) {
+        return api.sendMessage("❌ | Required dependencies are missing. Please install canvas.", event.threadID, event.messageID);
+      }
 
-    // Create canvas
-    const canvas = createCanvas(600, 200);
-    const ctx = canvas.getContext('2d');
+      const { threadID, messageID } = event;
 
-    // Background
-    ctx.fillStyle = "#1e1e1e";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Create canvas
+      const canvas = createCanvas(600, 200);
+      const ctx = canvas.getContext('2d');
 
-    // Text styling
-    ctx.font = "bold 30px Sans";
-    ctx.fillStyle = "#00ffea";
-    ctx.textAlign = "center";
-    ctx.fillText("🔄 Bot is Restarting...", canvas.width / 2, canvas.height / 2 - 10);
+      // Background
+      ctx.fillStyle = "#1e1e1e";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.font = "20px Sans";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(`See you soon!`, canvas.width / 2, canvas.height / 2 + 30);
+      // Text styling
+      ctx.font = "bold 30px Sans";
+      ctx.fillStyle = "#00ffea";
+      ctx.textAlign = "center";
+      ctx.fillText("🔄 Bot is Restarting...", canvas.width / 2, canvas.height / 2 - 10);
 
-    const buffer = canvas.toBuffer();
+      ctx.font = "20px Sans";
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(`See you soon!`, canvas.width / 2, canvas.height / 2 + 30);
 
-    // Send canvas image before restarting
-    return api.sendMessage({ 
-        body: `💡 [ ${global.config.BOTNAME} ] Bot punarabar suru hocche...`,
+      const buffer = canvas.toBuffer();
+
+      // Send canvas image before restarting
+      await api.sendMessage({ 
+        body: `💡 [ ${global.config.BOTNAME || "Bot"} ] Bot punarabar suru hocche...\n👑 By: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
         attachment: buffer 
-    }, threadID, () => process.exit(1));
-}
+      }, threadID);
+
+      // Restart the bot
+      setTimeout(() => {
+        process.exit(1);
+      }, 2000);
+
+    } catch (error) {
+      console.error("Restart Command Error:", error);
+      api.sendMessage("❌ | Error restarting the bot.", event.threadID, event.messageID);
+    }
+  }
+};
