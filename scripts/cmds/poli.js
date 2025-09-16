@@ -3,231 +3,250 @@ const fs = require("fs-extra");
 const path = require("path");
 const { createCanvas, loadImage } = require("canvas");
 
-module.exports.config = {
-    name: "poli",
+module.exports = {
+  config: {
+    name: "pinterestpro",
+    aliases: ["pinsearch", "pindl"],
     version: "1.6.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🔍 Search and download images from Pinterest",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 10,
+    role: 0,
     category: "search",
-    usages: "[search query]-[number of images]",
-    cooldowns: 10,
+    shortDescription: {
+      en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡"
+    },
+    longDescription: {
+      en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑖𝑔ℎ-𝑞𝑢𝑎𝑙𝑖𝑡𝑦 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑏𝑎𝑛𝑛𝑒𝑟𝑠"
+    },
+    guide: {
+      en: "{𝑝}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]"
+    },
     dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "canvas": ""
+      "axios": "",
+      "fs-extra": "",
+      "canvas": ""
     },
     envConfig: {
-        apiUrl: "https://asif-pinterest-api.onrender.com/v1/pinterest"
+      apiUrl: "https://asif-pinterest-api.onrender.com/v1/pinterest"
     }
-};
+  },
 
-module.exports.onLoad = function() {
+  onLoad: function() {
     const tempDir = path.join(__dirname, "poli_cache");
     if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir, { recursive: true });
+      fs.mkdirSync(tempDir, { recursive: true });
     }
-};
+  },
 
-module.exports.onStart = async function({ api, event, args }) {
-    const { threadID, messageID, senderID } = event;
-    const { apiUrl } = module.exports.config.envConfig;
-    
+  onStart: async function({ api, event, args }) {
     try {
-        const input = args.join(" ");
-        
-        // Show help if no input or incorrect format
-        if (!input || !input.includes("-")) {
-            const helpMessage = `🖼️ 𝗣𝗶𝗻𝘁𝗲𝗿𝗲𝘀𝘁 𝗜𝗺𝗮𝗴𝗲 𝗦𝗲𝗮𝗿𝗰𝗵\n\n` +
-                `📝 𝗨𝘀𝗮𝗴𝗲: ${global.config.PREFIX}poli [search term]-[number of images]\n` +
-                `💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: ${global.config.PREFIX}poli beautiful sunset-5\n\n` +
-                `⚠️ 𝗡𝗼𝘁𝗲: Maximum 10 images per request`;
-            return api.sendMessage(helpMessage, threadID, messageID);
+      // 𝐶ℎ𝑒𝑐𝑘 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠
+      try {
+        if (!axios || !fs || !path || !createCanvas || !loadImage) {
+          throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
         }
+      } catch (err) {
+        return api.sendMessage("❌ | 𝑅𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠 𝑎𝑟𝑒 𝑚𝑖𝑠𝑠𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑎𝑛𝑑 𝑐𝑎𝑛𝑣𝑎𝑠.", event.threadID, event.messageID);
+      }
 
-        const [keyword, countStr] = input.split("-").map(item => item.trim());
-        let imageCount = parseInt(countStr) || 5;
-        
-        if (!keyword) {
-            return api.sendMessage("🔍 | Please provide a search keyword", threadID, messageID);
-        }
+      const { threadID, messageID, senderID } = event;
+      const { apiUrl } = this.config.envConfig;
+      
+      const input = args.join(" ");
+      
+      // 𝑆ℎ𝑜𝑤 ℎ𝑒𝑙𝑝 𝑖𝑓 𝑛𝑜 𝑖𝑛𝑝𝑢𝑡 𝑜𝑟 𝑖𝑛𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑓𝑜𝑟𝑚𝑎𝑡
+      if (!input || !input.includes("-")) {
+        const helpMessage = `🖼️ 𝗣𝗶𝗻𝘁𝗲𝗿𝗲𝘀𝘁 𝗜𝗺𝗮𝗴𝗲 𝗦𝗲𝗮𝗿𝗰𝗵\n\n` +
+          `📝 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]\n` +
+          `💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑠𝑢𝑛𝑠𝑒𝑡-5\n\n` +
+          `⚠️ 𝑁𝑜𝑡𝑒: 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 10 𝑖𝑚𝑎𝑔𝑒𝑠 𝑝𝑒𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡`;
+        return api.sendMessage(helpMessage, threadID, messageID);
+      }
 
-        imageCount = Math.max(1, Math.min(imageCount, 10));
+      const [keyword, countStr] = input.split("-").map(item => item.trim());
+      let imageCount = parseInt(countStr) || 5;
+      
+      if (!keyword) {
+        return api.sendMessage("🔍 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑠𝑒𝑎𝑟𝑐ℎ 𝑘𝑒𝑦𝑤𝑜𝑟𝑑", threadID, messageID);
+      }
+
+      imageCount = Math.max(1, Math.min(imageCount, 10));
+      
+      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑠𝑒𝑎𝑟𝑐ℎ 𝑏𝑎𝑛𝑛𝑒𝑟
+      const bannerPath = await createSearchBanner(keyword, senderID);
+      
+      api.sendMessage({
+        body: `🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑓𝑜𝑟: "${keyword}"...`,
+        attachment: fs.createReadStream(bannerPath)
+      }, threadID, async () => {
+        fs.unlinkSync(bannerPath); // 𝐷𝑒𝑙𝑒𝑡𝑒 𝑏𝑎𝑛𝑛𝑒𝑟 𝑎𝑓𝑡𝑒𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔
         
-        // Create stylish search banner
-        const bannerPath = await createSearchBanner(keyword, senderID);
-        
-        api.sendMessage({
-            body: `🔍 Searching Pinterest for: "${keyword}"...`,
-            attachment: fs.createReadStream(bannerPath)
-        }, threadID, async () => {
-            fs.unlinkSync(bannerPath); // Delete banner after sending
-            
+        try {
+          const response = await axios.get(apiUrl, { 
+            params: { 
+              search: encodeURIComponent(keyword) 
+            },
+            timeout: 30000
+          });
+          
+          if (!response.data || !response.data.data || response.data.data.length === 0) {
+            return api.sendMessage(
+              `❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 "${keyword}". 𝑇𝑟𝑦 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚.`,
+              threadID,
+              messageID
+            );
+          }
+          
+          const imageUrls = response.data.data.slice(0, imageCount);
+          const tempDir = path.join(__dirname, "poli_cache");
+          const imgPaths = [];
+          
+          // 𝐶𝑙𝑒𝑎𝑛 𝑝𝑟𝑒𝑣𝑖𝑜𝑢𝑠 𝑓𝑖𝑙𝑒𝑠
+          fs.readdirSync(tempDir)
+            .filter(file => file.startsWith(`${senderID}_`))
+            .forEach(file => fs.unlinkSync(path.join(tempDir, file)));
+          
+          // 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑝𝑟𝑜𝑔𝑟𝑒𝑠𝑠
+          let downloadedCount = 0;
+          for (let i = 0; i < imageUrls.length; i++) {
             try {
-                const response = await axios.get(apiUrl, { 
-                    params: { 
-                        search: encodeURIComponent(keyword) 
-                    },
-                    timeout: 30000
-                });
-                
-                if (!response.data || !response.data.data || response.data.data.length === 0) {
-                    return api.sendMessage(
-                        `❌ No images found for "${keyword}". Try a different search term.`,
-                        threadID,
-                        messageID
-                    );
-                }
-                
-                const imageUrls = response.data.data.slice(0, imageCount);
-                const tempDir = path.join(__dirname, "poli_cache");
-                const imgPaths = [];
-                
-                // Clean previous files
-                fs.readdirSync(tempDir)
-                    .filter(file => file.startsWith(`${senderID}_`))
-                    .forEach(file => fs.unlinkSync(path.join(tempDir, file)));
-                
-                // Download images with progress
-                let downloadedCount = 0;
-                for (let i = 0; i < imageUrls.length; i++) {
-                    try {
-                        const imagePath = path.join(tempDir, `${senderID}_${Date.now()}_${i}.jpg`);
-                        const imageRes = await axios.get(imageUrls[i], {
-                            responseType: 'arraybuffer',
-                            timeout: 25000
-                        });
-                        
-                        fs.writeFileSync(imagePath, imageRes.data);
-                        imgPaths.push(imagePath);
-                        downloadedCount++;
-                    } catch (err) {
-                        console.error(`Image download error: ${err.message}`);
-                    }
-                }
-                
-                if (imgPaths.length > 0) {
-                    const attachments = imgPaths.map(path => fs.createReadStream(path));
-                    const resultMessage = `✅ Successfully downloaded ${downloadedCount} image(s) for:\n"${keyword}"\n\n✨ Powered by 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
-                    
-                    api.sendMessage({
-                        body: resultMessage,
-                        attachment: attachments
-                    }, threadID, (err) => {
-                        if (err) console.error("Send error:", err);
-                        
-                        // Cleanup after sending
-                        imgPaths.forEach(filePath => {
-                            if (fs.existsSync(filePath)) {
-                                fs.unlinkSync(filePath);
-                            }
-                        });
-                    }, messageID);
-                } else {
-                    api.sendMessage("❌ Failed to download any images. Please try again later.", threadID, messageID);
-                }
-                
-            } catch (error) {
-                console.error("API Error:", error);
-                api.sendMessage("⚠️ Pinterest API is currently unavailable. Please try again later.", threadID, messageID);
+              const imagePath = path.join(tempDir, `${senderID}_${Date.now()}_${i}.jpg`);
+              const imageRes = await axios.get(imageUrls[i], {
+                responseType: 'arraybuffer',
+                timeout: 25000
+              });
+              
+              fs.writeFileSync(imagePath, imageRes.data);
+              imgPaths.push(imagePath);
+              downloadedCount++;
+            } catch (err) {
+              console.error(`𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟: ${err.message}`);
             }
-        });
-        
+          }
+          
+          if (imgPaths.length > 0) {
+            const attachments = imgPaths.map(path => fs.createReadStream(path));
+            const resultMessage = `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 ${downloadedCount} 𝑖𝑚𝑎𝑔𝑒(𝑠) 𝑓𝑜𝑟:\n"${keyword}"\n\n✨ 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
+            
+            api.sendMessage({
+              body: resultMessage,
+              attachment: attachments
+            }, threadID, (err) => {
+              if (err) console.error("𝑆𝑒𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", err);
+              
+              // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑎𝑓𝑡𝑒𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔
+              imgPaths.forEach(filePath => {
+                if (fs.existsSync(filePath)) {
+                  fs.unlinkSync(filePath);
+                }
+              });
+            }, messageID);
+          } else {
+            api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑛𝑦 𝑖𝑚𝑎𝑔𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
+          }
+          
+        } catch (error) {
+          console.error("𝐴𝑃𝐼 𝐸𝑟𝑟𝑜𝑟:", error);
+          api.sendMessage("⚠️ 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝐴𝑃𝐼 𝑖𝑠 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
+        }
+      });
+      
     } catch (error) {
-        console.error("Command Error:", error);
-        api.sendMessage("⚠️ An unexpected error occurred. Please try again later.", threadID, messageID);
+      console.error("𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+      api.sendMessage("⚠️ 𝐴𝑛 𝑢𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", event.threadID, event.messageID);
     }
+  }
 };
 
 async function createSearchBanner(keyword, userId) {
-    const width = 700;
-    const height = 250;
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
-    
-    // Create gradient background
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, '#8a2387');
-    gradient.addColorStop(0.5, '#e94057');
-    gradient.addColorStop(1, '#f27121');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
-    
-    // Draw Pinterest logo programmatically
-    const logoSize = 60;
-    const logoPadding = 20;
-    const logoX = logoPadding + logoSize/2;
-    const logoY = height/2;
-    
-    // Draw red circle (Pinterest brand color)
-    ctx.beginPath();
-    ctx.arc(logoX, logoY, logoSize/2, 0, Math.PI * 2);
-    ctx.fillStyle = '#E60023'; // Official Pinterest red
-    ctx.fill();
-    
-    // Draw white "P" in the center
-    ctx.fillStyle = '#FFFFFF';
-    ctx.font = 'bold 40px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('P', logoX, logoY);
-    
-    // Add decorative elements
-    ctx.beginPath();
-    for (let i = 0; i < 8; i++) {
-        const size = Math.random() * 30 + 15;
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        ctx.moveTo(x, y);
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-    }
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.fill();
-    
-    // Add search text
-    ctx.font = 'bold 38px "Arial"';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 3;
-    ctx.shadowOffsetY = 3;
-    
-    ctx.fillText('PINTEREST IMAGE SEARCH', width / 2, 100);
-    
-    // Add keyword in stylish box
-    const text = `"${keyword}"`;
-    ctx.font = 'italic 32px "Arial"';
-    const textWidth = ctx.measureText(text).width;
-    const boxWidth = textWidth + 50;
-    const boxHeight = 60;
-    const cornerRadius = 15;
-    
-    // Draw rounded rectangle
-    const x = width / 2 - boxWidth / 2;
-    const y = 130;
-    ctx.beginPath();
-    ctx.moveTo(x + cornerRadius, y);
-    ctx.lineTo(x + boxWidth - cornerRadius, y);
-    ctx.quadraticCurveTo(x + boxWidth, y, x + boxWidth, y + cornerRadius);
-    ctx.lineTo(x + boxWidth, y + boxHeight - cornerRadius);
-    ctx.quadraticCurveTo(x + boxWidth, y + boxHeight, x + boxWidth - cornerRadius, y + boxHeight);
-    ctx.lineTo(x + cornerRadius, y + boxHeight);
-    ctx.quadraticCurveTo(x, y + boxHeight, x, y + boxHeight - cornerRadius);
-    ctx.lineTo(x, y + cornerRadius);
-    ctx.quadraticCurveTo(x, y, x + cornerRadius, y);
-    ctx.closePath();
-    
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
-    ctx.fill();
-    
-    // Add text
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(text, width / 2, 170);
-    
-    // Save and return path
-    const bannerPath = path.join(__dirname, "poli_cache", `${userId}_banner.png`);
-    fs.writeFileSync(bannerPath, canvas.toBuffer('image/png'));
-    
-    return bannerPath;
+  const width = 700;
+  const height = 250;
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext('2d');
+  
+  // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, '#8a2387');
+  gradient.addColorStop(0.5, '#e94057');
+  gradient.addColorStop(1, '#f27121');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+  
+  // 𝐷𝑟𝑎𝑤 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑙𝑜𝑔𝑜 𝑝𝑟𝑜𝑔𝑟𝑎𝑚𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦
+  const logoSize = 60;
+  const logoPadding = 20;
+  const logoX = logoPadding + logoSize/2;
+  const logoY = height/2;
+  
+  // 𝐷𝑟𝑎𝑤 𝑟𝑒𝑑 𝑐𝑖𝑟𝑐𝑙𝑒 (𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑏𝑟𝑎𝑛𝑑 𝑐𝑜𝑙𝑜𝑟)
+  ctx.beginPath();
+  ctx.arc(logoX, logoY, logoSize/2, 0, Math.PI * 2);
+  ctx.fillStyle = '#E60023'; // 𝑂𝑓𝑓𝑖𝑐𝑖𝑎𝑙 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑟𝑒𝑑
+  ctx.fill();
+  
+  // 𝐷𝑟𝑎𝑤 𝑤ℎ𝑖𝑡𝑒 "𝑃" 𝑖𝑛 𝑡ℎ𝑒 𝑐𝑒𝑛𝑡𝑒𝑟
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '𝑏𝑜𝑙𝑑 40𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+  ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
+  ctx.textBaseline = '𝑚𝑖𝑑𝑑𝑙𝑒';
+  ctx.fillText('P', logoX, logoY);
+  
+  // 𝐴𝑑𝑑 𝑑𝑒𝑐𝑜𝑟𝑎𝑡𝑖𝑣𝑒 𝑒𝑙𝑒𝑚𝑒𝑛𝑡𝑠
+  ctx.beginPath();
+  for (let i = 0; i < 8; i++) {
+    const size = Math.random() * 30 + 15;
+    const x = Math.random() * width;
+    const y = Math.random() * height;
+    ctx.moveTo(x, y);
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+  }
+  ctx.fillStyle = '𝑟𝑔𝑏𝑎(255, 255, 255, 0.15)';
+  ctx.fill();
+  
+  // 𝐴𝑑𝑑 𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑥𝑡
+  ctx.font = '𝑏𝑜𝑙𝑑 38𝑝𝑥 "𝐴𝑟𝑖𝑎𝑙"';
+  ctx.fillStyle = '#𝑓𝑓𝑓𝑓𝑓𝑓';
+  ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
+  ctx.shadowColor = '𝑟𝑔𝑏𝑎(0, 0, 0, 0.7)';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
+  
+  ctx.fillText('𝑃𝐼𝑁𝑇𝐸𝑅𝐸𝑆𝑇 𝐼𝑀𝐴𝐺𝐸 𝑆𝐸𝐴𝑅𝐶𝐻', width / 2, 100);
+  
+  // 𝐴𝑑𝑑 𝑘𝑒𝑦𝑤𝑜𝑟𝑑 𝑖𝑛 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑏𝑜𝑥
+  const text = `"${keyword}"`;
+  ctx.font = '𝑖𝑡𝑎𝑙𝑖𝑐 32𝑝𝑥 "𝐴𝑟𝑖𝑎𝑙"';
+  const textWidth = ctx.measureText(text).width;
+  const boxWidth = textWidth + 50;
+  const boxHeight = 60;
+  const cornerRadius = 15;
+  
+  // 𝐷𝑟𝑎𝑤 𝑟𝑜𝑢𝑛𝑑𝑒𝑑 𝑟𝑒𝑐𝑡𝑎𝑛𝑔𝑙𝑒
+  const x = width / 2 - boxWidth / 2;
+  const y = 130;
+  ctx.beginPath();
+  ctx.moveTo(x + cornerRadius, y);
+  ctx.lineTo(x + boxWidth - cornerRadius, y);
+  ctx.quadraticCurveTo(x + boxWidth, y, x + boxWidth, y + cornerRadius);
+  ctx.lineTo(x + boxWidth, y + boxHeight - cornerRadius);
+  ctx.quadraticCurveTo(x + boxWidth, y + boxHeight, x + boxWidth - cornerRadius, y + boxHeight);
+  ctx.lineTo(x + cornerRadius, y + boxHeight);
+  ctx.quadraticCurveTo(x, y + boxHeight, x, y + boxHeight - cornerRadius);
+  ctx.lineTo(x, y + cornerRadius);
+  ctx.quadraticCurveTo(x, y, x + cornerRadius, y);
+  ctx.closePath();
+  
+  ctx.fillStyle = '𝑟𝑔𝑏𝑎(0, 0, 0, 0.35)';
+  ctx.fill();
+  
+  // 𝐴𝑑𝑑 𝑡𝑒𝑥𝑡
+  ctx.fillStyle = '#𝑓𝑓𝑓𝑓𝑓𝑓';
+  ctx.fillText(text, width / 2, 170);
+  
+  // 𝑆𝑎𝑣𝑒 𝑎𝑛𝑑 𝑟𝑒𝑡𝑢𝑟𝑛 𝑝𝑎𝑡ℎ
+  const bannerPath = path.join(__dirname, "poli_cache", `${userId}_banner.png`);
+  fs.writeFileSync(bannerPath, canvas.toBuffer('image/png'));
+  
+  return bannerPath;
 }
