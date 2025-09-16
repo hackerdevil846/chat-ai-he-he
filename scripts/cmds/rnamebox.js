@@ -1,46 +1,59 @@
-module.exports.config = {
-	name: "rnamebox",
-	version: "1.0.0",
-	hasPermssion: 2,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🔄 𝑮𝒓𝒖𝒑 𝒆𝒓 𝒔𝒐𝒃 𝒎𝒆𝒎𝒃𝒆𝒓𝒅𝒆𝒓 𝒆𝒓 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒂𝒏 𝒌𝒐𝒓𝒆𝒏",
-	category: "🛠️ 𝑺𝒚𝒔𝒕𝒆𝒎",
-	usages: "[𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆]",
-	cooldowns: 20,
-	dependencies: {}
-};
+module.exports = {
+    config: {
+        name: "rnamebox",
+        aliases: ["renameall", "setallname"],
+        version: "1.0.0",
+        role: 2,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        category: "🛠️ 𝑆𝑦𝑠𝑡𝑒𝑚",
+        shortDescription: {
+            en: "🔄 𝐺𝑟𝑢𝑝 𝑒𝑟 𝑠𝑜𝑏 𝑚𝑒𝑚𝑏𝑒𝑟𝑑𝑒𝑟 𝑒𝑟 𝑛𝑖𝑐𝑘𝑛𝑎𝑚𝑒 𝑝𝑎𝑟𝑖𝑏𝑎𝑟𝑡𝑎𝑛 𝑘𝑜𝑟𝑒𝑛"
+        },
+        longDescription: {
+            en: "𝐴𝑙𝑙 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑛𝑖𝑐𝑘𝑛𝑎𝑚𝑒 𝑐ℎ𝑎𝑛𝑔𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑"
+        },
+        guide: {
+            en: "{p}rnamebox [𝑛𝑖𝑐𝑘𝑛𝑎𝑚𝑒]"
+        },
+        countDown: 20,
+        dependencies: {}
+    },
 
-module.exports.onStart = async function({ event, api, args, Threads }) {
-    try {
-        const customName = args.join(" ");
-        
-        if (!customName) {
-            return api.sendMessage("❌ | 𝑨𝒑𝒏𝒊 𝒆𝒌𝒕𝒊 𝒏𝒊𝒄𝒌𝒏𝒂𝒎𝒆 𝒅𝒊𝒕𝒆 𝒉𝒐𝒃𝒆!", event.threadID, event.messageID);
-        }
-
-        const allThreads = await Threads.getAll(["threadID"]);
-        const failedThreads = [];
-        let successCount = 0;
-
-        for (const thread of allThreads) {
-            try {
-                await api.setTitle(customName, thread.threadID);
-                successCount++;
-                await new Promise(resolve => setTimeout(resolve, 500));
-            } catch (error) {
-                failedThreads.push(thread.threadID);
+    onStart: async function({ message, event, args, threadsData }) {
+        try {
+            const customName = args.join(" ");
+            
+            if (!customName) {
+                return message.reply("❌ | 𝐴𝑝𝑛𝑖 𝑒𝑘𝑡𝑖 𝑛𝑖𝑐𝑘𝑛𝑎𝑚𝑒 𝑑𝑖𝑡𝑒 ℎ𝑜𝑏𝑒!");
             }
-        }
 
-        let msg = `✅ | 𝑺𝒂𝒑𝒉𝒂𝒍𝒃𝒉𝒂𝒃𝒆 ${successCount} 𝒕𝒊 𝒈𝒓𝒖𝒑𝒆𝒓 𝒏𝒂𝒎 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒂𝒏 𝒌𝒐𝒓𝒂 𝒉𝒐𝒍𝒐!`;
-        
-        if (failedThreads.length > 0) {
-            msg += `\n⚠️ | 𝑲𝒊𝒄𝒉𝒖 𝒈𝒓𝒖𝒑𝒆𝒓 𝒏𝒂𝒎 𝒑𝒂𝒓𝒊𝒃𝒂𝒓𝒕𝒂𝒏 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊 𝒏𝒂: ${failedThreads.length} 𝒕𝒊`;
-        }
+            const allThreads = await threadsData.getAll(["threadID"]);
+            const failedThreads = [];
+            let successCount = 0;
 
-        return api.sendMessage(msg, event.threadID, event.messageID);
-    } catch (error) {
-        console.error("🚫 | 𝑬𝒓𝒓𝒐𝒓:", error);
-        return api.sendMessage("❌ | 𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒑𝒓𝒐𝒄𝒆𝒔𝒔𝒊𝒏𝒈 𝒓𝒆𝒒𝒖𝒆𝒔𝒕", event.threadID);
+            for (const thread of allThreads) {
+                try {
+                    await message.unsend(`setTitle_${thread.threadID}`);
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    await message.setTitle(customName, thread.threadID);
+                    successCount++;
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                } catch (error) {
+                    failedThreads.push(thread.threadID);
+                }
+            }
+
+            let msg = `✅ | 𝑆𝑎𝑝ℎ𝑎𝑙𝑏ℎ𝑎𝑏𝑒 ${successCount} 𝑡𝑖 𝑔𝑟𝑢𝑝𝑒𝑟 𝑛𝑎𝑚 𝑝𝑎𝑟𝑖𝑏𝑎𝑟𝑡𝑎𝑛 𝑘𝑜𝑟𝑎 ℎ𝑜𝑙𝑜!`;
+            
+            if (failedThreads.length > 0) {
+                msg += `\n⚠️ | 𝐾𝑖𝑐ℎ𝑢 𝑔𝑟𝑢𝑝𝑒𝑟 𝑛𝑎𝑚 𝑝𝑎𝑟𝑖𝑏𝑎𝑟𝑡𝑎𝑛 𝑘𝑜𝑟𝑡𝑒 𝑝𝑎𝑟𝑐ℎ𝑖 𝑛𝑎: ${failedThreads.length} 𝑡𝑖`;
+            }
+
+            return message.reply(msg);
+            
+        } catch (error) {
+            console.error("🚫 | 𝐸𝑟𝑟𝑜𝑟:", error);
+            return message.reply("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
+        }
     }
 };
