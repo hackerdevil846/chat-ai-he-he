@@ -1,10 +1,8 @@
 const Canvas = require("canvas");
-const { uploadZippyshare } = global.utils;
+const { randomString } = global.utils;
 
 const defaultFontName = "Be VietnamPro-SemiBold";
 const defaultPathFontName = `${__dirname}/assets/font/BeVietnamPro-SemiBold.ttf`;
-const { randomString } = global.utils;
-const percentage = total => total / 100;
 
 Canvas.registerFont(`${__dirname}/assets/font/BeVietnamPro-Bold.ttf`, {
 	family: "BeVietnamPro-Bold"
@@ -16,60 +14,78 @@ Canvas.registerFont(defaultPathFontName, {
 let deltaNext;
 const expToLevel = (exp, deltaNextLevel = deltaNext) => Math.floor((1 + Math.sqrt(1 + 8 * exp / deltaNextLevel)) / 2);
 const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(level, 2) - level) * deltaNextLevel) / 2);
-global.client.makeRankCard = makeRankCard;
 
-module.exports.config = {
-	name: "levelcard", // Changed to "levelcard" to avoid conflicts
-	version: "1.7",
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: {
-		vi: "Xem level của bạn hoặc người được tag. Có thể tag nhiều người",
-		en: "View your level or the level of the tagged person. You can tag many people"
+module.exports = {
+	config: {
+		name: "levelcard",
+		aliases: ["rank", "level"],
+		version: "1.7",
+		author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+		countDown: 5,
+		role: 0,
+		category: "rank",
+		shortDescription: {
+			en: "🌟 View your level or tagged users' levels"
+		},
+		longDescription: {
+			en: "🌟 View your level or the level of tagged users with beautiful rank cards"
+		},
+		guide: {
+			en: "{p}levelcard [empty | @tags]"
+		},
+		dependencies: {
+			"canvas": ""
+		}
 	},
-	category: "rank",
-	usages: "[empty | @tags]",
-	cooldowns: 5,
-	envConfig: {
-		deltaNext: 5
+
+	onStart: async function ({ api, event, args, usersData, threadsData }) {
+		try {
+			// Check dependencies
+			try {
+				if (!Canvas || !Canvas.createCanvas) {
+					throw new Error("Missing required dependencies");
+				}
+			} catch (err) {
+				return api.sendMessage("❌ | Required dependencies are missing. Please install canvas.", event.threadID, event.messageID);
+			}
+
+			deltaNext = global.configModule["levelcard"]?.deltaNext || 5;
+			let targetUsers;
+			const arrayMentions = Object.keys(event.mentions);
+
+			if (arrayMentions.length == 0)
+				targetUsers = [event.senderID];
+			else
+				targetUsers = arrayMentions;
+
+			const rankCards = await Promise.all(targetUsers.map(async userID => {
+				const rankCard = await makeRankCard(userID, usersData, threadsData, event.threadID, deltaNext, api);
+				rankCard.path = `${randomString(10)}.png`;
+				return rankCard;
+			}));
+
+			return api.sendMessage({
+				body: "🔰 𝗥𝗔𝗡𝗞 𝗖𝗔𝗥𝗗 🔰\n\n🌟 Here is your stylish rank card! 🚀\n✨ Level up and shine brighter! 💎",
+				attachment: rankCards
+			}, event.threadID, event.messageID);
+		} catch (error) {
+			console.error("Levelcard Command Error:", error);
+			api.sendMessage("❌ | Error generating level card. Please try again later.", event.threadID, event.messageID);
+		}
 	},
-	dependencies: {
-		"canvas": ""
+
+	onChat: async function ({ event, usersData }) {
+		try {
+			let { exp } = await usersData.getData(event.senderID);
+			if (isNaN(exp) || typeof exp != "number")
+				exp = 0;
+			await usersData.setData(event.senderID, {
+				exp: exp + 1
+			});
+		} catch (e) {
+			console.error("Error updating exp:", e);
+		}
 	}
-};
-
-module.exports.onStart = async function ({ api, event, Users, Threads, args, permssion }) {
-	deltaNext = global.config.rank.deltaNext;
-	let targetUsers;
-	const arrayMentions = Object.keys(event.mentions);
-
-	if (arrayMentions.length == 0)
-		targetUsers = [event.senderID];
-	else
-		targetUsers = arrayMentions;
-
-	const rankCards = await Promise.all(targetUsers.map(async userID => {
-		const rankCard = await makeRankCard(userID, Users, Threads, event.threadID, deltaNext, api);
-		rankCard.path = `${randomString(10)}.png`;
-		return rankCard;
-	}));
-
-	return api.sendMessage({
-		body: "🔰 𝗥𝗔𝗡𝗞 𝗖𝗔𝗥𝗗 🔰\n\n🌟 Here is your stylish rank card! 🚀\n✨ Level up and shine brighter! 💎",
-		attachment: rankCards
-	}, event.threadID, event.messageID);
-};
-
-module.exports.handleEvent = async function ({ Users, event }) {
-	let { exp } = await Users.getData(event.senderID);
-	if (isNaN(exp) || typeof exp != "number")
-		exp = 0;
-	try {
-		await Users.setData(event.senderID, {
-			exp: exp + 1
-		});
-	}
-	catch (e) { }
 };
 
 const defaultDesignCard = {
@@ -83,7 +99,7 @@ const defaultDesignCard = {
 	text_color: "#000000"
 };
 
-async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext, api = global.GoatBot.fcaApi) {
+async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext, api = global.GoatBot?.fcaApi) {
 	const { exp } = await usersData.get(userID);
 	const levelUser = expToLevel(exp, deltaNext);
 
@@ -98,7 +114,7 @@ async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext,
 	const dataLevel = {
 		exp: currentExp,
 		expNextLevel,
-		name: allUser[rank - 1].name,
+		name: allUser[rank - 1]?.name || "Unknown User",
 		rank: `#${rank}/${allUser.length}`,
 		level: levelUser,
 		avatar: await usersData.getAvatarUrl(userID)
@@ -119,7 +135,7 @@ async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext,
 
 	for (const key of checkImagKey) {
 		if (!isNaN(configRankCard[key]))
-			configRankCard[key] = await api.resolvePhotoUrl(configRankCard[key]);
+			configRankCard[key] = await api?.resolvePhotoUrl?.(configRankCard[key]) || configRankCard[key];
 	}
 
 	const image = new RankCard({
@@ -374,7 +390,7 @@ class RankCard {
 			}
 			else {
 				ctx.save();
-				const img = Canvas.loadImage(line_color);
+				const img = await Canvas.loadImage(line_color);
 				ctx.globalCompositeOperation = "source-over";
 
 				ctx.beginPath();
@@ -392,7 +408,7 @@ class RankCard {
 				ctx.translate(-xyAvatar - resizeAvatar / 2 - widthLineBetween - edge, 0);
 
 				ctx.clip();
-				ctx.drawImage(await img, 0, 0, widthCard, heightCard);
+				ctx.drawImage(img, 0, 0, widthCard, heightCard);
 				ctx.restore();
 			}
 		}
@@ -560,7 +576,7 @@ class RankCard {
 			ctx.fillStyle = checkGradientColor(ctx, main_color, 0, 0, widthCard, heightCard);
 			drawSquareRounded(ctx, 0, 0, widthCard, heightCard, radius, main_color);
 		}
-		return canvas.createPNGStream();
+		return canvas.toBuffer();
 	}
 }
 
@@ -675,4 +691,8 @@ function checkFormatColor(color, enableUrl = true) {
 		!Array.isArray(color)
 	)
 		throw new Error(`The color format must be a hex, rgb, rgba ${enableUrl ? ", url image" : ""} or an array of colors`);
+}
+
+function percentage(total) {
+	return total / 100;
 }
