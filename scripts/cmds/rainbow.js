@@ -2,61 +2,86 @@ const { createCanvas, loadImage } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
-module.exports.config = {
-  name: "rainbow",
-  version: "1.1.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑪𝒉𝒂𝒏𝒈𝒆 𝒕𝒉𝒓𝒆𝒂𝒅 𝒄𝒐𝒍𝒐𝒓 𝒓𝒂𝒏𝒅𝒐𝒎𝒍𝒚 𝒎𝒖𝒍𝒕𝒊𝒑𝒍𝒆 𝒕𝒊𝒎𝒆𝒔",
-  category: "𝑮𝒓𝒐𝒖𝒑",
-  usages: "rainbow [number]",
-  cooldowns: 5,
-  dependencies: {
-    "canvas": ""
+module.exports = {
+  config: {
+    name: "rainbow",
+    aliases: ["colorchange", "threadcolor"],
+    version: "1.1.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "group",
+    shortDescription: {
+      en: "🌈 Change thread color randomly multiple times"
+    },
+    longDescription: {
+      en: "🌈 Change thread color randomly multiple times with beautiful canvas animations"
+    },
+    guide: {
+      en: "{p}rainbow [number]"
+    },
+    dependencies: {
+      "canvas": ""
+    }
+  },
+
+  onStart: async function({ api, event, args }) {
+    try {
+      // Check dependencies
+      try {
+        if (!createCanvas || !loadImage || !fs || !path) {
+          throw new Error("Missing required dependencies");
+        }
+      } catch (err) {
+        return api.sendMessage("❌ | Required dependencies are missing. Please install canvas.", event.threadID, event.messageID);
+      }
+
+      const { threadID, messageID } = event;
+      const value = parseInt(args[0]);
+      
+      if (isNaN(value)) {
+        return api.sendMessage("🌸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒏𝒖𝒎𝒃𝒆𝒓! 🌸", threadID, messageID);
+      }
+      
+      if (value > 100) {
+        return api.sendMessage("🚫 𝑴𝒂𝒙𝒊𝒎𝒖𝒎 𝒂𝒍𝒍𝒐𝒘𝒆𝒅 𝒊𝒔 100 𝒕𝒊𝒎𝒆𝒔! 🚫", threadID, messageID);
+      }
+
+      // Send initial canvas image
+      const startImage = await createStartImage(value);
+      await api.sendMessage({
+        body: `🌈 𝑹𝒂𝒊𝒏𝒃𝒐𝒘 𝑺𝒕𝒂𝒓𝒕𝒆𝒅! 𝑪𝒉𝒂𝒏𝒈𝒊𝒏𝒈 𝒄𝒐𝒍𝒐𝒓 ${value} 𝒕𝒊𝒎𝒆𝒔...`,
+        attachment: startImage
+      }, threadID, messageID);
+
+      // Color changing logic
+      const colors = [
+        '196241301102133', '169463077092846', '2442142322678320', 
+        '234137870477637', '980963458735625', '175615189761153', 
+        '2136751179887052', '2058653964378557', '2129984390566328', 
+        '174636906462322', '1928399724138152', '417639218648241', 
+        '930060997172551', '164535220883264', '370940413392601', 
+        '205488546921017', '809305022860427'
+      ];
+
+      for (let i = 0; i < value; i++) {
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        await api.changeThreadColor(randomColor, threadID);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Create and send completion image
+      const endImage = await createCompletionImage(value);
+      await api.sendMessage({
+        body: `🎉 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒄𝒉𝒂𝒏𝒈𝒆𝒅 𝒄𝒐𝒍𝒐𝒓 ${value} 𝒕𝒊𝒎𝒆𝒔!`,
+        attachment: endImage
+      }, threadID, messageID);
+
+    } catch (error) {
+      console.error("Rainbow Command Error:", error);
+      api.sendMessage("❌ | Error in rainbow command. Please try again later.", event.threadID, event.messageID);
+    }
   }
-};
-
-module.exports.onStart = async function({ api, event, args }) {
-  const { threadID, messageID } = event;
-  const value = parseInt(args[0]);
-  
-  if (isNaN(value)) {
-    return api.sendMessage("🌸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒆𝒏𝒕𝒆𝒓 𝒂 𝒗𝒂𝒍𝒊𝒅 𝒏𝒖𝒎𝒃𝒆𝒓! 🌸", threadID, messageID);
-  }
-  
-  if (value > 100) {
-    return api.sendMessage("🚫 𝑴𝒂𝒙𝒊𝒎𝒖𝒎 𝒂𝒍𝒍𝒐𝒘𝒆𝒅 𝒊𝒔 100 𝒕𝒊𝒎𝒆𝒔! 🚫", threadID, messageID);
-  }
-
-  // Send initial canvas image
-  const startImage = await createStartImage(value);
-  api.sendMessage({
-    body: `🌈 𝑹𝒂𝒊𝒏𝒃𝒐𝒘 𝑺𝒕𝒂𝒓𝒕𝒆𝒅! 𝑪𝒉𝒂𝒏𝒈𝒊𝒏𝒈 𝒄𝒐𝒍𝒐𝒓 ${value} 𝒕𝒊𝒎𝒆𝒔...`,
-    attachment: startImage
-  }, threadID);
-
-  // Color changing logic
-  const colors = [
-    '196241301102133', '169463077092846', '2442142322678320', 
-    '234137870477637', '980963458735625', '175615189761153', 
-    '2136751179887052', '2058653964378557', '2129984390566328', 
-    '174636906462322', '1928399724138152', '417639218648241', 
-    '930060997172551', '164535220883264', '370940413392601', 
-    '205488546921017', '809305022860427'
-  ];
-
-  for (let i = 0; i < value; i++) {
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    api.changeThreadColor(randomColor, threadID);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  // Create and send completion image
-  const endImage = await createCompletionImage(value);
-  api.sendMessage({
-    body: `🎉 𝑺𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚 𝒄𝒉𝒂𝒏𝒈𝒆𝒅 𝒄𝒐𝒍𝒐𝒓 ${value} 𝒕𝒊𝒎𝒆𝒔!`,
-    attachment: endImage
-  }, threadID);
 };
 
 async function createStartImage(count) {
