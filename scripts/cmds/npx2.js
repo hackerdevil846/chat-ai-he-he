@@ -4,9 +4,11 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "npx2",
+    name: "emojiReact2",
+    aliases: ["er2", "emojivid"],
     version: "1.0.1",
     author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    countDown: 5,
     role: 0,
     category: "fun",
     shortDescription: {
@@ -16,23 +18,43 @@ module.exports = {
       en: "𝑹𝒆𝒔𝒑𝒐𝒏𝒅𝒔 𝒕𝒐 𝒆𝒎𝒐𝒋𝒊𝒔 𝒘𝒊𝒕𝒉 𝒇𝒖𝒏 𝒗𝒊𝒅𝒆𝒐𝒔"
     },
     guide: {
-      emoji: "🥰🤩😍"
+      en: "𝑼𝒔𝒆 𝒆𝒎𝒐𝒋𝒊𝒔: 🥰 🤩 😍"
     },
-    cooldowns: 5
+    dependencies: {
+      "axios": "",
+      "fs-extra": ""
+    }
   },
 
-  onChat: async function({ message, event }) {
+  onStart: async function ({ api, event }) {
+    // Dependency check
     try {
-      const content = event.body ? event.body.toLowerCase() : '';
+      if (!axios) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑎𝑥𝑖𝑜𝑠");
+      if (!fs) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎");
+      
+      api.sendMessage(
+        "🖤 𝐸𝑚𝑜𝑗𝑖𝑅𝑒𝑎𝑐𝑡2 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑖𝑠 𝑎𝑐𝑡𝑖𝑣𝑒! 💫\n𝑆𝑒𝑛𝑑 🥰, 🤩, 𝑜𝑟 😍 𝑡𝑜 𝑔𝑒𝑡 𝑎 𝑠𝑝𝑒𝑐𝑖𝑎𝑙 𝑣𝑖𝑑𝑒𝑜",
+        event.threadID,
+        event.messageID
+      );
+      
+    } catch (error) {
+      return api.sendMessage(`❌ ${error.message}`, event.threadID, event.messageID);
+    }
+  },
+
+  onChat: async function({ api, event }) {
+    try {
+      const content = event.body ? event.body : '';
       
       // Emojis to trigger the response
       const triggerEmojis = ["🥰", "🤩", "😍"];
       
-      // Check if the message contains any of the trigger emojis
-      const shouldRespond = triggerEmojis.some(emoji => content.includes(emoji.toLowerCase()));
+      // Check if the message starts with any of the trigger emojis
+      const shouldRespond = triggerEmojis.some(emoji => content.startsWith(emoji));
       
       if (shouldRespond) {
-        // Video URLs
+        // Video URLs (same as original)
         const videoUrls = [
           "https://i.imgur.com/LLucP15.mp4", 
           "https://i.imgur.com/DEBRSER.mp4"
@@ -47,9 +69,9 @@ module.exports = {
           fs.mkdirSync(cacheDir, { recursive: true });
         }
         
-        const videoPath = path.join(cacheDir, `npx3_${Date.now()}.mp4`);
+        const videoPath = path.join(cacheDir, `emojireact_${Date.now()}.mp4`);
         
-        // Download the video
+        // Download the video using axios
         const response = await axios({
           method: 'GET',
           url: randomVideoUrl,
@@ -65,17 +87,21 @@ module.exports = {
         });
         
         // Send the video response
-        await message.reply({
-          body: "🖤🥀",
+        api.sendMessage({
+          body: "🖤🥀 𝐻𝑒𝑟𝑒'𝑠 𝑎 𝑠𝑝𝑒𝑐𝑖𝑎𝑙 𝑐𝑙𝑖𝑝 𝑓𝑜𝑟 𝑦𝑜𝑢! 💫",
           attachment: fs.createReadStream(videoPath)
+        }, event.threadID, event.messageID, () => {
+          // Clean up after sending
+          setTimeout(() => {
+            try {
+              fs.unlinkSync(videoPath);
+            } catch (e) {}
+          }, 5000);
         });
-        
-        // Clean up
-        fs.unlinkSync(videoPath);
       }
       
     } catch (error) {
-      console.error("Npx3 command error:", error);
+      console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝐸𝑚𝑜𝑗𝑖𝑅𝑒𝑎𝑐𝑡2:", error);
     }
   }
 };
