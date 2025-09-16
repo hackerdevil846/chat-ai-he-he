@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { createCanvas, loadImage } = require('canvas');
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = {
@@ -10,12 +10,12 @@ module.exports = {
         version: "2.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        category: "𝑖𝑠𝑙𝑎𝑚",
+        category: "islam",
         shortDescription: {
-            en: "𝐺𝑒𝑡 𝑄𝑢𝑟𝑎𝑛 𝑣𝑒𝑟𝑠𝑒𝑠 𝑤𝑖𝑡ℎ 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜"
+            en: "🌙 𝐺𝑒𝑡 𝑄𝑢𝑟𝑎𝑛 𝑣𝑒𝑟𝑠𝑒𝑠 𝑤𝑖𝑡ℎ 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜"
         },
         longDescription: {
-            en: "𝐹𝑒𝑡𝑐ℎ 𝑄𝑢𝑟𝑎𝑛 𝑣𝑒𝑟𝑠𝑒𝑠 𝑤𝑖𝑡ℎ 𝑚𝑢𝑙𝑡𝑖𝑙𝑖𝑛𝑔𝑢𝑎𝑙 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜 𝑟𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛"
+            en: "🌙 𝐹𝑒𝑡𝑐ℎ 𝑄𝑢𝑟𝑎𝑛 𝑣𝑒𝑟𝑠𝑒𝑠 𝑤𝑖𝑡ℎ 𝑚𝑢𝑙𝑡𝑖𝑙𝑖𝑛𝑔𝑢𝑎𝑙 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜 𝑟𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛"
         },
         guide: {
             en: "{p}quranverse [𝑟𝑎𝑛𝑑𝑜𝑚] | 𝑎𝑢𝑑𝑖𝑜 | [𝑠𝑢𝑟𝑎ℎ]:[𝑣𝑒𝑟𝑠𝑒] | 𝑙𝑎𝑛𝑔 [𝑐𝑜𝑑𝑒]"
@@ -38,7 +38,7 @@ module.exports = {
 
     onLoad: function() {
         try {
-            const tmpDir = path.join(__dirname, '..', 'tmp');
+            const tmpDir = path.join(__dirname, 'tmp');
             if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true });
             console.log(`[𝑞𝑢𝑟𝑎𝑛𝑣𝑒𝑟𝑠𝑒] 𝑡𝑚𝑝 𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑦 𝑟𝑒𝑎𝑑𝑦: ${tmpDir}`);
         } catch (err) {
@@ -139,7 +139,7 @@ module.exports = {
         ctx.fillText('𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑏𝑦 𝐺𝑜𝑎𝑡𝐵𝑜𝑡 • 𝐶𝑟𝑒𝑑𝑖𝑡𝑠: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑', width / 2, height - 30);
 
         // Save image
-        const imagePath = path.join(__dirname, '..', 'tmp', `quran_${Date.now()}.png`);
+        const imagePath = path.join(__dirname, 'tmp', `quran_${Date.now()}.png`);
         const buffer = canvas.toBuffer('image/png');
         fs.writeFileSync(imagePath, buffer);
 
@@ -150,9 +150,9 @@ module.exports = {
         try {
             // Dependency check
             try {
-                require("canvas");
-                require("axios");
-                require("fs-extra");
+                if (!axios || !createCanvas || !loadImage || !fs) {
+                    throw new Error("Missing required dependencies");
+                }
             } catch (e) {
                 return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑐𝑎𝑛𝑣𝑎𝑠, 𝑎𝑥𝑖𝑜𝑠, 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
             }
@@ -238,7 +238,7 @@ module.exports = {
         }
     },
 
-    handleReply: async function({ message, event }) {
+    onReply: async function({ message, event }) {
         try {
             if (!global.quranAudioOptions || !event.body) return;
 
@@ -262,7 +262,7 @@ module.exports = {
             delete global.quranAudioOptions;
 
         } catch (error) {
-            console.error('[𝑞𝑢𝑟𝑎𝑛𝑣𝑒𝑟𝑠𝑒] ℎ𝑎𝑛𝑑𝑙𝑒𝑅𝑒𝑝𝑙𝑦 𝑒𝑟𝑟𝑜𝑟:', error);
+            console.error('[𝑞𝑢𝑟𝑎𝑛𝑣𝑒𝑟𝑠𝑒] 𝑜𝑛𝑅𝑒𝑝𝑙𝑦 𝑒𝑟𝑟𝑜𝑟:', error);
             await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑝𝑙𝑎𝑦 𝑡ℎ𝑒 𝑟𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
         }
     }
