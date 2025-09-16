@@ -1,28 +1,37 @@
-module.exports.config = {
-  name: "pantiesclosev2",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆 ✨",
-  category: "🎨 Random-IMG",
-  usages: "panclose",
-  cooldowns: 3,
-  dependencies: {
-    "request": "",
-    "fs-extra": "",
-    "axios": "",
-    "canvas": ""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const { createCanvas } = require("canvas");
 
-module.exports.onStart = async ({ api, event }) => {
-  const { createCanvas, loadImage } = require("canvas");
-  const fs = global.nodemodule["fs-extra"];
-  const axios = global.nodemodule["axios"];
-  const request = global.nodemodule["request"];
+module.exports = {
+  config: {
+    name: "pantiesclosev2",
+    aliases: ["panclose2", "panties2"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "✨ 𝑃𝑎𝑛𝑡𝑖𝑒𝑠 𝑐𝑙𝑜𝑠𝑒 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑚𝑎𝑔𝑒 ✨"
+    },
+    longDescription: {
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑝𝑎𝑛𝑡𝑖𝑒𝑠 𝑐𝑙𝑜𝑠𝑒-𝑢𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑐𝑢𝑠𝑡𝑜𝑚 𝑏𝑎𝑛𝑛𝑒𝑟"
+    },
+    guide: {
+      en: "{p}pantiesclosev2"
+    },
+    countDown: 3,
+    dependencies: {
+      "axios": "",
+      "fs-extra": "",
+      "canvas": ""
+    }
+  },
 
-  // Panties image links
-  const links = [
+  onStart: async function ({ api, event, message }) {
+    try {
+      // Panties image links
+      const links = [
 "https://konachan.net/image/dbd39997e7dd18f6a0375844db0d9842/Konachan.com%20-%20330247%20anus%20aqua_eyes%20ass%20bed%20blush%20cameltoe%20censored%20close%20green_hair%20long_hair%20panties%20ponytail%20pussy%20see_through%20skirt%20skirt_lift%20thighhighs%20underwear.jpg?0.3808165005439865",
 "https://konachan.net/sample/75e1718ef702abaf83a52bc5010ab3c9/Konachan.com%20-%20329497%20sample.jpg?0.10276269929326665",
 "https://konachan.net/sample/87878dbfa796f0562f1af52ea191ff75/Konachan.com%20-%20329045%20sample.jpg?0.9916247888490577",
@@ -198,84 +207,84 @@ module.exports.onStart = async ({ api, event }) => {
 "https://konachan.net/image/47d652c938bda1c6df1e01aa80797d8c/Konachan.com%20-%20935%20ass%20close%20f-ism%20murakami_suigun%20panties%20spread_legs%20underwear.jpg?0.7442805835097328",
 "https://konachan.net/image/efe6aa7bbeac98d05a98b31465b5fe65/Konachan.com%20-%20886%20ass%20close%20panties%20red%20skirt%20underwear%20upskirt.jpg?0.67499538349191",
   ];
-  try {
-    // Create canvas banner
-    const canvas = createCanvas(800, 400);
-    const ctx = canvas.getContext("2d");
-    
-    // Draw gradient background
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, "#8e2de2");
-    gradient.addColorStop(1, "#4a00e0");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Add decorative elements
-    ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-    for (let i = 0; i < 20; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      const radius = Math.random() * 20 + 5;
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    
-    // Add title
-    ctx.font = "bold 40px Arial";
-    ctx.fillStyle = "#ffffff";
-    ctx.textAlign = "center";
-    ctx.fillText("✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒗2 ✨", canvas.width / 2, 80);
-    
-    // Add subtitle
-    ctx.font = "25px Arial";
-    ctx.fillText("𝑹𝒂𝒏𝒅𝒐𝒎 𝑰𝒎𝒂𝒈𝒆 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒐𝒓", canvas.width / 2, 130);
-    
-    // Add stats
-    ctx.font = "bold 28px Arial";
-    ctx.fillText(`𝑻𝒐𝒕𝒂𝒍 𝑰𝒎𝒂𝒈𝒆𝒔: ${links.length}`, canvas.width / 2, 200);
-    
-    // Add credit
-    ctx.font = "20px Arial";
-    ctx.fillText("𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", canvas.width / 2, canvas.height - 40);
-    
-    // Add decorative border
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 5;
-    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-    
-    // Save banner to cache
-    const bannerPath = __dirname + "/cache/panties_banner.jpg";
-    const bannerStream = canvas.createJPEGStream({ quality: 0.95 });
-    const out = fs.createWriteStream(bannerPath);
-    bannerStream.pipe(out);
-    
-    // Download random image
-    const randomLink = links[Math.floor(Math.random() * links.length)];
-    const imagePath = __dirname + "/cache/panties_image.jpg";
-    
-    await new Promise((resolve, reject) => {
-      request(randomLink)
-        .pipe(fs.createWriteStream(imagePath))
-        .on("close", resolve)
-        .on("error", reject);
-    });
-    
-    // Send both images
-    api.sendMessage({
-      body: `✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒗2 ✨\n━━━━━━━━━━━━━━━━━━\n🖼️ 𝑻𝒐𝒕𝒂𝒍 𝑰𝒎𝒂𝒈𝒆𝒔: ${links.length}\n🎨 𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n━━━━━━━━━━━━━━━━━━\n🔥 𝑬𝒏𝒋𝒐𝒚 𝒕𝒉𝒆 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆!`,
-      attachment: [
-        fs.createReadStream(bannerPath),
-        fs.createReadStream(imagePath)
-      ]
-    }, event.threadID, () => {
+
+      // Create canvas banner
+      const canvas = createCanvas(800, 400);
+      const ctx = canvas.getContext("2d");
+      
+      // Draw gradient background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, "#8e2de2");
+      gradient.addColorStop(1, "#4a00e0");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add decorative elements
+      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+      for (let i = 0; i < 20; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const radius = Math.random() * 20 + 5;
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      // Add title
+      ctx.font = "bold 40px Arial";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.fillText("✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒗2 ✨", canvas.width / 2, 80);
+      
+      // Add subtitle
+      ctx.font = "25px Arial";
+      ctx.fillText("𝑹𝒂𝒏𝒅𝒐𝒎 𝑰𝒎𝒂𝒈𝒆 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒐𝒓", canvas.width / 2, 130);
+      
+      // Add stats
+      ctx.font = "bold 28px Arial";
+      ctx.fillText(`𝑻𝒐𝒕𝒂𝒍 𝑰𝒎𝒂𝒈𝒆𝒔: ${links.length}`, canvas.width / 2, 200);
+      
+      // Add credit
+      ctx.font = "20px Arial";
+      ctx.fillText("𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑", canvas.width / 2, canvas.height - 40);
+      
+      // Add decorative border
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+      
+      // Save banner to cache
+      const bannerPath = __dirname + "/cache/panties_banner.jpg";
+      const bannerBuffer = canvas.toBuffer("image/jpeg", { quality: 0.95 });
+      fs.writeFileSync(bannerPath, bannerBuffer);
+      
+      // Download random image
+      const randomLink = links[Math.floor(Math.random() * links.length)];
+      const imagePath = __dirname + "/cache/panties_image.jpg";
+      
+      const imageResponse = await axios.get(randomLink, { 
+        responseType: "arraybuffer",
+        timeout: 10000
+      });
+      
+      fs.writeFileSync(imagePath, Buffer.from(imageResponse.data));
+      
+      // Send both images
+      await message.reply({
+        body: `✨ 𝑷𝒂𝒏𝒕𝒊𝒆𝒔 𝒄𝒍𝒐𝒔𝒆 𝒗2 ✨\n━━━━━━━━━━━━━━━━━━\n🖼️ 𝑻𝒐𝒕𝒂𝒍 𝑰𝒎𝒂𝒈𝒆𝒔: ${links.length}\n🎨 𝑪𝒓𝒆𝒅𝒊𝒕𝒔: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑\n━━━━━━━━━━━━━━━━━━\n🔥 𝑬𝒏𝒋𝒐𝒚 𝒕𝒉𝒆 𝒓𝒂𝒏𝒅𝒐𝒎 𝒊𝒎𝒂𝒈𝒆!`,
+        attachment: [
+          fs.createReadStream(bannerPath),
+          fs.createReadStream(imagePath)
+        ]
+      });
+
       // Clean up files
-      fs.unlinkSync(bannerPath);
-      fs.unlinkSync(imagePath);
-    });
-    
-  } catch (error) {
-    console.error("Error:", error);
-    api.sendMessage("❌ 𝑬𝒓𝒓𝒐𝒓: 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒈𝒆𝒏𝒆𝒓𝒂𝒕𝒆 𝒊𝒎𝒂𝒈𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.", event.threadID);
+      if (fs.existsSync(bannerPath)) fs.unlinkSync(bannerPath);
+      if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+      
+    } catch (error) {
+      console.error("𝐸𝑟𝑟𝑜𝑟:", error);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+    }
   }
 };
