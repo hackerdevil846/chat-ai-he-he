@@ -1,117 +1,133 @@
-module.exports.config = {
-    name: "pair8",
-    version: "7.3.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Mathematical Bold Italic
-    description: "𝑴𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒂𝒓𝒂 𝒃𝒂𝒏𝒅𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂", // Banglish in Mathematical Bold Italic
-    category: "img",
-    usages: "[@mention]",
-    cooldowns: 5,
-    dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "path": "",
-        "jimp": ""
-    }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
 
-module.exports.onLoad = async function() {
-    const path = require('path');
-    const fs = require('fs-extra');
-    const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
-    const imagePath = path.resolve(dirMaterial, 'ar1r2.png');
-    
-    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
-    
-    if (!fs.existsSync(imagePath)) {
-        const axios = require('axios');
-        try {
-            const response = await axios.get("https://i.imgur.com/iaOiAXe.jpeg", { responseType: 'arraybuffer' });
-            fs.writeFileSync(imagePath, Buffer.from(response.data));
-        } catch (error) {
-            console.error("Error downloading template image:", error);
+module.exports = {
+    config: {
+        name: "pair8",
+        aliases: ["pair", "couple", "juti"],
+        version: "7.3.1",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "💞 𝑀𝑒𝑛𝑡𝑖𝑜𝑛 𝑘𝑎𝑟𝑎 𝑏𝑎𝑛𝑑𝑒𝑟 𝑠𝑎𝑡ℎ𝑒 𝑗𝑢𝑡𝑖 𝑏𝑎𝑛𝑑ℎ𝑎𝑟 𝑘ℎ𝑒𝑙𝑎"
+        },
+        longDescription: {
+            en: "𝑃𝑙𝑎𝑦 𝑎 𝑓𝑢𝑛 𝑝𝑎𝑖𝑟𝑖𝑛𝑔 𝑔𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟"
+        },
+        category: "𝑖𝑚𝑔",
+        guide: {
+            en: "{p}pair8 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+        },
+        countDown: 5,
+        dependencies: {
+            "axios": "",
+            "fs-extra": "",
+            "path": "",
+            "jimp": ""
         }
-    }
-};
+    },
 
-async function circle(imagePath) {
-    const jimp = require('jimp');
-    const image = await jimp.read(imagePath);
-    image.circle();
-    return await image.getBufferAsync("image/png");
-}
+    onLoad: async function() {
+        try {
+            // Dependency check
+            require("axios");
+            require("fs-extra");
+            require("path");
+            require("jimp");
+            
+            const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
+            const imagePath = path.resolve(dirMaterial, 'ar1r2.png');
+            
+            if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+            
+            if (!fs.existsSync(imagePath)) {
+                try {
+                    const response = await axios.get("https://i.imgur.com/iaOiAXe.jpeg", { responseType: 'arraybuffer' });
+                    fs.writeFileSync(imagePath, Buffer.from(response.data));
+                } catch (error) {
+                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒:", error);
+                }
+            }
+        } catch (e) {
+            console.log("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑝𝑎𝑡ℎ, 𝑗𝑖𝑚𝑝");
+        }
+    },
 
-async function makeImage({ one, two }) {
-    const path = require('path');
-    const fs = require('fs-extra');
-    const axios = require('axios');
-    const jimp = require('jimp');
-    
-    const __root = path.resolve(__dirname, "cache", "canvas");
-    const templatePath = path.resolve(__root, 'ar1r2.png');
-    const outputPath = path.resolve(__root, `pair_${one}_${two}.png`);
-    const avatarOnePath = path.resolve(__root, `avt_${one}.png`);
-    const avatarTwoPath = path.resolve(__root, `avt_${two}.png`);
+    onStart: async function({ message, event, args, usersData }) {
+        try {
+            const { threadID, messageID, senderID } = event;
+            const mention = Object.keys(event.mentions);
+            
+            if (!mention.length) {
+                return message.reply("❌ 𝐷𝑎𝑦𝑎 𝑘𝑜𝑟𝑒 𝑒𝑘𝑗𝑜𝑛 𝑘𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑘𝑜𝑟𝑢𝑛");
+            }
+            
+            const one = senderID;
+            const two = mention[0];
+            
+            async function circle(imagePath) {
+                const image = await jimp.read(imagePath);
+                image.circle();
+                return await image.getBufferAsync("image/png");
+            }
 
-    // Download and process first avatar
-    const avatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
-        { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarOnePath, Buffer.from(avatarOne, 'binary'));
-    
-    // Download and process second avatar
-    const avatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, 
-        { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwo, 'binary'));
-    
-    // Process images
-    const template = await jimp.read(templatePath);
-    const circledAvatarOne = await jimp.read(await circle(avatarOnePath));
-    const circledAvatarTwo = await jimp.read(await circle(avatarTwoPath));
-    
-    // Composite avatars onto template
-    template.composite(circledAvatarOne.resize(200, 200), 70, 110)
-           .composite(circledAvatarTwo.resize(200, 200), 465, 110);
-    
-    // Save final image
-    await template.writeAsync(outputPath);
-    
-    // Cleanup temp files
-    fs.unlinkSync(avatarOnePath);
-    fs.unlinkSync(avatarTwoPath);
-    
-    return outputPath;
-}
+            async function makeImage({ one, two }) {
+                const __root = path.resolve(__dirname, "cache", "canvas");
+                const templatePath = path.resolve(__root, 'ar1r2.png');
+                const outputPath = path.resolve(__root, `pair_${one}_${two}.png`);
+                const avatarOnePath = path.resolve(__root, `avt_${one}.png`);
+                const avatarTwoPath = path.resolve(__root, `avt_${two}.png`);
 
-module.exports.onStart = async function({ event, api, args }) {
-    const { threadID, messageID, senderID } = event;
-    const mention = Object.keys(event.mentions);
-    
-    if (!mention.length) {
-        return api.sendMessage("❌ | 𝑫𝒂𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒋𝒐𝒏 𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒐𝒓𝒖𝒏", threadID, messageID);
-    }
-    
-    try {
-        const one = senderID;
-        const two = mention[0];
-        const pairedImage = await makeImage({ one, two });
-        
-        const axios = require('axios');
-        const userName = (await axios.get(
-            `https://graph.facebook.com/${two}?fields=name&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`
-        )).data.name;
-        
-        const fs = require('fs-extra');
-        api.sendMessage({
-            body: `✨╭──•◈•───✮───•◈•──╮\n\n  「 𝐒𝐚𝐩𝐡𝐚𝐥 𝐉𝐮𝐭𝐢𝐛𝐚𝐧𝐝𝐡𝐚𝐧 」\n\n╰──•◈•───✮───•◈•──╯\n\n🥀 | 𝐏𝐚𝐢𝐫𝐞𝐝 𝐰𝐢𝐭𝐡: @${userName}`,
-            mentions: [{
-                tag: userName,
-                id: two
-            }],
-            attachment: fs.createReadStream(pairedImage)
-        }, threadID, () => fs.unlinkSync(pairedImage), messageID);
-        
-    } catch (error) {
-        console.error(error);
-        return api.sendMessage("⚠️ | 𝐄𝐫𝐫𝐨𝐫 𝐢𝐧 𝐢𝐦𝐚𝐠𝐞 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠!", threadID, messageID);
+                // Download and process first avatar
+                const avatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512`, 
+                    { responseType: 'arraybuffer' })).data;
+                fs.writeFileSync(avatarOnePath, Buffer.from(avatarOne, 'binary'));
+                
+                // Download and process second avatar
+                const avatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512`, 
+                    { responseType: 'arraybuffer' })).data;
+                fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwo, 'binary'));
+                
+                // Process images
+                const template = await jimp.read(templatePath);
+                const circledAvatarOne = await jimp.read(await circle(avatarOnePath));
+                const circledAvatarTwo = await jimp.read(await circle(avatarTwoPath));
+                
+                // Composite avatars onto template
+                template.composite(circledAvatarOne.resize(200, 200), 70, 110)
+                       .composite(circledAvatarTwo.resize(200, 200), 465, 110);
+                
+                // Save final image
+                await template.writeAsync(outputPath);
+                
+                // Cleanup temp files
+                fs.unlinkSync(avatarOnePath);
+                fs.unlinkSync(avatarTwoPath);
+                
+                return outputPath;
+            }
+
+            const pairedImage = await makeImage({ one, two });
+            
+            const userName = await usersData.getName(two);
+            
+            await message.reply({
+                body: `✨╭──•◈•───✮───•◈•──╮\n\n  「 𝑆𝑎𝑝ℎ𝑎𝑙 𝐽𝑢𝑡𝑖𝑏𝑎𝑛𝑑ℎ𝑎𝑛 」\n\n╰──•◈•───✮───•◈•──╯\n\n🥀 | 𝑃𝑎𝑖𝑟𝑒𝑑 𝑤𝑖𝑡ℎ: @${userName}`,
+                mentions: [{
+                    tag: userName,
+                    id: two
+                }],
+                attachment: fs.createReadStream(pairedImage)
+            });
+            
+            // Clean up final image
+            fs.unlinkSync(pairedImage);
+            
+        } catch (error) {
+            console.error("❌ 𝑃𝑎𝑖𝑟8 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("⚠️ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑖𝑚𝑎𝑔𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔!");
+        }
     }
 };
