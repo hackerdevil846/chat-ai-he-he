@@ -3,95 +3,114 @@ const fs = require("fs-extra");
 const path = require("path");
 const { createCanvas, loadImage } = require("canvas");
 
-module.exports.config = {
-  name: "putin",
-  version: "2.1",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Create Putin meeting meme with tagged user (or yourself)",
-  category: "meme",
-  usages: "[@mention]",
-  cooldowns: 5,
-  dependencies: {
-    "discord-image-generation": "",
-    "fs-extra": "",
-    "canvas": ""
-  }
-};
-
-module.exports.onStart = async function ({ api, event, args, Users }) {
-  try {
-    const { threadID, messageID, senderID, mentions } = event;
-
-    let mentionID, name;
-
-    if (mentions && Object.keys(mentions).length) {
-      mentionID = Object.keys(mentions)[0];
-      name = mentions[mentionID].replace("@", "");
-    } else {
-      mentionID = senderID;
-      const userInfo = await Users.getNameUser(senderID);
-      name = userInfo || "Unknown User";
+module.exports = {
+  config: {
+    name: "putin",
+    aliases: ["poutine", "russianmeet"],
+    version: "2.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 0,
+    category: "meme",
+    shortDescription: {
+      en: "🇷🇺 Create Putin meeting meme"
+    },
+    longDescription: {
+      en: "🇷🇺 Create Putin meeting meme with tagged user or yourself"
+    },
+    guide: {
+      en: "{p}putin [@mention]"
+    },
+    dependencies: {
+      "discord-image-generation": "",
+      "fs-extra": "",
+      "canvas": ""
     }
+  },
 
-    const avatarURL = await Users.getAvatarUrl(mentionID);
+  onStart: async function({ api, event, args, usersData }) {
+    try {
+      // Check dependencies
+      try {
+        if (!DIG || !fs || !path || !createCanvas || !loadImage) {
+          throw new Error("Missing required dependencies");
+        }
+      } catch (err) {
+        return api.sendMessage("❌ | Required dependencies are missing. Please install discord-image-generation, fs-extra, and canvas.", event.threadID, event.messageID);
+      }
 
-    if (!avatarURL) {
-      return api.sendMessage("❌ | Failed to fetch avatar!", threadID, messageID);
-    }
+      const { threadID, messageID, senderID, mentions } = event;
 
-    // Generate Putin meme
-    const imgBuffer = await new DIG.Poutine().getImage(avatarURL);
-    const filePath = path.join(__dirname, `/cache/putin_${mentionID}.png`);
+      let mentionID, name;
 
-    // Create stylish frame using canvas
-    const bg = await loadImage(imgBuffer);
-    const canvas = createCanvas(bg.width, bg.height + 70);
-    const ctx = canvas.getContext("2d");
+      if (mentions && Object.keys(mentions).length) {
+        mentionID = Object.keys(mentions)[0];
+        name = mentions[mentionID].replace("@", "");
+      } else {
+        mentionID = senderID;
+        const userInfo = await api.getUserInfo(senderID);
+        name = userInfo[senderID]?.name || "Unknown User";
+      }
 
-    // Gradient background
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-    gradient.addColorStop(0, "#0d47a1");
-    gradient.addColorStop(1, "#b71c1c");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Get avatar URL
+      const userInfo = await api.getUserInfo(mentionID);
+      const avatarURL = userInfo[mentionID]?.profileUrl;
+      
+      if (!avatarURL) {
+        return api.sendMessage("❌ | Failed to fetch avatar!", threadID, messageID);
+      }
 
-    // Draw Putin meme image
-    ctx.drawImage(bg, 0, 70, bg.width, bg.height);
+      // Generate Putin meme
+      const imgBuffer = await new DIG.Poutine().getImage(avatarURL);
+      const filePath = path.join(__dirname, `/cache/putin_${mentionID}.png`);
 
-    // Add stylish title text
-    ctx.font = 'bold 30px "Arial"';
-    ctx.fillStyle = "#FFD700";
-    ctx.textAlign = "center";
-    ctx.fillText(`PUTIN MEETS ${name.toUpperCase()}`, canvas.width / 2, 45);
+      // Create stylish frame using canvas
+      const bg = await loadImage(imgBuffer);
+      const canvas = createCanvas(bg.width, bg.height + 70);
+      const ctx = canvas.getContext("2d");
 
-    // Add Russian flag emoji decoration
-    ctx.font = '40px "Segoe UI Emoji"';
-    ctx.fillText("🇷🇺 ★ 🇷🇺 ★ 🇷🇺", canvas.width / 2, 100);
+      // Gradient background
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      gradient.addColorStop(0, "#0d47a1");
+      gradient.addColorStop(1, "#b71c1c");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Save final image
-    const out = fs.createWriteStream(filePath);
-    const stream = canvas.createPNGStream();
-    stream.pipe(out);
+      // Draw Putin meme image
+      ctx.drawImage(bg, 0, 70, bg.width, bg.height);
 
-    await new Promise((resolve, reject) => {
-      out.on("finish", resolve);
-      out.on("error", reject);
-    });
+      // Add stylish title text
+      ctx.font = 'bold 30px "Arial"';
+      ctx.fillStyle = "#FFD700";
+      ctx.textAlign = "center";
+      ctx.fillText(`PUTIN MEETS ${name.toUpperCase()}`, canvas.width / 2, 45);
 
-    // Send result
-    api.sendMessage(
-      {
-        body: `🇷🇺✨ Putin is officially meeting with ${name}!\n👤 Target: ${name}\n🎨 Generated by: ${this.config.credits}`,
+      // Add Russian flag emoji decoration
+      ctx.font = '40px "Segoe UI Emoji"';
+      ctx.fillText("🇷🇺 ★ 🇷🇺 ★ 🇷🇺", canvas.width / 2, 100);
+
+      // Save final image
+      const out = fs.createWriteStream(filePath);
+      const stream = canvas.createPNGStream();
+      stream.pipe(out);
+
+      await new Promise((resolve, reject) => {
+        out.on("finish", resolve);
+        out.on("error", reject);
+      });
+
+      // Send result
+      await api.sendMessage({
+        body: `🇷🇺✨ Putin is officially meeting with ${name}!\n👤 Target: ${name}\n🎨 Generated by: ${this.config.author}`,
         attachment: fs.createReadStream(filePath)
-      },
-      threadID,
-      () => fs.unlinkSync(filePath),
-      messageID
-    );
+      }, threadID, messageID);
 
-  } catch (error) {
-    console.error(error);
-    api.sendMessage("❌ | Error generating meme. Please try again later.", event.threadID, event.messageID);
+      // Clean up
+      fs.unlinkSync(filePath);
+
+    } catch (error) {
+      console.error("Putin Command Error:", error);
+      api.sendMessage("❌ | Error generating meme. Please try again later.", event.threadID, event.messageID);
+    }
   }
 };
