@@ -2,104 +2,123 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const { createCanvas, loadImage } = require("canvas");
 
-module.exports.config = {
-    name: "imgsearch",
+module.exports = {
+  config: {
+    name: "imagesearch",
+    aliases: ["imgfind", "picsearch"],
     version: "1.1.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "🔍 𝑰𝒎𝒂𝒈𝒆 𝒔𝒆𝒂𝒓𝒄𝒉 𝒘𝒊𝒕𝒉 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒓𝒆𝒔𝒖𝒍𝒕𝒔",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 15,
+    role: 0,
     category: "media",
-    usages: "[query] - [number]",
-    cooldowns: 15,
+    shortDescription: {
+      en: "🔍 𝐼𝑚𝑎𝑔𝑒 𝑠𝑒𝑎𝑟𝑐ℎ 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑟𝑒𝑠𝑢𝑙𝑡𝑠"
+    },
+    longDescription: {
+      en: "🔍 𝐼𝑚𝑎𝑔𝑒 𝑠𝑒𝑎𝑟𝑐ℎ 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑎𝑛𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 ℎ𝑒𝑎𝑑𝑒𝑟"
+    },
+    guide: {
+      en: "{𝑝}𝑖𝑚𝑎𝑔𝑒𝑠𝑒𝑎𝑟𝑐ℎ [𝑞𝑢𝑒𝑟𝑦] - [𝑛𝑢𝑚𝑏𝑒𝑟]"
+    },
     dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "canvas": ""
+      "axios": "",
+      "fs-extra": "",
+      "canvas": ""
     }
-};
+  },
 
-module.exports.onStart = async function({ api, event, args }) {
-    const { threadID, messageID } = event;
-    const keySearch = args.join(" ");
-    
-    if (!keySearch.includes("-")) {
-        return api.sendMessage(
-            `✨ 𝐔𝐬𝐚𝐠𝐞 𝐄𝐱𝐚𝐦𝐩𝐥𝐞:\nimgsearch cats - 5\n\n🔍 𝐒𝐞𝐚𝐫𝐜𝐡 𝐪𝐮𝐞𝐫𝐲 - 𝐍𝐮𝐦𝐛𝐞𝐫 𝐨𝐟 𝐢𝐦𝐚𝐠𝐞𝐬`,
-            threadID, messageID
-        );
-    }
-
-    const [query, number] = keySearch.split("-").map(str => str.trim());
-    const numberSearch = parseInt(number) || 6;
-
+  onStart: async function({ api, event, args }) {
     try {
-        api.sendMessage(`🔍 𝐒𝐞𝐚𝐫𝐜𝐡𝐢𝐧𝐠 "${query}"...`, threadID, messageID);
-        
-        const res = await axios.get(`https://api.ndtmint.repl.co/pinterest?search=${encodeURIComponent(query)}`);
-        const data = res.data.data.slice(0, numberSearch);
-        
-        if (!data.length) {
-            return api.sendMessage("❌ 𝐍𝐨 𝐢𝐦𝐚𝐠𝐞𝐬 𝐟𝐨𝐮𝐧𝐝 𝐟𝐨𝐫 𝐲𝐨𝐮𝐫 𝐪𝐮𝐞𝐫𝐲", threadID, messageID);
+      // 𝐶ℎ𝑒𝑐𝑘 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠
+      try {
+        if (!axios || !fs || !createCanvas || !loadImage) {
+          throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
         }
+      } catch (err) {
+        return api.sendMessage("❌ | 𝑅𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠 𝑎𝑟𝑒 𝑚𝑖𝑠𝑠𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑎𝑛𝑑 𝑐𝑎𝑛𝑣𝑎𝑠.", event.threadID, event.messageID);
+      }
 
-        // Create stylish header with canvas
-        const canvas = createCanvas(600, 200);
-        const ctx = canvas.getContext('2d');
-        
-        // Background
-        ctx.fillStyle = '#2c3e50';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Title
-        ctx.font = 'bold 30px Arial';
-        ctx.fillStyle = '#1abc9c';
-        ctx.textAlign = 'center';
-        ctx.fillText('🔍 𝐈𝐌𝐀𝐆𝐄 𝐒𝐄𝐀𝐑𝐂𝐇', canvas.width/2, 60);
-        
-        // Query
-        ctx.font = '25px Arial';
-        ctx.fillStyle = '#ecf0f1';
-        ctx.fillText(`"${query}"`, canvas.width/2, 110);
-        
-        // Footer
-        ctx.font = '18px Arial';
-        ctx.fillStyle = '#3498db';
-        ctx.fillText(`𝐅𝐨𝐮𝐧𝐝: ${data.length} 𝐢𝐦𝐚𝐠𝐞${data.length > 1 ? 's' : ''}`, canvas.width/2, 160);
-        
-        const headerPath = __dirname + '/cache/imgHeader.jpg';
-        const out = fs.createWriteStream(headerPath);
-        const stream = canvas.createJPEGStream({ quality: 0.95 });
-        stream.pipe(out);
-        
-        await new Promise(resolve => out.on('finish', resolve));
-        
-        const imgData = [fs.createReadStream(headerPath)];
-        const downloadPromises = [];
-        
+      const { threadID, messageID } = event;
+      const keySearch = args.join(" ");
+      
+      if (!keySearch.includes("-")) {
+        return api.sendMessage(
+          `✨ 𝑈𝑠𝑎𝑔𝑒 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝑖𝑚𝑎𝑔𝑒𝑠𝑒𝑎𝑟𝑐ℎ 𝑐𝑎𝑡𝑠 - 5\n\n🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦 - 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠`,
+          threadID, messageID
+        );
+      }
+
+      const [query, number] = keySearch.split("-").map(str => str.trim());
+      const numberSearch = parseInt(number) || 6;
+
+      api.sendMessage(`🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 "${query}"...`, threadID, messageID);
+      
+      const res = await axios.get(`https://api.ndtmint.repl.co/pinterest?search=${encodeURIComponent(query)}`);
+      const data = res.data.data.slice(0, numberSearch);
+      
+      if (!data.length) {
+        return api.sendMessage("❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑞𝑢𝑒𝑟𝑦", threadID, messageID);
+      }
+
+      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑠𝑡𝑦𝑙𝑖𝑠ℎ ℎ𝑒𝑎𝑑𝑒𝑟 𝑤𝑖𝑡ℎ 𝑐𝑎𝑛𝑣𝑎𝑠
+      const canvas = createCanvas(600, 200);
+      const ctx = canvas.getContext('2d');
+      
+      // 𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑
+      ctx.fillStyle = '#2c3e50';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // 𝑇𝑖𝑡𝑙𝑒
+      ctx.font = '𝑏𝑜𝑙𝑑 30𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.fillStyle = '#1abc9c';
+      ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
+      ctx.fillText('🔍 𝐼𝑀𝐴𝐺𝐸 𝑆𝐸𝐴𝑅𝐶𝐻', canvas.width/2, 60);
+      
+      // 𝑄𝑢𝑒𝑟𝑦
+      ctx.font = '25𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.fillStyle = '#ecf0f1';
+      ctx.fillText(`"${query}"`, canvas.width/2, 110);
+      
+      // 𝐹𝑜𝑜𝑡𝑒𝑟
+      ctx.font = '18𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.fillStyle = '#3498db';
+      ctx.fillText(`𝐹𝑜𝑢𝑛𝑑: ${data.length} 𝑖𝑚𝑎𝑔𝑒${data.length > 1 ? '𝑠' : ''}`, canvas.width/2, 160);
+      
+      const headerPath = __dirname + '/cache/imgHeader.jpg';
+      const out = fs.createWriteStream(headerPath);
+      const stream = canvas.createJPEGStream({ quality: 0.95 });
+      stream.pipe(out);
+      
+      await new Promise(resolve => out.on('finish', resolve));
+      
+      const imgData = [fs.createReadStream(headerPath)];
+      const downloadPromises = [];
+      
+      for (let i = 0; i < data.length; i++) {
+        const path = __dirname + `/cache/img${i + 1}.jpg`;
+        downloadPromises.push(
+          axios.get(data[i], { responseType: 'arraybuffer' })
+            .then(res => fs.writeFile(path, res.data))
+            .then(() => imgData.push(fs.createReadStream(path)))
+        );
+      }
+      
+      await Promise.all(downloadPromises);
+      
+      api.sendMessage({
+        body: `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑟𝑒𝑡𝑟𝑖𝑒𝑣𝑒𝑑 ${data.length} 𝑖𝑚𝑎𝑔𝑒${data.length > 1 ? '𝑠' : ''} 𝑓𝑜𝑟:\n"${query}"`,
+        attachment: imgData
+      }, threadID, async () => {
+        // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑓𝑖𝑙𝑒𝑠
+        fs.unlinkSync(headerPath);
         for (let i = 0; i < data.length; i++) {
-            const path = __dirname + `/cache/img${i + 1}.jpg`;
-            downloadPromises.push(
-                axios.get(data[i], { responseType: 'arraybuffer' })
-                    .then(res => fs.writeFile(path, res.data))
-                    .then(() => imgData.push(fs.createReadStream(path)))
-            );
+          fs.unlinkSync(__dirname + `/cache/img${i + 1}.jpg`);
         }
-        
-        await Promise.all(downloadPromises);
-        
-        api.sendMessage({
-            body: `✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐫𝐞𝐭𝐫𝐢𝐞𝐯𝐞𝐝 ${data.length} 𝐢𝐦𝐚𝐠𝐞${data.length > 1 ? 's' : ''} 𝐟𝐨𝐫:\n"${query}"`,
-            attachment: imgData
-        }, threadID, async () => {
-            // Cleanup files
-            fs.unlinkSync(headerPath);
-            for (let i = 0; i < data.length; i++) {
-                fs.unlinkSync(__dirname + `/cache/img${i + 1}.jpg`);
-            }
-        }, messageID);
-        
+      }, messageID);
+      
     } catch (error) {
-        console.error(error);
-        api.sendMessage("❌ 𝐄𝐫𝐫𝐨𝐫 𝐢𝐧 𝐢𝐦𝐚𝐠𝐞 𝐬𝐞𝐚𝐫𝐜𝐡 𝐩𝐫𝐨𝐜𝐞𝐬𝐬", threadID, messageID);
+      console.error(error);
+      api.sendMessage("❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑖𝑚𝑎𝑔𝑒 𝑠𝑒𝑎𝑟𝑐ℎ 𝑝𝑟𝑜𝑐𝑒𝑠𝑠", event.threadID, event.messageID);
     }
+  }
 };
