@@ -1,74 +1,122 @@
-module.exports.config = {
-	name: "package",
-	version: "1.0.2", 
-	hasPermssion: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", 
-	description: "𝒑𝒓𝒐𝒋𝒆𝒄𝒕 𝒑𝒂𝒄𝒌𝒂𝒈𝒆 𝒋𝒂𝒏𝒌𝒂𝒓𝒊",
-	category: "𝒔𝒚𝒔𝒕𝒆𝒎",
-	cooldowns: 1,
-	dependencies: {
-    "request":"",
-    "fs-extra":"",
-    "axios":""
-  }
-};
+const axios = require("axios");
+const request = require("request");
+const fs = require("fs-extra");
 
-module.exports.onStart = async function({ api, event }) {
-  const axios = global.nodemodule["axios"];
-  const request = global.nodemodule["request"];
-  const fs = global.nodemodule["fs-extra"];
-  
-  const link = ["https://i.imgur.com/6UxTLqh.png"];
-  
-  const callback = () => api.sendMessage({
-    body: `{
-  "name": "𝑨𝒔𝒊𝒇𝑩𝒐𝒕",
-  "version": "30.0.0",
-  "description": "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑴𝒆𝒔𝒔𝒆𝒏𝒈𝒆𝒓 𝑩𝒐𝒕 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  "main": "𝑨𝒔𝒊𝒇𝑩𝒐𝒕.𝒋𝒔",
-  "scripts": {
-    "start": "node index.js",
-    "login": "node login",
-    "test": "node --trace-warnings --use_strict --async-stack-traces mirai"
+module.exports = {
+  config: {
+    name: "package",
+    aliases: ["pkg", "projectinfo"],
+    version: "1.0.2",
+    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    countDown: 1,
+    role: 0,
+    category: "🛡️ 𝑺𝒚𝒔𝒕𝒆𝒎",
+    shortDescription: {
+      en: "📦 𝑷𝒓𝒐𝒋𝒆𝒄𝒕 𝒑𝒂𝒄𝒌𝒂𝒈𝒆 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏"
+    },
+    longDescription: {
+      en: "📦 𝑺𝒉𝒐𝒘𝒔 𝒕𝒉𝒆 𝒑𝒓𝒐𝒋𝒆𝒄𝒕 𝒑𝒂𝒄𝒌𝒂𝒈𝒆 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 𝒂𝒏𝒅 𝒅𝒆𝒑𝒆𝒏𝒅𝒆𝒏𝒄𝒊𝒆𝒔"
+    },
+    guide: {
+      en: "{𝑝}package"
+    },
+    dependencies: {
+      "axios": "",
+      "request": "",
+      "fs-extra": ""
+    }
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕"
+
+  onStart: async function({ api, event }) {
+    try {
+      // Dependency check
+      if (!axios) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑎𝑥𝑖𝑜𝑠");
+      if (!request) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
+      if (!fs) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎");
+
+      const link = ["https://i.imgur.com/6UxTLqh.png"];
+      
+      const callback = () => {
+        api.sendMessage({
+          body: `{
+  "𝒏𝒂𝒎𝒆": "𝑨𝒔𝒊𝒇𝑩𝒐𝒕",
+  "𝒗𝒆𝒓𝒔𝒊𝒐𝒏": "30.0.0",
+  "𝒅𝒆𝒔𝒄𝒓𝒊𝒑𝒕𝒊𝒐𝒏": "𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 𝑴𝒆𝒔𝒔𝒆𝒏𝒈𝒆𝒓 𝑩𝒐𝒕 𝒃𝒚 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  "𝒎𝒂𝒊𝒏": "𝑨𝒔𝒊𝒇𝑩𝒐𝒕.𝒋𝒔",
+  "𝒔𝒄𝒓𝒊𝒑𝒕𝒔": {
+    "𝒔𝒕𝒂𝒓𝒕": "𝒏𝒐𝒅𝒆 𝒊𝒏𝒅𝒆𝒙.𝒋𝒔",
+    "𝒍𝒐𝒈𝒊𝒏": "𝒏𝒐𝒅𝒆 𝒍𝒐𝒈𝒊𝒏",
+    "𝒕𝒆𝒔𝒕": "𝒏𝒐𝒅𝒆 --𝒕𝒓𝒂𝒄𝒆-𝒘𝒂𝒓𝒏𝒊𝒏𝒈𝒔 --𝒖𝒔𝒆_𝒔𝒕𝒓𝒊𝒄𝒕 --𝒂𝒔𝒚𝒏𝒄-𝒔𝒕𝒂𝒄𝒌-𝒕𝒓𝒂𝒄𝒆𝒔 𝒎𝒊𝒓𝒂𝒊"
   },
-  "keywords": [
-    "bot",
-    "facebook",
-    "asifmahmud",
-    "messenger",
-    "javascript",
-    "asif",
-    "mahmud",
-    "ai"
+  "𝒓𝒆𝒑𝒐𝒔𝒊𝒕𝒐𝒓𝒚": {
+    "𝒕𝒚𝒑𝒆": "𝒈𝒊𝒕",
+    "𝒖𝒓𝒍": "𝒉𝒕𝒕𝒑𝒔://𝒈𝒊𝒕𝒉𝒖𝒃.𝒄𝒐𝒎/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕"
+  },
+  "𝒌𝒆𝒚𝒘𝒐𝒓𝒅𝒔": [
+    "𝒃𝒐𝒕",
+    "𝒇𝒂𝒄𝒆𝒃𝒐𝒐𝒌",
+    "𝒂𝒔𝒊𝒇𝒎𝒂𝒉𝒎𝒖𝒅",
+    "𝒎𝒆𝒔𝒔𝒆𝒏𝒈𝒆𝒓",
+    "𝒋𝒂𝒗𝒂𝒔𝒄𝒓𝒊𝒑𝒕",
+    "𝒂𝒔𝒊𝒇",
+    "𝒎𝒂𝒉𝒎𝒖𝒅",
+    "𝒂𝒊"
   ],
-  "author": "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  "license": "GPL-3.0",
-  "bugs": {
-    "url": "https://github.com/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕/issues"
+  "𝒂𝒖𝒕𝒉𝒐𝒓": "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+  "𝒍𝒊𝒄𝒆𝒏𝒔𝒆": "𝑮𝑷𝑳-3.0",
+  "𝒃𝒖𝒈𝒔": {
+    "𝒖𝒓𝒍": "𝒉𝒕𝒕𝒑𝒔://𝒈𝒊𝒕𝒉𝒖𝒃.𝒄𝒐𝒎/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕/𝒊𝒔𝒔𝒖𝒆𝒔"
   },
-  "homepage": "https://github.com/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕#readme",
-  "dependencies": {
-    "@asifmahmud/assets": "",
-    "@replit/database": "^2.0.1",
-    "axios": "^0.26.1",
-    "canvas": "^2.7.0",
-    "chalk": "^4.1.2",
-    "fca-unofficial": "^1.3.13-2",
-    "fs-extra": "^10.0.1",
-    "jimp": "",
-    "moment-timezone": "^0.5.34",
-    "request": "^2.88.2",
-    "ytdl-core": "^4.11.0"
+  "𝒉𝒐𝒎𝒆𝒑𝒂𝒈𝒆": "𝒉𝒕𝒕𝒑𝒔://𝒈𝒊𝒕𝒉𝒖𝒃.𝒄𝒐𝒎/𝑨𝒔𝒊𝒇-𝑴𝒂𝒉𝒎𝒖𝒅/𝒇𝒃-𝒃𝒐𝒕#𝒓𝒆𝒂𝒅𝒎𝒆",
+  "𝒅𝒆𝒑𝒆𝒏𝒅𝒆𝒏𝒄𝒊𝒆𝒔": {
+    "@𝒂𝒔𝒊𝒇𝒎𝒂𝒉𝒎𝒖𝒅/𝒂𝒔𝒔𝒆𝒕𝒔": "",
+    "@𝒓𝒆𝒑𝒍𝒊𝒕/𝒅𝒂𝒕𝒂𝒃𝒂𝒔𝒆": "^2.0.1",
+    "𝒂𝒙𝒊𝒐𝒔": "^0.26.1",
+    "𝒄𝒂𝒏𝒗𝒂𝒔": "^2.7.0",
+    "𝒄𝒉𝒂𝒍𝒌": "^4.1.2",
+    "𝒇𝒄𝒂-𝒖𝒏𝒐𝒇𝒇𝒊𝒄𝒊𝒂𝒍": "^1.3.13-2",
+    "𝒇𝒔-𝒆𝒙𝒕𝒓𝒂": "^10.0.1",
+    "𝒋𝒊𝒎𝒑": "",
+    "𝒎𝒐𝒎𝒆𝒏𝒕-𝒕𝒊𝒎𝒆𝒛𝒐𝒏𝒆": "^0.5.34",
+    "𝒓𝒆𝒒𝒖𝒆𝒔𝒕": "^2.88.2",
+    "𝒚𝒕𝒅𝒍-𝒄𝒐𝒓𝒆": "^4.11.0"
   }
 }`,
-    attachment: fs.createReadStream(__dirname + "/cache/package.png")
-  }, event.threadID, () => fs.unlinkSync(__dirname + "/cache/package.png")); 
-  
-  return request(encodeURI(link[Math.floor(Math.random() * link.length)]))
-    .pipe(fs.createWriteStream(__dirname + "/cache/package.png"))
-    .on("close", () => callback());
+          attachment: fs.createReadStream(__dirname + "/cache/package.png")
+        }, event.threadID, () => {
+          try {
+            fs.unlinkSync(__dirname + "/cache/package.png");
+          } catch (e) {}
+        });
+      };
+      
+      // Create cache directory if it doesn't exist
+      const cacheDir = __dirname + "/cache";
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      const imageUrl = link[Math.floor(Math.random() * link.length)];
+      
+      // Download image
+      const response = await axios({
+        method: 'GET',
+        url: imageUrl,
+        responseType: 'stream'
+      });
+
+      const writer = fs.createWriteStream(__dirname + "/cache/package.png");
+      response.data.pipe(writer);
+      
+      writer.on('finish', callback);
+      writer.on('error', (error) => {
+        console.error("𝑰𝒎𝒂𝒈𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒓𝒓𝒐𝒓:", error);
+        api.sendMessage("❌ 𝑰𝒎𝒂𝒈𝒆 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒇𝒂𝒊𝒍𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.", event.threadID, event.messageID);
+      });
+
+    } catch (error) {
+      console.error("𝑷𝒂𝒄𝒌𝒂𝒈𝒆 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑬𝒓𝒓𝒐𝒓:", error);
+      api.sendMessage(`❌ 𝑬𝒓𝒓𝒐𝒓: ${error.message}`, event.threadID, event.messageID);
+    }
+  }
 };
