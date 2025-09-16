@@ -1,43 +1,71 @@
-module.exports.config = {
-  name: "nudegirl",
-  version: "1.0.1",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝒂𝒏𝒊𝒎𝒆 𝒎𝒆𝒚𝒆𝒅𝒆𝒓 𝒆𝒓 𝒏𝒖𝒅𝒆 𝒄𝒉𝒐𝒃𝒊",
-  category: "𝒏𝒔𝒇𝒘",
-  usages: "nudegirl",
-  cooldowns: 3,
-  dependencies: {
-    "axios": "",
-    "fs-extra": ""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.onStart = async function({ api, event }) {
-  const axios = global.nodemodule["axios"];
-  const fs = global.nodemodule["fs-extra"];
-  const path = __dirname + "/cache/nudegirl.jpg";
+module.exports = {
+    config: {
+        name: "nudegirl",
+        aliases: ["animenude", "nsfwanime"],
+        version: "1.0.1",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "🎨 𝐴𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑛𝑢𝑑𝑒 𝑖𝑚𝑎𝑔𝑒𝑠"
+        },
+        longDescription: {
+            en: "𝐺𝑒𝑡 𝑎𝑛𝑖𝑚𝑒-𝑠𝑡𝑦𝑙𝑒 𝑛𝑢𝑑𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 𝑜𝑓 𝑓𝑒𝑚𝑎𝑙𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟𝑠"
+        },
+        category: "𝑛𝑠𝑓𝑤",
+        guide: {
+            en: "{p}nudegirl"
+        },
+        countDown: 3,
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
+    },
 
-  try {
-    api.sendMessage("🔄 𝒄𝒉𝒐𝒃𝒊 𝒆𝒓 𝒑𝒊𝒄 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒉𝒐𝒄𝒄𝒉𝒆...", event.threadID);
+    onStart: async function({ message, event }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+            }
 
-    const response = await axios.get("https://api.nekosapi.com/v4/images/random?rating=explicit");
-    const imageUrl = response.data.url;
-    
-    const imageResponse = await axios.get(imageUrl, { 
-      responseType: "arraybuffer",
-      headers: { "Cache-Control": "no-cache" }
-    });
-    
-    fs.writeFileSync(path, Buffer.from(imageResponse.data, 'binary'));
-    
-    return api.sendMessage({
-      body: `𝑬𝒊 𝑵𝒂𝒐 𝑬𝒙𝒄𝒍𝒖𝒔𝒊𝒗 𝑵𝒖𝒅𝒆 𝑨𝒏𝒊𝒎𝒆 𝑮𝒂𝒓𝒍! 😏\n`,
-      attachment: fs.createReadStream(path)
-    }, event.threadID, () => fs.unlinkSync(path), event.messageID);
-    
-  } catch (error) {
-    console.error("❌ 𝑵𝒖𝒅𝒆 𝑮𝒊𝒓𝒍 𝑬𝒓𝒓𝒐𝒓:", error);
-    return api.sendMessage("❌ 𝒆𝒓𝒓𝒐𝒓: 𝒄𝒉𝒐𝒃𝒊 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒋𝒂𝒕𝒆𝒄𝒉𝒆 𝒏𝒂! 😢", event.threadID, event.messageID);
-  }
+            const imagePath = path.join(__dirname, "cache", "nudegirl.jpg");
+
+            await message.reply("🔄 𝐴𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒 𝑖𝑠 𝑏𝑒𝑖𝑛𝑔 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑...");
+
+            // Alternative API since nekosapi might not work
+            const response = await axios.get("https://api.waifu.pics/nsfw/waifu", {
+                headers: { "Cache-Control": "no-cache" }
+            });
+            
+            const imageUrl = response.data.url;
+            
+            const imageResponse = await axios.get(imageUrl, { 
+                responseType: "arraybuffer"
+            });
+            
+            fs.writeFileSync(imagePath, Buffer.from(imageResponse.data, 'binary'));
+            
+            await message.reply({
+                body: `🎨 𝐸𝑥𝑐𝑙𝑢𝑠𝑖𝑣𝑒 𝐴𝑛𝑖𝑚𝑒 𝑆𝑡𝑦𝑙𝑒 𝐼𝑚𝑎𝑔𝑒! ✨\n⚠️ 𝑁𝑆𝐹𝑊 𝐶𝑜𝑛𝑡𝑒𝑛𝑡 - 𝑉𝑖𝑒𝑤 𝑤𝑖𝑠𝑒𝑙𝑦`,
+                attachment: fs.createReadStream(imagePath)
+            });
+
+            // Clean up
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+            
+        } catch (error) {
+            console.error("❌ 𝑁𝑢𝑑𝑒𝑔𝑖𝑟𝑙 𝐸𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
+    }
 };
