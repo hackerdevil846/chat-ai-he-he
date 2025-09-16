@@ -5,7 +5,7 @@ const request = require('request');
 
 module.exports = {
   config: {
-    name: "punchaction",
+    name: "punch",
     aliases: ["hit", "smash"],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
