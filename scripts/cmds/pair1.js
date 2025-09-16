@@ -9,7 +9,7 @@ const bgPath = path.join(dirMaterial, "pairing.jpg");
 
 module.exports = {
   config: {
-    name: "pair",
+    name: "pair1",
     aliases: ["pairing", "couple"],
     version: "1.0.3",
     author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
