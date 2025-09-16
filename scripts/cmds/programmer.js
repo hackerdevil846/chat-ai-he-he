@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "codememe",
+    name: "programmer",
     aliases: ["devmeme", "programmerfun"],
     version: "2.3.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -18,7 +18,7 @@ module.exports = {
       en: "𝐴𝑢𝑡𝑜-𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ ℎ𝑖𝑙𝑎𝑟𝑖𝑜𝑢𝑠 𝑝𝑟𝑜𝑔𝑟𝑎𝑚𝑚𝑒𝑟 𝑚𝑒𝑚𝑒𝑠 𝑎𝑛𝑑 𝑣𝑖𝑑𝑒𝑜𝑠"
     },
     guide: {
-      en: "{𝑝}𝑐𝑜𝑑𝑒𝑚𝑒𝑚𝑒 [𝑜𝑛/𝑜𝑓𝑓]"
+      en: "{𝑝}programmer [𝑜𝑛/𝑜𝑓𝑓]"
     },
     dependencies: {
       "axios": "",
