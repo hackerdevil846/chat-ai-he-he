@@ -3,77 +3,98 @@ const fs = require('fs-extra');
 const path = require('path');
 
 module.exports = {
-  config: {
-    name: "owner",
-    author: "Asif",
-    role: 0,
-    shortDescription: "Premium Owner Profile ✨",
-    longDescription: "Displays owner's information in premium atomic design style with video attachment.",
-    category: "admin",
-    guide: "{pn}"
-  },
+    config: {
+        name: "owner",
+        aliases: ["boss", "admin"],
+        version: "1.0.0",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "✨ 𝑃𝑟𝑒𝑚𝑖𝑢𝑚 𝑂𝑤𝑛𝑒𝑟 𝑃𝑟𝑜𝑓𝑖𝑙𝑒"
+        },
+        longDescription: {
+            en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑜𝑤𝑛𝑒𝑟'𝑠 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑖𝑛 𝑝𝑟𝑒𝑚𝑖𝑢𝑚 𝑎𝑡𝑜𝑚𝑖𝑐 𝑑𝑒𝑠𝑖𝑔𝑛 𝑠𝑡𝑦𝑙𝑒 𝑤𝑖𝑡ℎ 𝑣𝑖𝑑𝑒𝑜 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡"
+        },
+        category: "𝑎𝑑𝑚𝑖𝑛",
+        guide: {
+            en: "{p}owner"
+        },
+        countDown: 5,
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
+    },
 
-  onStart: async function ({ api, event }) {
-    try {
-      // --- Owner Information ---
-      const ownerInfo = {
-        name: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
-        preference: '🕋 𝑰𝒔𝒍𝒂𝒎𝒊𝒄 𝑳𝒊𝒇𝒆𝒔𝒕𝒚𝒍𝒆',
-        hobbies: '🎧 𝑴𝒖𝒔𝒊𝒄, 🎮 𝑮𝒂𝒎𝒊𝒏𝒈, 📚 𝑳𝒆𝒂𝒓𝒏𝒊𝒏𝒈',
-        gender: '𝑴𝒂𝒍𝒆',
-        age: '𝟭𝟴+',
-        height: '𝟱𝒇𝒕+',
-        facebookLink: '🌐 https://www.facebook.com/share/1HPjorq8ce/',
-        nick: '𝑱𝒂𝒎𝒂𝒊'
-      };
+    onStart: async function ({ message, event }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+            }
 
-      // --- Video and File Handling ---
-      const videoUrl = 'https://files.catbox.moe/op5iay.mp4';
-      const cacheFolderPath = path.join(__dirname, '..', 'cache');
-      const videoPath = path.join(cacheFolderPath, 'owner_video.mp4');
+            // --- Owner Information ---
+            const ownerInfo = {
+                name: '𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑',
+                preference: '🕋 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝐿𝑖𝑓𝑒𝑠𝑡𝑦𝑙𝑒',
+                hobbies: '🎧 𝑀𝑢𝑠𝑖𝑐, 🎮 𝐺𝑎𝑚𝑖𝑛𝑔, 📚 𝐿𝑒𝑎𝑟𝑛𝑖𝑛𝑔',
+                gender: '𝑀𝑎𝑙𝑒',
+                age: '18+',
+                height: '5𝑓𝑡+',
+                facebookLink: '🌐 https://www.facebook.com/share/1HPjorq8ce/',
+                nick: '𝐽𝑎𝑚𝑎𝑖'
+            };
 
-      // Create cache directory if it doesn't exist
-      await fs.ensureDir(cacheFolderPath);
+            // --- Video and File Handling ---
+            const videoUrl = 'https://files.catbox.moe/op5iay.mp4';
+            const cacheFolderPath = path.join(__dirname, 'cache');
+            const videoPath = path.join(cacheFolderPath, 'owner_video.mp4');
 
-      // Download the video
-      const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
-      await fs.writeFile(videoPath, Buffer.from(videoResponse.data));
+            // Create cache directory if it doesn't exist
+            await fs.ensureDir(cacheFolderPath);
 
-      // --- Beautiful Knight Design with Mathematical Bold Italic ---
-      const response = `
-╭───────『 ✧  𝑶𝑾𝑵𝑬𝑹 𝑷𝑹𝑶𝑭𝑰𝑳𝑬  ✧ 』───────╮
+            // Download the video
+            const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
+            await fs.writeFile(videoPath, Buffer.from(videoResponse.data));
+
+            // --- Beautiful Knight Design with Mathematical Bold Italic ---
+            const response = `
+╭───────『 ✧  𝑂𝑊𝑁𝐸𝑅 𝑃𝑅𝑂𝐹𝐼𝐿𝐸  ✧ 』───────╮
 ┃
-┃  ❄️ 𝑩𝑨𝑺𝑰𝑪 𝑰𝑵𝑭𝑶
+┃  ❄️ 𝐵𝐴𝑆𝐼𝐶 𝐼𝑁𝐹𝑂
 ┠────────────────────────────────────
-┃  ✦ 𝑵𝒂𝒎𝒆      ➠ ${ownerInfo.name}
-┃  ✦ 𝑵𝒊𝒄𝒌𝒏𝒂𝒎𝒆  ➠ ${ownerInfo.nick}
-┃  ✦ 𝑨𝒈𝒆        ➠ ${ownerInfo.age}
-┃  ✦ 𝑮𝒆𝒏𝒅𝒆𝒓   ➠ ${ownerInfo.gender}
-┃  ✦ 𝑯𝒆𝒊𝒈𝒉𝒕    ➠ ${ownerInfo.height}
+┃  ✦ 𝑁𝑎𝑚𝑒      ➠ ${ownerInfo.name}
+┃  ✦ 𝑁𝑖𝑐𝑘𝑛𝑎𝑚𝑒  ➠ ${ownerInfo.nick}
+┃  ✦ 𝐴𝑔𝑒        ➠ ${ownerInfo.age}
+┃  ✦ 𝐺𝑒𝑛𝑑𝑒𝑟   ➠ ${ownerInfo.gender}
+┃  ✦ 𝐻𝑒𝑖𝑔ℎ𝑡    ➠ ${ownerInfo.height}
 ┠────────────────────────────────────
-┃  ❄️ 𝑳𝑰𝑭𝑬𝑺𝑻𝒀𝑳𝑬
+┃  ❄️ 𝐿𝐼𝐹𝐸𝑆𝑇𝑌𝐿𝐸
 ┠────────────────────────────────────
-┃  ✦ 𝑷𝒓𝒆𝒇𝒆𝒓𝒆𝒏𝒄𝒆 ➠ ${ownerInfo.preference}
-┃  ✦ 𝑯𝒐𝒃𝒃𝒊𝒆𝒔      ➠ ${ownerInfo.hobbies}
+┃  ✦ 𝑃𝑟𝑒𝑓𝑒𝑟𝑒𝑛𝑐𝑒 ➠ ${ownerInfo.preference}
+┃  ✦ 𝐻𝑜𝑏𝑏𝑖𝑒𝑠      ➠ ${ownerInfo.hobbies}
 ┠────────────────────────────────────
-┃  ❄️ 𝑪𝑶𝑵𝑻𝑨𝑪𝑻
+┃  ❄️ 𝐶𝑂𝑁𝑇𝐴𝐶𝑇
 ┠────────────────────────────────────
-┃  ✦ 𝑭𝒂𝒄𝒆𝒃𝒐𝒐𝒌 ➠ ${ownerInfo.facebookLink}
+┃  ✦ 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 ➠ ${ownerInfo.facebookLink}
 ┃
-╰───────『 ✧  𝑨𝑻𝑶𝑴𝑰𝑪 𝑩𝒀 𝑨𝑺𝑰𝑭  ✧ 』───────╯`;
+╰───────『 ✧  𝐴𝑇𝑂𝑀𝐼𝐶 𝐵𝑌 𝐴𝑆𝐼𝐹  ✧ 』───────╯`;
 
-      // --- Sending the Message ---
-      await api.sendMessage({
-        body: response,
-        attachment: fs.createReadStream(videoPath)
-      }, event.threadID, () => {
-        // Clean up the video file after sending
-        fs.unlinkSync(videoPath);
-      }, event.messageID);
+            // --- Sending the Message ---
+            await message.reply({
+                body: response,
+                attachment: fs.createReadStream(videoPath)
+            });
 
-    } catch (error) {
-      console.error('❌ Error in "owner" command:', error);
-      return api.sendMessage('❌ An error occurred while executing the command. Please try again later.', event.threadID);
+            // Clean up the video file after sending
+            fs.unlinkSync(videoPath);
+
+        } catch (error) {
+            console.error('❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 "𝑜𝑤𝑛𝑒𝑟" 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:', error);
+            await message.reply('❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.');
+        }
     }
-  }
 };
