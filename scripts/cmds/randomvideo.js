@@ -4,30 +4,42 @@ const path = require('path');
 
 module.exports = {
   config: {
-    name: "random",
+    name: "randomvideo",
+    aliases: ["rvideo", "randvid"],
     version: "2.0.0",
-    hasPermission: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Send random high-quality videos from various categories",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 15,
+    role: 0,
     category: "media",
-    usages: "[category]",
-    cooldowns: 15,
+    shortDescription: {
+      en: "🎬 Send random high-quality videos"
+    },
+    longDescription: {
+      en: "🎬 Send random high-quality videos from various categories with multiple API sources"
+    },
+    guide: {
+      en: "{p}randomvideo [category]"
+    },
     dependencies: {
       "axios": "",
       "fs-extra": ""
     }
   },
 
-  onStart: async function() {
-    // Initialize cache directory
-    const cacheDir = path.join(__dirname, 'cache', 'random_videos');
-    if (!fs.existsSync(cacheDir)) {
-      fs.mkdirSync(cacheDir, { recursive: true });
+  onStart: async function({ api }) {
+    try {
+      // Initialize cache directory
+      const cacheDir = path.join(__dirname, 'cache', 'random_videos');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      console.log("Random video command initialized. Cache directory ready.");
+      
+      // Start periodic cache cleaning
+      this.startCacheCleaner();
+    } catch (error) {
+      console.error('Initialization error:', error);
     }
-    console.log("Random video command initialized. Cache directory ready.");
-    
-    // Start periodic cache cleaning
-    this.startCacheCleaner();
   },
 
   startCacheCleaner: function() {
@@ -55,8 +67,17 @@ module.exports = {
     }, 600000); // 10 minutes
   },
 
-  run: async function({ api, event, args }) {
+  onStart: async function({ api, event, args }) {
     try {
+      // Check dependencies
+      try {
+        if (!axios || !fs || !path) {
+          throw new Error("Missing required dependencies");
+        }
+      } catch (err) {
+        return api.sendMessage("❌ | Required dependencies are missing. Please install axios and fs-extra.", event.threadID, event.messageID);
+      }
+
       const { threadID, messageID } = event;
       
       // Enhanced API endpoints with multiple backup sources
@@ -174,14 +195,15 @@ module.exports = {
       // Send processing message with enhanced styling
       const processingMsg = await api.sendMessage(
         `🎬 𝗟𝗼𝗮𝗱𝗶𝗻𝗴 ${category.charAt(0).toUpperCase() + category.slice(1)} 𝗩𝗶𝗱𝗲𝗼...\n\n⏳ 𝗣𝗹𝗲𝗮𝘀𝗲 𝘄𝗮𝗶𝘁 𝘄𝗵𝗶𝗹𝗲 𝗜 𝗳𝗲𝘁𝗰𝗵 𝗮 𝗵𝗶𝗴𝗵-𝗾𝘂𝗮𝗹𝗶𝘁𝘆 𝘃𝗶𝗱𝗲𝗼 𝗳𝗼𝗿 𝘆𝗼𝘂!`,
-        threadID
+        threadID,
+        messageID
       );
       
       let videoData;
       let apiIndex = 0;
       let apiSuccess = false;
       let attempts = 0;
-      const maxAttempts = categoryApis.length * 2; // Allow multiple attempts per API
+      const maxAttempts = categoryApis.length * 2;
       
       // Enhanced API fallback system with retry logic
       while (apiIndex < categoryApis.length && !apiSuccess && attempts < maxAttempts) {
@@ -193,8 +215,7 @@ module.exports = {
             timeout: 15000,
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              'Accept': 'application/json, text/plain, */*',
-              'Accept-Language': 'en-US,en;q=0.9'
+              'Accept': 'application/json, text/plain, */*'
             }
           });
           
@@ -247,7 +268,7 @@ module.exports = {
       if (!apiSuccess) {
         console.log('All APIs failed, using fallback message');
         await api.sendMessage(
-          `❌ 𝗦𝗼𝗿𝗿𝘆! 𝗔𝗹𝗹 𝘃𝗶𝗱𝗲𝗼 𝘀𝗼𝘂𝗿𝗰𝗲𝘀 𝗮𝗿𝗲 𝗰𝘂𝗿𝗿𝗲𝗻𝘁𝗹𝘆 𝘂𝗻𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲.\n\n🔄 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗶𝗻 𝗮 𝗳𝗲𝘄 𝗺𝗶𝗻𝘂𝘁𝗲𝘀.\n\n📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀: ${Object.keys(VIDEO_CATEGORIES).join(', ')}\n\n💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: !random funny\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
+          `❌ 𝗦𝗼𝗿𝗿𝘆! 𝗔𝗹𝗹 𝘃𝗶𝗱𝗲𝗼 𝘀𝗼𝘂𝗿𝗰𝗲𝘀 𝗮𝗿𝗲 𝗰𝘂𝗿𝗿𝗲𝗻𝘁𝗹𝘆 𝘂𝗻𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲.\n\n🔄 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗶𝗻 𝗮 𝗳𝗲𝘄 𝗺𝗶𝗻𝘂𝘁𝗲𝘀.\n\n📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀: ${Object.keys(VIDEO_CATEGORIES).join(', ')}\n\n💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: !randomvideo funny\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
           threadID,
           messageID
         );
@@ -305,7 +326,7 @@ module.exports = {
         
         // Try to send as URL if download fails
         await api.sendMessage(
-          `🎬 𝗥𝗮𝗻𝗱𝗼𝗺 ${category.charAt(0).toUpperCase() + category.slice(1)} 𝗩𝗶𝗱𝗲𝗼\n\n📹 ${videoData.title || 'Random Video'}\n🔗 ${videoData.url}\n\n⚠️ 𝗗𝗶𝗿𝗲𝗰𝘁 𝗱𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝗳𝗮𝗶𝗹𝗲𝗱, 𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗹𝗶𝗰𝗸 𝘁𝗵𝗲 𝗹𝗶𝗻𝗸 𝗮𝗯𝗼𝘃𝗲.\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
+          `🎬 𝗥𝗮𝗻𝗱𝗼𝗺 ${category.charAt(0).toUpperCase() + category.slice(1)} 𝗩𝗶𝗱𝗲𝗼\n\n📹 ${videoData.title || 'Random Video'}\n🔗 ${videoData.url}\n\n⚠️ 𝗗𝗶𝗿𝗲𝗰𝘁 𝗱𝗼𝘄𝗻𝗹𝗼𝗮𝗱 𝗳𝗮𝗶𝗹𝗲𝗱, 𝗽𝗹𝗲𝗮𝘀𝗲 𝗰𝗹𝗶𝗰𝗸 𝘁𝗵𝗲 𝗹𝗶𝗻𝗸 𝗮𝗯𝗼𝘃𝗲.\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
           threadID,
           messageID
         );
@@ -324,18 +345,17 @@ module.exports = {
       if (videoData.views) messageBody += `👀 𝗩𝗶𝗲𝘄𝘀: ${videoData.views}\n`;
       if (videoData.author) messageBody += `👤 𝗔𝘂𝘁𝗵𝗼𝗿: ${videoData.author}\n`;
       if (videoData.duration) messageBody += `⏱️ 𝗗𝘂𝗿𝗮𝘁𝗶𝗼𝗻: ${videoData.duration}\n`;
-      if (videoData.description) messageBody += `📝 ${videoData.description.substring(0, 100)}${videoData.description.length > 100 ? '...' : ''}\n`;
       
       messageBody += `\n🎯 𝗖𝗮𝘁𝗲𝗴𝗼𝗿𝘆: ${category.toUpperCase()}\n`;
-      messageBody += `🔄 𝗧𝘆𝗽𝗲 "!random [category]" 𝗳𝗼𝗿 𝗺𝗼𝗿𝗲!\n`;
+      messageBody += `🔄 𝗧𝘆𝗽𝗲 "!randomvideo [category]" 𝗳𝗼𝗿 𝗺𝗼𝗿𝗲!\n`;
       messageBody += `📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲: ${Object.keys(VIDEO_CATEGORIES).join(', ')}\n\n`;
-      messageBody += `🤖 𝗕𝗼𝘁 𝗯𝘆: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`;
+      messageBody += `🤖 𝗕𝗼𝘁 𝗯𝘆: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
       
       // Send the video
       await api.sendMessage({
         body: messageBody,
         attachment: fs.createReadStream(videoPath)
-      }, threadID);
+      }, threadID, messageID);
       
       console.log('Video sent successfully!');
       
@@ -355,20 +375,14 @@ module.exports = {
     } catch (error) {
       console.error('Random Video Command Error:', error);
       
-      // Delete processing message if exists
-      if (processingMsg) {
-        api.unsendMessage(processingMsg.messageID);
-      }
-      
       // Get available categories
       const availableCategories = Object.keys(VIDEO_CATEGORIES).join(', ');
       
       api.sendMessage(
-        `❌ 𝗔𝗻 𝘂𝗻𝗲𝘅𝗽𝗲𝗰𝘁𝗲𝗱 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱!\n\n🔧 𝗣𝗼𝘀𝘀𝗶𝗯𝗹𝗲 𝘀𝗼𝗹𝘂𝘁𝗶𝗼𝗻𝘀:\n• 𝗧𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝘆\n• 𝗖𝗵𝗲𝗰𝗸 𝘆𝗼𝘂𝗿 𝗶𝗻𝘁𝗲𝗿𝗻𝗲𝘁 𝗰𝗼𝗻𝗻𝗲𝗰𝘁𝗶𝗼𝗻\n• 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗶𝗻 𝗮 𝗳𝗲𝘄 𝗺𝗶𝗻𝘂𝘁𝗲𝘀\n• 𝗖𝗼𝗻𝘁𝗮𝗰𝘁 𝗮𝗱𝗺𝗶𝗻 𝗶𝗳 𝗽𝗿𝗼𝗯𝗹𝗲𝗺 𝗽𝗲𝗿𝘀𝗶𝘀𝘁𝘀\n\n📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀: ${availableCategories}\n💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: !random funny\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅`,
+        `❌ 𝗔𝗻 𝘂𝗻𝗲𝘅𝗽𝗲𝗰𝘁𝗲𝗱 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱!\n\n🔧 𝗣𝗼𝘀𝘀𝗶𝗯𝗹𝗲 𝘀𝗼𝗹𝘂𝘁𝗶𝗼𝗻𝘀:\n• 𝗧𝗿𝘆 𝗮 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝘆\n• 𝗖𝗵𝗲𝗰𝗸 𝘆𝗼𝘂𝗿 𝗶𝗻𝘁𝗲𝗿𝗻𝗲𝘁 𝗰𝗼𝗻𝗻𝗲𝗰𝘁𝗶𝗼𝗻\n• 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗶𝗻 𝗮 𝗳𝗲𝘄 𝗺𝗶𝗻𝘂𝘁𝗲𝘀\n\n📋 𝗔𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲 𝗰𝗮𝘁𝗲𝗴𝗼𝗿𝗶𝗲𝘀: ${availableCategories}\n💡 𝗘𝘅𝗮𝗺𝗽𝗹𝗲: !randomvideo funny\n\n🤖 𝗕𝗼𝘁 𝗯𝘆: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
         threadID,
         messageID
       );
     }
   }
 };
-
