@@ -1,24 +1,42 @@
-module.exports.config = {
-  name: "pantiesclose",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑷𝒓𝒐𝒋𝒆𝒄𝒕 𝑴4𝒂 - 𝑷𝒂𝒏𝒕𝒊 𝒌𝒊𝒏𝒅𝒆𝒓 𝒔𝒖𝒓𝒖𝒌𝒆𝒓 𝒋𝒉𝒂𝒏𝒌𝒊𝒓 𝒄𝒉𝒐𝒃𝒊𝒓 𝒄𝒉𝒐𝒃𝒊",
-  category: "𝑹𝒂𝒏𝒅𝒐𝒎-𝑰𝑴𝑮",
-  usages: "panclose",
-  cooldowns: 3,
-  dependencies: {
-    "request":"",
-    "fs-extra":"",
-    "axios":""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.onStart = async({api,event,args,client,Users,Threads,__GLOBAL,Currencies}) => {
-const axios = global.nodemodule["axios"];
-const request = global.nodemodule["request"];
-const fs = global.nodemodule["fs-extra"];
-  var link =  [
+module.exports = {
+    config: {
+        name: "pantiesclose",
+        aliases: ["pantyclose", "underwear"],
+        version: "1.0.0",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "👙 𝑅𝑎𝑛𝑑𝑜𝑚 𝑝𝑎𝑛𝑡𝑖𝑒𝑠 𝑐𝑙𝑜𝑠𝑒-𝑢𝑝 𝑖𝑚𝑎𝑔𝑒𝑠"
+        },
+        longDescription: {
+            en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑐𝑙𝑜𝑠𝑒-𝑢𝑝 𝑝𝑎𝑛𝑡𝑖𝑒𝑠 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 𝑠𝑜𝑢𝑟𝑐𝑒𝑠"
+        },
+        category: "𝑟𝑎𝑛𝑑𝑜𝑚-𝑖𝑚𝑔",
+        guide: {
+            en: "{p}pantiesclose"
+        },
+        countDown: 3,
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
+    },
+
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+            }
+
+            const links = [
 "https://konachan.net/image/dbd39997e7dd18f6a0375844db0d9842/Konachan.com%20-%20330247%20anus%20aqua_eyes%20ass%20bed%20blush%20cameltoe%20censored%20close%20green_hair%20long_hair%20panties%20ponytail%20pussy%20see_through%20skirt%20skirt_lift%20thighhighs%20underwear.jpg?0.3808165005439865",
 "https://konachan.net/sample/75e1718ef702abaf83a52bc5010ab3c9/Konachan.com%20-%20329497%20sample.jpg?0.10276269929326665",
 "https://konachan.net/sample/87878dbfa796f0562f1af52ea191ff75/Konachan.com%20-%20329045%20sample.jpg?0.9916247888490577",
@@ -194,6 +212,36 @@ const fs = global.nodemodule["fs-extra"];
 "https://konachan.net/image/47d652c938bda1c6df1e01aa80797d8c/Konachan.com%20-%20935%20ass%20close%20f-ism%20murakami_suigun%20panties%20spread_legs%20underwear.jpg?0.7442805835097328",
 "https://konachan.net/image/efe6aa7bbeac98d05a98b31465b5fe65/Konachan.com%20-%20886%20ass%20close%20panties%20red%20skirt%20underwear%20upskirt.jpg?0.67499538349191",
   ];
-	 var callback = () => api.sendMessage({body:`𝑷𝒂𝒏𝒕𝒊 𝒄𝒍𝒐𝒔𝒆𝒅 𝒄𝒉𝒐𝒃𝒊𝒓 𝒄𝒉𝒐𝒃𝒊: ${link.length} 𝒕𝒊`,attachment: fs.createReadStream(__dirname + "/cache/5.jpg")}, event.threadID, () => fs.unlinkSync(__dirname + "/cache/5.jpg"));	
-      return request(encodeURI(link[Math.floor(Math.random() * link.length)])).pipe(fs.createWriteStream(__dirname+"/cache/5.jpg")).on("close",() => callback());
-   };
+
+            const randomLink = links[Math.floor(Math.random() * links.length)];
+            const imagePath = path.join(__dirname, "cache", "pantiesclose.jpg");
+
+            // Download the image
+            const response = await axios({
+                method: 'GET',
+                url: randomLink,
+                responseType: 'stream'
+            });
+
+            const writer = fs.createWriteStream(imagePath);
+            response.data.pipe(writer);
+
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            await message.reply({
+                body: `👙 𝑃𝑎𝑛𝑡𝑖𝑒𝑠 𝑐𝑙𝑜𝑠𝑒-𝑢𝑝 𝑖𝑚𝑎𝑔𝑒\n𝑇𝑜𝑡𝑎𝑙 𝑖𝑚𝑎𝑔𝑒𝑠: ${links.length}`,
+                attachment: fs.createReadStream(imagePath)
+            });
+
+            // Clean up
+            fs.unlinkSync(imagePath);
+
+        } catch (error) {
+            console.error("𝑃𝑎𝑛𝑡𝑖𝑒𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
+    }
+};
