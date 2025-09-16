@@ -1,67 +1,68 @@
-module.exports.config = {
-  name: "outall",
-  version: "1.0.1",
-  hasPermssion: 2,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "🔄 𝐒𝐨𝐛 𝐠𝐫𝐮𝐩 𝐭𝐡𝐞𝐤𝐞 𝐁𝐨𝐭 𝐤𝐞 𝐛𝐚𝐡𝐢𝐫 𝐧𝐢𝐲𝐞 𝐣𝐚𝐨𝐚",
-  category: "🛠️ 𝐀𝐝𝐦𝐢𝐧",
-  usages: "outall",
-  cooldowns: 5,
-  info: [
-    {
-      key: "Text",
-      prompt: "📝 𝐒𝐨𝐛 𝐠𝐫𝐮𝐩 𝐭𝐡𝐞𝐤𝐞 𝐁𝐨𝐭 𝐤𝐞 𝐛𝐚𝐡𝐢𝐫 𝐧𝐢𝐲𝐞 𝐣𝐚𝐛𝐞",
-      type: 'Document',
-      example: 'outall'
-    }
-  ]
-};
+module.exports = {
+    config: {
+        name: "outall",
+        aliases: ["leaveall", "botout"],
+        version: "1.0.1",
+        role: 2,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        shortDescription: {
+            en: "🔄 𝑆𝑜𝑏 𝑔𝑟𝑢𝑝 𝑡ℎ𝑒𝑘𝑒 𝐵𝑜𝑡 𝑘𝑒 𝑏𝑎ℎ𝑖𝑟 𝑛𝑖𝑦𝑒 𝑗𝑎𝑜𝑎"
+        },
+        longDescription: {
+            en: "𝑀𝑎𝑘𝑒 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑙𝑒𝑎𝑣𝑒 𝑎𝑙𝑙 𝑔𝑟𝑜𝑢𝑝𝑠 𝑒𝑥𝑐𝑒𝑝𝑡 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑜𝑛𝑒"
+        },
+        category: "𝑎𝑑𝑚𝑖𝑛",
+        guide: {
+            en: "{p}outall"
+        },
+        countDown: 5
+    },
 
-module.exports.onStart = async function({ api, event, args }) {
-  try {
-    const botID = api.getCurrentUserID();
-    const list = await api.getThreadList(100, null, ["INBOX"]);
-    
-    let successCount = 0;
-    let errorCount = 0;
-    let results = [];
-
-    for (const thread of list) {
-      if (thread.isGroup && thread.threadID !== event.threadID) {
+    onStart: async function({ message, event, threadsData }) {
         try {
-          await api.removeUserFromGroup(botID, thread.threadID);
-          successCount++;
-          results.push(`✅ | ${thread.name || "𝐔𝐧𝐧𝐚𝐦𝐞𝐝 𝐆𝐫𝐨𝐮𝐩"} - 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐋𝐞𝐟𝐭!`);
-          await new Promise(resolve => setTimeout(resolve, 500));
+            const botID = global.utils.getBotID();
+            const allThreads = await threadsData.getAll();
+            
+            let successCount = 0;
+            let errorCount = 0;
+            let results = [];
+
+            for (const thread of allThreads) {
+                if (thread.isGroup && thread.threadID !== event.threadID) {
+                    try {
+                        await threadsData.removeBotFromThread(thread.threadID);
+                        successCount++;
+                        results.push(`✅ | ${thread.name || "𝑈𝑛𝑛𝑎𝑚𝑒𝑑 𝐺𝑟𝑜𝑢𝑝"} - 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑙𝑒𝑓𝑡!`);
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    } catch (error) {
+                        errorCount++;
+                        results.push(`❌ | ${thread.name || "𝑈𝑛𝑛𝑎𝑚𝑒𝑑 𝐺𝑟𝑜𝑢𝑝"} - 𝐹𝑎𝑖𝑙𝑒𝑑: ${error.message}`);
+                    }
+                }
+            }
+
+            const summary = 
+                `╭──『 𝑂𝑈𝑇𝐴𝐿𝐿 𝑅𝐸𝑆𝑈𝐿𝑇 』──⊷\n` +
+                `│\n` +
+                `│ ✅ 𝑆𝑈𝐶𝐶𝐸𝑆𝑆: ${successCount} 𝑔𝑟𝑜𝑢𝑝𝑠\n` +
+                `│ ❌ 𝐹𝐴𝐼𝐿𝑈𝑅𝐸: ${errorCount} 𝑔𝑟𝑜𝑢𝑝𝑠\n` +
+                `│\n` +
+                `╰──『 𝐵𝑜𝑡 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑 』──⊷`;
+
+            await message.reply(summary);
+            
+            // Send detailed results if any
+            if (results.length > 0) {
+                const detailedReport = "📋 𝐷𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑅𝑒𝑝𝑜𝑟𝑡:\n\n" + results.join("\n");
+                await message.reply(detailedReport);
+            }
+
         } catch (error) {
-          errorCount++;
-          results.push(`❌ | ${thread.name || "𝐔𝐧𝐧𝐚𝐦𝐞𝐝 𝐆𝐫𝐨𝐮𝐩"} - 𝐅𝐚𝐢𝐥𝐞𝐝: ${error.message}`);
+            console.error("𝑂𝑢𝑡𝑎𝑙𝑙 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply(
+                `⚠️ 𝐸𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑:\n${error.message}\n` +
+                `𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟!`
+            );
         }
-      }
     }
-
-    const summary = 
-      `╭──『 𝐎𝐔𝐓𝐀𝐋𝐋 𝐑𝐄𝐒𝐔𝐋𝐓 』──⊷\n` +
-      `│\n` +
-      `│ ✅ 𝐒𝐔𝐂𝐂𝐄𝐒𝐒: ${successCount} 𝐠𝐫𝐨𝐮𝐩𝐬\n` +
-      `│ ❌ 𝐅𝐀𝐈𝐋𝐔𝐑𝐄: ${errorCount} 𝐠𝐫𝐨𝐮𝐩𝐬\n` +
-      `│\n` +
-      `╰──『 𝐁𝐨𝐭 𝐛𝐲 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 』──⊷`;
-
-    api.sendMessage(summary, event.threadID);
-    
-    // Send detailed results if any
-    if (results.length > 0) {
-      const detailedReport = "📋 𝐃𝐞𝐭𝐚𝐢𝐥𝐞𝐝 𝐑𝐞𝐩𝐨𝐫𝐭:\n\n" + results.join("\n");
-      api.sendMessage(detailedReport, event.threadID);
-    }
-
-  } catch (error) {
-    console.error(error);
-    api.sendMessage(
-      `⚠️ 𝐄𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐞𝐝:\n${error.message}\n` +
-      `𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫!`, 
-      event.threadID
-    );
-  }
 };
