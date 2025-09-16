@@ -6,7 +6,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "pair5",
-        aliases: ["pair", "couple", "juti"],
+        aliases: ["pair5", "couple5", "juti5"],
         version: "1.0.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
