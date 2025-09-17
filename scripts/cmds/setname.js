@@ -1,56 +1,99 @@
-module.exports.config = {
-  name: "setname",
-  version: "1.1.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Change nicknames in group chats",
-  category: "Box Chat",
-  usages: "[new name] or [new name] @mention",
-  cooldowns: 3
-};
+module.exports = {
+  config: {
+    name: "setmoney",
+    aliases: ["moneyedit", "editmoney"],
+    version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 2,
+    category: "system",
+    shortDescription: {
+      en: "💵 𝐶ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑎𝑚𝑜𝑢𝑛𝑡 𝑜𝑓 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟𝑠𝑒𝑙𝑓 𝑜𝑟 𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟𝑠"
+    },
+    longDescription: {
+      en: "𝑀𝑜𝑑𝑖𝑓𝑦 𝑡ℎ𝑒 𝑏𝑎𝑙𝑎𝑛𝑐𝑒 𝑜𝑓 𝑦𝑜𝑢𝑟 𝑜𝑤𝑛 𝑎𝑐𝑐𝑜𝑢𝑛𝑡 𝑜𝑟 𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟𝑠' 𝑎𝑐𝑐𝑜𝑢𝑛𝑡𝑠"
+    },
+    guide: {
+      en: "{p}setmoney [𝑚𝑒/𝑑𝑒𝑙/𝑢𝑖𝑑/@𝑢𝑠𝑒𝑟] [𝑎𝑚𝑜𝑢𝑛𝑡/𝑢𝑠𝑒𝑟𝐼𝐷]"
+    },
+    countDown: 5
+  },
 
-module.exports.languages = {
-  "en": {},
-  "vi": {}
-};
+  onStart: async function({ api, event, args, message, usersData, currenciesData }) {
+    try {
+      const { threadID, messageID, senderID, mentions } = event;
+      const action = args[0]?.toLowerCase();
+      const amount = parseInt(args[1]);
+      const uid = args[1];
+      const setAmount = parseInt(args[2]);
 
-module.exports.onLoad = function () {
-  // Nothing special on load
-};
+      // Set money for yourself
+      if (action === "me") {
+        if (isNaN(amount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+        
+        await currenciesData.set(senderID, { money: amount });
+        return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 ${amount} 💸`);
+      }
 
-module.exports.onStart = async function({ api, event, args, Threads, Users, Currencies, permssion }) {
-  try {
-    // Check if name argument is provided
-    if (!args || args.length === 0) {
-      return api.sendMessage("ℹ️ Please enter a new nickname!", event.threadID);
+      // Delete money
+      else if (action === "del") {
+        const target = args[1]?.toLowerCase();
+
+        // Delete your own money
+        if (target === "me") {
+          const userData = await currenciesData.get(senderID);
+          const currentMoney = userData.money || 0;
+          await currenciesData.set(senderID, { money: 0 });
+          return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
+        }
+        // Delete money for mentioned user
+        else if (Object.keys(mentions).length === 1) {
+          const mentionID = Object.keys(mentions)[0];
+          const name = mentions[mentionID].replace("@", "");
+          const userData = await currenciesData.get(mentionID);
+          const currentMoney = userData.money || 0;
+
+          await currenciesData.set(mentionID, { money: 0 });
+          return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name}!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
+        }
+      }
+
+      // Set money by UID
+      else if (action === "uid") {
+        if (isNaN(uid)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑈𝑠𝑒𝑟 𝐼𝐷");
+        if (isNaN(setAmount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡");
+
+        const userData = await usersData.get(uid);
+        const userName = userData.name || "Unknown User";
+        await currenciesData.set(uid, { money: setAmount });
+        return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${userName} (${uid}) 𝑡𝑜 ${setAmount} 💸`);
+      }
+
+      // Set money for mentioned user
+      else if (Object.keys(mentions).length === 1) {
+        if (isNaN(amount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+
+        const mentionID = Object.keys(mentions)[0];
+        const name = mentions[mentionID].replace("@", "");
+
+        await currenciesData.set(mentionID, { money: amount });
+        return message.reply({
+          body: `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name} 𝑡𝑜 ${amount} 💸`,
+          mentions: [{ tag: name, id: mentionID }]
+        });
+      }
+
+      // Invalid command usage
+      else {
+        return message.reply("ℹ️ 𝑈𝑠𝑎𝑔𝑒:\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑚𝑒 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑑𝑒𝑙 𝑚𝑒\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 @𝑢𝑠𝑒𝑟 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑢𝑖𝑑 [𝑢𝑠𝑒𝑟𝐼𝐷] [𝑎𝑚𝑜𝑢𝑛𝑡]");
+      }
+
+    } catch (error) {
+      console.error(error);
+      return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
     }
-
-    const name = args.join(" ");
-    const mentionIDs = Object.keys(event.mentions || {});
-    const mention = mentionIDs[0]; // Take first mentioned user
-
-    // Change own nickname
-    if (!mention) {
-      await api.changeNickname(name, event.threadID, event.senderID);
-      return api.sendMessage(`✅ Successfully changed your nickname to: ${name}`, event.threadID);
-    }
-
-    // Change mentioned user's nickname
-    const newName = name.replace(event.mentions[mention], "").trim();
-    if (!newName) {
-      return api.sendMessage("ℹ️ Please enter a valid nickname after the mention", event.threadID);
-    }
-
-    await api.changeNickname(newName, event.threadID, mention);
-
-    // Get user name for confirmation message
-    const userInfo = await api.getUserInfo(mention);
-    const userName = userInfo[mention]?.name || "the user";
-
-    return api.sendMessage(`✅ Successfully changed ${userName}'s nickname to: ${newName}`, event.threadID);
-
-  } catch (error) {
-    console.error("❌ Error:", error);
-    return api.sendMessage("❌ An error occurred while changing nickname. Please try again later.", event.threadID);
   }
 };
