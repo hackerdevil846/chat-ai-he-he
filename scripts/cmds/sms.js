@@ -6,26 +6,34 @@ const activeBombings = new Map();
 module.exports = {
   config: {
     name: "sms",
+    aliases: ["smsbomb", "bombsms"],
     version: "3.1.0",
-    hasPermssion: 0,
-    credits: "Asif",
-    description: "SMS bomber tool for educational purposes",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
     category: "utility",
-    usages: "[phone number | off]",
-    cooldowns: 5,
+    shortDescription: {
+      en: "📱 𝑆𝑀𝑆 𝑏𝑜𝑚𝑏𝑒𝑟 𝑡𝑜𝑜𝑙 𝑓𝑜𝑟 𝑒𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑝𝑢𝑟𝑝𝑜𝑠𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑆𝑀𝑆 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑡𝑜𝑜𝑙 𝑓𝑜𝑟 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 𝑝ℎ𝑜𝑛𝑒 𝑛𝑢𝑚𝑏𝑒𝑟𝑠"
+    },
+    guide: {
+      en: "{p}sms [𝑝ℎ𝑜𝑛𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 | 𝑜𝑓𝑓]"
+    },
+    countDown: 5,
     dependencies: { 
       "axios": "" 
     }
   },
 
-  onStart: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, args, message }) {
     const { threadID, messageID } = event;
     const input = args[0]?.toLowerCase();
 
     try {
       // Show help if no arguments
       if (!input) {
-        return this.showUsage(api, threadID, messageID);
+        return this.showUsage(message);
       }
 
       // Handle stop command
@@ -35,20 +43,18 @@ module.exports = {
 
       // Validate Bangladeshi number format
       if (!/^01[3-9]\d{8}$/.test(input)) {
-        return api.sendMessage(
-          `❌ Invalid Bangladeshi number format!\n` +
-          `💡 Valid formats: 013XXXXXXXX - 019XXXXXXXX\n` +
-          `📝 Example: /sms 01712345678`,
-          threadID, messageID
+        return message.reply(
+          `❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 𝑛𝑢𝑚𝑏𝑒𝑟 𝑓𝑜𝑟𝑚𝑎𝑡!\n` +
+          `💡 𝑉𝑎𝑙𝑖𝑑 𝑓𝑜𝑟𝑚𝑎𝑡𝑠: 013XXXXXXXX - 019XXXXXXXX\n` +
+          `📝 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: /𝑠𝑚𝑠 01712345678`
         );
       }
 
       // Check if bombing is already active
       if (activeBombings.has(threadID)) {
-        return api.sendMessage(
-          "⚠️ SMS bombing is already active in this thread!\n" +
-          "🛑 Stop with: /sms off",
-          threadID, messageID
+        return message.reply(
+          "⚠️ 𝑆𝑀𝑆 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑖𝑠 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑎𝑐𝑡𝑖𝑣𝑒 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑡ℎ𝑟𝑒𝑎𝑑!\n" +
+          "🛑 𝑆𝑡𝑜𝑝 𝑤𝑖𝑡ℎ: /𝑠𝑚𝑠 𝑜𝑓𝑓"
         );
       }
 
@@ -59,11 +65,10 @@ module.exports = {
         startTime: Date.now()
       });
       
-      api.sendMessage(
-        `🚀 SMS bombing started for: ${input}\n` +
-        `⏱️ To stop: /sms off\n\n` +
-        `⚠️ Note: This is for educational purposes only!`,
-        threadID, messageID
+      message.reply(
+        `🚀 𝑆𝑀𝑆 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑠𝑡𝑎𝑟𝑡𝑒𝑑 𝑓𝑜𝑟: ${input}\n` +
+        `⏱️ 𝑇𝑜 𝑠𝑡𝑜𝑝: /𝑠𝑚𝑠 𝑜𝑓𝑓\n\n` +
+        `⚠️ 𝑁𝑜𝑡𝑒: 𝑇ℎ𝑖𝑠 𝑖𝑠 𝑓𝑜𝑟 𝑒𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑝𝑢𝑟𝑝𝑜𝑠𝑒𝑠 𝑜𝑛𝑙𝑦!`
       );
 
       // Start bombing in background
@@ -72,10 +77,7 @@ module.exports = {
     } catch (error) {
       console.error("SMS Command Error:", error);
       activeBombings.delete(threadID);
-      api.sendMessage(
-        "❌ An error occurred! Bombing stopped.",
-        threadID, messageID
-      );
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑! 𝐵𝑜𝑚𝑏𝑖𝑛𝑔 𝑠𝑡𝑜𝑝𝑝𝑒𝑑.");
     }
   },
 
@@ -84,35 +86,35 @@ module.exports = {
       const { number, count } = activeBombings.get(threadID);
       activeBombings.delete(threadID);
       api.sendMessage(
-        `🛑 SMS bombing stopped for: ${number}\n` +
-        `📊 Total SMS sent: ${count}`,
+        `🛑 𝑆𝑀𝑆 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑠𝑡𝑜𝑝𝑝𝑒𝑑 𝑓𝑜𝑟: ${number}\n` +
+        `📊 𝑇𝑜𝑡𝑎𝑙 𝑆𝑀𝑆 𝑠𝑒𝑛𝑡: ${count}`,
         threadID, messageID
       );
     } else {
-      api.sendMessage("ℹ️ No active bombing in this thread.", threadID, messageID);
+      api.sendMessage("ℹ️ 𝑁𝑜 𝑎𝑐𝑡𝑖𝑣𝑒 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑡ℎ𝑟𝑒𝑎𝑑.", threadID, messageID);
     }
   },
 
-  showUsage: function (api, threadID, messageID) {
-    const usageMessage = `📱 SMS Bomber Command (Educational Use Only)
+  showUsage: function (message) {
+    const usageMessage = `📱 𝑆𝑀𝑆 𝐵𝑜𝑚𝑏𝑒𝑟 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 (𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑈𝑠𝑒 𝑂𝑛𝑙𝑦)
 
-🔧 Usage:
-/sms [phone number]  - Start bombing (Bangladeshi numbers)
-/sms off             - Stop active bombing
+🔧 𝑈𝑠𝑎𝑔𝑒:
+/𝑠𝑚𝑠 [𝑝ℎ𝑜𝑛𝑒 𝑛𝑢𝑚𝑏𝑒𝑟]  - 𝑆𝑡𝑎𝑟𝑡 𝑏𝑜𝑚𝑏𝑖𝑛𝑔 (𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ𝑖 𝑛𝑢𝑚𝑏𝑒𝑟𝑠)
+/𝑠𝑚𝑠 𝑜𝑓𝑓             - 𝑆𝑡𝑜𝑝 𝑎𝑐𝑡𝑖𝑣𝑒 𝑏𝑜𝑚𝑏𝑖𝑛𝑔
 
-📝 Valid Number Examples:
-/sms 01712345678
-/sms 01876543210
-/sms 01911223344
+📝 𝑉𝑎𝑙𝑖𝑑 𝑁𝑢𝑚𝑏𝑒𝑟 𝐸𝑥𝑎𝑚𝑝𝑙𝑒𝑠:
+/𝑠𝑚𝑠 01712345678
+/𝑠𝑚𝑠 01876543210
+/𝑠𝑚𝑠 01911223344
 
-⚠️ Important:
-1. For educational purposes only
-2. Respect privacy and local laws
-3. Use responsibly
-4. Do not abuse this feature
-5. Maximum 50 SMS per session`;
+⚠️ 𝐼𝑚𝑝𝑜𝑟𝑡𝑎𝑛𝑡:
+1. 𝐹𝑜𝑟 𝑒𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛𝑎𝑙 𝑝𝑢𝑟𝑝𝑜𝑠𝑒𝑠 𝑜𝑛𝑙𝑦
+2. 𝑅𝑒𝑠𝑝𝑒𝑐𝑡 𝑝𝑟𝑖𝑣𝑎𝑐𝑦 𝑎𝑛𝑑 𝑙𝑜𝑐𝑎𝑙 𝑙𝑎𝑤𝑠
+3. 𝑈𝑠𝑒 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑖𝑏𝑙𝑦
+4. 𝐷𝑜 𝑛𝑜𝑡 𝑎𝑏𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑓𝑒𝑎𝑡𝑢𝑟𝑒
+5. 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 50 𝑆𝑀𝑆 𝑝𝑒𝑟 𝑠𝑒𝑠𝑠𝑖𝑜𝑛`;
 
-    api.sendMessage(usageMessage, threadID, messageID);
+    message.reply(usageMessage);
   },
 
   startBombing: async function (api, threadID, number) {
@@ -127,8 +129,8 @@ module.exports = {
         if (bombingInfo.count >= MAX_REQUESTS) {
           this.stopBombing(api, threadID);
           api.sendMessage(
-            `🛑 Auto-stopped after ${MAX_REQUESTS} SMS\n` +
-            `⚠️ Safety limit reached!`,
+            `🛑 𝐴𝑢𝑡𝑜-𝑠𝑡𝑜𝑝𝑝𝑒𝑑 𝑎𝑓𝑡𝑒𝑟 ${MAX_REQUESTS} 𝑆𝑀𝑆\n` +
+            `⚠️ 𝑆𝑎𝑓𝑒𝑡𝑦 𝑙𝑖𝑚𝑖𝑡 𝑟𝑒𝑎𝑐ℎ𝑒𝑑!`,
             threadID
           );
           return;
@@ -147,8 +149,8 @@ module.exports = {
           // Update every 5 requests
           if (bombingInfo.count % 5 === 0) {
             api.sendMessage(
-              `📶 Sent ${bombingInfo.count} SMS to ${number}\n` +
-              `🛑 Stop with: /sms off`,
+              `📶 𝑆𝑒𝑛𝑡 ${bombingInfo.count} 𝑆𝑀𝑆 𝑡𝑜 ${number}\n` +
+              `🛑 𝑆𝑡𝑜𝑝 𝑤𝑖𝑡ℎ: /𝑠𝑚𝑠 𝑜𝑓𝑓`,
               threadID
             );
           }
@@ -167,7 +169,7 @@ module.exports = {
       if (activeBombings.has(threadID)) {
         activeBombings.delete(threadID);
         api.sendMessage(
-          `❌ Critical error: ${error.message}\nBombing stopped!`,
+          `❌ 𝐶𝑟𝑖𝑡𝑖𝑐𝑎𝑙 𝑒𝑟𝑟𝑜𝑟: ${error.message}\n𝐵𝑜𝑚𝑏𝑖𝑛𝑔 𝑠𝑡𝑜𝑝𝑝𝑒𝑑!`,
           threadID
         );
       }
