@@ -1,274 +1,205 @@
-module.exports.config = {
-  name: "sourchvideo",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Search and download YouTube videos (GoatBot structured)",
-  usePrefix: false,
-  category: "Media",
-  usages: "user",
-  cooldowns: 5,
-  dependencies: {
-    "ytdl-core": "",
-    "simple-youtube-api": ""
-  }
-};
+const axios = require('axios');
+const fs = require('fs-extra');
+const ytdl = require('ytdl-core');
+const YouTubeAPI = require('simple-youtube-api');
 
-module.exports.onStart = function() {
-  // initialization (keeps compatibility and prevents undefined errors)
-  console.log("sourchvideo command started");
-};
-
-module.exports.handleReply = async function({ api, event, handleReply }) {
-  const axios = global.nodemodule.axios;
-  const fs = global.nodemodule['fs-extra'];
-  const { createReadStream, unlinkSync, statSync } = fs;
-
-  try {
-    // Re-fetch config list (keeps behavior same as original)
-    const response = await axios.get('https://raw.githubusercontent.com/quyenkaneki/data/main/video.json');
-    const randomVideo = response.data.keyVideo[Math.floor(Math.random() * response.data.keyVideo.length)];
-
-    // Validate handleReply and links
-    if (!handleReply || !handleReply.link || !Array.isArray(handleReply.link)) {
-      return api.sendMessage("No valid video list found.", event.threadID, event.messageID);
+module.exports = {
+  config: {
+    name: "sourchvideo",
+    aliases: ["sourchvideo1"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "media",
+    shortDescription: {
+      en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑣𝑖𝑑𝑒𝑜𝑠"
+    },
+    longDescription: {
+      en: "𝐹𝑖𝑛𝑑 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑣𝑖𝑑𝑒𝑜𝑠 𝑓𝑟𝑜𝑚 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑢𝑠𝑖𝑛𝑔 𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑖𝑒𝑠 𝑜𝑟 𝑑𝑖𝑟𝑒𝑐𝑡 𝑙𝑖𝑛𝑘𝑠"
+    },
+    guide: {
+      en: "{p}sourchvideo [𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦 𝑜𝑟 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑙𝑖𝑛𝑘]"
+    },
+    countDown: 5,
+    dependencies: {
+      "ytdl-core": "",
+      "simple-youtube-api": "",
+      "axios": "",
+      "fs-extra": ""
     }
+  },
 
-    const choice = parseInt(event.body);
-    if (isNaN(choice) || choice < 1 || choice > handleReply.link.length) {
-      return api.sendMessage(`choose from 1 -> ${handleReply.link.length} baby.uwu ❤️`, event.threadID, event.messageID);
-    }
+  onStart: async function ({ api, event, args, message }) {
+    try {
+      const { threadID, messageID, senderID } = event;
 
-    // unsend the original choice message to keep chat clean
-    try { api.unsendMessage(handleReply.messageID); } catch (e) { /* ignore */ }
-
-    const videoId = handleReply.link[choice - 1];
-
-    const requestParams = {
-      method: 'GET',
-      url: 'https://ytstream-download-youtube-videos.p.rapidapi.com/dl',
-      params: { id: videoId },
-      headers: {
-        'x-rapidapi-host': 'ytstream-download-youtube-videos.p.rapidapi.com',
-        'x-rapidapi-key': `${randomVideo.API_KEY}`
+      if (!args[0]) {
+        return message.reply("» 𝑇ℎ𝑒 𝑠𝑒𝑎𝑟𝑐ℎ 𝑠𝑒𝑐𝑡𝑖𝑜𝑛 𝑐𝑎𝑛'𝑡 𝑏𝑒 𝑏𝑙𝑎𝑛𝑘!");
       }
-    };
 
-    const videoDetails = (await axios.request(requestParams)).data;
+      const searchQuery = args.join(' ');
 
-    if (videoDetails && videoDetails.status === 'fail') {
-      return api.sendMessage('This file could not be sent..', event.threadID, event.messageID);
+      // Handle direct YouTube URLs
+      if (searchQuery.includes('youtube.com/') || searchQuery.includes('youtu.be/')) {
+        await this.handleUrlRequest(api, event, searchQuery);
+        return;
+      }
+
+      // Handle search queries
+      await this.handleSearchRequest(api, event, searchQuery);
+
+    } catch (error) {
+      console.error("Search video error:", error);
+      message.reply("» 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
     }
+  },
 
-    // Choose a stream quality robustly (if only one quality available, take first)
-    const qualities = Object.keys(videoDetails.link || {});
-    const streamQuality = qualities.length > 1 ? qualities[1] : qualities[0];
-    const videoStreamUrl = videoDetails.link[streamQuality][0];
+  onReply: async function ({ api, event, message, Reply }) {
+    try {
+      const { threadID, messageID, body } = event;
 
-    const videoPath = __dirname + '/cache/1.mp4';
-    const videoData = (await axios.get(videoStreamUrl, { responseType: 'arraybuffer' })).data;
+      if (!Reply || !Reply.videoIds || !Array.isArray(Reply.videoIds)) {
+        return message.reply("» 𝑁𝑜 𝑣𝑎𝑙𝑖𝑑 𝑣𝑖𝑑𝑒𝑜 𝑙𝑖𝑠𝑡 𝑓𝑜𝑢𝑛𝑑.");
+      }
 
-    // Write binary buffer directly
-    fs.writeFileSync(videoPath, Buffer.from(videoData));
+      const choice = parseInt(body);
+      if (isNaN(choice) || choice < 1 || choice > Reply.videoIds.length) {
+        return message.reply(`» 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 𝑓𝑟𝑜𝑚 1 𝑡𝑜 ${Reply.videoIds.length}`);
+      }
 
-    // Size check (25MB limit)
-    if (fs.statSync(videoPath).size > 26 * 1024 * 1024) {
-      try { unlinkSync(videoPath); } catch (e) {}
-      return api.sendMessage("Can't send the file because of the larger size 25MB.", event.threadID, event.messageID);
+      const videoId = Reply.videoIds[choice - 1];
+      await this.downloadAndSendVideo(api, event, videoId);
+
+    } catch (error) {
+      console.error("Reply handler error:", error);
+      message.reply("» 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑠𝑒𝑛𝑑 𝑡ℎ𝑖𝑠 𝑓𝑖𝑙𝑒!");
     }
+  },
 
-    // Send the video and cleanup after
-    return api.sendMessage(
-      {
-        body: `✅ ${videoDetails.title}`,
-        attachment: createReadStream(videoPath)
-      },
-      event.threadID,
-      (err, info) => {
-        try { fs.unlinkSync(videoPath); } catch (e) {}
-      },
-      event.messageID
-    );
-
-  } catch (error) {
-    return api.sendMessage("Không thể gửi file này!", event.threadID, event.messageID);
-  }
-};
-
-module.exports.run = async function({ api, event, args }) {
-  const axios = global.nodemodule.axios;
-  const fs = global.nodemodule['fs-extra'];
-  const SimpleYouTubeApi = global.nodemodule['simple-youtube-api'];
-  const { createReadStream, unlinkSync } = fs;
-
-  try {
-    const response = await axios.get('https://raw.githubusercontent.com/quyenkaneki/data/main/video.json');
-    const videoListLength = response.data.keyVideo.length;
-    const randomVideoConfig = response.data.keyVideo[Math.floor(Math.random() * videoListLength)];
-
-    // YouTube API keys fallback list (kept from original)
-    const youtubeApiKeys = [
-      'AIzaSyB5A3Lum6u5p2Ki2btkGdzvEqtZ8KNLeXo',
-      'AIzaSyAyjwkjc0w61LpOErHY_vFo6Di5LEyfLK0',
-      'AIzaSyBY5jfFyaTNtiTSBNCvmyJKpMIGlpCSB4w',
-      'AIzaSyCYCg9qpFmJJsEcr61ZLV5KsmgT1RE5aI4'
-    ];
-
-    const apiKey = youtubeApiKeys[Math.floor(Math.random() * youtubeApiKeys.length)];
-    const youtube = new SimpleYouTubeApi(apiKey);
-
-    if (!args.length || !args[0]) {
-      return api.sendMessage("» The search section can't be done. Blank! ", event.threadID, event.messageID);
+  handleUrlRequest: async function (api, event, url) {
+    try {
+      const videoId = ytdl.getVideoID(url);
+      await this.downloadAndSendVideo(api, event, videoId);
+    } catch (error) {
+      console.error("URL request error:", error);
+      api.sendMessage("» 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑈𝑅𝐿.", event.threadID, event.messageID);
     }
+  },
 
-    const searchQuery = args.join(' ');
+  handleSearchRequest: async function (api, event, query) {
+    try {
+      const API_KEYS = [
+        'AIzaSyB5A3Lum6u5p2Ki2btkGdzvEqtZ8KNLeXo',
+        'AIzaSyAyjwkjc0w61LpOErHY_vFo6Di5LEyfLK0',
+        'AIzaSyBY5jfFyaTNtiTSBNCvmyJKpMIGlpCSB4w',
+        'AIzaSyCYCg9qpFmJJsEcr61ZLV5KsmgT1RE5aI4'
+      ];
 
-    // If user passed a direct URL, handle with URL handler
-    if (searchQuery.indexOf('https://') === 0 || searchQuery.indexOf('http://') === 0) {
-      await handleUrlRequest(api, event, youtube, randomVideoConfig);
-      return;
-    }
+      const apiKey = API_KEYS[Math.floor(Math.random() * API_KEYS.length)];
+      const youtube = new YouTubeAPI(apiKey);
 
-    // Search for videos (limit 12)
-    const searchResults = await youtube.searchVideos(searchQuery, 12);
+      const searchResults = await youtube.searchVideos(query, 6);
+      
+      if (!searchResults || searchResults.length === 0) {
+        return api.sendMessage('» 𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑢𝑛𝑑.', event.threadID, event.messageID);
+      }
 
-    if (!searchResults || !searchResults.length) {
-      return api.sendMessage('No results found.', event.threadID, event.messageID);
-    }
+      const videoIds = [];
+      let messageText = '»🔎 𝑭𝒐𝒖𝒏𝒅 ' + searchResults.length + ' 𝒗𝒊𝒅𝒆𝒐𝒔 𝒎𝒂𝒕𝒄𝒉𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒔𝒆𝒂𝒓𝒄𝒉:\n\n';
+      const attachments = [];
 
-    const videoIds = [];
-    let messageText = '';
-    const attachments = [];
-    const tempImagePaths = [];
-    let counter = 0;
+      for (let i = 0; i < searchResults.length; i++) {
+        const video = searchResults[i];
+        videoIds.push(video.id);
 
-    for (const video of searchResults) {
-      if (!video || !video.id) continue;
-      videoIds.push(video.id);
+        const thumbnailUrl = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
+        const thumbnailPath = __dirname + `/cache/thumb_${i}.jpg`;
 
-      counter++;
-      const imagePath = __dirname + `/cache/${counter}.png`;
-      const imageUrl = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
-
-      // getDuration and getChannelTitle use the same apiKey as above
-      const duration = await getDuration(apiKey, video.id);
-      const channelTitle = await getChannelTitle(apiKey, video.id);
-
-      const imageData = (await axios.get(imageUrl, { responseType: 'arraybuffer' })).data;
-      fs.writeFileSync(imagePath, Buffer.from(imageData));
-      tempImagePaths.push(imagePath);
-      attachments.push(createReadStream(imagePath));
-
-      // number prefixes (kept style from original)
-      const prefixes = ["⓵","⓶","⓷","⓸","⓹","⓺","➐","➑","➒","❿","⓫","⓬"];
-      const numberPrefix = prefixes[counter - 1] || `${counter}.`;
-
-      messageText += `${numberPrefix} 《${duration}》 ${video.title}\n\n`;
-    }
-
-    const helpMessage = `»🔎 There's ${videoIds.length} list that coincides with your search keyword:\n\n\n${messageText}» Reply(reply in order number) select one of the searches above`;
-
-    // Send message with attachments and push handleReply
-    api.sendMessage(
-      { attachment: attachments, body: helpMessage },
-      event.threadID,
-      (err, info) => {
-        // cleanup temporary thumbnails
         try {
-          for (const p of tempImagePaths) {
-            try { unlinkSync(p); } catch (e) {}
+          const imageResponse = await axios.get(thumbnailUrl, { responseType: 'arraybuffer' });
+          fs.writeFileSync(thumbnailPath, Buffer.from(imageResponse.data));
+          attachments.push(fs.createReadStream(thumbnailPath));
+        } catch (error) {
+          console.error("Error downloading thumbnail:", error);
+        }
+
+        const numberEmoji = ["⓵", "⓶", "⓷", "⓸", "⓹", "⓺"][i] || `${i + 1}.`;
+        messageText += `${numberEmoji} ${video.title}\n\n`;
+      }
+
+      messageText += "» 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒏𝒖𝒎𝒃𝒆𝒓 𝒕𝒐 𝒔𝒆𝒍𝒆𝒄𝒕 𝒂 𝒗𝒊𝒅𝒆𝒐";
+
+      const sentMessage = await message.reply({
+        attachment: attachments,
+        body: messageText
+      });
+
+      // Clean up thumbnails
+      setTimeout(() => {
+        for (let i = 0; i < searchResults.length; i++) {
+          const thumbnailPath = __dirname + `/cache/thumb_${i}.jpg`;
+          if (fs.existsSync(thumbnailPath)) {
+            fs.unlinkSync(thumbnailPath);
           }
-        } catch (e) {}
+        }
+      }, 5000);
 
-        // register handleReply so next reply maps to the correct video IDs
-        global.client.handleReply.push({
-          name: module.exports.config.name,
-          messageID: info.messageID,
-          author: event.senderID,
-          link: videoIds
-        });
-      },
-      event.messageID
-    );
+      // Store video IDs for reply handling
+      global.sourchvideoReplies = global.sourchvideoReplies || {};
+      global.sourchvideoReplies[sentMessage.messageID] = {
+        videoIds: videoIds
+      };
 
-  } catch (error) {
-    api.sendMessage("Không thể xử lý request do đã phát sinh lỗi modul: " + (error && error.message ? error.message : error), event.threadID, event.messageID);
+    } catch (error) {
+      console.error("Search request error:", error);
+      api.sendMessage("» 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑠𝑒𝑎𝑟𝑐ℎ 𝑟𝑒𝑞𝑢𝑒𝑠𝑡", event.threadID, event.messageID);
+    }
+  },
+
+  downloadAndSendVideo: async function (api, event, videoId) {
+    try {
+      const message = await api.sendMessage("» 📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑣𝑖𝑑𝑒𝑜, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...", event.threadID);
+
+      const videoInfo = await ytdl.getInfo(videoId);
+      const videoTitle = videoInfo.videoDetails.title;
+      
+      const videoStream = ytdl(videoId, { 
+        quality: 'lowest', 
+        filter: 'audioandvideo' 
+      });
+
+      const videoPath = __dirname + `/cache/${videoId}.mp4`;
+      const writeStream = fs.createWriteStream(videoPath);
+
+      videoStream.pipe(writeStream);
+
+      writeStream.on('finish', async () => {
+        const stats = fs.statSync(videoPath);
+        if (stats.size > 25 * 1024 * 1024) {
+          fs.unlinkSync(videoPath);
+          return api.sendMessage(
+            "» 𝐶𝑎𝑛'𝑡 𝑠𝑒𝑛𝑑 𝑡ℎ𝑒 𝑓𝑖𝑙𝑒 𝑏𝑒𝑐𝑎𝑢𝑠𝑒 𝑖𝑡𝑠 𝑠𝑖𝑧𝑒 𝑒𝑥𝑐𝑒𝑒𝑑𝑠 25𝑀𝐵.",
+            event.threadID
+          );
+        }
+
+        await api.sendMessage({
+          body: `✅ ${videoTitle}`,
+          attachment: fs.createReadStream(videoPath)
+        }, event.threadID);
+
+        fs.unlinkSync(videoPath);
+        api.unsendMessage(message.messageID);
+      });
+
+      writeStream.on('error', (error) => {
+        console.error("Video download error:", error);
+        api.sendMessage("» 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑡ℎ𝑒 𝑣𝑖𝑑𝑒𝑜.", event.threadID);
+      });
+
+    } catch (error) {
+      console.error("Download error:", error);
+      api.sendMessage("» 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑡ℎ𝑒 𝑣𝑖𝑑𝑒𝑜.", event.threadID, event.messageID);
+    }
   }
 };
-
-// Helper function to get video duration (kept original approach)
-async function getDuration(apiKey, videoId) {
-  const axios = global.nodemodule.axios;
-  try {
-    const response = await axios.get(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${apiKey}`);
-    const content = response.data.items && response.data.items[0] && response.data.items[0].contentDetails;
-    if (!content || !content.duration) return '0:00';
-    const durationStr = content.duration.slice(2).replace('S', '').replace('M', ':');
-    return durationStr;
-  } catch (e) {
-    return '0:00';
-  }
-}
-
-// Helper function to get channel title
-async function getChannelTitle(apiKey, videoId) {
-  const axios = global.nodemodule.axios;
-  try {
-    const response = await axios.get(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`);
-    return response.data.items[0].snippet.channelTitle || '';
-  } catch (e) {
-    return '';
-  }
-}
-
-// Helper function to handle direct URL requests (kept behavior and paths same)
-async function handleUrlRequest(api, event, youtube, randomVideoConfig) {
-  const axios = global.nodemodule.axios;
-  const fs = global.nodemodule['fs-extra'];
-  const { unlinkSync } = fs;
-
-  try {
-    const videoUrl = event.args && event.args[0] ? event.args[0] : '';
-    const videoIdMatch = videoUrl.match(/^.*(youtu.be\/|v\/|embed\/|watch\?|youtube.com\/user\/[^#]*#([^\/]*?\/)*?)\??v=?([^#\&\?]*).*/);
-    const videoId = videoIdMatch ? videoIdMatch[3] : null;
-    if (!videoId) return api.sendMessage('Invalid YouTube URL.', event.threadID, event.messageID);
-
-    const requestParams = {
-      method: 'GET',
-      url: 'https://ytstream-download-youtube-videos.p.rapidapi.com/dl',
-      params: { id: videoId },
-      headers: {
-        'x-rapidapi-host': 'ytstream-download-youtube-videos.p.rapidapi.com',
-        'x-rapidapi-key': `${randomVideoConfig.API_KEY}`
-      }
-    };
-
-    const videoDetails = (await axios.request(requestParams)).data;
-    if (videoDetails && videoDetails.status === 'fail') {
-      return api.sendMessage('This file could not be sent..', event.threadID, event.messageID);
-    }
-
-    const qualities = Object.keys(videoDetails.link || {});
-    const streamQuality = qualities.length > 1 ? qualities[1] : qualities[0];
-    const videoStreamUrl = videoDetails.link[streamQuality][0];
-
-    const videoPath = __dirname + '/cache/1.mp4';
-    const videoData = (await axios.get(videoStreamUrl, { responseType: 'arraybuffer' })).data;
-    fs.writeFileSync(videoPath, Buffer.from(videoData));
-
-    if (fs.statSync(videoPath).size > 26 * 1024 * 1024) {
-      try { unlinkSync(videoPath); } catch (e) {}
-      return api.sendMessage("Can't send the file because of the larger size 25MB.", event.threadID, event.messageID);
-    }
-
-    api.sendMessage(
-      { body: `» ${videoDetails.title}`, attachment: fs.createReadStream(videoPath) },
-      event.threadID,
-      (err, info) => { try { unlinkSync(videoPath); } catch (e) {} },
-      event.messageID
-    );
-
-  } catch (error) {
-    api.sendMessage('Không thể gửi file này!', event.threadID, event.messageID);
-  }
-}
