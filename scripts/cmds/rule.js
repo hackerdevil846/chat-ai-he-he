@@ -4,7 +4,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "rule",
-        aliases: ["rules", "নিয়ম"],
+        aliases: ["r", "নিয়ম"],
         version: "1.0.1",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
