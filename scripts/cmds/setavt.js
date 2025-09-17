@@ -1,152 +1,109 @@
 const axios = require("axios");
 
-module.exports.config = {
-	name: "setavt",
-	version: "1.3",
-	hasPermssion: 2,
-	credits: "_𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅_", // Changed to requested font style
-	description: "_𝑪𝒉𝒂𝒏𝒈𝒆 𝒃𝒐𝒕 𝒂𝒗𝒂𝒕𝒂𝒓 (𝑼𝑹𝑳 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆). 𝑺𝒖𝒑𝒑𝒐𝒓𝒕𝒔 𝒐𝒑𝒕𝒊𝒐𝒏𝒂𝒍 𝒄𝒂𝒑𝒕𝒊𝒐𝒏 𝒂𝒏𝒅 𝒕𝒆𝒎𝒑𝒐𝒓𝒂𝒓𝒚 𝒂𝒗𝒂𝒕𝒂𝒓 (𝒆𝒙𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏 𝒊𝒏 𝒔𝒆𝒄𝒐𝒏𝒅𝒔)._",
-	category: "owner",
-	usages: "_[<𝒊𝒎𝒂𝒈𝒆 𝒖𝒓𝒍> | 𝒓𝒆𝒑𝒍𝒚 𝒊𝒎𝒂𝒈𝒆] [<caption>] [<𝒆𝒙𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏𝑨𝒇𝒕𝒆𝒓 (𝒔𝒆𝒄𝒐𝒏𝒅𝒔)>]_",
-	cooldowns: 5,
-	dependencies: {
-		"axios": "^1.0.0"
-	},
-	envConfig: {}
-};
+module.exports = {
+  config: {
+    name: "setavt",
+    aliases: ["setavatar", "changeavt"],
+    version: "1.3",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 5,
+    role: 2,
+    category: "owner",
+    shortDescription: {
+      en: "🖼️ Change bot avatar (URL or reply image)"
+    },
+    longDescription: {
+      en: "🖼️ Change bot avatar with URL or replied image. Supports optional caption and temporary avatar expiration."
+    },
+    guide: {
+      en: "{p}setavt [image URL | reply image] [caption] [expirationAfter (seconds)]"
+    },
+    dependencies: {
+      "axios": ""
+    }
+  },
 
-module.exports.languages = {
-	"vi": {
-		"cannotGetImage": "❌ | Đã xảy ra lỗi khi truy vấn đến url hình ảnh",
-		"invalidImageFormat": "❌ | Định dạng hình ảnh không hợp lệ",
-		"changedAvatar": "✅ | Đã thay đổi avatar của bot thành công",
-		"needImage": "❌ | Vui lòng gửi đường dẫn hình ảnh hoặc phản hồi 1 tin nhắn chứa ảnh.\nCách dùng: %1",
-		"errorChanging": "❌ | Đã xảy ra lỗi khi thay đổi avatar:",
-		"usage": "Cách dùng: %1"
-	},
-	"en": {
-		"cannotGetImage": "❌ | _𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒒𝒖𝒆𝒓𝒚𝒊𝒏𝒈 𝒕𝒉𝒆 𝒊𝒎𝒂𝒈𝒆 𝒖𝒓𝒍_",
-		"invalidImageFormat": "❌ | _𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒊𝒎𝒂𝒈𝒆 𝒇𝒐𝒓𝒎𝒂𝒕_",
-		"changedAvatar": "✅ | _𝑪𝒉𝒂𝒏𝒈𝒆𝒅 𝒃𝒐𝒕 𝒂𝒗𝒂𝒕𝒂𝒓 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚_",
-		"needImage": "❌ | _𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳 𝒐𝒓 𝒓𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒉𝒂𝒕 𝒄𝒐𝒏𝒕𝒂𝒊𝒏𝒔 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆.\n𝑼𝒔𝒂𝒈𝒆: %1_",
-		"errorChanging": "❌ | _𝑨𝒏 𝒆𝒓𝒓𝒐𝒓 𝒐𝒄𝒄𝒖𝒓𝒓𝒆𝒅 𝒘𝒉𝒊𝒍𝒆 𝒄𝒉𝒂𝒏𝒈𝒊𝒏𝒈 𝒂𝒗𝒂𝒕𝒂𝒓:_",
-		"usage": "_𝑼𝒔𝒂𝒈𝒆: %1_"
-	}
-};
+  onStart: async function ({ message, event, args }) {
+    try {
+      // Check dependencies
+      try {
+        if (!axios) {
+          throw new Error("Missing required dependencies");
+        }
+      } catch (err) {
+        return message.reply("❌ | Required dependencies are missing. Please install axios.");
+      }
 
-module.exports.onLoad = function () {
-	// _𝒏𝒐𝒕𝒉𝒊𝒏𝒈 𝒏𝒆𝒆𝒅𝒆𝒅 𝒐𝒏 𝒍𝒐𝒂𝒅 𝒇𝒐𝒓 𝒏𝒐𝒘, 𝒃𝒖𝒕 𝒑𝒍𝒂𝒄𝒆𝒉𝒐𝒍𝒅𝒆𝒓 𝒌𝒆𝒑𝒕 𝒇𝒐𝒓 𝒇𝒖𝒕𝒖𝒓𝒆 𝒆𝒏𝒉𝒂𝒏𝒄𝒆𝒎𝒆𝒏𝒕𝒔_
-};
+      // Build usage string
+      const usageText = `${this.config.guide.en}\nExamples:\n  ${this.config.guide.en}\n  ${this.config.guide.en} Hello 3600\n  Reply to an image with: ${this.config.guide.en}`;
 
-/**
- * _𝒓𝒖𝒏 - 𝒎𝒂𝒊𝒏 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒉𝒂𝒏𝒅𝒍𝒆𝒓_
- * _𝒑𝒂𝒓𝒂𝒎𝒔: 𝒐𝒃𝒋𝒆𝒄𝒕 𝒅𝒆𝒔𝒕𝒓𝒖𝒄𝒕𝒖𝒓𝒆𝒅 𝒃𝒚 𝑮𝒐𝒂𝒕𝑩𝒐𝒕 𝒇𝒓𝒂𝒎𝒆𝒘𝒐𝒓𝒌. 𝑾𝒆 𝒆𝒙𝒑𝒆𝒄𝒕 𝒂𝒕 𝒍𝒆𝒂𝒔𝒕 𝒂𝒑𝒊, 𝒆𝒗𝒆𝒏𝒕, 𝒂𝒓𝒈𝒔, 𝒂𝒏𝒅 𝒈𝒆𝒕𝑳𝒂𝒏𝒈 𝒕𝒐 𝒃𝒆 𝒂𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆._
- */
-module.exports.onStart = async function ({ api, event, args, getLang, message }) { // Added 'message' for consistency with examples
-	const threadID = event.threadID || event.senderID;
-	// _𝑫𝒆𝒕𝒆𝒓𝒎𝒊𝒏𝒆 𝒍𝒂𝒏𝒈𝒖𝒂𝒈𝒆 𝒉𝒆𝒍𝒑𝒆𝒓 (𝒈𝒆𝒕𝑳𝒂𝒏𝒈 𝒎𝒂𝒚 𝒏𝒐𝒕 𝒃𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆𝒅 𝒃𝒚 𝒔𝒐𝒎𝒆 𝑮𝒐𝒂𝒕𝑩𝒐𝒕 𝒗𝒂𝒓𝒊𝒂𝒏𝒕𝒔)_
-	const lang = (typeof getLang === "function") ? getLang : (key => {
-		// _𝒇𝒂𝒍𝒍𝒃𝒂𝒄𝒌: 𝒅𝒆𝒇𝒂𝒖𝒍𝒕 𝒕𝒐 𝑬𝒏𝒈𝒍𝒊𝒔𝒉 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔 𝒂𝒃𝒐𝒗𝒆_
-		const locale = "en";
-		return module.exports.languages[locale][key] || module.exports.languages["en"][key] || key;
-	});
+      // Resolve image URL
+      const maybeUrlArg = (args[0] || "");
+      let imageURL = null;
+      
+      if (maybeUrlArg.startsWith("http")) {
+        imageURL = args.shift();
+      }
+      
+      // Check attachments in current event or replied message
+      if (!imageURL) {
+        imageURL = event.attachments?.[0]?.url || event.messageReply?.attachments?.[0]?.url || null;
+      }
 
-	// _𝑩𝒖𝒊𝒍𝒅 𝒖𝒔𝒂𝒈𝒆 𝒔𝒕𝒓𝒊𝒏𝒈 𝒇𝒐𝒓 𝒇𝒂𝒍𝒍𝒃𝒂𝒄𝒌 𝑺𝒚𝒏𝒕𝒂𝒙/𝑬𝒓𝒓𝒐𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆𝒔_
-	const usageText = `${module.exports.config.usages}\n_𝑬𝒙𝒂𝒎𝒑𝒍𝒆𝒔:_\n  ${module.exports.config.usages} https://i.imgur.com/example.jpg\n  ${module.exports.config.usages} https://i.imgur.com/example.jpg _𝑯𝒆𝒍𝒍𝒐_ 3600\n  _𝑹𝒆𝒑𝒍𝒚 𝒕𝒐 𝒂𝒏 𝒊𝒎𝒂𝒈𝒆 𝒘𝒊𝒕𝒉:_ ${module.exports.config.usages}`;
+      // If still no image, send usage/error
+      if (!imageURL) {
+        return message.reply(`❌ Please provide an image URL or reply to a message that contains an image.\nUsage: ${usageText}`);
+      }
 
-	// _𝑹𝒆𝒔𝒐𝒍𝒗𝒆 𝒊𝒎𝒂𝒈𝒆 𝑼𝑹𝑳:_
-	// 1) _𝒇𝒊𝒓𝒔𝒕 𝒂𝒓𝒈 𝒊𝒇 𝒔𝒕𝒂𝒓𝒕𝒔 𝒘𝒊𝒕𝒉 𝒉𝒕𝒕𝒑/𝒉𝒕𝒕𝒑𝒔_
-	// 2) _𝒂𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕𝒔 𝒔𝒆𝒏𝒕 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒄𝒐𝒎𝒎𝒂𝒏𝒅_
-	// 3) _𝒂𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕𝒔 𝒊𝒏 𝒕𝒉𝒆 𝒓𝒆𝒑𝒍𝒊𝒆𝒅-𝒕𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆_
-	const maybeUrlArg = (args[0] || "");
-	let imageURL = null;
-	if (maybeUrlArg.startsWith("http")) {
-		imageURL = args.shift();
-	}
-	// _𝑰𝒇 𝒏𝒐𝒕 𝒑𝒓𝒐𝒗𝒊𝒅𝒆𝒅 𝒂𝒔 𝒂𝒓𝒈, 𝒄𝒉𝒆𝒄𝒌 𝒂𝒕𝒕𝒂𝒄𝒉𝒎𝒆𝒏𝒕𝒔 𝒊𝒏 𝒕𝒉𝒆 𝒄𝒖𝒓𝒓𝒆𝒏𝒕 𝒆𝒗𝒆𝒏𝒕 𝒐𝒓 𝒕𝒉𝒆 𝒓𝒆𝒑𝒍𝒊𝒆𝒅 𝒎𝒆𝒔𝒔𝒂𝒈𝒆_
-	if (!imageURL) {
-		imageURL = event.attachments?.[0]?.url || event.messageReply?.attachments?.[0]?.url || null;
-	}
+      // expirationAfter: if last arg is a number, treat as expiration in seconds
+      let expirationAfter = null;
+      if (args.length > 0) {
+        const last = args[args.length - 1];
+        if (!isNaN(last) && last !== "") {
+          expirationAfter = parseInt(args.pop());
+          if (expirationAfter < 0) expirationAfter = null;
+        }
+      }
 
-	// _𝑰𝒇 𝒔𝒕𝒊𝒍𝒍 𝒏𝒐 𝒊𝒎𝒂𝒈𝒆, 𝒔𝒆𝒏𝒅 𝒖𝒔𝒂𝒈𝒆/𝒔𝒚𝒏𝒕𝒂𝒙 𝒆𝒓𝒓𝒐𝒓_
-	if (!imageURL) {
-		return message.reply(lang("needImage").replace("%1", usageText)); // Used message.reply for consistency
-	}
+      // caption: remaining args joined
+      const caption = args.join(" ").trim() || "";
 
-	// _𝒆𝒙𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏𝑨𝒇𝒕𝒆𝒓: 𝒊𝒇 𝒍𝒂𝒔𝒕 𝒂𝒓𝒈 𝒊𝒔 𝒂 𝒏𝒖𝒎𝒃𝒆𝒓, 𝒕𝒓𝒆𝒂𝒕 𝒂𝒔 𝒆𝒙𝒑𝒊𝒓𝒂𝒕𝒊𝒐𝒏 𝒊𝒏 𝒔𝒆𝒄𝒐𝒏𝒅𝒔_
-	let expirationAfter = null;
-	if (args.length > 0) {
-		const last = args[args.length - 1];
-		// _𝒂𝒍𝒍𝒐𝒘 𝒏𝒖𝒎𝒆𝒓𝒊𝒄 𝒔𝒕𝒓𝒊𝒏𝒈𝒔 𝒍𝒊𝒌𝒆 "3600"_
-		if (!isNaN(last) && last !== "") {
-			expirationAfter = parseInt(args.pop());
-			// _𝒑𝒓𝒆𝒗𝒆𝒏𝒕 𝒏𝒆𝒈𝒂𝒕𝒊𝒗𝒆 𝒗𝒂𝒍𝒖𝒆𝒔_
-			if (expirationAfter < 0) expirationAfter = null;
-		}
-	}
+      // Fetch image as stream
+      let response;
+      try {
+        response = await axios.get(imageURL, { responseType: "stream", timeout: 20000 });
+      } catch (err) {
+        return message.reply("❌ Error occurred while querying the image URL");
+      }
 
-	// _𝒄𝒂𝒑𝒕𝒊𝒐𝒏: 𝒓𝒆𝒎𝒂𝒊𝒏𝒊𝒏𝒈 𝒂𝒓𝒈𝒔 𝒋𝒐𝒊𝒏𝒆𝒅_
-	const caption = args.join(" ").trim() || "";
+      // Validate content-type header
+      const contentType = (response.headers && (response.headers["content-type"] || response.headers["Content-Type"])) || "";
+      if (!contentType.includes("image")) {
+        return message.reply("❌ Invalid image format");
+      }
 
-	// _𝑭𝒆𝒕𝒄𝒉 𝒊𝒎𝒂𝒈𝒆 𝒂𝒔 𝒔𝒕𝒓𝒆𝒂𝒎_
-	let response;
-	try {
-		response = await axios.get(imageURL, { responseType: "stream", timeout: 20000 });
-	} catch (err) {
-		// _𝒏𝒆𝒕𝒘𝒐𝒓𝒌 / 𝒂𝒙𝒊𝒐𝒔 𝒆𝒓𝒓𝒐𝒓_
-		return message.reply(lang("cannotGetImage")); // Used message.reply
-	}
+      // Set path for framework compatibility
+      try {
+        response.data.path = "avatar.jpg";
+      } catch (e) {
+        // Ignore if response.data is a stream object
+      }
 
-	// _𝑽𝒂𝒍𝒊𝒅𝒂𝒕𝒆 𝒄𝒐𝒏𝒕𝒆𝒏𝒕-𝒕𝒚𝒑𝒆 𝒉𝒆𝒂𝒅𝒆𝒓_
-	const contentType = (response.headers && (response.headers["content-type"] || response.headers["Content-Type"])) || "";
-	if (!contentType.includes("image")) {
-		return message.reply(lang("invalidImageFormat")); // Used message.reply
-	}
+      // Attempt to change avatar
+      try {
+        // Use global API method for changing avatar
+        await global.utils.changeAvatar(response.data, caption, expirationAfter ? expirationAfter * 1000 : null);
+        
+        return message.reply("✅ Changed bot avatar successfully!");
+        
+      } catch (err) {
+        const errText = (err && err.message) ? ` ${err.message}` : "";
+        return message.reply(`❌ Error occurred while changing avatar:${errText}`);
+      }
 
-	// _𝑴𝒂𝒏𝒚 𝒃𝒐𝒕 𝒇𝒓𝒂𝒎𝒆𝒘𝒐𝒓𝒌𝒔 𝒆𝒙𝒑𝒆𝒄𝒕 𝒂 𝒇𝒊𝒍𝒆-𝒍𝒊𝒌𝒆 𝒐𝒃𝒋𝒆𝒄𝒕 𝒘𝒊𝒕𝒉 .𝒑𝒂𝒕𝒉, 𝒐𝒓 𝒂𝒄𝒄𝒆𝒑𝒕 𝒔𝒕𝒓𝒆𝒂𝒎𝒔 𝒅𝒊𝒓𝒆𝒄𝒕𝒍𝒚._
-	// _𝑲𝒆𝒆𝒑 𝒕𝒉𝒆 𝒐𝒓𝒊𝒈𝒊𝒏𝒂𝒍 𝒂𝒑𝒑𝒓𝒐𝒂𝒄𝒉: 𝒔𝒆𝒕 𝒑𝒂𝒕𝒉 𝒔𝒐 𝒇𝒓𝒂𝒎𝒆𝒘𝒐𝒓𝒌𝒔 𝒕𝒉𝒂𝒕 𝒓𝒆𝒍𝒚 𝒐𝒏 𝒊𝒕 𝒄𝒂𝒏 𝒘𝒐𝒓𝒌._
-	try {
-		response.data.path = "avatar.jpg";
-	} catch (e) {
-		// _𝒊𝒈𝒏𝒐𝒓𝒆; 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆.𝒅𝒂𝒕𝒂 𝒎𝒂𝒚 𝒃𝒆 𝒂 𝒔𝒕𝒓𝒆𝒂𝒎 𝒐𝒃𝒋𝒆𝒄𝒕 𝒘𝒆 𝒄𝒂𝒏 𝒔𝒕𝒊𝒍𝒍 𝒑𝒂𝒔𝒔_
-	}
-
-	// _𝑨𝒕𝒕𝒆𝒎𝒑𝒕 𝒕𝒐 𝒄𝒉𝒂𝒏𝒈𝒆 𝒂𝒗𝒂𝒕𝒂𝒓. 𝑺𝒖𝒑𝒑𝒐𝒓𝒕 𝒃𝒐𝒕𝒉 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌-𝒔𝒕𝒚𝒍𝒆 𝒂𝒏𝒅 𝒑𝒓𝒐𝒎𝒊𝒔𝒆-𝒔𝒕𝒚𝒍𝒆 𝒂𝒑𝒊.𝒄𝒉𝒂𝒏𝒈𝒆𝑨𝒗𝒂𝒕𝒂𝒓 𝒊𝒎𝒑𝒍𝒆𝒎𝒆𝒏𝒕𝒂𝒕𝒊𝒐𝒏𝒔._
-	try {
-		// _𝑰𝒇 𝒂𝒑𝒊.𝒄𝒉𝒂𝒏𝒈𝒆𝑨𝒗𝒂𝒕𝒂𝒓 𝒆𝒙𝒑𝒆𝒄𝒕𝒔 𝒂 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌 (𝒏𝒐𝒅𝒆-𝒔𝒕𝒚𝒍𝒆), 𝒘𝒓𝒂𝒑 𝒊𝒕 𝒊𝒏 𝒂 𝑷𝒓𝒐𝒎𝒊𝒔𝒆_
-		const changeAvatar = api.changeAvatar;
-		if (typeof changeAvatar === "function") {
-			// _𝑻𝒓𝒚 𝒄𝒂𝒍𝒍𝒊𝒏𝒈 𝒂𝒏𝒅 𝒅𝒆𝒕𝒆𝒄𝒕 𝒘𝒉𝒆𝒕𝒉𝒆𝒓 𝒊𝒕 𝒓𝒆𝒕𝒖𝒓𝒏𝒔 𝒂 𝑷𝒓𝒐𝒎𝒊𝒔𝒆_
-			const result = changeAvatar(response.data, caption, expirationAfter ? expirationAfter * 1000 : null, (err) => {
-				// _𝑰𝒇 𝑨𝑷𝑰 𝒖𝒔𝒆𝒔 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌, 𝒕𝒉𝒊𝒔 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌 𝒘𝒊𝒍𝒍 𝒆𝒙𝒆𝒄𝒖𝒕𝒆; 𝒘𝒆 𝒉𝒂𝒏𝒅𝒍𝒆 𝒊𝒏𝒔𝒊𝒅𝒆 𝑷𝒓𝒐𝒎𝒊𝒔𝒆 𝒃𝒆𝒍𝒐𝒘._
-			});
-			// _𝑰𝒇 𝒓𝒆𝒔𝒖𝒍𝒕 𝒊𝒔 𝒂 𝑷𝒓𝒐𝒎𝒊𝒔𝒆, 𝒂𝒘𝒂𝒊𝒕 𝒊𝒕_
-			if (result && typeof result.then === "function") {
-				await result;
-			} else {
-				// _𝑶𝒕𝒉𝒆𝒓𝒘𝒊𝒔𝒆 𝒂𝒔𝒔𝒖𝒎𝒆 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌-𝒔𝒕𝒚𝒍𝒆 — 𝒘𝒓𝒂𝒑 𝒊𝒏 𝒂 𝒑𝒓𝒐𝒎𝒊𝒔𝒆 𝒂𝒏𝒅 𝒘𝒂𝒊𝒕 𝒇𝒐𝒓 𝒕𝒉𝒆 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌 𝒕𝒐 𝒄𝒂𝒍𝒍 𝒃𝒂𝒄𝒌._
-				await new Promise((resolve, reject) => {
-					try {
-						// _𝒄𝒂𝒍𝒍 𝒂𝒈𝒂𝒊𝒏 𝒃𝒖𝒕 𝒘𝒊𝒕𝒉 𝒐𝒖𝒓 𝒐𝒘𝒏 𝒄𝒂𝒍𝒍𝒃𝒂𝒄𝒌 𝒕𝒐 𝒅𝒆𝒕𝒆𝒄𝒕 𝒄𝒐𝒎𝒑𝒍𝒆𝒕𝒊𝒐𝒏_
-						changeAvatar(response.data, caption, expirationAfter ? expirationAfter * 1000 : null, (err) => {
-							if (err) return reject(err);
-							return resolve();
-						});
-					} catch (err) {
-						return reject(err);
-					}
-				});
-			}
-		} else {
-			// _𝑰𝒇 𝒄𝒉𝒂𝒏𝒈𝒆𝑨𝒗𝒂𝒕𝒂𝒓 𝒏𝒐𝒕 𝒂𝒗𝒂𝒊𝒍𝒂𝒃𝒍𝒆, 𝒕𝒉𝒓𝒐𝒘_
-			throw new Error("api.changeAvatar is not a function");
-		}
-	} catch (err) {
-		// _𝑺𝒆𝒏𝒅 𝒂 𝒉𝒆𝒍𝒑𝒇𝒖𝒍 𝒆𝒓𝒓𝒐𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒘𝒊𝒕𝒉 𝒕𝒉𝒆 𝒖𝒏𝒅𝒆𝒓𝒍𝒚𝒊𝒏𝒈 𝒆𝒓𝒓𝒐𝒓 𝒕𝒆𝒙𝒕 (𝒕𝒓𝒊𝒎𝒎𝒆𝒅)_
-		const errText = (err && err.message) ? ` ${err.message}` : "";
-		return message.reply(`${lang("errorChanging")} ${errText}`); // Used message.reply
-	}
-
-	// _𝑺𝒖𝒄𝒄𝒆𝒔𝒔_
-	return message.reply(lang("changedAvatar")); // Used message.reply
+    } catch (error) {
+      console.error("Setavt Command Error:", error);
+      return message.reply("❌ | An error occurred while processing your request");
+    }
+  }
 };
