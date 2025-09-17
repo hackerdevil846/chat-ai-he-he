@@ -1,72 +1,104 @@
-module.exports.config = {
-  name: "setall",
-  version: "1.1.0",
-  hasPermssion: 2,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Set nickname for all members in the group",
-  category: "group",
-  usages: "[nickname]",
-  cooldowns: 5
-};
+module.exports = {
+    config: {
+        name: "setmoney",
+        aliases: ["setcoins", "moneyedit"],
+        version: "1.0.1",
+        role: 2,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        category: "𝑠𝑦𝑠𝑡𝑒𝑚",
+        shortDescription: {
+            en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑎𝑚𝑜𝑢𝑛𝑡 𝑜𝑓 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟𝑠𝑒𝑙𝑓 𝑜𝑟 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟𝑠"
+        },
+        longDescription: {
+            en: "𝑀𝑜𝑑𝑖𝑓𝑦 𝑢𝑠𝑒𝑟 𝑐𝑢𝑟𝑟𝑒𝑛𝑐𝑦 𝑏𝑎𝑙𝑎𝑛𝑐𝑒𝑠 𝑤𝑖𝑡ℎ 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑜𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑠"
+        },
+        guide: {
+            en: "{p}setmoney [𝑚𝑒/𝑑𝑒𝑙/𝑢𝑖𝑑/@𝑢𝑠𝑒𝑟] [𝑎𝑚𝑜𝑢𝑛𝑡/𝑢𝑠𝑒𝑟𝐼𝐷]"
+        },
+        countDown: 5,
+        dependencies: {}
+    },
 
-module.exports.onStart = async function({ api, event, args, Users, Threads, permssion }) {
-  const { threadID, messageID } = event;
+    onStart: async function({ message, event, args, usersData }) {
+        try {
+            const { senderID, mentions } = event;
+            const action = args[0]?.toLowerCase();
+            const amount = parseInt(args[1]);
+            const uid = args[1];
+            const setAmount = parseInt(args[2]);
 
-  // Check if nickname is provided
-  if (!args[0]) {
-    return api.sendMessage("❌ Please enter a nickname to set for all members!", threadID, messageID);
-  }
+            // Set money for yourself
+            if (action === "me") {
+                if (isNaN(amount)) {
+                    return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+                }
+                
+                await usersData.set(senderID, { money: amount });
+                return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 ${amount} 💸`);
+            }
 
-  const nickname = args.join(" ");
-  const maxNicknameLength = 20; // Facebook limit
+            // Delete money
+            else if (action === "del") {
+                const target = args[1]?.toLowerCase();
 
-  // Validate nickname length
-  if (nickname.length > maxNicknameLength) {
-    return api.sendMessage(`❌ Nickname too long! Maximum ${maxNicknameLength} characters.`, threadID, messageID);
-  }
+                // Delete your own money
+                if (target === "me") {
+                    const userData = await usersData.get(senderID);
+                    const currentMoney = userData.money || 0;
+                    await usersData.set(senderID, { money: 0 });
+                    return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
+                }
+                // Delete money for mentioned user
+                else if (Object.keys(mentions).length === 1) {
+                    const mentionID = Object.keys(mentions)[0];
+                    const name = mentions[mentionID].replace("@", "");
+                    const userData = await usersData.get(mentionID);
+                    const currentMoney = userData.money || 0;
 
-  try {
-    api.sendMessage(`🔄 Starting to set "${nickname}" as nickname for all members...`, threadID, messageID);
+                    await usersData.set(mentionID, { money: 0 });
+                    return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name}!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
+                }
+            }
 
-    // Get thread info
-    const threadInfo = await api.getThreadInfo(threadID);
-    const botID = api.getCurrentUserID();
+            // Set money by UID
+            else if (action === "uid") {
+                if (isNaN(uid)) {
+                    return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑈𝑠𝑒𝑟 𝐼𝐷");
+                }
+                if (isNaN(setAmount)) {
+                    return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡");
+                }
 
-    // Check if bot is admin
-    const isBotAdmin = threadInfo.adminIDs.some(admin => admin.id === botID);
-    if (!isBotAdmin) {
-      return api.sendMessage("❌ Bot must be an admin to set nicknames!", threadID, messageID);
+                const userData = await usersData.get(uid);
+                const userName = userData.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
+                await usersData.set(uid, { money: setAmount });
+                return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${userName} (${uid}) 𝑡𝑜 ${setAmount} 💸`);
+            }
+
+            // Set money for mentioned user
+            else if (Object.keys(mentions).length === 1) {
+                if (isNaN(amount)) {
+                    return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+                }
+
+                const mentionID = Object.keys(mentions)[0];
+                const name = mentions[mentionID].replace("@", "");
+
+                await usersData.set(mentionID, { money: amount });
+                return message.reply({
+                    body: `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name} 𝑡𝑜 ${amount} 💸`,
+                    mentions: [{ tag: name, id: mentionID }]
+                });
+            }
+
+            // Invalid command usage
+            else {
+                return message.reply("ℹ️ 𝑈𝑠𝑎𝑔𝑒:\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑚𝑒 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑑𝑒𝑙 𝑚𝑒\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 @𝑢𝑠𝑒𝑟 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑢𝑖𝑑 [𝑢𝑠𝑒𝑟𝐼𝐷] [𝑎𝑚𝑜𝑢𝑛𝑡]");
+            }
+
+        } catch (error) {
+            console.error("𝑆𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑒𝑟𝑟𝑜𝑟:", error);
+            return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
+        }
     }
-
-    const participantIDs = threadInfo.participantIDs.filter(id => id !== botID);
-
-    let successCount = 0;
-    let failedCount = 0;
-    const failedUsers = [];
-
-    // Loop through participants and set nicknames
-    for (const userID of participantIDs) {
-      try {
-        await new Promise(resolve => setTimeout(resolve, 2500)); // Delay to prevent rate limit
-        await api.changeNickname(nickname, threadID, userID);
-        successCount++;
-      } catch (err) {
-        failedCount++;
-        failedUsers.push(userID);
-        console.error(`❌ Failed to set nickname for ${userID}:`, err);
-      }
-    }
-
-    // Construct result message
-    let resultMessage = `✅ Successfully set "${nickname}" for ${successCount} members.`;
-    if (failedCount > 0) {
-      resultMessage += `\n❌ Failed for ${failedCount} members: ${failedUsers.join(", ")}`;
-    }
-
-    api.sendMessage(resultMessage, threadID, messageID);
-
-  } catch (error) {
-    console.error("❌ ERROR:", error);
-    api.sendMessage("❌ An error occurred while processing your request.", threadID, messageID);
-  }
 };
