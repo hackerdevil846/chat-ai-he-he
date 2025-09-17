@@ -1,118 +1,107 @@
-module.exports.config = {
-    name: "setjoin",
-    version: "1.1.0",
-    hasPermssion: 1,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑵𝒆𝒘 𝒎𝒆𝒎𝒃𝒆𝒓𝒔 𝒋𝒐𝒊𝒏 𝒌𝒉𝒂𝒏𝒆 𝒕𝒆𝒙𝒕/𝒈𝒊𝒇 𝒔𝒆𝒕 𝒌𝒐𝒓𝒖𝒏",
-    category: "config",
-    usages: "[text/gif] [message or url]",
-    cooldowns: 10,
-    dependencies: {
-        "fs-extra": "",
-        "path": ""
-    }
-};
+const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.onLoad = function () {
-    const fs = require("fs-extra");
-    const path = require("path");
-    const { existsSync, mkdirSync } = fs;
-    const { join } = path;
-    const cachePath = join(__dirname, "..", "events", "cache", "joinGif");
-    if (!existsSync(cachePath)) mkdirSync(cachePath, { recursive: true });
-};
-
-module.exports.languages = {
-    "vi": {
-        "savedConfig": "Đã lưu tùy chỉnh của bạn thành công! dưới đây là preview:",
-        "tagMember": "[Tên thành viên]",
-        "tagType": "[Bạn/các bạn]",
-        "tagCountMember": "[Số thành viên]",
-        "tagNameGroup": "[Tên nhóm]",
-        "gifPathNotExist": "Nhóm của bạn chưa từng cài đặt gif join",
-        "removeGifSuccess": "Đã gỡ bỏ thành công file gif của nhóm bạn!",
-        "invaildURL": "Url bạn nhập không hợp lệ!",
-        "internetError": "Không thể tải file vì url không tồn tại hoặc bot gặp vấn đề mạng!",
-        "saveGifSuccess": "Đã lưu file gif của nhóm bạn thành công, preview:"
+module.exports = {
+    config: {
+        name: "setjoin",
+        aliases: ["setwelcome", "joinconfig"],
+        version: "1.1.0",
+        role: 1,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        category: "𝑐𝑜𝑛𝑓𝑖𝑔",
+        shortDescription: {
+            en: "𝑆𝑒𝑡 𝑤𝑒𝑙𝑐𝑜𝑚𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑜𝑟 𝐺𝐼𝐹 𝑓𝑜𝑟 𝑛𝑒𝑤 𝑚𝑒𝑚𝑏𝑒𝑟𝑠"
+        },
+        longDescription: {
+            en: "𝐶𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑒 𝑤𝑒𝑙𝑐𝑜𝑚𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑜𝑟 𝐺𝐼𝐹𝑠 𝑓𝑜𝑟 𝑛𝑒𝑤 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑗𝑜𝑖𝑛𝑖𝑛𝑔 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝"
+        },
+        guide: {
+            en: "{p}setjoin [𝑡𝑒𝑥𝑡/𝑔𝑖𝑓] [𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑜𝑟 𝑢𝑟𝑙]"
+        },
+        countDown: 10,
+        dependencies: {
+            "fs-extra": "",
+            "path": ""
+        }
     },
-    "en": {
-        "savedConfig": "Your settings have been saved! Preview below:",
-        "tagMember": "[Member Name]",
-        "tagType": "[You/Your]",
-        "tagCountMember": "[Member Count]",
-        "tagNameGroup": "[Group Name]",
-        "gifPathNotExist": "Your group has not set a join GIF yet",
-        "removeGifSuccess": "Group GIF removed successfully!",
-        "invaildURL": "The URL you entered is invalid!",
-        "internetError": "Failed to load the file, URL may not exist or network error!",
-        "saveGifSuccess": "GIF saved successfully, preview:"
-    }
-};
 
-module.exports.onStart = async function ({ api, event, args, Threads, getText }) {
-    try {
-        const fs = require("fs-extra");
-        const path = require("path");
-        const { existsSync, unlinkSync, createReadStream } = fs;
-        const { join } = path;
-        const { threadID } = event;
-        const msg = args.slice(1).join(" ");
-        const data = (await Threads.getData(threadID)).data;
-
-        if (!args[0]) {
-            return api.sendMessage(
-                "❌ Usage:\n" +
-                "setjoin text [message]\n" +
-                "setjoin gif [url]\n" +
-                "setjoin gif remove",
-                threadID
-            );
+    onLoad: function() {
+        try {
+            const cachePath = path.join(__dirname, "..", "events", "cache", "joinGif");
+            if (!fs.existsSync(cachePath)) fs.mkdirSync(cachePath, { recursive: true });
+        } catch (error) {
+            console.error("𝑆𝑒𝑡𝑗𝑜𝑖𝑛 𝑜𝑛𝐿𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
         }
+    },
 
-        switch (args[0].toLowerCase()) {
-            case "text": {
-                if (!msg) return api.sendMessage("❌ Please provide the text message!", threadID);
-                data.customJoin = msg;
-                await Threads.setData(threadID, { data });
-                global.data.threadData.set(parseInt(threadID), data);
-
-                const preview = msg
-                    .replace(/\{name}/g, getText("tagMember"))
-                    .replace(/\{type}/g, getText("tagType"))
-                    .replace(/\{soThanhVien}/g, getText("tagCountMember"))
-                    .replace(/\{threadName}/g, getText("tagNameGroup"));
-
-                return api.sendMessage(`${getText("savedConfig")}\n\n${preview}`, threadID);
+    onStart: async function({ message, event, args, threadsData }) {
+        try {
+            // Dependency check
+            try {
+                require("fs-extra");
+                require("path");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎 𝑎𝑛𝑑 𝑝𝑎𝑡ℎ");
             }
-            case "gif": {
-                const pathGif = join(__dirname, "..", "events", "cache", "joinGif", `${threadID}.gif`);
 
-                if (msg.toLowerCase() === "remove") {
-                    if (!existsSync(pathGif)) return api.sendMessage(getText("gifPathNotExist"), threadID);
-                    unlinkSync(pathGif);
-                    return api.sendMessage(getText("removeGifSuccess"), threadID);
+            const { threadID } = event;
+            const msg = args.slice(1).join(" ");
+            const data = (await threadsData.get(threadID)) || {};
+            data.data = data.data || {};
+
+            if (!args[0]) {
+                return message.reply(
+                    "❌ 𝑈𝑠𝑎𝑔𝑒:\n" +
+                    "𝑠𝑒𝑡𝑗𝑜𝑖𝑛 𝑡𝑒𝑥𝑡 [𝑚𝑒𝑠𝑠𝑎𝑔𝑒]\n" +
+                    "𝑠𝑒𝑡𝑗𝑜𝑖𝑛 𝑔𝑖𝑓 [𝑢𝑟𝑙]\n" +
+                    "𝑠𝑒𝑡𝑗𝑜𝑖𝑛 𝑔𝑖𝑓 𝑟𝑒𝑚𝑜𝑣𝑒"
+                );
+            }
+
+            switch (args[0].toLowerCase()) {
+                case "text": {
+                    if (!msg) return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑡ℎ𝑒 𝑡𝑒𝑥𝑡 𝑚𝑒𝑠𝑠𝑎𝑔𝑒!");
+                    data.data.customJoin = msg;
+                    await threadsData.set(threadID, data);
+
+                    const preview = msg
+                        .replace(/\{name}/g, "[𝑀𝑒𝑚𝑏𝑒𝑟 𝑁𝑎𝑚𝑒]")
+                        .replace(/\{type}/g, "[𝑌𝑜𝑢/𝑌𝑜𝑢𝑟]")
+                        .replace(/\{soThanhVien}/g, "[𝑀𝑒𝑚𝑏𝑒𝑟 𝐶𝑜𝑢𝑛𝑡]")
+                        .replace(/\{threadName}/g, "[𝐺𝑟𝑜𝑢𝑝 𝑁𝑎𝑚𝑒]");
+
+                    return message.reply(`✅ 𝑌𝑜𝑢𝑟 𝑠𝑒𝑡𝑡𝑖𝑛𝑔𝑠 ℎ𝑎𝑣𝑒 𝑏𝑒𝑒𝑛 𝑠𝑎𝑣𝑒𝑑! 𝑃𝑟𝑒𝑣𝑖𝑒𝑤 𝑏𝑒𝑙𝑜𝑤:\n\n${preview}`);
                 }
+                case "gif": {
+                    const pathGif = path.join(__dirname, "..", "events", "cache", "joinGif", `${threadID}.gif`);
 
-                if (!msg) return api.sendMessage("❌ Please provide GIF URL!", threadID);
-                if (!msg.match(/\.gif$/i)) return api.sendMessage(getText("invaildURL"), threadID);
+                    if (msg.toLowerCase() === "remove") {
+                        if (!fs.existsSync(pathGif)) return message.reply("❌ 𝑌𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 𝑛𝑜𝑡 𝑠𝑒𝑡 𝑎 𝑗𝑜𝑖𝑛 𝐺𝐼𝐹 𝑦𝑒𝑡");
+                        fs.unlinkSync(pathGif);
+                        return message.reply("✅ 𝐺𝑟𝑜𝑢𝑝 𝐺𝐼𝐹 𝑟𝑒𝑚𝑜𝑣𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!");
+                    }
 
-                try {
-                    await global.utils.downloadFile(msg, pathGif);
-                    return api.sendMessage({
-                        body: getText("saveGifSuccess"),
-                        attachment: createReadStream(pathGif)
-                    }, threadID);
-                } catch (e) {
-                    console.error(e);
-                    return api.sendMessage(getText("internetError"), threadID);
+                    if (!msg) return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝐺𝐼𝐹 𝑈𝑅𝐿!");
+                    if (!msg.match(/\.gif$/i)) return message.reply("❌ 𝑇ℎ𝑒 𝑈𝑅𝐿 𝑦𝑜𝑢 𝑒𝑛𝑡𝑒𝑟𝑒𝑑 𝑖𝑠 𝑖𝑛𝑣𝑎𝑙𝑖𝑑!");
+
+                    try {
+                        await global.utils.downloadFile(msg, pathGif);
+                        return message.reply({
+                            body: "✅ 𝐺𝐼𝐹 𝑠𝑎𝑣𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦, 𝑝𝑟𝑒𝑣𝑖𝑒𝑤:",
+                            attachment: fs.createReadStream(pathGif)
+                        });
+                    } catch (e) {
+                        console.error("𝐺𝐼𝐹 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", e);
+                        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑡ℎ𝑒 𝑓𝑖𝑙𝑒, 𝑈𝑅𝐿 𝑚𝑎𝑦 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡 𝑜𝑟 𝑛𝑒𝑡𝑤𝑜𝑟𝑘 𝑒𝑟𝑟𝑜𝑟!");
+                    }
+                }
+                default: {
+                    return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑜𝑝𝑡𝑖𝑜𝑛! 𝑈𝑠𝑒 '𝑡𝑒𝑥𝑡' 𝑜𝑟 '𝑔𝑖𝑓'.");
                 }
             }
-            default: {
-                return api.sendMessage("❌ Invalid option! Use 'text' or 'gif'.", threadID);
-            }
+        } catch (e) {
+            console.error("𝑆𝑒𝑡𝑗𝑜𝑖𝑛 𝑒𝑟𝑟𝑜𝑟:", e);
+            return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
         }
-    } catch (e) {
-        console.error(e);
-        return api.sendMessage("❌ An error occurred while executing the command.", event.threadID);
     }
 };
