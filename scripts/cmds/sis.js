@@ -1,135 +1,138 @@
-module.exports.config = {
-    name: "sis",
-    version: "7.3.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝙈𝙚𝙣𝙩𝙞𝙤𝙣 𝙠𝙖𝙧𝙖 𝙟𝙖𝙮𝙚𝙧 𝙥𝙖𝙞𝙧 𝙥𝙖𝙬𝙖",
-    category: "𝙋𝙉𝙂",
-    usages: "[@𝙢𝙚𝙣𝙩𝙞𝙤𝙣]",
-    cooldowns: 5,
-    dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "path": "",
-        "jimp": ""
-    }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
+const jimp = require("jimp");
 
-module.exports.onLoad = async () => {
-    const path = require("path");
-    const fs = require("fs-extra");
-    const axios = require("axios");
-    
+module.exports = {
+  config: {
+    name: "sis",
+    aliases: ["brother", "bhaibon"],
+    version: "7.3.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "image",
+    shortDescription: {
+      en: "🎨 𝐶𝑟𝑒𝑎𝑡𝑒 𝑏𝑟𝑜𝑡ℎ𝑒𝑟-𝑠𝑖𝑠𝑡𝑒𝑟 𝑝𝑎𝑖𝑟 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑐𝑢𝑠𝑡𝑜𝑚 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑎𝑛𝑑 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟'𝑠 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑎𝑠 𝑏𝑟𝑜𝑡ℎ𝑒𝑟-𝑠𝑖𝑠𝑡𝑒𝑟 𝑝𝑎𝑖𝑟"
+    },
+    guide: {
+      en: "{p}sis [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "fs-extra": "",
+      "path": "",
+      "jimp": ""
+    }
+  },
+
+  onLoad: async function () {
     const dirMaterial = __dirname + `/cache/canvas/`;
     const pathFile = path.resolve(__dirname, 'cache', 'canvas', 'sis.png');
 
-    // Ensure directory exists
-    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+    if (!fs.existsSync(dirMaterial)) {
+      fs.mkdirSync(dirMaterial, { recursive: true });
+    }
 
-    // Download template if not exists (kept the same URL)
     if (!fs.existsSync(pathFile)) {
-        try {
-            const response = await axios({
-                method: 'GET',
-                url: "https://i.imgur.com/n2FGJFe.jpg",
-                responseType: 'stream'
-            });
-            response.data.pipe(fs.createWriteStream(pathFile));
-        } catch (err) {
-            // If download fails at load time, ignore — the command will report errors when used
-            console.error("Failed to download sis.png:", err);
+      try {
+        const response = await axios({
+          method: 'GET',
+          url: "https://i.imgur.com/n2FGJFe.jpg",
+          responseType: 'stream'
+        });
+        const writer = fs.createWriteStream(pathFile);
+        response.data.pipe(writer);
+        
+        await new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
+      } catch (err) {
+        console.error("Failed to download sis.png:", err);
+      }
+    }
+  },
+
+  onStart: async function ({ event, api, args, message }) {
+    try {
+      const { threadID, messageID, senderID } = event;
+      const mentions = Object.keys(event.mentions || {});
+
+      if (!mentions[0]) {
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎 𝑝𝑎𝑖𝑟!");
+      }
+
+      const one = senderID;
+      const two = mentions[0];
+
+      async function circle(imageBuffer) {
+        const image = await jimp.read(imageBuffer);
+        image.circle();
+        return await image.getBufferAsync("image/png");
+      }
+
+      async function makeImage({ one, two }) {
+        const __root = path.resolve(__dirname, "cache", "canvas");
+        const templatePath = __root + "/sis.png";
+        
+        if (!fs.existsSync(templatePath)) {
+          throw new Error("𝑇𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
         }
-    }
-};
 
-async function circle(image) {
-    const jimp = require("jimp");
-    image = await jimp.read(image);
-    image.circle();
-    return await image.getBufferAsync("image/png");
-}
-
-async function makeImage({ one, two }) {
-    const fs = require("fs-extra");
-    const path = require("path");
-    const axios = require("axios");
-    const jimp = require("jimp");
-    const __root = path.resolve(__dirname, "cache", "canvas");
-
-    // Ensure template exists
-    const templatePath = __root + "/sis.png";
-    if (!fs.existsSync(templatePath)) throw new Error("Template image not found: " + templatePath);
-
-    // read base image
-    let baseImg = await jimp.read(templatePath);
-    let pathImg = __root + `/batman${one}_${two}.png`;
-    let avatarOne = __root + `/avt_${one}.png`;
-    let avatarTwo = __root + `/avt_${two}.png`;
-
-    try {
-        // fetch avatar one
-        const resOne = await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' });
-        fs.writeFileSync(avatarOne, Buffer.from(resOne.data));
-
-        // fetch avatar two
-        const resTwo = await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' });
-        fs.writeFileSync(avatarTwo, Buffer.from(resTwo.data));
-    } catch (err) {
-        // Clean up partial files
-        if (fs.existsSync(avatarOne)) try { fs.unlinkSync(avatarOne); } catch(e){}
-        if (fs.existsSync(avatarTwo)) try { fs.unlinkSync(avatarTwo); } catch(e){}
-        throw new Error("Failed to download one or both avatars. " + err.message);
-    }
-
-    try {
-        let circleOne = await jimp.read(await circle(avatarOne));
-        let circleTwo = await jimp.read(await circle(avatarTwo));
-
-        // Composite avatars onto template (kept original coordinates & sizes)
-        baseImg.composite(circleOne.resize(191, 191), 93, 111).composite(circleTwo.resize(190, 190), 434, 107);
-
-        // get buffer and write final image
-        let raw = await baseImg.getBufferAsync("image/png");
-        fs.writeFileSync(pathImg, raw);
-    } catch (err) {
-        // cleanup avatars if something fails
-        if (fs.existsSync(avatarOne)) try { fs.unlinkSync(avatarOne); } catch(e){}
-        if (fs.existsSync(avatarTwo)) try { fs.unlinkSync(avatarTwo); } catch(e){}
-        throw err;
-    }
-
-    // remove temporary avatar files
-    try { fs.unlinkSync(avatarOne); } catch(e){}
-    try { fs.unlinkSync(avatarTwo); } catch(e){}
-
-    return pathImg;
-}
-
-module.exports.onStart = async function ({ event, api, args }) {
-    const fs = require("fs-extra");
-    const { threadID, messageID, senderID } = event;
-    const mentions = Object.keys(event.mentions || {});
-
-    if (!mentions[0]) {
-        return api.sendMessage("𝑬𝒌𝒕𝒊 𝒍𝒐𝒌𝒌𝒆 𝒎𝒆𝒏𝒕𝒊𝒐𝒏 𝒌𝒂𝒓𝒖𝒏", threadID, messageID);
-    } else {
-        const one = senderID;
-        const two = mentions[0];
+        const baseImg = await jimp.read(templatePath);
+        const pathImg = __root + `/batman${one}_${two}.png`;
+        const avatarOne = __root + `/avt_${one}.png`;
+        const avatarTwo = __root + `/avt_${two}.png`;
 
         try {
-            const path = await makeImage({ one, two });
-            const messageBody = "✧•❁𝑩𝒉𝒂𝒊-𝑩𝒐𝒏❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   𝑺𝒂𝒇𝒂𝒍 𝑷𝒆𝒚𝒂𝒓\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑 𝑴𝒊𝒍𝒍 𝑮𝒂𝒚𝒊 ❤\n\n𝑻𝒖𝒎𝒂𝒓 𝑩𝒐𝒏 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶";
+          const [resOne, resTwo] = await Promise.all([
+            axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
+              responseType: 'arraybuffer' 
+            }),
+            axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
+              responseType: 'arraybuffer' 
+            })
+          ]);
 
-            return api.sendMessage({
-                body: messageBody,
-                attachment: fs.createReadStream(path)
-            }, threadID, () => {
-                // delete generated image after sending
-                try { fs.unlinkSync(path); } catch (e) { }
-            }, messageID);
-        } catch (err) {
-            console.error(err);
-            return api.sendMessage("দুঃখিত, ছবি তৈরিতে সমস্যা হয়েছে: " + err.message, threadID, messageID);
+          fs.writeFileSync(avatarOne, Buffer.from(resOne.data));
+          fs.writeFileSync(avatarTwo, Buffer.from(resTwo.data));
+
+          const [circleOne, circleTwo] = await Promise.all([
+            jimp.read(await circle(fs.readFileSync(avatarOne))),
+            jimp.read(await circle(fs.readFileSync(avatarTwo)))
+          ]);
+
+          baseImg.composite(circleOne.resize(191, 191), 93, 111)
+                 .composite(circleTwo.resize(190, 190), 434, 107);
+
+          const raw = await baseImg.getBufferAsync("image/png");
+          fs.writeFileSync(pathImg, raw);
+
+        } finally {
+          if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
+          if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
         }
+
+        return pathImg;
+      }
+
+      const imagePath = await makeImage({ one, two });
+      const messageBody = "✧•❁𝐵𝑟𝑜𝑡ℎ𝑒𝑟-𝑆𝑖𝑠𝑡𝑒𝑟❁•✧\n\n╔═══❖••° °••❖═══╗\n\n   𝑆𝑎𝑓𝑎𝑙 𝑃𝑒𝑦𝑎𝑟\n\n╚═══❖••° °••❖═══╝\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶\n\n       👑 𝑀𝑖𝑙𝑙 𝐺𝑎𝑦𝑖 ❤\n\n𝑇𝑢𝑚𝑎𝑟 𝐵𝑜𝑛 🩷\n\n   ✶⊶⊷⊷❍⊶⊷⊷✶";
+
+      await message.reply({
+        body: messageBody,
+        attachment: fs.createReadStream(imagePath)
+      });
+
+      fs.unlinkSync(imagePath);
+
+    } catch (error) {
+      console.error(error);
+      message.reply("❌ 𝑆𝑜𝑟𝑟𝑦, 𝑡ℎ𝑒𝑟𝑒 𝑤𝑎𝑠 𝑎 𝑝𝑟𝑜𝑏𝑙𝑒𝑚 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒: " + error.message);
     }
+  }
 };
