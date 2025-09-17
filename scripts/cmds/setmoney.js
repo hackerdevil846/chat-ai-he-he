@@ -1,93 +1,97 @@
-module.exports.config = {
+module.exports = {
+  config: {
     name: "setmoney",
+    aliases: ["moneyedit", "editmoney"],
     version: "1.0.1",
-    hasPermssion: 2,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Change the amount of money for yourself or tagged users",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 2,
     category: "system",
-    usages: "setmoney [me/del/uid/@user] [amount/userID]",
-    cooldowns: 5,
-    dependencies: {},
-    envConfig: {}
-};
+    shortDescription: {
+      en: "💵 𝐶ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑎𝑚𝑜𝑢𝑛𝑡 𝑜𝑓 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟𝑠𝑒𝑙𝑓 𝑜𝑟 𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟𝑠"
+    },
+    longDescription: {
+      en: "𝑀𝑜𝑑𝑖𝑓𝑦 𝑡ℎ𝑒 𝑏𝑎𝑙𝑎𝑛𝑐𝑒 𝑜𝑓 𝑦𝑜𝑢𝑟 𝑜𝑤𝑛 𝑎𝑐𝑐𝑜𝑢𝑛𝑡 𝑜𝑟 𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟𝑠' 𝑎𝑐𝑐𝑜𝑢𝑛𝑡𝑠"
+    },
+    guide: {
+      en: "{p}setmoney [𝑚𝑒/𝑑𝑒𝑙/𝑢𝑖𝑑/@𝑢𝑠𝑒𝑟] [𝑎𝑚𝑜𝑢𝑛𝑡/𝑢𝑠𝑒𝑟𝐼𝐷]"
+    },
+    countDown: 5
+  },
 
-module.exports.languages = {
-    "en": {},
-    "vi": {}
-};
-
-module.exports.onStart = async function({ api, event, args, Users, Currencies }) {
+  onStart: async function({ api, event, args, message, usersData, currenciesData }) {
     try {
-        const { threadID, messageID, senderID, mentions } = event;
-        const action = args[0]?.toLowerCase();
-        const amount = parseInt(args[1]);
-        const uid = args[1];
-        const setAmount = parseInt(args[2]);
+      const { threadID, messageID, senderID, mentions } = event;
+      const action = args[0]?.toLowerCase();
+      const amount = parseInt(args[1]);
+      const uid = args[1];
+      const setAmount = parseInt(args[2]);
 
-        // Set money for yourself
-        if (action === "me") {
-            if (isNaN(amount)) 
-                return api.sendMessage("❌ Invalid amount! Please enter a number.", threadID, messageID);
-            
-            await Currencies.setData(senderID, { money: amount });
-            return api.sendMessage(`✅ Successfully set your money to ${amount} 💸`, threadID, messageID);
+      // Set money for yourself
+      if (action === "me") {
+        if (isNaN(amount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+        
+        await currenciesData.set(senderID, { money: amount });
+        return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 ${amount} 💸`);
+      }
+
+      // Delete money
+      else if (action === "del") {
+        const target = args[1]?.toLowerCase();
+
+        // Delete your own money
+        if (target === "me") {
+          const currentMoney = (await currenciesData.get(senderID)).money;
+          await currenciesData.set(senderID, { money: 0 });
+          return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑦𝑜𝑢𝑟 𝑚𝑜𝑛𝑒𝑦!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
         }
-
-        // Delete money
-        else if (action === "del") {
-            const target = args[1]?.toLowerCase();
-
-            // Delete your own money
-            if (target === "me") {
-                const currentMoney = (await Currencies.getData(senderID)).money;
-                await Currencies.setData(senderID, { money: 0 });
-                return api.sendMessage(`✅ Deleted all your money!\n💸 Amount removed: ${currentMoney}`, threadID, messageID);
-            }
-            // Delete money for mentioned user
-            else if (Object.keys(mentions).length === 1) {
-                const mentionID = Object.keys(mentions)[0];
-                const name = mentions[mentionID].replace("@", "");
-                const currentMoney = (await Currencies.getData(mentionID)).money;
-
-                await Currencies.setData(mentionID, { money: 0 });
-                return api.sendMessage(`✅ Deleted all money for ${name}!\n💸 Amount removed: ${currentMoney}`, threadID, messageID);
-            }
-        }
-
-        // Set money by UID
-        else if (action === "uid") {
-            if (isNaN(uid)) 
-                return api.sendMessage("❌ Invalid User ID", threadID, messageID);
-            if (isNaN(setAmount)) 
-                return api.sendMessage("❌ Invalid amount", threadID, messageID);
-
-            const userName = (await Users.getData(uid)).name;
-            await Currencies.setData(uid, { money: setAmount });
-            return api.sendMessage(`✅ Successfully set money for ${userName} (${uid}) to ${setAmount} 💸`, threadID, messageID);
-        }
-
-        // Set money for mentioned user
+        // Delete money for mentioned user
         else if (Object.keys(mentions).length === 1) {
-            if (isNaN(amount)) 
-                return api.sendMessage("❌ Invalid amount! Please enter a number.", threadID, messageID);
+          const mentionID = Object.keys(mentions)[0];
+          const name = mentions[mentionID].replace("@", "");
+          const currentMoney = (await currenciesData.get(mentionID)).money;
 
-            const mentionID = Object.keys(mentions)[0];
-            const name = mentions[mentionID].replace("@", "");
-
-            await Currencies.setData(mentionID, { money: amount });
-            return api.sendMessage({
-                body: `✅ Successfully set money for ${name} to ${amount} 💸`,
-                mentions: [{ tag: name, id: mentionID }]
-            }, threadID, messageID);
+          await currenciesData.set(mentionID, { money: 0 });
+          return message.reply(`✅ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑎𝑙𝑙 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name}!\n💸 𝐴𝑚𝑜𝑢𝑛𝑡 𝑟𝑒𝑚𝑜𝑣𝑒𝑑: ${currentMoney}`);
         }
+      }
 
-        // Invalid command usage
-        else {
-            return api.sendMessage("ℹ️ Usage:\nsetmoney me [amount]\nsetmoney del me\nsetmoney @user [amount]\nsetmoney uid [userID] [amount]", threadID, messageID);
-        }
+      // Set money by UID
+      else if (action === "uid") {
+        if (isNaN(uid)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑈𝑠𝑒𝑟 𝐼𝐷");
+        if (isNaN(setAmount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡");
+
+        const userData = await usersData.get(uid);
+        const userName = userData.name || "Unknown User";
+        await currenciesData.set(uid, { money: setAmount });
+        return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${userName} (${uid}) 𝑡𝑜 ${setAmount} 💸`);
+      }
+
+      // Set money for mentioned user
+      else if (Object.keys(mentions).length === 1) {
+        if (isNaN(amount)) 
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟.");
+
+        const mentionID = Object.keys(mentions)[0];
+        const name = mentions[mentionID].replace("@", "");
+
+        await currenciesData.set(mentionID, { money: amount });
+        return message.reply({
+          body: `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑠𝑒𝑡 𝑚𝑜𝑛𝑒𝑦 𝑓𝑜𝑟 ${name} 𝑡𝑜 ${amount} 💸`,
+          mentions: [{ tag: name, id: mentionID }]
+        });
+      }
+
+      // Invalid command usage
+      else {
+        return message.reply("ℹ️ 𝑈𝑠𝑎𝑔𝑒:\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑚𝑒 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑑𝑒𝑙 𝑚𝑒\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 @𝑢𝑠𝑒𝑟 [𝑎𝑚𝑜𝑢𝑛𝑡]\n𝑠𝑒𝑡𝑚𝑜𝑛𝑒𝑦 𝑢𝑖𝑑 [𝑢𝑠𝑒𝑟𝐼𝐷] [𝑎𝑚𝑜𝑢𝑛𝑡]");
+      }
 
     } catch (error) {
-        console.error(error);
-        return api.sendMessage("❌ An error occurred while processing your request", event.threadID, event.messageID);
+      console.error(error);
+      return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
     }
+  }
 };
