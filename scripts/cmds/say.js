@@ -1,98 +1,102 @@
-const { createReadStream, unlinkSync } = require("fs-extra");
-const { resolve } = require("path");
+const fs = require("fs-extra");
+const path = require("path");
+const axios = require("axios");
 
-module.exports.config = {
-	name: "say", // Command name
-	version: "2.0.0", // Version
-	hasPermssion: 0, // Permission: 0 = All
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Author
-	description: "🎤 Bot text ta bolbe Google TTS diye (Hindi, Hinglish, English)", // Description
-	category: "media", // Category
-	usages: "[bn/en/auto] [Text]", // Usage
-	cooldowns: 5, // Cooldown time (seconds)
-	dependencies: {
-		"path": "",
-		"fs-extra": ""
-	}
-};
+module.exports = {
+  config: {
+    name: "say",
+    aliases: ["speak", "tts"],
+    version: "2.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "media",
+    shortDescription: {
+      en: "🎤 𝐵𝑜𝑡 𝑡𝑒𝑥𝑡 𝑡𝑎 𝑏𝑜𝑙𝑏𝑒 𝐺𝑜𝑜𝑔𝑙𝑒 𝑇𝑇𝑆 𝑑𝑖𝑦𝑒 (𝐵𝑎𝑛𝑔𝑙𝑎, 𝐵𝑎𝑛𝑔𝑙𝑖𝑠ℎ, 𝐸𝑛𝑔𝑙𝑖𝑠ℎ)"
+    },
+    longDescription: {
+      en: "𝐶𝑜𝑛𝑣𝑒𝑟𝑡𝑠 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑠𝑝𝑒𝑒𝑐ℎ 𝑢𝑠𝑖𝑛𝑔 𝐺𝑜𝑜𝑔𝑙𝑒'𝑠 𝑇𝑇𝑆 𝑎𝑝𝑖"
+    },
+    guide: {
+      en: "{p}say [𝑏𝑛/𝑒𝑛/𝑎𝑢𝑡𝑜] [𝑡𝑒𝑥𝑡]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "fs-extra": ""
+    }
+  },
 
-module.exports.languages = {
-	"en": {
-		missingText: "❌ Please provide some text.\nExample: say auto I love you",
-		error: "🚫 An error occurred while speaking. Please try again."
-	},
-	"bn": {
-		missingText: "❌ Doya kore text den\nUdaharon: +say auto ami tomake bhalobashi",
-		error: "🚫 Bolar somoy error hoyeche. Abar chesta korun"
-	}
-};
+  langs: {
+    "en": {
+      "missingText": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑠𝑜𝑚𝑒 𝑡𝑒𝑥𝑡.\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: 𝑠𝑎𝑦 𝑎𝑢𝑡𝑜 𝐼 𝑙𝑜𝑣𝑒 𝑦𝑜𝑢",
+      "error": "🚫 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑝𝑒𝑎𝑘𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛."
+    },
+    "bn": {
+      "missingText": "❌ 𝐷𝑜𝑦𝑎 𝑘𝑜𝑟𝑒 𝑡𝑒𝑥𝑡 𝑑𝑒𝑛\n𝑈𝑑𝑎ℎ𝑎𝑟𝑜𝑛: 𝑠𝑎𝑦 𝑎𝑢𝑡𝑜 𝑎𝑚𝑖 𝑡𝑜𝑚𝑎𝑘𝑒 𝑏ℎ𝑎𝑙𝑜𝑏𝑎𝑠ℎ𝑖",
+      "error": "🚫 𝐵𝑜𝑙𝑎𝑟 𝑠𝑜𝑚𝑜𝑦 𝑒𝑟𝑟𝑜𝑟 ℎ𝑜𝑦𝑒𝑐ℎ𝑒. 𝐴𝑏𝑎𝑟 𝑐ℎ𝑒𝑠𝑡𝑎 𝑘𝑜𝑟𝑢𝑛"
+    }
+  },
 
-module.exports.onLoad = function () {
-	// Runs when command is loaded
-};
+  onStart: async function({ api, event, args, message }) {
+    try {
+      const { threadID, messageID, type, messageReply } = event;
 
-module.exports.handleEvent = function () {
-	// For global events if needed
-};
+      // Check if text is given
+      if (args.length === 0 && type !== "message_reply") {
+        return message.reply(this.langs.en.missingText);
+      }
 
-module.exports.handleReply = function () {
-	// For handling replies if needed
-};
+      // Get content from reply or args
+      let content = "";
+      let lang = "auto";
 
-module.exports.handleReaction = function () {
-	// For handling reactions if needed
-};
+      if (type === "message_reply" && messageReply) {
+        content = messageReply.body;
+      } else {
+        content = args.join(" ");
+        
+        // Check for language parameter
+        const firstWord = args[0]?.toLowerCase();
+        const supportedLangs = ["bn", "en", "hi", "ja", "ru", "tl"];
+        
+        if (supportedLangs.includes(firstWord)) {
+          lang = firstWord;
+          content = args.slice(1).join(" ");
+        }
+      }
 
-module.exports.onStart = async function({ api, event, args }) {
-	try {
-		// Check if text is given
-		if (!args[0]) {
-			return api.sendMessage(
-				global.utils.getText(module.exports.languages, "bn", "missingText"),
-				event.threadID,
-				event.messageID
-			);
-		}
+      // Auto detect language
+      if (lang === "auto") {
+        const banglaPattern = /[অ-হ়-ৄে-ৈো-্০-৯]/;
+        lang = banglaPattern.test(content) ? "bn" : "en";
+      }
 
-		// If reply used, take that, otherwise take args
-		const content = (event.type === "message_reply") ? event.messageReply.body : args.join(" ");
-		let lang = "auto", msg = content;
+      // File path
+      const filePath = path.join(__dirname, "cache", `${threadID}_${messageID}.mp3`);
+      const ttsURL = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(content)}&tl=${lang}&client=tw-ob`;
 
-		// Language detect
-		const firstWord = args[0].toLowerCase();
-		const supportedLangs = ["hi", "en", "ja", "ru", "tl"];
-		if (supportedLangs.includes(firstWord)) {
-			lang = firstWord;
-			msg = args.slice(1).join(" ");
-		}
+      // Download audio file
+      const response = await axios.get(ttsURL, {
+        responseType: "arraybuffer",
+        timeout: 30000
+      });
 
-		// Auto detect for Hindi/Hinglish
-		if (lang === "auto") {
-			const hindiPattern = /[क-हाि-ॣ़ा़ेैोौंःँ]/; // Hindi range
-			lang = hindiPattern.test(msg) ? "hi" : "hi"; // Force Hindi for Hinglish too
-		}
+      await fs.writeFile(filePath, Buffer.from(response.data));
 
-		// File path
-		const filePath = resolve(__dirname, "cache", `${event.threadID}_${event.senderID}.mp3`);
-		const ttsURL = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(msg)}&tl=${lang}&client=tw-ob`;
+      // Send audio file
+      await message.reply({
+        body: `🗣️ 𝗦𝗔𝗬 [${lang.toUpperCase()}]\n━━━━━━━━━━━━━━━\n${content}`,
+        attachment: fs.createReadStream(filePath)
+      });
 
-		// Download audio file
-		await global.utils.downloadFile(ttsURL, filePath);
+      // Clean up
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
 
-		// Send audio file
-		return api.sendMessage(
-			{ body: `🗣️ 𝗦𝗔𝗬 [${lang.toUpperCase()}]\n━━━━━━━━━━━━━━━\n${msg}`, attachment: createReadStream(filePath) },
-			event.threadID,
-			() => unlinkSync(filePath),
-			event.messageID
-		);
-
-	} catch (err) {
-		console.error("[ SAY ERROR ]", err);
-		return api.sendMessage(
-			global.utils.getText(module.exports.languages, "bn", "error"),
-			event.threadID,
-			event.messageID
-		);
-	}
+    } catch (error) {
+      console.error("[𝑆𝐴𝑌 𝐸𝑅𝑅𝑂𝑅]", error);
+      message.reply(this.langs.en.error);
+    }
+  }
 };
