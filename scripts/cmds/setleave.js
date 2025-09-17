@@ -1,179 +1,115 @@
 const path = require("path");
 
 module.exports = {
-  config: {
-    name: "setleave",
-    aliases: ["setl"],
-    version: "1.7",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    countDown: 5,
-    role: 0,
-    description: {
-      vi: "Chỉnh sửa nội dung/bật/tắt tin nhắn tạm biệt thành viên rời khỏi nhóm chat của bạn",
-      en: "Edit content/turn on/off leave message when member leave your group chat"
+    config: {
+        name: "setleave",
+        aliases: ["setl"],
+        version: "1.7",
+        role: 0,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        category: "𝑐𝑢𝑠𝑡𝑜𝑚",
+        shortDescription: {
+            en: "𝐸𝑑𝑖𝑡 𝑐𝑜𝑛𝑡𝑒𝑛𝑡/𝑡𝑢𝑟𝑛 𝑜𝑛/𝑜𝑓𝑓 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤ℎ𝑒𝑛 𝑚𝑒𝑚𝑏𝑒𝑟 𝑙𝑒𝑎𝑣𝑒 𝑦𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 𝑐ℎ𝑎𝑡"
+        },
+        longDescription: {
+            en: "𝐶𝑢𝑠𝑡𝑜𝑚𝑖𝑧𝑒 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑓𝑜𝑟 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑤ℎ𝑜 𝑙𝑒𝑎𝑣𝑒 𝑦𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝"
+        },
+        guide: {
+            en: 
+                "   {p} 𝑜𝑛: 𝑇𝑢𝑟𝑛 𝑜𝑛 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒\n" +
+                "   {p} 𝑜𝑓𝑓: 𝑇𝑢𝑟𝑛 𝑜𝑓𝑓 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒\n" +
+                "   {p} 𝑡𝑒𝑥𝑡 [<𝑐𝑜𝑛𝑡𝑒𝑛𝑡> | 𝑟𝑒𝑠𝑒𝑡]: 𝑒𝑑𝑖𝑡 𝑡𝑒𝑥𝑡 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑜𝑟 𝑟𝑒𝑠𝑒𝑡 𝑡𝑜 𝑑𝑒𝑓𝑎𝑢𝑙𝑡\n" +
+                "   𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑠ℎ𝑜𝑟𝑡𝑐𝑢𝑡𝑠:\n" +
+                "     + {𝑢𝑠𝑒𝑟𝑁𝑎𝑚𝑒}: 𝑛𝑎𝑚𝑒 𝑜𝑓 𝑚𝑒𝑚𝑏𝑒𝑟\n" +
+                "     + {𝑢𝑠𝑒𝑟𝑁𝑎𝑚𝑒𝑇𝑎𝑔}: 𝑛𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑡𝑎𝑔\n" +
+                "     + {𝑏𝑜𝑥𝑁𝑎𝑚𝑒}: 𝑔𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒\n" +
+                "     + {𝑡𝑦𝑝𝑒}: 𝑙𝑒𝑎𝑣𝑒/𝑘𝑖𝑐𝑘𝑒𝑑\n" +
+                "     + {𝑠𝑒𝑠𝑠𝑖𝑜𝑛}: 𝑡𝑖𝑚𝑒 𝑠𝑒𝑠𝑠𝑖𝑜𝑛\n\n" +
+                "   𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p} 𝑡𝑒𝑥𝑡 {𝑢𝑠𝑒𝑟𝑁𝑎𝑚𝑒} ℎ𝑎𝑠 {𝑡𝑦𝑝𝑒} 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝\n\n" +
+                "   𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑓𝑖𝑙𝑒 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑 '{p} 𝑓𝑖𝑙𝑒' 𝑡𝑜 𝑎𝑑𝑑 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡\n" +
+                "   {p} 𝑓𝑖𝑙𝑒 𝑟𝑒𝑠𝑒𝑡: 𝑟𝑒𝑚𝑜𝑣𝑒 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡"
+        },
+        countDown: 5,
+        dependencies: {}
     },
-    category: "custom",
-    guide: {
-      vi: {
-        body:
-          "   {pn} on: Bật tin nhắn tạm biệt" +
-          "\n   {pn} off: Tắt tin nhắn tạm biệt" +
-          "\n   {pn} text [<nội dung> | reset]: chỉnh sửa nội dung văn bản hoặc reset về mặc định, những shortcut có sẵn:" +
-          "\n  + {userName}: tên của thành viên rời khỏi nhóm" +
-          "\n  + {userNameTag}: tên của thành viên rời khỏi nhóm (tag)" +
-          "\n  + {boxName}:  tên của nhóm chat" +
-          "\n  + {type}: tự rời/bị qtv xóa khỏi nhóm" +
-          "\n  + {session}:  buổi trong ngày" +
-          "\n\n   Ví dụ:" +
-          "\n    {pn} text {userName} đã {type} khỏi nhóm, see you again 🤧" +
-          "\n\n   Reply (phản hồi) hoặc gửi kèm một tin nhắn có file với nội dung {pn} file: để thêm tệp đính kèm vào tin nhắn rời khỏi nhóm (ảnh, video, audio)" +
-          "\n\nVí dụ:" +
-          "\n   {pn} file reset: xóa gửi file",
-        attachment: {
-          [`${__dirname}/assets/guide/setleave/setleave_vi_1.png`]: "https://i.ibb.co/2FKJHJr/guide1.png"
-        }
-      },
-      en: {
-        body:
-          "   {pn} on: Turn on leave message" +
-          "\n   {pn} off: Turn off leave message" +
-          "\n   {pn} text [<content> | reset]: edit text content or reset to default, available shortcuts:" +
-          "\n  + {userName}: name of member who leave group" +
-          "\n  + {userNameTag}: name of member who leave group (tag)" +
-          "\n  + {boxName}: name of group chat" +
-          "\n  + {type}: leave/kicked by admin" +
-          "\n  + {session}: session in day" +
-          "\n\n   Example:" +
-          "\n    {pn} text {userName} has {type} group, see you again 🤧" +
-          "\n\n   Reply or send a message with file with content {pn} file: to add attachment file to leave message (image, video, audio)" +
-          "\n\nExample:" +
-          "\n   {pn} file reset: reset file",
-        attachment: {
-          [`${__dirname}/assets/guide/setleave/setleave_en_1.png`]: "https://i.ibb.co/2FKJHJr/guide1.png"
-        }
-      }
-    }
-  },
 
-  languages: {
-    vi: {
-      turnedOn: "Bật tin nhắn tạm biệt thành công",
-      turnedOff: "Tắt tin nhắn tạm biệt thành công",
-      missingContent: "Vui lòng nhập nội dung tin nhắn",
-      edited: "Đã chỉnh sửa nội dung tin nhắn tạm biệt của nhóm bạn thành:\n%1",
-      reseted: "Đã reset nội dung tin nhắn tạm biệt",
-      noFile: "Không có tệp đính kèm tin nhắn tạm biệt nào để xóa",
-      resetedFile: "Đã reset tệp đính kèm thành công",
-      missingFile: "Hãy phản hồi tin nhắn này kèm file ảnh/video/audio",
-      addedFile: "Đã thêm %1 tệp đính kèm vào tin nhắn tạm biệt của nhóm bạn"
+    onStart: async function({ message, event, args, threadsData }) {
+        try {
+            const { threadID, senderID, body } = event;
+            const threadData = await threadsData.get(threadID);
+            const { data, settings } = threadData;
+
+            switch (args[0]) {
+                case "text": {
+                    if (!args[1]) {
+                        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑐𝑜𝑛𝑡𝑒𝑛𝑡");
+                    } else if (args[1] == "reset") {
+                        delete data.leaveMessage;
+                    } else {
+                        data.leaveMessage = body.slice(body.indexOf(args[0]) + args[0].length).trim();
+                    }
+
+                    await threadsData.set(threadID, threadData);
+                    return message.reply(
+                        data.leaveMessage ? 
+                        `✅ 𝐸𝑑𝑖𝑡𝑒𝑑 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒:\n${data.leaveMessage}` : 
+                        "✅ 𝑅𝑒𝑠𝑒𝑡 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡"
+                    );
+                }
+                case "file": {
+                    if (args[1] == "reset") {
+                        if (!data.leaveAttachment) {
+                            return message.reply("❌ 𝑁𝑜 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡 𝑓𝑖𝑙𝑒 𝑡𝑜 𝑟𝑒𝑠𝑒𝑡");
+                        }
+                        delete data.leaveAttachment;
+                        await threadsData.set(threadID, threadData);
+                        return message.reply("✅ 𝑅𝑒𝑠𝑒𝑡 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡 𝑓𝑖𝑙𝑒");
+                    } else if (event.attachments.length === 0 && (!event.messageReply || event.messageReply.attachments.length === 0)) {
+                        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒/𝑣𝑖𝑑𝑒𝑜/𝑎𝑢𝑑𝑖𝑜 𝑓𝑖𝑙𝑒");
+                    } else {
+                        await this.saveChanges({ message, event, threadsData, threadID });
+                    }
+                    break;
+                }
+                case "on":
+                case "off": {
+                    settings.sendLeaveMessage = args[0] == "on";
+                    await threadsData.set(threadID, threadData);
+                    return message.reply(args[0] == "on" ? 
+                        "✅ 𝑇𝑢𝑟𝑛𝑒𝑑 𝑜𝑛 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒" : 
+                        "✅ 𝑇𝑢𝑟𝑛𝑒𝑑 𝑜𝑓𝑓 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
+                    );
+                }
+                default: {
+                    const guide = this.config.guide.en.replace(/{p}/g, this.config.name);
+                    return message.reply(`📝 𝑈𝑠𝑎𝑔𝑒 𝐺𝑢𝑖𝑑𝑒:\n${guide}`);
+                }
+            }
+        } catch (error) {
+            console.error("𝑆𝑒𝑡𝑙𝑒𝑎𝑣𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
     },
-    en: {
-      turnedOn: "Turned on leave message successfully",
-      turnedOff: "Turned off leave message successfully",
-      missingContent: "Please enter content",
-      edited: "Edited leave message content of your group to:\n%1",
-      reseted: "Reseted leave message content",
-      noFile: "No leave message attachment file to reset",
-      resetedFile: "Reseted leave message attachment file successfully",
-      missingFile: "Please reply this message with image/video/audio file",
-      addedFile: "Added %1 attachment file to your leave message"
-    }
-  },
 
-  run: async function ({ args, event, api, Threads, getLang }) {
-    const { threadID, senderID, body } = event;
-    const threadData = await Threads.getData(threadID);
-    const { data, settings } = threadData;
+    saveChanges: async function({ message, event, threadsData, threadID }) {
+        try {
+            const threadData = await threadsData.get(threadID);
+            const attachments = [...event.attachments, ...(event.messageReply?.attachments || [])].filter(item =>
+                ["photo", "png", "animated_image", "video", "audio"].includes(item.type)
+            );
 
-    switch (args[0]) {
-      case "text": {
-        if (!args[1])
-          return api.sendMessage(getLang("missingContent"), threadID);
-        else if (args[1] == "reset")
-          delete data.leaveMessage;
-        else
-          data.leaveMessage = body.slice(body.indexOf(args[0]) + args[0].length).trim();
+            if (!threadData.data.leaveAttachment) {
+                threadData.data.leaveAttachment = [];
+            }
 
-        await Threads.setData(threadID, threadData);
-        return api.sendMessage(
-          data.leaveMessage ? getLang("edited", data.leaveMessage) : getLang("reseted"),
-          threadID
-        );
-      }
-      case "file": {
-        if (args[1] == "reset") {
-          const { leaveAttachment } = data;
-          if (!leaveAttachment)
-            return api.sendMessage(getLang("noFile"), threadID);
-          try {
-            const { drive } = global.utils;
-            await Promise.all(data.leaveAttachment.map(fileId => drive.deleteFile(fileId)));
-            delete data.leaveAttachment;
-          } catch (e) {}
-          await Threads.setData(threadID, threadData);
-          return api.sendMessage(getLang("resetedFile"), threadID);
-        } else if (event.attachments.length === 0 && (!event.messageReply || event.messageReply.attachments.length === 0)) {
-          return api.sendMessage(getLang("missingFile"), threadID, (err, info) => {
-            if (err) return;
-            global.GoatBot.onReply.set(info.messageID, {
-              messageID: info.messageID,
-              author: senderID,
-              commandName: this.config.name
-            });
-          });
-        } else {
-          await saveChanges({ api, event, Threads, threadID, senderID, getLang });
+            // For simplicity, store attachment URLs directly
+            threadData.data.leaveAttachment = attachments.map(att => att.url);
+            
+            await threadsData.set(threadID, threadData);
+            return message.reply(`✅ 𝐴𝑑𝑑𝑒𝑑 ${attachments.length} 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡(𝑠) 𝑡𝑜 𝑙𝑒𝑎𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒`);
+        } catch (error) {
+            console.error("𝑆𝑎𝑣𝑒 𝑐ℎ𝑎𝑛𝑔𝑒𝑠 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡𝑠");
         }
-        break;
-      }
-      case "on":
-      case "off": {
-        settings.sendLeaveMessage = args[0] == "on";
-        await Threads.setData(threadID, threadData);
-        return api.sendMessage(getLang(args[0] == "on" ? "turnedOn" : "turnedOff"), threadID);
-      }
-      default:
-        const langCode = settings.language || "en";
-        const guide = this.config.guide[langCode].body;
-        const usage = guide.replace(/{pn}/g, global.GoatBot.config.prefix + this.config.name);
-        return api.sendMessage(usage, threadID);
     }
-  },
-
-  handleReply: async function ({ event, Reply, api, Threads, getLang }) {
-    const { threadID, senderID } = event;
-    if (senderID != Reply.author)
-      return;
-
-    if (event.attachments.length === 0 && (!event.messageReply || event.messageReply.attachments.length === 0))
-      return api.sendMessage(getLang("missingFile"), threadID);
-
-    await saveChanges({ api, event, Threads, threadID, senderID, getLang });
-  },
-
-  onStart: async function () {
-    // empty to prevent onStart undefined error
-  }
 };
-
-async function saveChanges({ api, event, Threads, threadID, senderID, getLang }) {
-  const { drive, getStreamFromURL, getExtFromUrl, getTime } = global.utils;
-  const threadData = await Threads.getData(threadID);
-  const attachments = [...event.attachments, ...(event.messageReply?.attachments || [])].filter(item =>
-    ["photo", "png", "animated_image", "video", "audio"].includes(item.type)
-  );
-
-  if (!threadData.data.leaveAttachment)
-    threadData.data.leaveAttachment = [];
-
-  await Promise.all(attachments.map(async attachment => {
-    const { url } = attachment;
-    const ext = getExtFromUrl(url);
-    const fileName = `${getTime()}.${ext}`;
-    const infoFile = await drive.uploadFile(`setleave_${threadID}_${senderID}_${fileName}`, await getStreamFromURL(url));
-    threadData.data.leaveAttachment.push(infoFile.id);
-  }));
-
-  await Threads.setData(threadID, threadData);
-  return api.sendMessage(getLang("addedFile", attachments.length), threadID);
-}
