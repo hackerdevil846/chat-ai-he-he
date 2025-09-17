@@ -1,43 +1,48 @@
-module.exports.config = {
+module.exports = {
+  config: {
     name: "son",
+    aliases: ["insult", "roast"],
     version: "1.0.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    role: 2,
-    category: "automation",
-    shortDescription: "একজনকে মেনশন করে রিপ্লাই দিলে ক্রমাগত গালি দিবে",
-    longDescription: "তুমি কাউকে মেনশন করলে, সে যতবার মেসেজ দিবে, বট একটার পর একটা গালি দিবে ক্রমানুসারে।",
-    guide: "{pn} @mention",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "🤖 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐 𝑖𝑛𝑠𝑢𝑙𝑡 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑤ℎ𝑒𝑛 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟 𝑟𝑒𝑝𝑙𝑖𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑤𝑖𝑡ℎ 𝑖𝑛𝑠𝑢𝑙𝑡𝑠 𝑤ℎ𝑒𝑛 𝑎 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟 𝑠𝑒𝑛𝑑𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠"
+    },
+    guide: {
+      en: "{p}son @𝑚𝑒𝑛𝑡𝑖𝑜𝑛"
+    },
     countDown: 3
-};
+  },
 
-const userResponses = {};
-
-module.exports.onStart = async function ({ api, event }) {
+  onStart: async function ({ api, event, message, args }) {
     try {
-        const mention = Object.keys(event.mentions)[0];
-        if (!mention) {
-            return api.sendMessage("❌ দয়া করে একজনকে মেনশন করুন!", event.threadID, event.messageID);
-        }
+      const mention = Object.keys(event.mentions)[0];
+      if (!mention) {
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑎 𝑢𝑠𝑒𝑟!");
+      }
 
-        api.getUserInfo(mention, async (err, userInfo) => {
-            if (err) {
-                console.error("⚠️ Failed to retrieve user information:", err);
-                return api.sendMessage("❌ ইউজারের তথ্য আনতে ব্যর্থ!", event.threadID, event.messageID);
-            }
+      const userInfo = await api.getUserInfo(mention);
+      if (!userInfo[mention]) {
+        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛!");
+      }
 
-            let genderText;
-            switch (userInfo[mention].gender) {
-                case 1:
-                    genderText = "মাইয়া";
-                    break;
-                case 2:
-                    genderText = "পোলা";
-                    break;
-                default:
-                    genderText = "হিজড়া";
-            }
+      let genderText;
+      switch (userInfo[mention].gender) {
+        case 1:
+          genderText = "girl";
+          break;
+        case 2:
+          genderText = "boy";
+          break;
+        default:
+          genderText = "person";
+      }
 
-            const insults = [
+      const insults = [
                 `খাংকির ${genderText}, তোর মার ভোদা তে গাধার মাল ফালাবো! 😈`,
                 `তোর মা কে চুদে চুদে পল্টি মারবো, গাধার ${genderText}! 😡`,
                 `বাড়ির পাশে মাল ফেলে দিয়ে তোর মা কে চুদতে চাই! 🔥`,
@@ -72,26 +77,28 @@ module.exports.onStart = async function ({ api, event }) {
                 `তোর গার্লফ্রেন্ডরে আমার বিছানায় রাখছি, তুই দরজায় পাহারা দিস! 🚪`
             ];
 
-            userResponses[mention] = { index: 0 };
-            api.sendMessage(`😆 কিরে ${event.mentions[mention]}! কেমন আছিস..?`, event.threadID, event.messageID);
+      if (!global.sonResponses) global.sonResponses = {};
+      global.sonResponses[mention] = { index: 0, threadID: event.threadID };
+      
+      await message.reply(`😆 𝐻𝑒𝑦 ${event.mentions[mention]}! 𝐻𝑜𝑤 𝑎𝑟𝑒 𝑦𝑜𝑢 𝑑𝑜𝑖𝑛𝑔..?`);
 
-            const listener = async function (msg) {
-                if (msg.senderID === mention && msg.threadID === event.threadID && msg.body) {
-                    const idx = userResponses[mention].index;
-                    api.sendMessage(insults[idx % insults.length], msg.threadID, msg.messageID);
-                    userResponses[mention].index++;
-                }
-            };
-
-            // Prevent duplicate listeners in the same thread
-            if (!global._sonListeners) global._sonListeners = {};
-            if (global._sonListeners[event.threadID]) {
-                try { global._sonListeners[event.threadID].stop(); } catch (e) {}
-            }
-            global._sonListeners[event.threadID] = api.listenMqtt(listener);
+      // Add message listener
+      if (!global.sonListener) {
+        global.sonListener = true;
+        api.listenMqtt(async (msg) => {
+          if (msg.type === "message" && msg.senderID && global.sonResponses[msg.senderID] && 
+              msg.threadID === global.sonResponses[msg.senderID].threadID && msg.body) {
+            const userData = global.sonResponses[msg.senderID];
+            const idx = userData.index;
+            await api.sendMessage(insults[idx % insults.length], msg.threadID, msg.messageID);
+            userData.index++;
+          }
         });
+      }
+
     } catch (error) {
-        console.error("⚠️ Command execution error:", error);
-        api.sendMessage("❌ কমান্ড চালাতে সমস্যা হয়েছে!", event.threadID, event.messageID);
+      console.error("❌ Command execution error:", error);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑐𝑜𝑚𝑚𝑎𝑛𝑑!");
     }
+  }
 };
