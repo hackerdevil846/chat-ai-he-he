@@ -1,88 +1,93 @@
-module.exports.config = {
+module.exports = {
+  config: {
     name: "setprefix",
+    aliases: ["changeprefix", "prefix"],
     version: "1.1.0",
-    hasPermssion: 2,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Reset group prefix or change it",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 2,
     category: "group",
-    usages: "[prefix/reset]",
-    cooldowns: 5
-};
-
-module.exports.languages = {
-    "vi": {
-        "successChange": "Đã chuyển đổi prefix của nhóm thành: %1",
-        "missingInput": "Phần prefix cần đặt không được để trống",
-        "resetPrefix": "Đã reset prefix về mặc định: %1",
-        "confirmChange": "Bạn có chắc bạn muốn đổi prefix của nhóm thành: %1"
+    shortDescription: {
+      en: "🔄 𝑅𝑒𝑠𝑒𝑡 𝑜𝑟 𝑐ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑝𝑟𝑒𝑓𝑖𝑥"
     },
+    longDescription: {
+      en: "𝑆𝑒𝑡 𝑜𝑟 𝑟𝑒𝑠𝑒𝑡 𝑡ℎ𝑒 𝑏𝑜𝑡'𝑠 𝑝𝑟𝑒𝑓𝑖𝑥 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝"
+    },
+    guide: {
+      en: "{p}setprefix [𝑝𝑟𝑒𝑓𝑖𝑥/𝑟𝑒𝑠𝑒𝑡]"
+    },
+    countDown: 5
+  },
+
+  langs: {
     "en": {
-        "successChange": "✅ Prefix successfully changed to: %1",
-        "missingInput": "❌ Prefix cannot be empty!",
-        "resetPrefix": "✅ Prefix reset to default: %1",
-        "confirmChange": "❓ Are you sure you want to change the group prefix to: %1?\n\nReact to this message to confirm!"
+      "successChange": "✅ 𝑃𝑟𝑒𝑓𝑖𝑥 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐ℎ𝑎𝑛𝑔𝑒𝑑 𝑡𝑜: %1",
+      "missingInput": "❌ 𝑃𝑟𝑒𝑓𝑖𝑥 𝑐𝑎𝑛𝑛𝑜𝑡 𝑏𝑒 𝑒𝑚𝑝𝑡𝑦!",
+      "resetPrefix": "✅ 𝑃𝑟𝑒𝑓𝑖𝑥 𝑟𝑒𝑠𝑒𝑡 𝑡𝑜 𝑑𝑒𝑓𝑎𝑢𝑙𝑡: %1",
+      "confirmChange": "❓ 𝐴𝑟𝑒 𝑦𝑜𝑢 𝑠𝑢𝑟𝑒 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑐ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝 𝑝𝑟𝑒𝑓𝑖𝑥 𝑡𝑜: %1?\n\n𝑅𝑒𝑎𝑐𝑡 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑐𝑜𝑛𝑓𝑖𝑟𝑚!"
     }
-};
+  },
 
-module.exports.handleReaction = async function({ api, event, Threads, handleReaction, getText }) {
+  onStart: async function ({ api, event, args, threadsData, message, getText }) {
     try {
-        if (event.userID !== handleReaction.author) return;
+      const { threadID, messageID, senderID } = event;
 
-        const { threadID } = event;
-        const newPrefix = handleReaction.PREFIX;
+      if (!args[0]) {
+        return message.reply(getText("missingInput"));
+      }
 
-        const threadData = await Threads.getData(threadID);
-        threadData.data = threadData.data || {};
-        threadData.data.PREFIX = newPrefix;
+      const prefix = args[0].trim();
 
-        await Threads.setData(threadID, threadData);
-        await global.data.threadData.set(threadID.toString(), threadData.data);
+      if (!prefix) {
+        return message.reply(getText("missingInput"));
+      }
 
-        api.unsendMessage(handleReaction.messageID);
-        return api.sendMessage(getText("successChange", newPrefix), threadID);
-    } catch (error) {
-        console.error("Prefix Error:", error);
-    }
-};
-
-module.exports.onStart = async function({ api, event, args, Threads, getText }) {
-    const { threadID, messageID, senderID } = event;
-
-    if (!args[0]) {
-        return api.sendMessage(getText("missingInput"), threadID, messageID);
-    }
-
-    const prefix = args[0].trim();
-
-    if (!prefix) {
-        return api.sendMessage(getText("missingInput"), threadID, messageID);
-    }
-
-    if (prefix.toLowerCase() === "reset") {
+      if (prefix.toLowerCase() === "reset") {
         const defaultPrefix = global.config.PREFIX;
-        const threadData = await Threads.getData(threadID);
+        const threadData = await threadsData.get(threadID);
         threadData.data = threadData.data || {};
         threadData.data.PREFIX = defaultPrefix;
 
-        await Threads.setData(threadID, threadData);
+        await threadsData.set(threadID, threadData);
         await global.data.threadData.set(threadID.toString(), threadData.data);
 
-        return api.sendMessage(getText("resetPrefix", defaultPrefix), threadID, messageID);
+        return message.reply(getText("resetPrefix", defaultPrefix));
+      }
+
+      const confirmMsg = await message.reply(getText("confirmChange", prefix));
+
+      global.client.handleReaction = global.client.handleReaction || [];
+      global.client.handleReaction.push({
+        name: this.config.name,
+        messageID: confirmMsg.messageID,
+        author: senderID,
+        PREFIX: prefix
+      });
+
+    } catch (error) {
+      console.error("SetPrefix Error:", error);
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡.");
     }
+  },
 
-    api.sendMessage(
-        getText("confirmChange", prefix),
-        threadID,
-        (error, info) => {
-            if (error) return console.error("Confirmation Error:", error);
+  onReaction: async function ({ api, event, threadsData, Reaction, getText }) {
+    try {
+      if (event.userID !== Reaction.author) return;
 
-            global.client.handleReaction.push({
-                name: this.config.name,
-                messageID: info.messageID,
-                author: senderID,
-                PREFIX: prefix
-            });
-        },
-        messageID
-    );
+      const { threadID } = event;
+      const newPrefix = Reaction.PREFIX;
+
+      const threadData = await threadsData.get(threadID);
+      threadData.data = threadData.data || {};
+      threadData.data.PREFIX = newPrefix;
+
+      await threadsData.set(threadID, threadData);
+      await global.data.threadData.set(threadID.toString(), threadData.data);
+
+      api.unsendMessage(Reaction.messageID);
+      return api.sendMessage(getText("successChange", newPrefix), threadID);
+      
+    } catch (error) {
+      console.error("Reaction Handler Error:", error);
+    }
+  }
 };
