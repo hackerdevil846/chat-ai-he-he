@@ -1,50 +1,101 @@
-module.exports.config = {
+const axios = require('axios');
+
+module.exports = {
+  config: {
     name: "sim1",
+    aliases: ["simsimi", "ai", "chat"],
     version: "4.3.7",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝙎𝙞𝙢𝙨𝙞𝙢𝙞 𝘼𝙄 𝙨𝙖𝙩𝙝𝙚 𝙠𝙖𝙩𝙝𝙖 𝙗𝙤𝙡𝙖",
-    category: "𝙎𝙞𝙢𝙨𝙖𝙩𝙝𝙚 𝙠𝙖𝙩𝙝𝙖 𝙗𝙤𝙡𝙚",
-    usages: "[args]",
-    cooldowns: 5,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "🤖 𝑆𝑖𝑚𝑠𝑖𝑚𝑖 𝐴𝐼 𝑐ℎ𝑎𝑡𝑏𝑜𝑡"
+    },
+    longDescription: {
+      en: "𝐼𝑛𝑡𝑒𝑟𝑎𝑐𝑡 𝑤𝑖𝑡ℎ 𝑆𝑖𝑚𝑠𝑖𝑚𝑖 𝐴𝐼 𝑐ℎ𝑎𝑡𝑏𝑜𝑡 𝑖𝑛 𝐵𝑒𝑛𝑔𝑎𝑙𝑖"
+    },
+    guide: {
+      en: "{p}sim1 [𝑜𝑛/𝑜𝑓𝑓/𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
+    },
+    countDown: 5,
     dependencies: {
-        axios: ""
+      "axios": ""
     }
-};
+  },
 
-async function simsimi(a, b, c) {
-    const d = global.nodemodule.axios, g = (a) => encodeURIComponent(a);
+  onLoad: async function () {
+    if (!global.simsimi) {
+      global.simsimi = new Map();
+    }
+  },
+
+  onStart: async function ({ api, event, args, message }) {
+    const { threadID, messageID } = event;
+
+    if (args.length === 0) {
+      return message.reply("🤖 𝐾𝑖 𝑏𝑜𝑙𝑏𝑒 𝑎𝑚𝑎𝑟 𝑗𝑎𝑛? (ღ˘⌣˘ღ)");
+    }
+
+    switch (args[0]) {
+      case "on":
+        if (global.simsimi.has(threadID)) {
+          return message.reply("✅ 𝐴𝑝𝑛𝑖 𝑡𝑜 𝑠𝑖𝑚 𝑏𝑎𝑛𝑑 𝑘𝑜𝑟𝑒𝑛𝑛𝑖!");
+        }
+        global.simsimi.set(threadID, messageID);
+        return message.reply("🎉 𝑆𝑎𝑝ℎ𝑎𝑙𝑏ℎ𝑎𝑏𝑒 𝑠𝑖𝑚 𝑐𝑎𝑙𝑢 𝑘𝑜𝑟𝑎 ℎ𝑜𝑙𝑜!");
+
+      case "off":
+        if (global.simsimi.has(threadID)) {
+          global.simsimi.delete(threadID);
+          return message.reply("✅ 𝑆𝑎𝑝ℎ𝑎𝑙𝑏ℎ𝑎𝑏𝑒 𝑠𝑖𝑚 𝑏𝑎𝑛𝑑 𝑘𝑜𝑟𝑎 ℎ𝑜𝑙𝑜!");
+        }
+        return message.reply("❌ 𝐴𝑝𝑛𝑖 𝑡𝑜 𝑠𝑖𝑚 𝑐𝑎𝑙𝑢 𝑘𝑜𝑟𝑒𝑛𝑛𝑖!");
+
+      default:
+        const userMessage = args.join(" ");
+        const { data, error } = await this.simsimiChat(userMessage);
+        
+        if (error) {
+          return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
+        
+        if (!data.success) {
+          return message.reply(data.error || "❌ 𝑅𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑒𝑟𝑟𝑜𝑟");
+        }
+        
+        return message.reply(data.success);
+    }
+  },
+
+  onChat: async function ({ api, event }) {
+    const { threadID, messageID, senderID, body } = event;
+    
+    if (!global.simsimi.has(threadID) || 
+        senderID === api.getCurrentUserID() || 
+        !body || 
+        messageID === global.simsimi.get(threadID)) {
+      return;
+    }
+
+    const { data, error } = await this.simsimiChat(body);
+    
+    if (!error && data.success) {
+      api.sendMessage(data.success, threadID, messageID);
+    }
+  },
+
+  simsimiChat: async function (message) {
     try {
-        var { data: j } = await d({ url: `https://api.simsimi.net/v2/?text=${g(a)}&lc=bn`, method: "GET" });
-        return { error: !1, data: j }
-    } catch (p) {
-        return { error: !0, data: {} }
+      const encodedMessage = encodeURIComponent(message);
+      const response = await axios.get(
+        `https://api.simsimi.net/v2/?text=${encodedMessage}&lc=bn`,
+        { timeout: 10000 }
+      );
+      
+      return { error: false, data: response.data };
+    } catch (error) {
+      console.error("Simsimi API Error:", error);
+      return { error: true, data: {} };
     }
-}
-
-module.exports.onLoad = async function () {
-    "undefined" == typeof global && (global = {}), "undefined" == typeof global.simsimi && (global.simsimi = new Map);
-};
-
-module.exports.handleEvent = async function ({ api: b, event: a }) {
-    const { threadID: c, messageID: d, senderID: e, body: f } = a, g = (e) => b.sendMessage(e, c, d);
-    if (global.simsimi.has(c)) {
-        if (e == b.getCurrentUserID() || "" == f || d == global.simsimi.get(c)) return;
-        var { data: h, error: i } = await simsimi(f, b, a);
-        return !0 == i ? void 0 : !1 == h.success ? g(h.error) : g(h.success)
-    }
-};
-
-module.exports.onStart = async function ({ api: b, event: a, args: c }) {
-    const { threadID: d, messageID: e } = a, f = (c) => b.sendMessage(c, d, e);
-    if (0 == c.length) return f("𝙆𝙞 𝙗𝙤𝙡𝙗𝙚 𝙖𝙢𝙖𝙧 𝙟𝙖𝙣? (ღ˘⌣˘ღ)");
-    switch (c[0]) {
-        case "on":
-            return global.simsimi.has(d) ? f("𝘼𝙥𝙣𝙞 𝙩𝙤 𝙨𝙞𝙢 𝙗𝙖𝙣𝙙 𝙠𝙤𝙧𝙚𝙣𝙣𝙞!") : (global.simsimi.set(d, e), f("𝙎𝙖𝙥𝙝𝙖𝙡𝙗𝙝𝙖𝙗𝙚 𝙨𝙞𝙢 𝙘𝙖𝙡𝙪 𝙠𝙤𝙧𝙖 𝙝𝙤𝙡𝙤!"));
-        case "off":
-            return global.simsimi.has(d) ? (global.simsimi.delete(d), f("𝙎𝙖𝙥𝙝𝙖𝙡𝙗𝙝𝙖𝙗𝙚 𝙨𝙞𝙢 𝙗𝙖𝙣𝙙 𝙠𝙤𝙧𝙖 𝙝𝙤𝙡𝙤!")) : f("𝘼𝙥𝙣𝙞 𝙩𝙤 𝙨𝙞𝙢 𝙘𝙖𝙡𝙪 𝙠𝙤𝙧𝙚𝙣𝙣𝙞!");
-        default:
-            var { data: g, error: h } = await simsimi(c.join(" "), b, a);
-            return !0 == h ? void 0 : !1 == g.success ? f(g.error) : f(g.success);
-    }
+  }
 };
