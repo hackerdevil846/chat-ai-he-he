@@ -1,301 +1,185 @@
 const { getPrefix } = global.utils;
 
-module.exports.config = {
-	name: "rules",
-	version: "1.6",
-	author: "NTKhang",
-	countDown: 5,
-	role: 0,
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: {
-		bn: "Tomar group er rule banano/dekha/add/edit/position change/remove kora",
-		en: "Create/view/add/edit/change position/delete group rules of you"
-	},
-	category: "box chat",
-	usages: "[add|edit|move|delete|remove|<number>]",
-	cooldowns: 5
+module.exports = {
+    config: {
+        name: "rules",
+        aliases: ["rule", "নিয়ম"],
+        version: "1.6",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "𝑔𝑟𝑜𝑢𝑝",
+        shortDescription: {
+            en: "𝐺𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠 𝑚𝑎𝑛𝑎𝑔𝑒𝑚𝑒𝑛𝑡 𝑠𝑦𝑠𝑡𝑒𝑚"
+        },
+        longDescription: {
+            en: "𝐶𝑟𝑒𝑎𝑡𝑒/𝑣𝑖𝑒𝑤/𝑎𝑑𝑑/𝑒𝑑𝑖𝑡/𝑐ℎ𝑎𝑛𝑔𝑒 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛/𝑑𝑒𝑙𝑒𝑡𝑒 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠"
+        },
+        guide: {
+            en: "{p}rules [𝑎𝑑𝑑|𝑒𝑑𝑖𝑡|𝑚𝑜𝑣𝑒|𝑑𝑒𝑙𝑒𝑡𝑒|𝑟𝑒𝑚𝑜𝑣𝑒|<𝑛𝑢𝑚𝑏𝑒𝑟>]"
+        },
+        dependencies: {
+            "fs-extra": "",
+            "path": ""
+        }
+    },
+
+    languages: {
+        en: {
+            yourRules: "📜 𝑌𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠:\n%1",
+            noRules: "❗ 𝑌𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 𝑛𝑜 𝑟𝑢𝑙𝑒𝑠. 𝑇𝑜 𝑎𝑑𝑑 𝑜𝑛𝑒 𝑢𝑠𝑒: `%1rules 𝑎𝑑𝑑 <𝑟𝑢𝑙𝑒>`",
+            noPermissionAdd: "🔒 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑎𝑑𝑑 𝑟𝑢𝑙𝑒𝑠 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝",
+            noContent: "✏️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡ℎ𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑟𝑢𝑙𝑒 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑎𝑑𝑑",
+            success: "✅ 𝐴𝑑𝑑𝑒𝑑 𝑛𝑒𝑤 𝑟𝑢𝑙𝑒 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦",
+            noPermissionEdit: "🔒 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑒𝑑𝑖𝑡 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠",
+            invalidNumber: "🔢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 𝑡𝑜 𝑒𝑑𝑖𝑡",
+            rulesNotExist: "⚠️ 𝑅𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡",
+            numberRules: "ℹ️ 𝑌𝑜𝑢𝑟 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 %1 𝑟𝑢𝑙𝑒𝑠",
+            noContentEdit: "✏️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡ℎ𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑠𝑒𝑡 𝑓𝑜𝑟 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1",
+            successEdit: "✅ 𝐸𝑑𝑖𝑡𝑒𝑑 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑡𝑜: %2",
+            noPermissionMove: "🔒 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑚𝑜𝑣𝑒 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠",
+            invalidNumberMove: "🔢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑤𝑜 𝑣𝑎𝑙𝑖𝑑 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟𝑠 𝑡𝑜 𝑠𝑤𝑎𝑝",
+            sameNumberMove: "❗ 𝐶𝑎𝑛𝑛𝑜𝑡 𝑠𝑤𝑎𝑝 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛𝑠 𝑜𝑓 𝑡ℎ𝑒 𝑠𝑎𝑚𝑒 𝑟𝑢𝑙𝑒",
+            rulesNotExistMove: "⚠️ 𝑅𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡",
+            rulesNotExistMove2: "⚠️ 𝑅𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑎𝑛𝑑 %2 𝑑𝑜 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡",
+            successMove: "✅ 𝑆𝑤𝑎𝑝𝑝𝑒𝑑 𝑝𝑜𝑠𝑖𝑡𝑖𝑜𝑛 𝑜𝑓 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑎𝑛𝑑 %2 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦",
+            noPermissionDelete: "🔒 𝑂𝑛𝑙𝑦 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑑𝑒𝑙𝑒𝑡𝑒 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠",
+            invalidNumberDelete: "🔢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡ℎ𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑡ℎ𝑒 𝑟𝑢𝑙𝑒 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑑𝑒𝑙𝑒𝑡𝑒",
+            rulesNotExistDelete: "⚠️ 𝑅𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡",
+            successDelete: "🗑️ 𝐷𝑒𝑙𝑒𝑡𝑒𝑑 𝑟𝑢𝑙𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 %1, 𝑐𝑜𝑛𝑡𝑒𝑛𝑡: %2",
+            noPermissionRemove: "🔒 𝑂𝑛𝑙𝑦 𝑔𝑟𝑜𝑢𝑝 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑟𝑒𝑚𝑜𝑣𝑒 𝑎𝑙𝑙 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠",
+            confirmRemove: "⚠️ 𝑅𝑒𝑎𝑐𝑡 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑎𝑛𝑦 𝑒𝑚𝑜𝑗𝑖 𝑡𝑜 𝑐𝑜𝑛𝑓𝑖𝑟𝑚 **𝑟𝑒𝑚𝑜𝑣𝑒 𝑎𝑙𝑙 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠**",
+            successRemove: "✅ 𝑅𝑒𝑚𝑜𝑣𝑒𝑑 𝑎𝑙𝑙 𝑔𝑟𝑜𝑢𝑝 𝑟𝑢𝑙𝑒𝑠 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦",
+            invalidNumberView: "🔢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡ℎ𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑡ℎ𝑒 𝑟𝑢𝑙𝑒 𝑦𝑜𝑢 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑣𝑖𝑒𝑤"
+        }
+    },
+
+    onStart: async function({ message, event, args, usersData, threadsData }) {
+        try {
+            // Dependency check
+            try {
+                require("fs-extra");
+                require("path");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎 𝑎𝑛𝑑 𝑝𝑎𝑡ℎ");
+            }
+
+            const threadID = event.threadID;
+            const senderID = event.senderID;
+            const type = args[0];
+            const rulesOfThread = await threadsData.get(threadID, "data.rules", []);
+            const totalRules = rulesOfThread.length;
+
+            // Check admin permissions
+            const threadData = await threadsData.get(threadID);
+            const isAdmin = threadData.adminIDs && threadData.adminIDs.includes(senderID);
+            const userData = await usersData.get(senderID);
+            const isBotAdmin = userData.role > 0;
+
+            // Helper function to get language string
+            const getLang = (key, ...values) => {
+                let text = this.languages.en[key] || key;
+                values.forEach((val, i) => {
+                    text = text.replace(`%${i + 1}`, val);
+                });
+                return text;
+            };
+
+            // VIEW all rules (no args)
+            if (!type) {
+                let i = 1;
+                const msg = rulesOfThread.reduce((text, rule) => text + `${i++}. ${rule}\n`, "");
+                const content = msg ? getLang("yourRules", msg) : getLang("noRules", getPrefix(threadID));
+                await message.reply(content);
+                return;
+            }
+
+            // ADD
+            if (["add", "-a"].includes(type)) {
+                if (!isAdmin && !isBotAdmin) return message.reply(getLang("noPermissionAdd"));
+                if (!args[1]) return message.reply(getLang("noContent"));
+                
+                rulesOfThread.push(args.slice(1).join(" "));
+                await threadsData.set(threadID, rulesOfThread, "data.rules");
+                return message.reply(getLang("success"));
+            }
+
+            // EDIT
+            if (["edit", "-e"].includes(type)) {
+                if (!isAdmin && !isBotAdmin) return message.reply(getLang("noPermissionEdit"));
+                const stt = parseInt(args[1]);
+                if (isNaN(stt)) return message.reply(getLang("invalidNumber"));
+                if (!rulesOfThread[stt - 1]) return message.reply(`${getLang("rulesNotExist", stt)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+                if (!args[2]) return message.reply(getLang("noContentEdit", stt));
+                
+                const newContent = args.slice(2).join(" ");
+                rulesOfThread[stt - 1] = newContent;
+                await threadsData.set(threadID, rulesOfThread, "data.rules");
+                return message.reply(getLang("successEdit", stt, newContent));
+            }
+
+            // MOVE / SWAP
+            if (["move", "-m"].includes(type)) {
+                if (!isAdmin && !isBotAdmin) return message.reply(getLang("noPermissionMove"));
+                const num1 = parseInt(args[1]);
+                const num2 = parseInt(args[2]);
+                if (isNaN(num1) || isNaN(num2)) return message.reply(getLang("invalidNumberMove"));
+                if (num1 === num2) return message.reply(getLang("sameNumberMove"));
+
+                const exist1 = !!rulesOfThread[num1 - 1];
+                const exist2 = !!rulesOfThread[num2 - 1];
+
+                if (!exist1 && !exist2) return message.reply(`${getLang("rulesNotExistMove2", num1, num2)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+                if (!exist1) return message.reply(`${getLang("rulesNotExistMove", num1)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+                if (!exist2) return message.reply(`${getLang("rulesNotExistMove", num2)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+
+                // swap
+                [rulesOfThread[num1 - 1], rulesOfThread[num2 - 1]] = [rulesOfThread[num2 - 1], rulesOfThread[num1 - 1]];
+                await threadsData.set(threadID, rulesOfThread, "data.rules");
+                return message.reply(getLang("successMove", num1, num2));
+            }
+
+            // DELETE single
+            if (["delete", "del", "-d"].includes(type)) {
+                if (!isAdmin && !isBotAdmin) return message.reply(getLang("noPermissionDelete"));
+                if (!args[1] || isNaN(args[1])) return message.reply(getLang("invalidNumberDelete"));
+                
+                const index = parseInt(args[1]) - 1;
+                const rulesDel = rulesOfThread[index];
+                if (!rulesDel) return message.reply(`${getLang("rulesNotExistDelete", args[1])}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+                
+                rulesOfThread.splice(index, 1);
+                await threadsData.set(threadID, rulesOfThread, "data.rules");
+                return message.reply(getLang("successDelete", args[1], rulesDel));
+            }
+
+            // REMOVE all
+            if (["remove", "reset", "-r", "-rm"].includes(type)) {
+                if (!isAdmin && !isBotAdmin) return message.reply(getLang("noPermissionRemove"));
+                
+                rulesOfThread.length = 0;
+                await threadsData.set(threadID, rulesOfThread, "data.rules");
+                return message.reply(getLang("successRemove"));
+            }
+
+            // VIEW specific numbers
+            if (!isNaN(type)) {
+                let msg = "";
+                for (const stt of args) {
+                    const idx = parseInt(stt) - 1;
+                    const rule = rulesOfThread[idx];
+                    if (rule) msg += `${parseInt(stt)}. ${rule}\n`;
+                }
+                if (msg === "") return message.reply(`${getLang("rulesNotExist", type)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
+                return message.reply(msg);
+            }
+
+            // Unknown syntax
+            return message.reply(getLang("invalidNumber"));
+
+        } catch (error) {
+            console.error("𝑅𝑢𝑙𝑒𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
+    }
 };
-
-module.exports.languages = {
-	bn: {
-		yourRules: "📜 আপনার গ্রুপের নিয়মাবলী:\n%1",
-		noRules: "❗ বর্তমানে আপনার গ্রুপে কোনো নিয়মাবলী নেই। যোগ করতে লিখুন: `%1rules add <নিয়ম>`",
-		noPermissionAdd: "🔒 শুধুমাত্র অ্যাডমিনরা গ্রুপে নিয়ম যোগ করতে পারবেন",
-		noContent: "✏️ অনুগ্রহ করে আপনি যে নিয়ম যোগ করতে চান তার বিষয়বস্তু লিখুন",
-		success: "✅ গ্রুপে নতুন নিয়ম সফলভাবে যোগ করা হয়েছে",
-		noPermissionEdit: "🔒 শুধুমাত্র অ্যাডমিনরা গ্রুপের নিয়ম সম্পাদনা করতে পারবেন",
-		invalidNumber: "🔢 অনুগ্রহ করে আপনি যে নিয়মটি সম্পাদনা করতে চান তার বৈধ সিরিয়াল নম্বর লিখুন",
-		rulesNotExist: "⚠️ %1 নম্বর নিয়ম বিদ্যমান নয়",
-		numberRules: "ℹ️ বর্তমানে আপনার গ্রুপে %1 টি নিয়ম রয়েছে",
-		noContentEdit: "✏️ অনুগ্রহ করে %1 নম্বর নিয়মের জন্য নতুন বিষয়বস্তু লিখুন",
-		successEdit: "✅ %1 নম্বর নিয়মটি সফলভাবে সম্পাদনা হয়েছে: %2",
-		noPermissionMove: "🔒 শুধুমাত্র অ্যাডমিনরা নিয়মের অবস্থান পরিবর্তন করতে পারবেন",
-		invalidNumberMove: "🔢 অনুগ্রহ করে আপনি যে দুটি নিয়ম অদলবদল করতে চান তাদের বৈধ সিরিয়াল নম্বর লিখুন",
-		sameNumberMove: "❗ দুটি একই নম্বরের নিয়ম অদলবদল করা সম্ভব নয়",
-		rulesNotExistMove: "⚠️ %1 নম্বর নিয়ম বিদ্যমান নয়",
-		rulesNotExistMove2: "⚠️ %1 এবং %2 নম্বর নিয়ম বিদ্যমান নয়",
-		successMove: "✅ %1 এবং %2 নম্বর নিয়ম সফলভাবে অদলবদল হয়েছে",
-		noPermissionDelete: "🔒 শুধুমাত্র অ্যাডমিনরা গ্রুপের নিয়ম মুছতে পারবেন",
-		invalidNumberDelete: "🔢 অনুগ্রহ করে আপনি যে নিয়মটি মুছতে চান তার সিরিয়াল নম্বর লিখুন",
-		rulesNotExistDelete: "⚠️ %1 নম্বর নিয়ম বিদ্যমান নয়",
-		successDelete: "🗑️ %1 নম্বর নিয়মটি মুছে ফেলা হয়েছে, বিষয়বস্তু: %2",
-		noPermissionRemove: "🔒 শুধুমাত্র গ্রুপ অ্যাডমিনরা সব নিয়ম মুছতে পারবেন",
-		confirmRemove: "⚠️ এই বার্তায় যেকোনো প্রতিক্রিয়া দিন **সব নিয়ম মুছে ফেলার জন্য** নিশ্চিত করতে",
-		successRemove: "✅ গ্রুপের সব নিয়ম সফলভাবে মুছে ফেলা হয়েছে",
-		invalidNumberView: "🔢 অনুগ্রহ করে আপনি যে নিয়মটি দেখতে চান তার সিরিয়াল নম্বর লিখুন"
-	},
-	en: {
-		yourRules: "📜 Your group rules:\n%1",
-		noRules: "❗ Your group has no rules. To add one use: `%1rules add <rule>`",
-		noPermissionAdd: "🔒 Only admins can add rules for the group",
-		noContent: "✏️ Please enter the content for the rule you want to add",
-		success: "✅ Added new rule for the group successfully",
-		noPermissionEdit: "🔒 Only admins can edit group rules",
-		invalidNumber: "🔢 Please enter a valid rule number to edit",
-		rulesNotExist: "⚠️ Rule number %1 does not exist",
-		numberRules: "ℹ️ Your group has %1 rules",
-		noContentEdit: "✏️ Please enter the content you want to set for rule number %1",
-		successEdit: "✅ Edited rule number %1 to: %2",
-		noPermissionMove: "🔒 Only admins can move group rules",
-		invalidNumberMove: "🔢 Please enter two valid rule numbers to swap",
-		sameNumberMove: "❗ Cannot swap positions of the same rule",
-		rulesNotExistMove: "⚠️ Rule number %1 does not exist",
-		rulesNotExistMove2: "⚠️ Rule number %1 and %2 do not exist",
-		successMove: "✅ Swapped position of rule number %1 and %2 successfully",
-		noPermissionDelete: "🔒 Only admins can delete group rules",
-		invalidNumberDelete: "🔢 Please enter the number of the rule you want to delete",
-		rulesNotExistDelete: "⚠️ Rule number %1 does not exist",
-		successDelete: "🗑️ Deleted rule number %1, content: %2",
-		noPermissionRemove: "🔒 Only group admins can remove all group rules",
-		confirmRemove: "⚠️ React to this message with any emoji to confirm **remove all group rules**",
-		successRemove: "✅ Removed all group rules successfully",
-		invalidNumberView: "🔢 Please enter the number of the rule you want to view"
-	}
-};
-
-/**
- * Helper: send a message, support both message.reply(...) and api.sendMessage(...)
- */
-function _send(api, messageObj, threadID, text) {
-	return new Promise((resolve, reject) => {
-		if (messageObj && typeof messageObj.reply === "function") {
-			messageObj.reply(text, (err, info) => err ? reject(err) : resolve(info));
-		}
-		else {
-			api.sendMessage(text, threadID, (err, info) => err ? reject(err) : resolve(info));
-		}
-	});
-}
-
-/**
- * Main run function — behaves like your old onStart
- */
-module.exports.run = async function ({ api, event, args, permssion, role, message, threadsData, getLang, commandName }) {
-	try {
-		const threadID = event.threadID;
-		const senderID = event.senderID;
-		const userRole = (typeof permssion !== "undefined") ? permssion : role;
-		const type = args[0];
-		const rulesOfThread = await threadsData.get(threadID, "data.rules", []);
-		const totalRules = rulesOfThread.length;
-
-		// VIEW all rules (no args)
-		if (!type) {
-			let i = 1;
-			const msg = rulesOfThread.reduce((text, rule) => text + `${i++}. ${rule}\n`, "");
-			const content = msg ? getLang("yourRules", msg) : getLang("noRules", getPrefix(threadID));
-			const info = await _send(api, message, threadID, content);
-			// set reply handler mapping so user can reply with a number to view a specific rule
-			global.GoatBot.onReply.set(info.messageID, {
-				commandName,
-				author: senderID,
-				rulesOfThread,
-				messageID: info.messageID
-			});
-			return;
-		}
-
-		// ADD
-		if (["add", "-a"].includes(type)) {
-			if (userRole < 1) return _send(api, message, threadID, getLang("noPermissionAdd"));
-			if (!args[1]) return _send(api, message, threadID, getLang("noContent"));
-			rulesOfThread.push(args.slice(1).join(" "));
-			try {
-				await threadsData.set(threadID, rulesOfThread, "data.rules");
-				return _send(api, message, threadID, getLang("success"));
-			}
-			catch (err) {
-				console.error(err);
-				return _send(api, message, threadID, "❌ Error: " + err.message);
-			}
-		}
-
-		// EDIT
-		if (["edit", "-e"].includes(type)) {
-			if (userRole < 1) return _send(api, message, threadID, getLang("noPermissionEdit"));
-			const stt = parseInt(args[1]);
-			if (isNaN(stt)) return _send(api, message, threadID, getLang("invalidNumber"));
-			if (!rulesOfThread[stt - 1]) return _send(api, message, threadID, `${getLang("rulesNotExist", stt)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			if (!args[2]) return _send(api, message, threadID, getLang("noContentEdit", stt));
-			const newContent = args.slice(2).join(" ");
-			rulesOfThread[stt - 1] = newContent;
-			try {
-				await threadsData.set(threadID, rulesOfThread, "data.rules");
-				return _send(api, message, threadID, getLang("successEdit", stt, newContent));
-			}
-			catch (err) {
-				console.error(err);
-				return _send(api, message, threadID, "❌ Error: " + err.message);
-			}
-		}
-
-		// MOVE / SWAP
-		if (["move", "-m"].includes(type)) {
-			if (userRole < 1) return _send(api, message, threadID, getLang("noPermissionMove"));
-			const num1 = parseInt(args[1]);
-			const num2 = parseInt(args[2]);
-			if (isNaN(num1) || isNaN(num2)) return _send(api, message, threadID, getLang("invalidNumberMove"));
-			if (num1 === num2) return _send(api, message, threadID, getLang("sameNumberMove"));
-
-			const exist1 = !!rulesOfThread[num1 - 1];
-			const exist2 = !!rulesOfThread[num2 - 1];
-
-			if (!exist1 && !exist2) {
-				return _send(api, message, threadID, `${getLang("rulesNotExistMove2", num1, num2)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			}
-			if (!exist1) {
-				return _send(api, message, threadID, `${getLang("rulesNotExistMove", num1)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			}
-			if (!exist2) {
-				return _send(api, message, threadID, `${getLang("rulesNotExistMove", num2)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			}
-
-			// swap
-			[rulesOfThread[num1 - 1], rulesOfThread[num2 - 1]] = [rulesOfThread[num2 - 1], rulesOfThread[num1 - 1]];
-			try {
-				await threadsData.set(threadID, rulesOfThread, "data.rules");
-				return _send(api, message, threadID, getLang("successMove", num1, num2));
-			}
-			catch (err) {
-				console.error(err);
-				return _send(api, message, threadID, "❌ Error: " + err.message);
-			}
-		}
-
-		// DELETE single
-		if (["delete", "del", "-d"].includes(type)) {
-			if (userRole < 1) return _send(api, message, threadID, getLang("noPermissionDelete"));
-			if (!args[1] || isNaN(args[1])) return _send(api, message, threadID, getLang("invalidNumberDelete"));
-			const index = parseInt(args[1]) - 1;
-			const rulesDel = rulesOfThread[index];
-			if (!rulesDel) return _send(api, message, threadID, `${getLang("rulesNotExistDelete", args[1])}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			rulesOfThread.splice(index, 1);
-			try {
-				await threadsData.set(threadID, rulesOfThread, "data.rules");
-				return _send(api, message, threadID, getLang("successDelete", args[1], rulesDel));
-			}
-			catch (err) {
-				console.error(err);
-				return _send(api, message, threadID, "❌ Error: " + err.message);
-			}
-		}
-
-		// REMOVE all (confirm via reaction)
-		if (["remove", "reset", "-r", "-rm"].includes(type)) {
-			if (userRole < 1) return _send(api, message, threadID, getLang("noPermissionRemove"));
-			const info = await _send(api, message, threadID, getLang("confirmRemove"));
-			// save mapping for reaction handler
-			global.GoatBot.onReaction.set(info.messageID, {
-				commandName: "rules",
-				messageID: info.messageID,
-				author: senderID
-			});
-			return;
-		}
-
-		// VIEW specific numbers: e.g., "rules 1 3"
-		if (!isNaN(type)) {
-			let msg = "";
-			for (const stt of args) {
-				const idx = parseInt(stt) - 1;
-				const rule = rulesOfThread[idx];
-				if (rule) msg += `${parseInt(stt)}. ${rule}\n`;
-			}
-			if (msg === "") return _send(api, message, threadID, `${getLang("rulesNotExist", type)}, ${totalRules === 0 ? getLang("noRules", getPrefix(threadID)) : getLang("numberRules", totalRules)}`);
-			return _send(api, message, threadID, msg);
-		}
-
-		// Unknown syntax
-		return _send(api, message, threadID, (getLang || (() => "Syntax error"))("invalidNumber"));
-	}
-	catch (err) {
-		console.error(err);
-		try { if (message && typeof message.reply === "function") return message.reply("❌ Unexpected error: " + err.message); } catch {}
-		return api.sendMessage("❌ Unexpected error: " + err.message, event.threadID);
-	}
-};
-
-/**
- * handleReply — invoked when user replies to the bot's message listing rules
- * (keeps the old onReply behavior)
- */
-module.exports.handleReply = async function ({ api, event, Reply, getLang }) {
-	try {
-		// If Reply not passed, try to get from global mapping by messageID
-		if (!Reply) Reply = global.GoatBot.onReply.get(event.messageID) || null;
-		if (!Reply) return;
-
-		const { author, rulesOfThread, messageID } = Reply;
-		if (author != event.senderID) return; // only the original author can use the reply flow
-
-		const num = parseInt(event.body || "");
-		if (isNaN(num) || num < 1) {
-			return api.sendMessage(getLang("invalidNumberView"), event.threadID);
-		}
-
-		const totalRules = rulesOfThread.length;
-		if (num > totalRules) {
-			return api.sendMessage(`${getLang("rulesNotExist", num)}, ${totalRules === 0 ? getLang("noRules", getPrefix(event.threadID)) : getLang("numberRules", totalRules)}`, event.threadID);
-		}
-
-		await api.sendMessage(`${num}. ${rulesOfThread[num - 1]}`, event.threadID);
-		// try to unsend the bot's list message to keep chat clean
-		try { if (api.unsend) await api.unsend(messageID); } catch (e) { /* ignore */ }
-
-		// cleanup mapping
-		try { global.GoatBot.onReply.delete(messageID); } catch (e) { /* ignore */ }
-	}
-	catch (err) {
-		console.error(err);
-	}
-};
-
-/**
- * handleReaction — invoked when someone reacts to the confirm-remove message
- * We rely on the mapping saved in run (global.GoatBot.onReaction)
- */
-module.exports.handleReaction = async function ({ api, event, threadsData, getLang }) {
-	try {
-		const reactionData = global.GoatBot.onReaction.get(event.messageID);
-		if (!reactionData) return;
-		const { author } = reactionData;
-
-		// only the original command author can confirm by reacting
-		if (author != event.userID) return;
-
-		const threadID = event.threadID;
-		await threadsData.set(threadID, [], "data.rules");
-		await api.sendMessage(getLang("successRemove"), threadID);
-
-		// cleanup mapping
-		try { global.GoatBot.onReaction.delete(event.messageID); } catch (e) { /* ignore */ }
-	}
-	catch (err) {
-		console.error(err);
-	}
-};
-
-// Backwards compatibility: keep original names if framework expects them
-module.exports.onStart = module.exports.run;
-module.exports.onReply = module.exports.handleReply;
-module.exports.onReaction = module.exports.handleReaction;
