@@ -1,82 +1,82 @@
-module.exports.config = {
-  name: "slap",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑱𝒂𝒌𝒆 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂 𝒉𝒂𝒍𝒂𝒌 𝒌𝒆 𝒔𝒍𝒂𝒑 𝒎𝒂𝒓𝒂",
-  category: "general",
-  usages: "slap [@tag]",
-  cooldowns: 5,
-  dependencies: {
-    "axios": "",
-    "request": "",
-    "fs-extra": ""
-  }
-};
+const axios = require('axios');
+const fs = require('fs-extra');
 
-module.exports.onLoad = function () {
-  const fs = global.nodemodule && global.nodemodule["fs-extra"] ? global.nodemodule["fs-extra"] : require("fs");
-  const path = __dirname + "/cache";
-  try {
-    if (!fs.existsSync(path)) fs.mkdirSync(path);
-  } catch (e) {
-    // ignore - best effort to ensure cache exists
-  }
-};
-
-module.exports.onStart = async function ({ api, event, args }) {
-  const axios = global.nodemodule && global.nodemodule["axios"] ? global.nodemodule["axios"] : require("axios");
-  const request = global.nodemodule && global.nodemodule["request"] ? global.nodemodule["request"] : require("request");
-  const fs = global.nodemodule && global.nodemodule["fs-extra"] ? global.nodemodule["fs-extra"] : require("fs");
-  const threadID = event.threadID;
-  const messageID = event.messageID;
-
-  // validation: need args (but we prefer mention check)
-  if (!args.join("").length) {
-    return api.sendMessage("❌ দয়া করে একজনকে ট্যাগ করে বলুন — কে স্ল্যাপ মারতে চান তা ট্যাগ দিন!", threadID, messageID);
-  }
-
-  const mentionIds = Object.keys(event.mentions || {});
-  if (!mentionIds.length) {
-    return api.sendMessage("❌ ট্যাগ পাওয়া যায়নি! দয়া করে যে ব্যক্তিকে স্ল্যাপ দেবেন, তাঁকে মেনশন করে পাঠান.", threadID, messageID);
-  }
-
-  const mentionId = mentionIds[0];
-  // event.mentions[mentionId] is usually the name string
-  let tagName = event.mentions[mentionId] || "user";
-  try {
-    // fetch slap gif/url from waifu.pics (kept link unchanged)
-    const res = await axios.get("https://api.waifu.pics/sfw/slap");
-    const getURL = res.data && res.data.url ? res.data.url : null;
-    if (!getURL) throw new Error("No URL returned from API.");
-
-    const ext = getURL.substring(getURL.lastIndexOf(".") + 1).split(/\?|\#/)[0] || "gif";
-    const cachePath = __dirname + `/cache/slap.${ext}`;
-
-    const download = () =>
-      new Promise((resolve, reject) => {
-        try {
-          const stream = request(getURL).pipe(fs.createWriteStream(cachePath));
-          stream.on("close", () => resolve());
-          stream.on("error", (err) => reject(err));
-        } catch (err) {
-          reject(err);
-        }
-      });
-
-    await download();
-
-    // reaction + send
-    try {
-      api.setMessageReaction("✅", messageID, (err) => {}, true);
-    } catch (e) {
-      // ignore reaction failure
+module.exports = {
+  config: {
+    name: "slap",
+    aliases: ["slapuser", "pita"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "👊 𝑆𝑙𝑎𝑝 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑤𝑖𝑡ℎ 𝑎 𝑓𝑢𝑛𝑛𝑦 𝑔𝑖𝑓"
+    },
+    longDescription: {
+      en: "𝑆𝑒𝑛𝑑 𝑎 𝑠𝑙𝑎𝑝 𝑔𝑖𝑓 𝑡𝑜 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑦𝑜𝑢 𝑚𝑒𝑛𝑡𝑖𝑜𝑛"
+    },
+    guide: {
+      en: "{p}slap [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "fs-extra": ""
     }
+  },
 
-    const bodyText = `𝑺𝒍𝒂𝒑𝒑𝒆𝒅! ${tagName}\n\n"𝒎𝒂𝒇 𝒌𝒐𝒓𝒃𝒐, 𝒂𝒎𝒊 𝒃𝒉𝒂𝒃𝒊 𝒎𝒂𝒔𝒌𝒂𝒓𝒂 𝒄𝒉𝒊𝒍"`;
+  onLoad: function () {
+    const fs = require('fs-extra');
+    const path = __dirname + "/cache";
+    try {
+      if (!fs.existsSync(path)) fs.mkdirSync(path);
+    } catch (e) {
+      // ignore - best effort to ensure cache exists
+    }
+  },
 
-    api.sendMessage(
-      {
+  onStart: async function ({ api, event, args, message }) {
+    try {
+      const { threadID, messageID } = event;
+
+      // validation: need args (but we prefer mention check)
+      if (!args.join("").length) {
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑠𝑙𝑎𝑝!");
+      }
+
+      const mentionIds = Object.keys(event.mentions || {});
+      if (!mentionIds.length) {
+        return message.reply("❌ 𝑁𝑜 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑠𝑙𝑎𝑝.");
+      }
+
+      const mentionId = mentionIds[0];
+      let tagName = event.mentions[mentionId] || "user";
+
+      // fetch slap gif/url from waifu.pics (kept link unchanged)
+      const res = await axios.get("https://api.waifu.pics/sfw/slap");
+      const getURL = res.data && res.data.url ? res.data.url : null;
+      if (!getURL) throw new Error("No URL returned from API.");
+
+      const ext = getURL.substring(getURL.lastIndexOf(".") + 1).split(/\?|\#/)[0] || "gif";
+      const cachePath = __dirname + `/cache/slap_${Date.now()}.${ext}`;
+
+      // Download the image
+      const imageResponse = await axios.get(getURL, {
+        responseType: 'arraybuffer'
+      });
+      
+      await fs.writeFile(cachePath, Buffer.from(imageResponse.data));
+
+      // reaction + send
+      try {
+        api.setMessageReaction("✅", messageID, () => {}, true);
+      } catch (e) {
+        // ignore reaction failure
+      }
+
+      const bodyText = `👊 𝑆𝑙𝑎𝑝𝑝𝑒𝑑! ${tagName}\n\n"𝑚𝑎𝑓 𝑘𝑜𝑟𝑏𝑜, 𝑎𝑚𝑖 𝑏ℎ𝑎𝑏𝑖 𝑚𝑎𝑠𝑘𝑎𝑟𝑎 𝑐ℎ𝑖𝑙"`;
+
+      await message.reply({
         body: bodyText,
         mentions: [
           {
@@ -85,30 +85,24 @@ module.exports.onStart = async function ({ api, event, args }) {
           }
         ],
         attachment: fs.createReadStream(cachePath)
-      },
-      threadID,
-      (err) => {
-        // cleanup file after send (best effort)
-        try {
-          if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
-        } catch (e) {
-          // ignore cleanup errors
-        }
-        if (err) {
-          try {
-            api.setMessageReaction("☹️", messageID, (err) => {}, true);
-          } catch (e) {}
-        }
-      },
-      messageID
-    );
-  } catch (error) {
-    // API/download failed
-    try {
-      api.sendMessage("𝑺𝒍𝒂𝒑 𝒈𝒊𝒇 তৈরী করতে সমস্যা হয়েছে! দয়া করে পরে আবার চেষ্টা করুন এবং মেনশন ঠিক আছে কিনা দেখে নিন।", threadID, messageID);
-      api.setMessageReaction("☹️", messageID, (err) => {}, true);
-    } catch (e) {
-      // ignore
+      });
+
+      // cleanup file after send
+      try {
+        if (fs.existsSync(cachePath)) fs.unlinkSync(cachePath);
+      } catch (e) {
+        // ignore cleanup errors
+      }
+
+    } catch (error) {
+      console.error("Slap error:", error);
+      
+      try {
+        message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑠𝑙𝑎𝑝 𝑔𝑖𝑓! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        api.setMessageReaction("☹️", event.messageID, () => {}, true);
+      } catch (e) {
+        // ignore
+      }
     }
   }
 };
