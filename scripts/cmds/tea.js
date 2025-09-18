@@ -1,77 +1,80 @@
 const fs = require("fs");
 const path = require("path");
 
-module.exports.config = {
-    name: "teatime", // Command name
+module.exports = {
+  config: {
+    name: "teatime",
+    aliases: ["tea", "cha"],
     version: "1.0.2",
-    hasPermssion: 0, // 0 = all members, 1 = admin+, 2 = owner
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // Credit
-    description: "Sends a tea video when triggered",
-    category: "no prefix", // Category
-    usages: "", // Usage info
-    cooldowns: 5,
-    dependencies: {
-        "fs": "latest",
-        "path": "latest"
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "fun",
+    shortDescription: {
+      en: "☕ 𝑆𝑒𝑛𝑑𝑠 𝑎 𝑡𝑒𝑎 𝑣𝑖𝑑𝑒𝑜 𝑤ℎ𝑒𝑛 𝑡𝑟𝑖𝑔𝑔𝑒𝑟𝑒𝑑"
     },
-    envConfig: {} // Optional env configs
-};
+    longDescription: {
+      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑠𝑒𝑛𝑑𝑠 𝑎 𝑡𝑒𝑎 𝑣𝑖𝑑𝑒𝑜 𝑤ℎ𝑒𝑛 𝑡ℎ𝑒 𝑤𝑜𝑟𝑑 '𝑡𝑒𝑎' 𝑖𝑠 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑"
+    },
+    guide: {
+      en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 '𝑡𝑒𝑎' 𝑎𝑛𝑑 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑤𝑖𝑙𝑙 𝑟𝑒𝑠𝑝𝑜𝑛𝑑"
+    },
+    countDown: 5,
+    dependencies: {
+      "fs": "",
+      "path": ""
+    }
+  },
 
-module.exports.languages = {
-    "en": {},
-    "vi": {}
-};
-
-module.exports.onLoad = function({ configValue }) {
-    // Optional: Do something when the module loads
-};
-
-module.exports.handleEvent = async function({ event, api }) {
-    const { threadID, messageID, body } = event;
-    if (!body) return;
-
-    const triggers = ["tea", "Tea", "Cha", "চা"];
-    const trimmedBody = body.trim().toLowerCase();
-    const shouldTrigger = triggers.some(trigger => trimmedBody.startsWith(trigger.toLowerCase()));
-
-    if (!shouldTrigger) return;
-
+  onStart: async function ({ api, event, message }) {
     try {
-        const videoPath = path.join(__dirname, "noprefix", "tea.mp4");
-        if (!fs.existsSync(videoPath)) {
-            return api.sendMessage("❌ Tea video file is missing. Please contact the admin.", threadID, messageID);
-        }
+      const { threadID, messageID } = event;
+      const videoPath = path.join(__dirname, "noprefix", "tea.mp4");
+      
+      if (!fs.existsSync(videoPath)) {
+        return message.reply("❌ 𝑇𝑒𝑎 𝑣𝑖𝑑𝑒𝑜 𝑓𝑖𝑙𝑒 𝑖𝑠 𝑚𝑖𝑠𝑠𝑖𝑛𝑔.");
+      }
 
-        api.setMessageReaction("🫖", messageID, (err) => {
-            if (err) console.error("Reaction error:", err);
-        }, true);
+      await message.reply({
+        body: "🥤 𝐴𝑖 𝐿𝑜 𝐵𝑏𝑦 ☕",
+        attachment: fs.createReadStream(videoPath)
+      });
 
-        api.sendMessage({
-            body: "🥤 Ai Lo Bby ☕",
-            attachment: fs.createReadStream(videoPath)
-        }, threadID, messageID);
+    } catch (err) {
+      console.error(err);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑡𝑒𝑎 𝑣𝑖𝑑𝑒𝑜.");
+    }
+  },
+
+  onChat: async function ({ event, api, message }) {
+    try {
+      const { threadID, messageID, body } = event;
+      if (!body) return;
+
+      const triggers = ["tea", "Tea", "Cha", "চা"];
+      const trimmedBody = body.trim().toLowerCase();
+      const shouldTrigger = triggers.some(trigger => 
+        trimmedBody.startsWith(trigger.toLowerCase())
+      );
+
+      if (!shouldTrigger) return;
+
+      const videoPath = path.join(__dirname, "noprefix", "tea.mp4");
+      if (!fs.existsSync(videoPath)) {
+        return message.reply("❌ 𝑇𝑒𝑎 𝑣𝑖𝑑𝑒𝑜 𝑓𝑖𝑙𝑒 𝑖𝑠 𝑚𝑖𝑠𝑠𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐𝑜𝑛𝑡𝑎𝑐𝑡 𝑡ℎ𝑒 𝑎𝑑𝑚𝑖𝑛.");
+      }
+
+      api.setMessageReaction("🫖", messageID, (err) => {
+        if (err) console.error("𝑅𝑒𝑎𝑐𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", err);
+      }, true);
+
+      await message.reply({
+        body: "🥤 𝐴𝑖 𝐿𝑜 𝐵𝑏𝑦 ☕",
+        attachment: fs.createReadStream(videoPath)
+      });
 
     } catch (error) {
-        console.error("Tea Command Error:", error);
-        api.sendMessage("❌ An error occurred while sending the tea video. Please try again later.", threadID, messageID);
+      console.error("𝑇𝑒𝑎 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑡ℎ𝑒 𝑡𝑒𝑎 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
-};
-
-module.exports.onStart = async function({ api, event, args }) {
-    // For command-style execution (optional)
-    const { threadID, messageID } = event;
-    try {
-        const videoPath = path.join(__dirname, "noprefix", "tea.mp4");
-        if (!fs.existsSync(videoPath)) {
-            return api.sendMessage("❌ Tea video file is missing.", threadID, messageID);
-        }
-
-        api.sendMessage({
-            body: "🥤 Ai Lo Bby ☕",
-            attachment: fs.createReadStream(videoPath)
-        }, threadID, messageID);
-    } catch (err) {
-        console.error(err);
-        api.sendMessage("❌ Error sending tea video.", threadID, messageID);
-    }
+  }
 };
