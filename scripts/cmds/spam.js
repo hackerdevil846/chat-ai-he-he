@@ -1,43 +1,60 @@
 module.exports = {
   config: {
     name: "spam",
+    aliases: ["spammer", "repeat"],
     version: "1.0.0",
-    permission: 2,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "Ekti message onekbar pathaite parba",
-    category: "spam",
-    usages: "[msg] [amount]",
-    prefix: true,
-    cooldowns: 5
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 2,
+    category: "utility",
+    shortDescription: {
+      en: "🔁 𝑆𝑒𝑛𝑑 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑡𝑖𝑚𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝑆𝑒𝑛𝑑 𝑎 𝑠𝑝𝑒𝑐𝑖𝑓𝑖𝑒𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑎 𝑐𝑒𝑟𝑡𝑎𝑖𝑛 𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑡𝑖𝑚𝑒𝑠"
+    },
+    guide: {
+      en: "{p}spam [𝑚𝑒𝑠𝑠𝑎𝑔𝑒] [𝑎𝑚𝑜𝑢𝑛𝑡]"
+    },
+    countDown: 5
   },
 
-  onStart: async function () {
-    // এখানে কিছু লাগবে না, শুধু স্ট্রাকচার ঠিক রাখার জন্য ফাঁকা রাখা হয়েছে
-  },
+  onStart: async function ({ api, event, args, message }) {
+    try {
+      const permission = ["61571630409265"]; // 𝑂𝑛𝑙𝑦 𝑡ℎ𝑖𝑠 𝑈𝐼𝐷 𝑐𝑎𝑛 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑
+      
+      if (!permission.includes(event.senderID)) {
+        return message.reply("❌ 𝑂𝑛𝑙𝑦 𝐵𝑜𝑡 𝐴𝑑𝑚𝑖𝑛 𝐶𝑎𝑛 𝑈𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑");
+      }
 
-  run: async function ({ api, event, args }) {
-    const permission = ["61571630409265"]; // শুধুমাত্র এই UID এই কমান্ড চালাতে পারবে
-    if (!permission.includes(event.senderID)) {
-      return api.sendMessage("Only Bot Admin Can Use this command", event.threadID, event.messageID);
-    }
+      if (args.length < 2) {
+        return message.reply(
+          `❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑎𝑟𝑔𝑢𝑚𝑒𝑛𝑡𝑠.\n💡 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}spam [𝑚𝑠𝑔] [𝑎𝑚𝑜𝑢𝑛𝑡]`
+        );
+      }
 
-    if (args.length < 2) {
-      return api.sendMessage(
-        `Invalid number of arguments.\nUsage: ${global.config.PREFIX}spam [msg] [amount]`,
-        event.threadID,
-        event.messageID
-      );
-    }
+      const msg = args.slice(0, -1).join(" "); // 𝐿𝑎𝑠𝑡 𝑎𝑟𝑔𝑢𝑚𝑒𝑛𝑡 𝑖𝑠 𝑡ℎ𝑒 𝑐𝑜𝑢𝑛𝑡, 𝑟𝑒𝑠𝑡 𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒
+      const count = parseInt(args[args.length - 1]);
 
-    const msg = args.slice(0, -1).join(" "); // শেষ আর্গুমেন্ট ছাড়া বাকি সব মেসেজ
-    const count = parseInt(args[args.length - 1]);
+      if (isNaN(count) || count <= 0) {
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑝𝑜𝑠𝑖𝑡𝑖𝑣𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 𝑓𝑜𝑟 𝑎𝑚𝑜𝑢𝑛𝑡.");
+      }
 
-    if (isNaN(count) || count <= 0) {
-      return api.sendMessage("Please enter a valid positive number for amount.", event.threadID, event.messageID);
-    }
+      if (count > 100) {
+        return message.reply("❌ 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑠𝑝𝑎𝑚 𝑙𝑖𝑚𝑖𝑡 𝑖𝑠 100 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠.");
+      }
 
-    for (let i = 0; i < count; i++) {
-      api.sendMessage(msg, event.threadID);
+      // 𝑆𝑒𝑛𝑑 𝑐𝑜𝑛𝑓𝑖𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒
+      await message.reply(`🔄 𝑆𝑝𝑎𝑚𝑚𝑖𝑛𝑔 "${msg}" ${count} 𝑡𝑖𝑚𝑒𝑠...`);
+
+      // 𝑆𝑒𝑛𝑑 𝑡ℎ𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑚𝑎𝑙𝑙 𝑑𝑒𝑙𝑎𝑦 𝑡𝑜 𝑎𝑣𝑜𝑖𝑑 𝑟𝑎𝑡𝑒 𝑙𝑖𝑚𝑖𝑡𝑖𝑛𝑔
+      for (let i = 0; i < count; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500)); // 500𝑚𝑠 𝑑𝑒𝑙𝑎𝑦 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠
+        api.sendMessage(msg, event.threadID);
+      }
+
+    } catch (error) {
+      console.error("𝑆𝑝𝑎𝑚 𝑒𝑟𝑟𝑜𝑟:", error);
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑝𝑎𝑚𝑚𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
     }
   }
 };
