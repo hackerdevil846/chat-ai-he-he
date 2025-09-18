@@ -1,52 +1,71 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "textpro",
+    aliases: ["logo", "textlogo"],
     version: "1.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "✨ Textpro logo বানাও নিজের ইচ্ছামতো টেক্সট দিয়ে",
-    category: "𝙇𝙤𝙜𝙤-𝙏𝙤𝙤𝙡𝙨",
-    usages: "textpro [text]",
-    cooldowns: 10,
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "image",
+    shortDescription: {
+      en: "✨ 𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡 𝑙𝑜𝑔𝑜𝑠"
+    },
+    longDescription: {
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡-𝑏𝑎𝑠𝑒𝑑 𝑙𝑜𝑔𝑜𝑠 𝑤𝑖𝑡ℎ 𝐴𝐼"
+    },
+    guide: {
+      en: "{p}textpro [𝑡𝑒𝑥𝑡]"
+    },
+    countDown: 10,
     dependencies: {
-        "axios": "latest",
-        "fs-extra": "latest"
+      "axios": "",
+      "fs-extra": ""
     }
-};
+  },
 
-module.exports.onStart = async function ({ api, event, args }) {
-    const { threadID, messageID } = event;
-
-    // Check if user provided text
-    if (!args.length) {
-        return api.sendMessage("❌ Invalid command! Use: .textpro [text]", threadID, messageID);
-    }
-
-    const text = args.join(" ");
-    if (!text) return api.sendMessage("❌ Please enter text for the logo!", threadID, messageID);
-
-    // Notify user about processing
-    api.sendMessage("🔄 Processing your logo, please wait...", threadID, messageID);
-
+  onStart: async function ({ api, event, args, message }) {
     try {
-        // Pollinations.AI text-to-image
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}`;
+      const { threadID, messageID } = event;
 
-        const response = await axios.get(imageUrl, { responseType: "arraybuffer" });
-        const imageData = response.data;
-        const path = __dirname + `/cache/logo_${Date.now()}.png`;
+      // Check if user provided text
+      if (!args.length) {
+        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑! 𝑈𝑠𝑒: .𝑡𝑒𝑥𝑡𝑝𝑟𝑜 [𝑡𝑒𝑥𝑡]");
+      }
 
-        fs.writeFileSync(path, Buffer.from(imageData, "binary"));
+      const text = args.join(" ");
+      if (!text) {
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑒𝑥𝑡 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑙𝑜𝑔𝑜!");
+      }
 
-        api.sendMessage({
-            body: `✨ Your logo has been created by 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅\n\n📝 Text: ${text}`,
-            attachment: fs.createReadStream(path)
-        }, threadID, () => fs.unlinkSync(path), messageID);
+      // Notify user about processing
+      await message.reply("🔄 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑙𝑜𝑔𝑜, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...");
+
+      // Pollinations.AI text-to-image
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(text)}`;
+
+      const response = await axios.get(imageUrl, { 
+        responseType: "arraybuffer",
+        timeout: 30000
+      });
+      
+      const imageData = response.data;
+      const path = __dirname + `/cache/logo_${Date.now()}.png`;
+
+      await fs.writeFile(path, Buffer.from(imageData, "binary"));
+
+      await message.reply({
+        body: `✨ 𝑌𝑜𝑢𝑟 𝑙𝑜𝑔𝑜 ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑\n\n📝 𝑇𝑒𝑥𝑡: ${text}`,
+        attachment: fs.createReadStream(path)
+      });
+
+      // Clean up file
+      fs.unlinkSync(path);
 
     } catch (error) {
-        console.error(error);
-        return api.sendMessage("❌ Logo creation failed! Please try again later.", threadID, messageID);
+      console.error("TextPro Error:", error);
+      message.reply("❌ 𝐿𝑜𝑔𝑜 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑓𝑎𝑖𝑙𝑒𝑑! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
+  }
 };
