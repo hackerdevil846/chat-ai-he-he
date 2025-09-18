@@ -18,7 +18,7 @@ async function getStreamFromURL(url, pathName) {
     response.data.path = pathName;
     return response.data;
   } catch {
-    throw new Error("𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒈𝒆𝒕 𝒔𝒕𝒓𝒆𝒂𝒎 𝒇𝒓𝒐𝒎 𝑼𝑹𝑳.");
+    throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑠𝑡𝑟𝑒𝑎𝑚 𝑓𝑟𝑜𝑚 𝑈𝑅𝐿.");
   }
 }
 
@@ -33,53 +33,76 @@ function getVideoID(url) {
   return match ? match[1] : null;
 }
 
-module.exports.config = {
-  name: "video",
-  version: "1.1.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒗𝒊𝒅𝒆𝒐 𝒅𝒂𝒖𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒖𝒏 𝑼𝑹𝑳 𝒃𝒂 𝒏𝒂𝒎 𝒅𝒊𝒚𝒆",
-  category: "media",
-  usages: "[𝒖𝒓𝒍 | 𝒈𝒂𝒏𝒆𝒓 𝒏𝒂𝒎]",
-  cooldowns: 5,
-  usePrefix: true
-};
-
-module.exports.onStart = async function ({ api, args, event }) {
-  try {
-    let videoID;
-    const url = args[0];
-
-    if (url && (url.includes("youtube.com") || url.includes("youtu.be"))) {
-      videoID = getVideoID(url);
-      if (!videoID) {
-        return api.sendMessage("❌ 𝑰𝒏𝒗𝒂𝒍𝒊𝒅 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝑼𝑹𝑳 𝒅𝒆𝒘𝒂 𝒉𝒐𝒚𝒆𝒄𝒉𝒆!", event.threadID, event.messageID);
-      }
-    } else {
-      const query = args.join(" ");
-      if (!query) return api.sendMessage("❌ 𝑬𝒌𝒕𝒂 𝒈𝒂𝒏𝒆𝒓 𝒏𝒂𝒎 𝒃𝒂 𝒀𝒐𝒖𝑻𝒖𝒃𝒆 𝒍𝒊𝒏𝒌 𝒅𝒊𝒏!", event.threadID, event.messageID);
-
-      var w = await api.sendMessage(`🔍 𝑺𝒆𝒂𝒓𝒄𝒉 𝒌𝒐𝒓𝒂 𝒉𝒐𝒄𝒄𝒉𝒆: "${query}"`, event.threadID);
-      const r = await yts(query);
-      const videos = r.videos.slice(0, 30);
-      const selected = videos[Math.floor(Math.random() * videos.length)];
-      videoID = selected.videoId;
+module.exports = {
+  config: {
+    name: "video",
+    aliases: ["ytdl", "downloadvideo"],
+    version: "1.1.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "media",
+    shortDescription: {
+      en: "𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑣𝑖𝑑𝑒𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑟𝑜𝑚 𝑈𝑅𝐿 𝑜𝑟 𝑠𝑒𝑎𝑟𝑐ℎ"
+    },
+    longDescription: {
+      en: "𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑣𝑖𝑑𝑒𝑜𝑠 𝑢𝑠𝑖𝑛𝑔 𝑈𝑅𝐿 𝑜𝑟 𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦"
+    },
+    guide: {
+      en: "{p}video [𝑈𝑅𝐿 𝑜𝑟 𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "yt-search": ""
     }
+  },
 
-    const { data } = await axios.get(`${global.apis.diptoApi}/ytDl3?link=${videoID}&format=mp4`);
-    const { title, quality, downloadLink } = data;
+  onStart: async function ({ api, event, args, message }) {
+    try {
+      let videoID;
+      const url = args[0];
 
-    if (w?.messageID) api.unsendMessage(w.messageID);
+      if (url && (url.includes("youtube.com") || url.includes("youtu.be"))) {
+        videoID = getVideoID(url);
+        if (!videoID) {
+          return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑈𝑅𝐿 𝑝𝑟𝑜𝑣𝑖𝑑𝑒𝑑!");
+        }
+      } else {
+        const query = args.join(" ");
+        if (!query) return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑈𝑅𝐿 𝑜𝑟 𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦!");
 
-    const shortenedLink = (await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(downloadLink)}`)).data;
+        const processingMsg = await message.reply(`🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔: "${query}"`);
+        const r = await yts(query);
+        const videos = r.videos.slice(0, 30);
+        
+        if (videos.length === 0) {
+          await api.unsendMessage(processingMsg.messageID);
+          return message.reply("❌ 𝑁𝑜 𝑣𝑖𝑑𝑒𝑜𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑠𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦!");
+        }
+        
+        const selected = videos[Math.floor(Math.random() * videos.length)];
+        videoID = selected.videoId;
+        await api.unsendMessage(processingMsg.messageID);
+      }
 
-    return api.sendMessage({
-      body: `🎬 𝑻𝒊𝒕𝒍𝒆: ${title}\n📺 𝑸𝒖𝒂𝒍𝒊𝒕𝒚: ${quality}\n📥 𝑫𝒐𝒘𝒏𝒍𝒐𝒂𝒅: ${shortenedLink}`,
-      attachment: await global.utils.getStreamFromURL(downloadLink, `${title}.mp4`)
-    }, event.threadID, event.messageID);
+      const { data } = await axios.get(`${global.apis.diptoApi}/ytDl3?link=${videoID}&format=mp4`);
+      
+      if (!data || !data.downloadLink) {
+        throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑙𝑖𝑛𝑘 𝑓𝑟𝑜𝑚 𝑎𝑝𝑖");
+      }
 
-  } catch (err) {
-    console.error(err);
-    return api.sendMessage("⚠️ 𝑬𝒓𝒓𝒐𝒓: " + (err.message || "𝑲𝒊𝒄𝒉𝒖 𝒆𝒌𝒕𝒂 𝒈𝒐𝒍𝒎𝒂𝒍 𝒉𝒐𝒚𝒆𝒄𝒉𝒆."), event.threadID, event.messageID);
+      const { title, quality, downloadLink } = data;
+
+      const shortenedLink = (await axios.get(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(downloadLink)}`)).data;
+
+      await message.reply({
+        body: `🎬 𝑇𝑖𝑡𝑙𝑒: ${title}\n📺 𝑄𝑢𝑎𝑙𝑖𝑡𝑦: ${quality}\n📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑: ${shortenedLink}`,
+        attachment: await global.utils.getStreamFromURL(downloadLink, `${title}.mp4`)
+      });
+
+    } catch (err) {
+      console.error("𝑉𝑖𝑑𝑒𝑜 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", err);
+      return message.reply("⚠️ 𝐸𝑟𝑟𝑜𝑟: " + (err.message || "𝐴𝑛 𝑢𝑛𝑘𝑛𝑜𝑤𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑."));
+    }
   }
 };
