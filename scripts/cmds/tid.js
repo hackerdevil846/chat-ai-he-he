@@ -1,27 +1,29 @@
-"use strict";
+module.exports = {
+  config: {
+    name: "tid",
+    aliases: ["threadid", "groupid"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "group",
+    shortDescription: {
+      en: "📋 𝐺𝑒𝑡 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑔𝑟𝑜𝑢𝑝/𝑡ℎ𝑟𝑒𝑎𝑑 𝐼𝐷"
+    },
+    longDescription: {
+      en: "𝑆𝑒𝑛𝑑𝑠 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑔𝑟𝑜𝑢𝑝'𝑠 𝑜𝑟 𝑡ℎ𝑟𝑒𝑎𝑑'𝑠 𝐼𝐷"
+    },
+    guide: {
+      en: "{p}tid"
+    },
+    countDown: 5
+  },
 
-/**
- * Command: tid
- * Description: Sends the current group's/thread's ID.
- * Credits: 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅
- */
-
-module.exports.config = {
-  name: "tid",
-  version: "1.0.0",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝙂𝙧𝙪𝙥𝙚𝙧 𝙞𝙙 𝙟𝙖𝙣𝙩𝙚 𝙘𝙝𝙖𝙞",
-  category: "𝙂𝙧𝙪𝙥",
-  usages: "tid",
-  cooldowns: 5,
-  dependencies: ""
-};
-
-module.exports.onStart = async function({ api, event }) {
-  return api.sendMessage(
-    `𝙀𝙞 𝙜𝙧𝙪𝙥𝙚𝙧 𝙞𝙙: ${event.threadID}`,
-    event.threadID,
-    event.messageID
-  );
+  onStart: async function ({ message, event }) {
+    try {
+      await message.reply(`📋 𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝑡ℎ𝑟𝑒𝑎𝑑 𝐼𝐷: ${event.threadID}`);
+    } catch (error) {
+      console.error("TID Error:", error);
+      await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑟𝑒𝑡𝑟𝑖𝑒𝑣𝑒 𝑡ℎ𝑟𝑒𝑎𝑑 𝐼𝐷");
+    }
+  }
 };
