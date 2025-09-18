@@ -3,25 +3,29 @@ const FormData = require("form-data");
 
 module.exports = {
   config: {
-    name: "upscale", // 🔄 নতুন নাম
+    name: "upscale",
     aliases: ["enhance", "hdphoto"],
     version: "1.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅", // 🔄 নতুন credits
     category: "image",
-    cooldowns: 10,
     shortDescription: {
-      en: "Enhance image quality (unblur + upscale)"
+      en: "🖼️ 𝐸𝑛ℎ𝑎𝑛𝑐𝑒 𝑖𝑚𝑎𝑔𝑒 𝑞𝑢𝑎𝑙𝑖𝑡𝑦 (𝑢𝑛𝑏𝑙𝑢𝑟 + 𝑢𝑝𝑠𝑐𝑎𝑙𝑒)"
     },
     longDescription: {
-      en: "Uses Cutout Pro API to enhance photo quality and resolution"
+      en: "𝑈𝑠𝑒𝑠 𝐶𝑢𝑡𝑜𝑢𝑡 𝑃𝑟𝑜 𝐴𝑃𝐼 𝑡𝑜 𝑒𝑛ℎ𝑎𝑛𝑐𝑒 𝑝ℎ𝑜𝑡𝑜 𝑞𝑢𝑎𝑙𝑖𝑡𝑦 𝑎𝑛𝑑 𝑟𝑒𝑠𝑜𝑙𝑢𝑡𝑖𝑜𝑛"
     },
     guide: {
-      en: "Reply to an image or provide URL\nExample: +upscale [image_url] [output format]\nFormats: png, jpg_90, jpg_80"
+      en: "𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑜𝑟 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑈𝑅𝐿\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {𝑝}𝑢𝑝𝑠𝑐𝑎𝑙𝑒 [𝑖𝑚𝑎𝑔𝑒_𝑢𝑟𝑙] [𝑜𝑢𝑡𝑝𝑢𝑡 𝑓𝑜𝑟𝑚𝑎𝑡]\n𝐹𝑜𝑟𝑚𝑎𝑡𝑠: 𝑝𝑛𝑔, 𝑗𝑝𝑔_90, 𝑗𝑝𝑔_80"
+    },
+    countDown: 10,
+    dependencies: {
+      "axios": "",
+      "form-data": ""
     }
   },
 
-  onStart: async ({ api, event, args }) => {
+  onStart: async function ({ api, event, args, message }) {
     try {
       let imageUrl;
       const outputFormat = args[1] || "png";
@@ -31,7 +35,7 @@ module.exports = {
       } else if (args[0]?.match(/^https?:\/\/.+\.(jpe?g|png|gif|bmp)$/i)) {
         imageUrl = args[0];
       } else {
-        return api.sendMessage("🔍 Please reply to an image or provide a valid image URL", event.threadID, event.messageID);
+        return message.reply("🔍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑜𝑟 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿");
       }
 
       const imageBuffer = (await axios.get(imageUrl, { responseType: "arraybuffer" })).data;
@@ -48,21 +52,21 @@ module.exports = {
         responseType: "stream"
       });
 
-      await api.sendMessage({
-        body: `🖼️ Enhanced HD Image (Format: ${outputFormat})`,
+      await message.reply({
+        body: `🖼️ 𝐸𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝐻𝐷 𝐼𝑚𝑎𝑔𝑒 (𝐹𝑜𝑟𝑚𝑎𝑡: ${outputFormat})`,
         attachment: response.data
-      }, event.threadID, event.messageID);
+      });
 
     } catch (error) {
       console.error("CutoutPro Error:", error.response?.data || error.message);
 
-      let errorMsg = "❌ Error enhancing image";
+      let errorMsg = "❌ 𝐸𝑟𝑟𝑜𝑟 𝑒𝑛ℎ𝑎𝑛𝑐𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒";
       if (error.response?.status === 429) {
-        errorMsg = "⚠️ API limit reached (try again later)";
+        errorMsg = "⚠️ 𝐴𝑃𝐼 𝑙𝑖𝑚𝑖𝑡 𝑟𝑒𝑎𝑐ℎ𝑒𝑑 (𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟)";
       } else if (error.message.includes("timeout")) {
-        errorMsg = "⌛ Processing took too long (try smaller image)";
+        errorMsg = "⌛ 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡𝑜𝑜𝑘 𝑡𝑜𝑜 𝑙𝑜𝑛𝑔 (𝑡𝑟𝑦 𝑠𝑚𝑎𝑙𝑙𝑒𝑟 𝑖𝑚𝑎𝑔𝑒)";
       }
-      api.sendMessage(errorMsg, event.threadID, event.messageID);
+      message.reply(errorMsg);
     }
   }
 };
