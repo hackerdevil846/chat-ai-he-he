@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 let games = {};
 let points = {}; // Point system
@@ -65,104 +65,112 @@ function resetGame(playerID) {
   };
 }
 
-module.exports.config = {
-  name: "ttt",
-  version: "2.2",
-  hasPermssion: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "Play TicTacToe with bot",
-  category: "game",
-  usages: "[stop|exit]",
-  cooldowns: 2
-};
+module.exports = {
+  config: {
+    name: "ttt",
+    aliases: ["tictactoe", "xoxo"],
+    version: "2.2",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "game",
+    shortDescription: {
+      en: "🎮 𝑃𝑙𝑎𝑦 𝑇𝑖𝑐𝑇𝑎𝑐𝑇𝑜𝑒 𝑤𝑖𝑡ℎ 𝑏𝑜𝑡"
+    },
+    longDescription: {
+      en: "𝐶𝑙𝑎𝑠𝑠𝑖𝑐 𝑇𝑖𝑐𝑇𝑎𝑐𝑇𝑜𝑒 𝑔𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝐴𝐼 𝑏𝑜𝑡 𝑎𝑛𝑑 𝑠𝑐𝑜𝑟𝑒 𝑡𝑟𝑎𝑐𝑘𝑖𝑛𝑔"
+    },
+    guide: {
+      en: "{p}ttt [𝑠𝑡𝑜𝑝|𝑒𝑥𝑖𝑡]"
+    },
+    countDown: 2
+  },
 
-module.exports.onStart = async function ({ event, api, args }) {
-  const id = event.senderID;
-  const threadID = event.threadID;
-  const sub = args[0]?.toLowerCase();
+  onStart: async function ({ event, args, message }) {
+    const id = event.senderID;
+    const sub = args[0]?.toLowerCase();
 
-  // Stop logic
-  if (sub && ["stop", "exit", "off"].includes(sub)) {
-    if (games[id]) {
-      delete games[id];
-      return api.sendMessage("🛑 Game stopped. আবার খেলতে টাইপ করুন: ttt", threadID);
-    } else {
-      return api.sendMessage("কোন active game নেই। খেলতে টাইপ করুন: ttt", threadID);
+    // Stop logic
+    if (sub && ["stop", "exit", "off"].includes(sub)) {
+      if (games[id]) {
+        delete games[id];
+        return message.reply("🛑 𝐺𝑎𝑚𝑒 𝑠𝑡𝑜𝑝𝑝𝑒𝑑. 𝑇𝑦𝑝𝑒 '𝑡𝑡𝑡' 𝑡𝑜 𝑝𝑙𝑎𝑦 𝑎𝑔𝑎𝑖𝑛.");
+      } else {
+        return message.reply("𝑁𝑜 𝑎𝑐𝑡𝑖𝑣𝑒 𝑔𝑎𝑚𝑒. 𝑇𝑦𝑝𝑒 '𝑡𝑡𝑡' 𝑡𝑜 𝑠𝑡𝑎𝑟𝑡 𝑎 𝑛𝑒𝑤 𝑔𝑎𝑚𝑒.");
+      }
     }
+
+    // Start new game
+    resetGame(id);
+    if (!points[id]) points[id] = { win: 0, draw: 0, lose: 0 };
+
+    const msg = `🎮 𝐿𝑒𝑡'𝑠 𝑝𝑙𝑎𝑦 𝑇𝑖𝑐𝑇𝑎𝑐𝑇𝑜𝑒!
+𝑌𝑜𝑢 𝑎𝑟𝑒 ❌, 𝐵𝑜𝑡 𝑖𝑠 ⭕
+𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑛𝑢𝑚𝑏𝑒𝑟 1-9
+
+📊 𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝑆𝑐𝑜𝑟𝑒:
+✅ 𝑊𝑖𝑛𝑠: ${points[id].win}
+🤝 𝐷𝑟𝑎𝑤𝑠: ${points[id].draw}
+❌ 𝐿𝑜𝑠𝑠𝑒𝑠: ${points[id].lose}
+
+𝑇𝑜 𝑠𝑡𝑜𝑝 𝑡ℎ𝑒 𝑔𝑎𝑚𝑒: 𝑡𝑦𝑝𝑒 "𝑡𝑡𝑡 𝑠𝑡𝑜𝑝"`;
+
+    await message.reply(msg);
+    return message.reply(displayBoard(games[id].board));
+  },
+
+  onChat: async function ({ event, message }) {
+    const id = event.senderID;
+    const text = event.body?.trim();
+
+    // Only process numbers 1-9
+    if (!/^[1-9]$/.test(text)) return;
+
+    if (!games[id]) return;
+
+    const pos = parseInt(text, 10);
+    if (games[id].board[pos - 1]) {
+      return message.reply("❗ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑚𝑜𝑣𝑒. 𝑇𝑟𝑦 𝑎𝑛 𝑒𝑚𝑝𝑡𝑦 𝑐𝑒𝑙𝑙 (1-9).");
+    }
+
+    // User move
+    games[id].board[pos - 1] = "❌";
+
+    // Check user win
+    let winner = checkWinner(games[id].board);
+    if (winner) {
+      points[id].win++;
+      await message.reply(displayBoard(games[id].board));
+      delete games[id];
+      return message.reply("🎉 𝑌𝑜𝑢 𝑤𝑖𝑛! 🎉");
+    }
+
+    // Check draw
+    if (isBoardFull(games[id].board)) {
+      points[id].draw++;
+      await message.reply(displayBoard(games[id].board));
+      delete games[id];
+      return message.reply("🤝 𝐼𝑡'𝑠 𝑎 𝑑𝑟𝑎𝑤!");
+    }
+
+    // Bot move
+    makeBotMove(games[id].board);
+
+    winner = checkWinner(games[id].board);
+    if (winner) {
+      points[id].lose++;
+      await message.reply(displayBoard(games[id].board));
+      delete games[id];
+      return message.reply("😢 𝑌𝑜𝑢 𝑙𝑜𝑠𝑡!");
+    }
+
+    if (isBoardFull(games[id].board)) {
+      points[id].draw++;
+      await message.reply(displayBoard(games[id].board));
+      delete games[id];
+      return message.reply("🤝 𝐼𝑡'𝑠 𝑎 𝑑𝑟𝑎𝑤!");
+    }
+
+    // Continue game
+    return message.reply(displayBoard(games[id].board));
   }
-
-  // Start new game
-  resetGame(id);
-  if (!points[id]) points[id] = { win: 0, draw: 0, lose: 0 };
-
-  const msg = `🎮 Let's play TicTacToe!
-You are ❌, Bot is ⭕
-Reply with number 1-9
-
-📊 Current Score:
-✅ Wins: ${points[id].win}
-🤝 Draws: ${points[id].draw}
-❌ Losses: ${points[id].lose}
-
-To stop the game: type "ttt stop"`;
-
-  await api.sendMessage(msg, threadID);
-  return api.sendMessage(displayBoard(games[id].board), threadID);
-};
-
-module.exports.handleEvent = async function ({ event, api }) {
-  const id = event.senderID;
-  const threadID = event.threadID;
-  const text = event.body?.trim();
-
-  // শুধু 1-9 হলে কাজ করবে
-  if (!/^[1-9]$/.test(text)) return;
-
-  if (!games[id]) return;
-
-  const pos = parseInt(text, 10);
-  if (games[id].board[pos - 1]) {
-    return api.sendMessage("❗ Invalid move. Try an empty cell (1-9).", threadID);
-  }
-
-  // User move
-  games[id].board[pos - 1] = "❌";
-
-  // Check user win
-  let winner = checkWinner(games[id].board);
-  if (winner) {
-    points[id].win++;
-    await api.sendMessage(displayBoard(games[id].board), threadID);
-    delete games[id];
-    return api.sendMessage("🎉 You win! 🎉", threadID);
-  }
-
-  // Check draw
-  if (isBoardFull(games[id].board)) {
-    points[id].draw++;
-    await api.sendMessage(displayBoard(games[id].board), threadID);
-    delete games[id];
-    return api.sendMessage("🤝 It's a draw!", threadID);
-  }
-
-  // Bot move
-  makeBotMove(games[id].board);
-
-  winner = checkWinner(games[id].board);
-  if (winner) {
-    points[id].lose++;
-    await api.sendMessage(displayBoard(games[id].board), threadID);
-    delete games[id];
-    return api.sendMessage("😢 You lost!", threadID);
-  }
-
-  if (isBoardFull(games[id].board)) {
-    points[id].draw++;
-    await api.sendMessage(displayBoard(games[id].board), threadID);
-    delete games[id];
-    return api.sendMessage("🤝 It's a draw!", threadID);
-  }
-
-  // Continue game
-  return api.sendMessage(displayBoard(games[id].board), threadID);
 };
