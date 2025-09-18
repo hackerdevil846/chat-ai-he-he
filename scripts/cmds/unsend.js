@@ -1,32 +1,48 @@
-module.exports.config = {
+module.exports = {
+  config: {
     name: "unsend",
+    aliases: ["remove", "delete"],
     version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝑩𝒐𝒕 𝒆𝒓 𝒑𝒂𝒕𝒉𝒂𝒏𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒖𝒏𝒔𝒆𝒏𝒅 𝒌𝒐𝒓𝒆",
-    category: "𝑺𝒚𝒔𝒕𝒆𝒎",
-    usages: "unsend",
-    cooldowns: 0
-};
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "system",
+    shortDescription: {
+      en: "🗑️ 𝐵𝑜𝑡 𝑤𝑖𝑙𝑙 𝑢𝑛𝑠𝑒𝑛𝑑 𝑖𝑡𝑠 𝑜𝑤𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝐴𝑙𝑙𝑜𝑤𝑠 𝑢𝑠𝑒𝑟𝑠 𝑡𝑜 𝑚𝑎𝑘𝑒 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑑𝑒𝑙𝑒𝑡𝑒 𝑖𝑡𝑠 𝑜𝑤𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑡𝑜 𝑡ℎ𝑒𝑚"
+    },
+    guide: {
+      en: "{p}unsend [𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑏𝑜𝑡'𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
+    },
+    countDown: 0
+  },
 
-module.exports.languages = {
+  langs: {
     "en": {
-        "returnCant": "𝑨𝒎𝒊 𝒐𝒏𝒏𝒐 𝒅𝒆𝒓 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒖𝒏𝒔𝒆𝒏𝒅 𝒌𝒐𝒓𝒕𝒆 𝒑𝒂𝒓𝒃𝒐 𝒏𝒂",
-        "missingReply": "𝑼𝒏𝒔𝒆𝒏𝒅 𝒌𝒐𝒓𝒂𝒓 𝒋𝒐𝒏𝒏𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒆 𝒕𝒂 𝒌𝒆 𝒓𝒆𝒑𝒍𝒚 𝒌𝒂𝒓𝒌𝒆 𝒍𝒊𝒌𝒉𝒖𝒏"
+      "returnCant": "❌ 𝐼 𝑐𝑎𝑛𝑛𝑜𝑡 𝑢𝑛𝑠𝑒𝑛𝑑 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒",
+      "missingReply": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑢𝑛𝑠𝑒𝑛𝑑 𝑖𝑡"
     }
-};
+  },
 
-module.exports.onStart = async function({ api, event, getText }) {
-    // ensure it's a reply
-    if (event.type !== "message_reply" || !event.messageReply) {
-        return api.sendMessage(getText("missingReply"), event.threadID, event.messageID);
+  onStart: async function ({ api, event, message, getText }) {
+    try {
+      // ensure it's a reply
+      if (event.type !== "message_reply" || !event.messageReply) {
+        return message.reply(getText("missingReply"));
+      }
+
+      // only allow unsend if the replied message was sent by the bot itself
+      if (event.messageReply.senderID !== api.getCurrentUserID()) {
+        return message.reply(getText("returnCant"));
+      }
+
+      // perform unsend
+      await api.unsendMessage(event.messageReply.messageID);
+      
+    } catch (error) {
+      console.error("Unsend Error:", error);
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑡𝑟𝑦𝑖𝑛𝑔 𝑡𝑜 𝑢𝑛𝑠𝑒𝑛𝑑 𝑡ℎ𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒");
     }
-
-    // only allow unsend if the replied message was sent by the bot itself
-    if (event.messageReply.senderID !== api.getCurrentUserID()) {
-        return api.sendMessage(getText("returnCant"), event.threadID, event.messageID);
-    }
-
-    // perform unsend
-    return api.unsendMessage(event.messageReply.messageID);
+  }
 };
