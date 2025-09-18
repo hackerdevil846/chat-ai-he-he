@@ -5,7 +5,7 @@ const { loadImage, createCanvas } = require("canvas");
 module.exports = {
   config: {
     name: "studentv2",
-    aliases: ["student", "board"],
+    aliases: ["student2", "board2"],
     version: "3.1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
