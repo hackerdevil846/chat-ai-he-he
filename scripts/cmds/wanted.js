@@ -7,42 +7,38 @@ module.exports = {
     name: 'wanted',
     aliases: ['chorgang'],
     version: '1.1',
-    author: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
-    credits: '𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅',
-    countDown: 5,
+    author: '𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑',
     role: 0,
+    category: 'fun',
     shortDescription: {
-      en: 'Create a fun wanted frame with friends',
-      bn: 'বন্ধুদের সাথে মজার ওয়ান্টেড ফ্রেম তৈরি করুন'
+      en: '🎭 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑓𝑢𝑛 𝑤𝑎𝑛𝑡𝑒𝑑 𝑓𝑟𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑓𝑟𝑖𝑒𝑛𝑑𝑠'
     },
     longDescription: {
-      en: 'Generate a wanted poster with 3 tagged Facebook friends',
-      bn: '৩ জন ট্যাগ করা ফেসবুক বন্ধুকে নিয়ে একটি ওয়ান্টেড পোস্টার তৈরি করুন'
+      en: '𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑤𝑎𝑛𝑡𝑒𝑑 𝑝𝑜𝑠𝑡𝑒𝑟 𝑤𝑖𝑡ℎ 3 𝑡𝑎𝑔𝑔𝑒𝑑 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑓𝑟𝑖𝑒𝑛𝑑𝑠'
     },
-    category: 'fun',
     guide: {
-      en: '{pn} @tag1 @tag2',
-      bn: '{pn} @ট্যাগ1 @ট্যাগ2'
+      en: '{p}wanted @𝑡𝑎𝑔1 @𝑡𝑎𝑔2'
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "jimp": "",
+      "fs-extra": ""
     }
   },
 
   langs: {
     en: {
-      tagMore: 'Tag your two friends to invite them in wanted frame',
-      result: 'These guys are wanted!',
-      error: 'An error occurred while generating the image.'
-    },
-    bn: {
-      tagMore: 'দয়া করে আপনার দুইজন বন্ধুকে ট্যাগ করুন ওয়ান্টেড ফ্রেমে যোগ করার জন্য',
-      result: 'এরা এখন ওয়ান্টেড!',
-      error: 'ছবি তৈরি করতে গিয়ে একটি সমস্যা হয়েছে।'
+      tagMore: '❌ 𝑇𝑎𝑔 𝑦𝑜𝑢𝑟 𝑡𝑤𝑜 𝑓𝑟𝑖𝑒𝑛𝑑𝑠 𝑡𝑜 𝑖𝑛𝑣𝑖𝑡𝑒 𝑡ℎ𝑒𝑚 𝑖𝑛 𝑤𝑎𝑛𝑡𝑒𝑑 𝑓𝑟𝑎𝑚𝑒',
+      result: '✅ 𝑇ℎ𝑒𝑠𝑒 𝑔𝑢𝑦𝑠 𝑎𝑟𝑒 𝑤𝑎𝑛𝑡𝑒𝑑!',
+      error: '❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒.'
     }
   },
 
-  onStart: async function ({ message, event, args, getLang }) {
+  onStart: async function ({ message, event, args, getText }) {
     try {
       const mention = Object.keys(event.mentions || {});
-      if (mention.length < 2) return message.reply(getLang('tagMore'));
+      if (mention.length < 2) return message.reply(getText('tagMore'));
 
       // include the command sender as the third person
       mention.push(event.senderID);
@@ -52,7 +48,7 @@ module.exports = {
 
       // send and then remove the temp file
       await message.reply({
-        body: getLang('result'),
+        body: getText('result'),
         attachment: fs.createReadStream(imagePath)
       });
 
@@ -64,7 +60,7 @@ module.exports = {
       }
     } catch (error) {
       console.error('Error while running command:', error);
-      return message.reply(getLang('error'));
+      return message.reply(getText('error'));
     }
   }
 };
