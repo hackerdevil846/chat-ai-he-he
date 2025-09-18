@@ -6,18 +6,27 @@ const startTime = new Date();
 module.exports = {
   config: {
     name: "uptime3",
+    aliases: ["upt3", "systeminfo"],
     version: "1.0.0",
-    hasPermssion: 0,
-    credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-    description: "𝒕𝒆𝒔𝒕",
-    category: "𝒃𝒐𝒙",
-    usages: "𝒕𝒆𝒔𝒕",
-    prefix: "𝒇𝒂𝒍𝒔𝒆",
-    dependencies: {},
-    cooldowns: 5
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "system",
+    shortDescription: {
+      en: "📊 𝑆ℎ𝑜𝑤 𝑏𝑜𝑡 𝑢𝑝𝑡𝑖𝑚𝑒 𝑎𝑛𝑑 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛"
+    },
+    longDescription: {
+      en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑏𝑜𝑡 𝑢𝑝𝑡𝑖𝑚𝑒"
+    },
+    guide: {
+      en: "{p}uptime3"
+    },
+    countDown: 5,
+    dependencies: {
+      "fs-extra": ""
+    }
   },
 
-  onStart: async function ({ api, event, args }) {
+  onStart: async function ({ api, event, message }) {
     try {
       const uptimeInSeconds = (new Date() - startTime) / 1000;
 
@@ -48,62 +57,44 @@ module.exports = {
       });
 
       const timeStart = Date.now();
-      await api.sendMessage({
-        body: "🔎| 𝒄𝒉𝒆𝒄𝒌 𝒌𝒐𝒓𝒄𝒉𝒊........",
-      }, event.threadID);
+      await message.reply("🔎| 𝐶ℎ𝑒𝑐𝑘𝑖𝑛𝑔 𝑠𝑦𝑠𝑡𝑒𝑚...");
 
       const ping = Date.now() - timeStart;
 
-      let pingStatus = "⛔| 𝒃𝒂𝒅 𝒔𝒚𝒔𝒕𝒆𝒎";
+      let pingStatus = "⛔| 𝐵𝑎𝑑 𝑠𝑦𝑠𝑡𝑒𝑚";
       if (ping < 1000) {
-        pingStatus = "✅| 𝒔𝒎𝒐𝒐𝒕𝒉 𝒔𝒚𝒔𝒕𝒆𝒎";
+        pingStatus = "✅| 𝑆𝑚𝑜𝑜𝑡ℎ 𝑠𝑦𝑠𝑡𝑒𝑚";
       }
+
       const systemInfo = `♡   ∩_∩
  （„• ֊ •„)♡
 ╭─∪∪────────────⟡
-│ 𝑼𝑷𝑻𝑰𝑴𝑬 𝑰𝑵𝑭𝑶
+│ 𝑈𝑃𝑇𝐼𝑀𝐸 𝐼𝑁𝐹𝑂
 ├───────────────⟡
-│ ⏰ 𝑹𝑼𝑵𝑻𝑰𝑴𝑬
+│ ⏰ 𝑅𝑈𝑁𝑇𝐼𝑀𝐸
 │  ${uptimeFormatted}
 ├───────────────⟡
-│ 👑 𝑺𝒀𝑺𝑻𝑬𝑴 𝑰𝑵𝑭𝑶
-│𝑶𝑺: ${os.type()} ${os.arch()}
-│𝑳𝑨𝑵𝑮 𝑽𝑬𝑹: ${process.version}
-│𝑪𝑷𝑼 𝑴𝑶𝑫𝑬𝑳: ${os.cpus()[0].model}
-│𝑺𝑻𝑶𝑹𝑨𝑮𝑬: ${usedMemoryGB.toFixed(2)} 𝑮𝑩 / ${totalMemoryGB.toFixed(2)} 𝑮𝑩
-│𝑪𝑷𝑼 𝑼𝑺𝑨𝑮𝑬: ${cpuUsage.toFixed(1)}%
-│𝑹𝑨𝑴 𝑼𝑺𝑮𝑬: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} 𝑴𝑩
+│ 👑 𝑆𝑌𝑆𝑇𝐸𝑀 𝐼𝑁𝐹𝑂
+│𝑂𝑆: ${os.type()} ${os.arch()}
+│𝐿𝐴𝑁𝐺 𝑉𝐸𝑅: ${process.version}
+│𝐶𝑃𝑈 𝑀𝑂𝐷𝐸𝐿: ${os.cpus()[0].model}
+│𝑆𝑇𝑂𝑅𝐴𝐺𝐸: ${usedMemoryGB.toFixed(2)} 𝐺𝐵 / ${totalMemoryGB.toFixed(2)} 𝐺𝐵
+│𝐶𝑃𝑈 𝑈𝑆𝐴𝐺𝐸: ${cpuUsage.toFixed(1)}%
+│𝑅𝐴𝑀 𝑈𝑆𝐺𝐸: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} 𝑀𝐵
 ├───────────────⟡
-│ ✅ 𝑶𝑻𝑯𝑬𝑹 𝑰𝑵𝑭𝑶
-│𝑫𝑨𝑻𝑬: ${date}
-│𝑻𝑰𝑴𝑬: ${time}
-│𝑷𝑰𝑵𝑮: ${ping}𝒎𝒔
-│𝑺𝑻𝑨𝑻𝑼𝑺: ${pingStatus}
+│ ✅ 𝑂𝑇𝐻𝐸𝑅 𝐼𝑁𝐹𝑂
+│𝐷𝐴𝑇𝐸: ${date}
+│𝑇𝐼𝑀𝐸: ${time}
+│𝑃𝐼𝑁𝐺: ${ping}𝑚𝑠
+│𝑆𝑇𝐴𝑇𝑈𝑆: ${pingStatus}
 ╰───────────────⟡
 `;
 
-      api.sendMessage(
-        {
-          body: systemInfo,
-        },
-        event.threadID,
-        (err, messageInfo) => {
-          if (err) {
-            console.error("Error sending message with attachment:", err);
-          } else {
-            console.log(
-              "Message with attachment sent successfully:",
-              messageInfo,
-            );
-          }
-        },
-      );
+      await message.reply(systemInfo);
+
     } catch (error) {
       console.error("Error retrieving system information:", error);
-      api.sendMessage(
-        "𝑼𝒏𝒂𝒃𝒍𝒆 𝒕𝒐 𝒓𝒆𝒕𝒓𝒊𝒆𝒗𝒆 𝒔𝒚𝒔𝒕𝒆𝒎 𝒊𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏.",
-        event.threadID
-      );
+      await message.reply("𝑈𝑛𝑎𝑏𝑙𝑒 𝑡𝑜 𝑟𝑒𝑡𝑟𝑖𝑒𝑣𝑒 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛.");
     }
   }
 };
