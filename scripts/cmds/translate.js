@@ -4,156 +4,122 @@ const defaultEmojiTranslate = "🌐";
 module.exports = {
   config: {
     name: "translator",
-    aliases: ["transl"],
+    aliases: ["trans", "translate"],
     version: "1.5",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
-    description: {
-      vi: "Dịch văn bản sang ngôn ngữ mong muốn",
-      en: "Translate text to the desired language"
-    },
     category: "utility",
+    shortDescription: {
+      en: "🌍 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑑𝑒𝑠𝑖𝑟𝑒𝑑 𝑙𝑎𝑛𝑔𝑢𝑎𝑔𝑒"
+    },
+    longDescription: {
+      en: "𝐴𝑑𝑣𝑎𝑛𝑐𝑒𝑑 𝑡𝑒𝑥𝑡 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛 𝑤𝑖𝑡ℎ 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐 𝑟𝑒𝑎𝑐𝑡𝑖𝑜𝑛 𝑓𝑒𝑎𝑡𝑢𝑟𝑒𝑠"
+    },
     guide: {
-      vi:
-        "   {pn} <văn bản>: Dịch văn bản sang ngôn ngữ của box chat bạn hoặc ngôn ngữ mặc định của bot"
-        + "\n   {pn} <văn bản> -> <ISO 639-1>: Dịch văn bản sang ngôn ngữ mong muốn"
-        + "\n   hoặc có thể phản hồi 1 tin nhắn để dịch nội dung của tin nhắn đó"
-        + "\n   Ví dụ:"
-        + "\n    {pn} hello -> vi"
-        + "\n   {pn} -r [on | off]: Bật hoặc tắt chế độ tự động dịch tin nhắn khi có người thả cảm xúc vào tin nhắn"
-        + "\n   {pn} -r set <emoji>: Đặt emoji để dịch tin nhắn trong nhóm chat của bạn",
-      en:
-        "   {pn} <text>: Translate text to the language of your chat box or the default language of the bot"
-        + "\n   {pn} <text> -> <ISO 639-1>: Translate text to the desired language"
-        + "\n   or you can reply a message to translate the content of that message"
-        + "\n   Example:"
-        + "\n    {pn} hello -> vi"
-        + "\n   {pn} -r [on | off]: Turn on or off the automatic translation mode when someone reacts to the message"
-        + "\n   {pn} -r set <emoji>: Set the emoji to translate the message in your chat group"
+      en: 
+        "   {p}translator <𝑡𝑒𝑥𝑡>: 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑡𝑜 𝑏𝑜𝑡'𝑠 𝑑𝑒𝑓𝑎𝑢𝑙𝑡 𝑙𝑎𝑛𝑔𝑢𝑎𝑔𝑒\n" +
+        "   {p}translator <𝑡𝑒𝑥𝑡> -> <𝑙𝑎𝑛𝑔>: 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑡𝑜 𝑠𝑝𝑒𝑐𝑖𝑓𝑖𝑐 𝑙𝑎𝑛𝑔𝑢𝑎𝑔𝑒\n" +
+        "   {p}translator -𝑟 𝑜𝑛/𝑜𝑓𝑓: 𝑇𝑜𝑔𝑔𝑙𝑒 𝑎𝑢𝑡𝑜 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑜𝑛 𝑟𝑒𝑎𝑐𝑡𝑖𝑜𝑛\n" +
+        "   {p}translator -𝑟 𝑠𝑒𝑡 <𝑒𝑚𝑜𝑗𝑖>: 𝑆𝑒𝑡 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑒𝑚𝑜𝑗𝑖"
+    },
+    dependencies: {
+      "axios": ""
     }
   },
 
   langs: {
-    vi: {
-      translateTo: "🌐 Dịch từ %1 sang %2",
-      invalidArgument: "❌ Sai cú pháp, vui lòng chọn on hoặc off",
-      turnOnTransWhenReaction: `✅ Đã bật tính năng dịch tin nhắn khi thả cảm xúc, thử thả cảm xúc \"${defaultEmojiTranslate}\" vào tin nhắn bắt kỳ để dịch nó (không hỗ trợ tin nhắn của bot)\n Chỉ có thể dịch được những tin nhắn sau khi bật tính năng này`,
-      turnOffTransWhenReaction: "✅ Đã tắt tính năng dịch tin nhắn khi thả cảm xúc",
-      inputEmoji: "🌀 Hãy thả cảm xúc vào tin nhắn này để đặt emoji đó làm emoji dịch tin nhắn",
-      emojiSet: "✅ Đã đặt emoji dịch tin nhắn là %1"
-    },
     en: {
-      translateTo: "🌐 Translate from %1 to %2",
-      invalidArgument: "❌ Invalid argument, please choose on or off",
-      turnOnTransWhenReaction: `✅ Turn on translate message when reaction, try to react \"${defaultEmojiTranslate}\" to any message to translate it (not support bot message)\n Only translate message after turn on this feature`,
-      turnOffTransWhenReaction: "✅ Turn off translate message when reaction",
-      inputEmoji: "🌀 Please react to this message to set that emoji as emoji to translate message",
-      emojiSet: "✅ Emoji to translate message is set to %1"
+      translateTo: "🌐 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒𝑑 𝑓𝑟𝑜𝑚 %1 𝑡𝑜 %2",
+      invalidArgument: "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑟𝑔𝑢𝑚𝑒𝑛𝑡, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 𝑜𝑛 𝑜𝑟 𝑜𝑓𝑓",
+      turnOnTransWhenReaction: `✅ 𝑇𝑢𝑟𝑛𝑒𝑑 𝑜𝑛 𝑎𝑢𝑡𝑜 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒. 𝑅𝑒𝑎𝑐𝑡 \"${defaultEmojiTranslate}\" 𝑡𝑜 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑡𝑜 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒`,
+      turnOffTransWhenReaction: "✅ 𝑇𝑢𝑟𝑛𝑒𝑑 𝑜𝑓𝑓 𝑎𝑢𝑡𝑜 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒",
+      inputEmoji: "🌀 𝑅𝑒𝑎𝑐𝑡 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑠𝑒𝑡 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑒𝑚𝑜𝑗𝑖",
+      emojiSet: "✅ 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑒𝑚𝑜𝑗𝑖 𝑠𝑒𝑡 𝑡𝑜 %1"
     }
   },
 
-  onStart: async function ({ message, event, args, threadsData, getLang, commandName }) {
+  onStart: async function ({ message, event, args, threadsData, getLang }) {
     if (["-r", "-react", "-reaction"].includes(args[0])) {
       if (args[1] == "set") {
-        return message.reply(getLang("inputEmoji"), (err, info) =>
-          global.GoatBot.onReaction.set(info.messageID, {
+        return message.reply(getLang("inputEmoji"), (err, info) => {
+          global.translatorReactions = global.translatorReactions || {};
+          global.translatorReactions[info.messageID] = {
             type: "setEmoji",
-            commandName,
-            messageID: info.messageID,
-            authorID: event.senderID
-          })
-        );
+            authorID: event.senderID,
+            threadID: event.threadID
+          };
+        });
       }
+      
       const isEnable = args[1] == "on" ? true : args[1] == "off" ? false : null;
-      if (isEnable == null)
+      if (isEnable == null) {
         return message.reply(getLang("invalidArgument"));
-      await threadsData.set(event.threadID, isEnable, "data.translate.autoTranslateWhenReaction");
+      }
+      
+      await threadsData.set(event.threadID, isEnable, "settings.autoTranslate");
       return message.reply(isEnable ? getLang("turnOnTransWhenReaction") : getLang("turnOffTransWhenReaction"));
     }
 
-    const { body = "" } = event;
+    const { body } = event;
     let content;
-    let langCodeTrans;
-    const langOfThread = await threadsData.get(event.threadID, "data.lang") || global.GoatBot.config.language;
+    let targetLang;
 
+    // Handle message replies
     if (event.messageReply) {
       content = event.messageReply.body;
-      let lastIndexSeparator = body.lastIndexOf("->");
-      if (lastIndexSeparator == -1)
-        lastIndexSeparator = body.lastIndexOf("=>");
-
-      if (lastIndexSeparator != -1 && (body.length - lastIndexSeparator == 4 || body.length - lastIndexSeparator == 5))
-        langCodeTrans = body.slice(lastIndexSeparator + 2);
-      else if ((args[0] || "").match(/\w{2,3}/))
-        langCodeTrans = args[0].match(/\w{2,3}/)[0];
-      else
-        langCodeTrans = langOfThread;
-    }
-    else {
-      content = event.body;
-      let lastIndexSeparator = content.lastIndexOf("->");
-      if (lastIndexSeparator == -1)
-        lastIndexSeparator = content.lastIndexOf("=>");
-
-      if (lastIndexSeparator != -1 && (content.length - lastIndexSeparator == 4 || content.length - lastIndexSeparator == 5)) {
-        langCodeTrans = content.slice(lastIndexSeparator + 2);
-        content = content.slice(content.indexOf(args[0]), lastIndexSeparator);
+      const langMatch = body.match(/->\s*(\w{2,3})$/);
+      targetLang = langMatch ? langMatch[1] : global.GoatBot.config.language;
+    } else {
+      const langMatch = body.match(/(.*?)\s*->\s*(\w{2,3})$/);
+      if (langMatch) {
+        content = langMatch[1].trim();
+        targetLang = langMatch[2];
+      } else {
+        content = body.replace(/^\.?translator\s*/i, '').trim();
+        targetLang = global.GoatBot.config.language;
       }
-      else
-        langCodeTrans = langOfThread;
     }
 
-    if (!content)
-      return message.SyntaxError();
+    if (!content) {
+      return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒");
+    }
 
-    translateAndSendMessage(content, langCodeTrans, message, getLang);
+    try {
+      const { text, lang } = await translate(content, targetLang);
+      await message.reply(`${text}\n\n${getLang("translateTo", lang, targetLang)}`);
+    } catch (error) {
+      console.error("Translation error:", error);
+      message.reply("❌ 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛 𝑓𝑎𝑖𝑙𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
+    }
   },
 
-  onChat: async ({ event, threadsData }) => {
-    if (!await threadsData.get(event.threadID, "data.translate.autoTranslateWhenReaction"))
-      return;
-    global.GoatBot.onReaction.set(event.messageID, {
-      commandName: 'translator',
-      messageID: event.messageID,
-      body: event.body,
-      type: "translate"
-    });
-  },
-
-  onReaction: async ({ message, Reaction, event, threadsData, getLang }) => {
-    switch (Reaction.type) {
-      case "setEmoji": {
-        if (event.userID != Reaction.authorID)
-          return;
-        const emoji = event.reaction;
-        if (!emoji)
-          return;
-        await threadsData.set(event.threadID, emoji, "data.translate.emojiTranslate");
-        return message.reply(getLang("emojiSet", emoji), () => message.unsend(Reaction.messageID));
-      }
-      case "translate": {
-        const emojiTrans = await threadsData.get(event.threadID, "data.translate.emojiTranslate") || defaultEmojiTranslate;
-        if (event.reaction == emojiTrans) {
-          const langCodeTrans = await threadsData.get(event.threadID, "data.lang") || global.GoatBot.config.language;
-          const content = Reaction.body;
-          Reaction.delete();
-          translateAndSendMessage(content, langCodeTrans, message, getLang);
-        }
+  onEvent: async function ({ event, threadsData }) {
+    // Handle reaction events for auto-translate
+    if (event.type === "message_reaction" && global.translatorReactions) {
+      const reactionData = global.translatorReactions[event.messageID];
+      if (reactionData && event.userID === reactionData.authorID) {
+        await threadsData.set(reactionData.threadID, event.reaction, "settings.translateEmoji");
+        delete global.translatorReactions[event.messageID];
+        
+        const messageAPI = require('../utils/message');
+        await messageAPI.sendMessage(`✅ 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑒𝑚𝑜𝑗𝑖 𝑠𝑒𝑡 𝑡𝑜 ${event.reaction}`, event.threadID);
       }
     }
   }
 };
 
-async function translate(text, langCode) {
-  const res = await axios.get(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${langCode}&dt=t&q=${encodeURIComponent(text)}`);
-  return {
-    text: res.data[0].map(item => item[0]).join(''),
-    lang: res.data[2]
-  };
-}
-
-async function translateAndSendMessage(content, langCodeTrans, message, getLang) {
-  const { text, lang } = await translate(content.trim(), langCodeTrans.trim());
-  return message.reply(`${text}\n\n${getLang("translateTo", lang, langCodeTrans)}`);
+async function translate(text, targetLang) {
+  try {
+    const response = await axios.get(
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`
+    );
+    
+    return {
+      text: response.data[0].map(item => item[0]).join(''),
+      lang: response.data[2]
+    };
+  } catch (error) {
+    throw new Error("Translation API error");
+  }
 }
