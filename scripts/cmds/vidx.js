@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-// Helper function to convert text into bold italic math font (𝑴𝒆𝒕𝒂𝒍𝒊𝒙 style)
+// Helper function to convert text into bold italic math font
 function toFancy(text) {
   const normal = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const fancy = '𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿';
@@ -13,25 +13,29 @@ function toFancy(text) {
 module.exports = {
   config: {
     name: "vidx",
+    aliases: ["adultvideo", "nsfwvid"],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
-    role: 0,
+    role: 2,
+    category: "adult",
     shortDescription: {
-      en: toFancy("Search 18+ videos")
+      en: toFancy("Search adult videos")
     },
     longDescription: {
-      en: toFancy("Search and display adult videos using a search keyword")
+      en: toFancy("Search and display adult videos using search keywords")
     },
-    category: toFancy("media"),
     guide: {
-      en: toFancy("+vidx [search term]\nExample: +vidx teen")
+      en: toFancy("{p}vidx [search term]")
+    },
+    dependencies: {
+      "axios": ""
     }
   },
 
-  onStart: async function ({ message, args, event, commandName }) {
+  onStart: async function ({ message, args, event }) {
     const query = args.join(" ");
-    if (!query) return message.reply(toFancy("❌ | Please provide a search term.\nExample: +vidx teen"));
+    if (!query) return message.reply(toFancy("❌ | Please provide a search term.\nExample: {p}vidx teen"));
 
     const apiUrl = `https://www.eporner.com/api/v2/video/search/?query=${encodeURIComponent(query)}&format=json`;
 
@@ -68,12 +72,12 @@ module.exports = {
         attachment: attachments
       });
 
-      global.GoatBot.onReply.set(event.messageID, {
-        commandName,
-        author: event.senderID,
-        messageID: event.messageID,
-        videos: topVideos
-      });
+      // Store video data for reply handling
+      global.vidxData = global.vidxData || {};
+      global.vidxData[event.messageID] = {
+        videos: topVideos,
+        timestamp: Date.now()
+      };
 
     } catch (e) {
       console.error(e);
@@ -81,11 +85,12 @@ module.exports = {
     }
   },
 
-  onReply: async function ({ message, Reply, event }) {
-    const { author, commandName, videos } = Reply;
-    if (event.senderID !== author) return;
-
+  onReply: async function ({ message, event }) {
+    if (!global.vidxData || !global.vidxData[event.messageID]) return;
+    
+    const { videos } = global.vidxData[event.messageID];
     const selectedNum = parseInt(event.body);
+    
     if (isNaN(selectedNum)) {
       return message.reply(toFancy("❌ | Please reply with a number from the list."));
     }
@@ -125,6 +130,7 @@ module.exports = {
       });
     }
 
-    global.GoatBot.onReply.delete(event.messageID);
+    // Clean up stored data
+    delete global.vidxData[event.messageID];
   }
 };
