@@ -1,59 +1,62 @@
-module.exports.config = {
-  name: "trans-bangali",
-  version: "1.0.1",
-  hasPermssion: 0,
-  role: 0,
-  credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-  description: "𝑻𝒆𝒙𝒕 𝒕𝒓𝒂𝒏𝒔𝒍𝒂𝒕𝒊𝒐𝒏 𝒕𝒐 𝑩𝒂𝒏𝒈𝒍𝒂",
-  category: "𝒎𝒆𝒅𝒊𝒂",
-  usages: "[𝑻𝒆𝒙𝒕]",
-  cooldowns: 5,
-  countDown: 5,
-  dependencies: { "request": "" }
-};
+const axios = require('axios');
 
-// Goat Bot compatibility: use onStart; keep run for broader compatibility
-module.exports.onStart = async function ({ api, event, args, message }) {
-  return handleTranslate({ api, event, args, message });
-};
-
-module.exports.run = async function ({ api, event, args, message }) {
-  return handleTranslate({ api, event, args, message });
-};
-
-function handleTranslate({ api, event, args, message }) {
-  const request = global.nodemodule["request"];
-  let content = (args || []).join(" ").trim();
-
-  if ((!content || content.length === 0) && event.type !== "message_reply") {
-    const reply = message && typeof message.reply === "function" ? message.reply : (text) => api.sendMessage(text, event.threadID, event.messageID);
-    return reply("𝑻𝒆𝒙𝒕 𝒅𝒊𝒏 𝒃𝒂 𝒌𝒐𝒏𝒐 𝒎𝒆𝒔𝒔𝒆𝒋𝒆 𝒓𝒆𝒑𝒍𝒂𝒊 𝒌𝒐𝒓𝒖𝒏।");
-  }
-
-  let translateThis = "";
-  let lang = "bn"; // default target Bangla
-
-  if (event.type === "message_reply" && event.messageReply && event.messageReply.body) {
-    translateThis = event.messageReply.body;
-    if (content.includes("->")) {
-      lang = content.split("->").pop().trim() || "bn";
+module.exports = {
+  config: {
+    name: "trans-bangali",
+    aliases: ["translate-bn", "bn-translate"],
+    version: "1.0.1",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "utility",
+    shortDescription: {
+      en: "🔄 𝑇𝑒𝑥𝑡 𝑡𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑖𝑜𝑛 𝑡𝑜 𝐵𝑎𝑛𝑔𝑙𝑎"
+    },
+    longDescription: {
+      en: "𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒 𝑡𝑒𝑥𝑡 𝑡𝑜 𝐵𝑎𝑛𝑔𝑙𝑎 𝑜𝑟 𝑜𝑡ℎ𝑒𝑟 𝑙𝑎𝑛𝑔𝑢𝑎𝑔𝑒𝑠 𝑢𝑠𝑖𝑛𝑔 𝐺𝑜𝑜𝑔𝑙𝑒 𝑇𝑟𝑎𝑛𝑠𝑙𝑎𝑡𝑒"
+    },
+    guide: {
+      en: "{p}trans-bangali [𝑡𝑒𝑥𝑡] 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒\n{p}trans-bangali [𝑡𝑒𝑥𝑡] -> [𝑙𝑎𝑛𝑔𝑢𝑎𝑔𝑒_𝑐𝑜𝑑𝑒]"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": ""
     }
-  } else {
-    if (content.includes("->")) {
-      const parts = content.split("->");
-      translateThis = (parts[0] || "").trim();
-      lang = (parts[1] || "").trim() || "bn";
-    } else {
-      translateThis = content;
-    }
-  }
+  },
 
-  const url = encodeURI(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lang}&dt=t&q=${translateThis}`);
-
-  return request(url, (err, response, body) => {
-    if (err) return api.sendMessage("𝑬𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒔𝒆!", event.threadID, event.messageID);
+  onStart: async function ({ api, event, args, message }) {
     try {
-      const retrieve = JSON.parse(body);
+      let content = args.join(" ").trim();
+
+      if ((!content || content.length === 0) && event.type !== "message_reply") {
+        return message.reply("❌ 𝑇𝑒𝑥𝑡 𝑑𝑖𝑛 𝑏𝑎 𝑘𝑜𝑛𝑜 𝑚𝑒𝑠𝑠𝑒𝑗𝑒 𝑟𝑒𝑝𝑙𝑎𝑖 𝑘𝑜𝑟𝑢𝑛");
+      }
+
+      let translateThis = "";
+      let lang = "bn"; // default target Bangla
+
+      if (event.type === "message_reply" && event.messageReply && event.messageReply.body) {
+        translateThis = event.messageReply.body;
+        if (content.includes("->")) {
+          lang = content.split("->").pop().trim() || "bn";
+        }
+      } else {
+        if (content.includes("->")) {
+          const parts = content.split("->");
+          translateThis = (parts[0] || "").trim();
+          lang = (parts[1] || "").trim() || "bn";
+        } else {
+          translateThis = content;
+        }
+      }
+
+      if (!translateThis) {
+        return message.reply("❌ 𝑇𝑒𝑥𝑡 𝑑𝑖𝑛 𝑏𝑎 𝑘𝑜𝑛𝑜 𝑚𝑒𝑠𝑠𝑒𝑗𝑒 𝑟𝑒𝑝𝑙𝑎𝑖 𝑘𝑜𝑟𝑢𝑛");
+      }
+
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${lang}&dt=t&q=${encodeURIComponent(translateThis)}`;
+
+      const response = await axios.get(url);
+      const retrieve = response.data;
 
       let text = "";
       if (Array.isArray(retrieve[0])) {
@@ -62,18 +65,15 @@ function handleTranslate({ api, event, args, message }) {
         });
       }
 
-      const fromLang =
-        (retrieve && retrieve[2]) ||
-        (retrieve && retrieve[8] && retrieve[8][0] && retrieve[8][0][0]) ||
-        "auto";
+      const fromLang = retrieve[2] || "auto";
 
-      api.sendMessage(
-        `❏ ${text}\n\n➤ 𝑨𝒏𝒖𝒃𝒂𝒅 𝒉𝒐𝒊𝒔𝒆: ${fromLang} 𝒕𝒉𝒆𝒌𝒆 𝑩𝒂𝒏𝒈𝒍𝒂`,
-        event.threadID,
-        event.messageID
+      await message.reply(
+        `✅ 𝑨𝒏𝒖𝒃𝒂𝒅:\n\n${text}\n\n➤ ${fromLang} → ${lang}`
       );
-    } catch (e) {
-      api.sendMessage("𝑨𝒏𝒖𝒃𝒂𝒅 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒔𝒆. 𝒑𝒖𝒏𝒐𝒓𝒊 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏...", event.threadID, event.messageID);
+
+    } catch (error) {
+      console.error("Translation error:", error);
+      await message.reply("❌ 𝑨𝒏𝒖𝒃𝒂𝒅 𝒆𝒓𝒓𝒐𝒓 𝒉𝒐𝒊𝒔𝒆. 𝒑𝒖𝒏𝒐𝒓𝒊 𝒄𝒆𝒔𝒕𝒂 𝒌𝒐𝒓𝒖𝒏...");
     }
-  });
-}
+  }
+};
