@@ -5,30 +5,30 @@ const { createCanvas, loadImage } = require("canvas");
 module.exports = {
   config: {
     name: "wantedposter",
-    aliases: ["wantedcmd"],
+    aliases: ["wantedcmd", "posterwanted"],
     version: "1.0.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 10,
     role: 0,
+    category: "fun",
     shortDescription: {
-      en: "Create a wanted poster"
+      en: "🎭 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑤𝑎𝑛𝑡𝑒𝑑 𝑝𝑜𝑠𝑡𝑒𝑟"
     },
     longDescription: {
-      en: "Generate a wanted poster with user's profile picture"
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑤𝑎𝑛𝑡𝑒𝑑 𝑝𝑜𝑠𝑡𝑒𝑟 𝑤𝑖𝑡ℎ 𝑢𝑠𝑒𝑟'𝑠 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒"
     },
-    category: "utility",
     guide: {
-      en: "{p}wantedposter [@mention|reply]"
+      en: "{p}wantedposter [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛|𝑟𝑒𝑝𝑙𝑦]"
+    },
+    countDown: 10,
+    dependencies: {
+      "axios": "",
+      "fs-extra": "",
+      "canvas": ""
     }
   },
 
-  onStart: async function ({ api, event, args, Users }) {
+  onStart: async function ({ api, event, args, message, usersData }) {
     try {
-      // Check for dependencies
-      if (!axios) throw new Error("Missing axios dependency");
-      if (!fs) throw new Error("Missing fs-extra dependency");
-      if (!createCanvas || !loadImage) throw new Error("Missing canvas dependency");
-      
       const { senderID, threadID, messageID } = event;
       let targetID = senderID;
 
@@ -79,22 +79,20 @@ module.exports = {
       fs.removeSync(pathAva);
 
       // Get target user name for message
-      const userName = await Users.getNameUser(targetID);
+      const userName = await usersData.getName(targetID);
 
       // Send result
-      return api.sendMessage(
-        { 
-          body: `⚠️ WANTED: ${userName} ⚠️\nThis person is wanted for being too awesome!`,
-          attachment: fs.createReadStream(pathImg) 
-        },
-        threadID,
-        () => fs.unlinkSync(pathImg),
-        messageID
-      );
+      await message.reply({ 
+        body: `⚠️ 𝑊𝐴𝑁𝑇𝐸𝐷: ${userName} ⚠️\n𝑇ℎ𝑖𝑠 𝑝𝑒𝑟𝑠𝑜𝑛 𝑖𝑠 𝑤𝑎𝑛𝑡𝑒𝑑 𝑓𝑜𝑟 𝑏𝑒𝑖𝑛𝑔 𝑡𝑜𝑜 𝑎𝑤𝑒𝑠𝑜𝑚𝑒!`,
+        attachment: fs.createReadStream(pathImg) 
+      });
+
+      // Clean up final image
+      fs.unlinkSync(pathImg);
 
     } catch (error) {
       console.error("Wanted poster command error:", error);
-      api.sendMessage("❌ An error occurred while creating the wanted poster. Please try again later.", event.threadID, event.messageID);
+      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑤𝑎𝑛𝑡𝑒𝑑 𝑝𝑜𝑠𝑡𝑒𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
   }
 };
