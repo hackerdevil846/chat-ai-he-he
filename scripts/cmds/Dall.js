@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 
 module.exports = {
   config: {
-    name: "𝗗𝗔𝗟𝗟-𝗘",
+    name: "Dall",
     aliases: ["dalle", "aiimage", "genimage"],
     version: "1.0",
     author: "𝗔𝘀𝗶𝗳",
