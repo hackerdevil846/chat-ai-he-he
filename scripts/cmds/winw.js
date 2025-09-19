@@ -5,19 +5,24 @@ const path = require("path");
 module.exports = {
   config: {
     name: "winw",
+    aliases: ["whowouldwin", "vs"],
     version: "1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
     role: 0,
+    category: "fun",
     shortDescription: {
-      en: "Generate Who Would Win meme comparing two users' profile pictures"
+      en: "🤼 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑊ℎ𝑜 𝑊𝑜𝑢𝑙𝑑 𝑊𝑖𝑛 𝑚𝑒𝑚𝑒"
     },
-    description: {
-      en: "Mention or reply to two users to create a Who Would Win meme"
+    longDescription: {
+      en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑊ℎ𝑜 𝑊𝑜𝑢𝑙𝑑 𝑊𝑖𝑛 𝑚𝑒𝑚𝑒 𝑐𝑜𝑚𝑝𝑎𝑟𝑖𝑛𝑔 𝑡𝑤𝑜 𝑢𝑠𝑒𝑟𝑠' 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
     },
-    category: "𝗙𝗨𝗡 & 𝗚𝗔𝗠𝗘",
     guide: {
-      en: "{p}winw @user1 vs @user2\n—or— reply to two users"
+      en: "{p}winw @𝑢𝑠𝑒𝑟1 𝑣𝑠 @𝑢𝑠𝑒𝑟2"
+    },
+    dependencies: {
+      "axios": "",
+      "fs-extra": ""
     }
   },
 
@@ -26,14 +31,14 @@ module.exports = {
       const { mentions, senderID, messageReply } = event;
       let mentionIDs = Object.keys(mentions);
 
-      // 🧠 Support: If fewer than 2 mentions, allow reply chains
+      // Support: If fewer than 2 mentions, allow reply chains
       if (mentionIDs.length < 2 && messageReply) {
         mentionIDs.push(messageReply.senderID);
       }
 
       // Still not enough IDs?
       if (mentionIDs.length < 2) {
-        return message.reply("❌ | Please mention or reply to two users.\n👉 Example: +winw @user1 vs @user2");
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡𝑤𝑜 𝑢𝑠𝑒𝑟𝑠.\n👉 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}winw @𝑢𝑠𝑒𝑟1 𝑣𝑠 @𝑢𝑠𝑒𝑟2");
       }
 
       // Take first 2 IDs only
@@ -70,7 +75,7 @@ module.exports = {
 
     } catch (err) {
       console.error("WhoWouldWin error:", err);
-      message.reply("⚠️ | Failed to generate meme. Please try again later.");
+      message.reply("⚠️ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑚𝑒𝑚𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
   }
 };
