@@ -13,7 +13,7 @@ module.exports = {
             en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 ℎ𝑢𝑠𝑏𝑎𝑛𝑑𝑜 𝑖𝑚𝑎𝑔𝑒𝑠"
         },
         longDescription: {
-            en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 ℎ𝑢𝑠𝑏𝑎𝑛𝑑𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑛𝑎𝑚𝑒𝑠"
+            en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 ℎ𝑢𝑠𝑏𝑎𝑛𝑑𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑑𝑎𝑡𝑎𝑏𝑎𝑠𝑒"
         },
         guide: {
             en: "{p}husbando"
@@ -46,29 +46,17 @@ module.exports = {
                 return message.reply("❌ 𝑁𝑜 ℎ𝑢𝑠𝑏𝑎𝑛𝑑𝑜 𝑑𝑎𝑡𝑎 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑖𝑛 𝑡ℎ𝑒 𝑓𝑖𝑙𝑒.");
             }
 
-            // Get random husbando
-            const randomHusbando = husbandoData[Math.floor(Math.random() * husbandoData.length)];
+            // Get random husbando URL
+            const randomUrl = husbandoData[Math.floor(Math.random() * husbandoData.length)];
             
-            if (!randomHusbando.url) {
+            if (!randomUrl) {
                 return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 ℎ𝑢𝑠𝑏𝑎𝑛𝑑𝑜 𝑑𝑎𝑡𝑎: 𝑚𝑖𝑠𝑠𝑖𝑛𝑔 𝑢𝑟𝑙");
             }
 
-            const stream = await global.utils.getStreamFromURL(randomHusbando.url);
+            const stream = await global.utils.getStreamFromURL(randomUrl);
             
-            let messageBody = `🌸 𝑅𝑎𝑛𝑑𝑜𝑚 𝐴𝑛𝑖𝑚𝑒 𝐻𝑢𝑠𝑏𝑎𝑛𝑑𝑜 🌸\n\n`;
-            
-            if (randomHusbando.name) {
-                messageBody += `📛 𝑁𝑎𝑚𝑒: ${randomHusbando.name}\n`;
-            }
-            
-            if (randomHusbando.anime) {
-                messageBody += `🎬 𝐴𝑛𝑖𝑚𝑒: ${randomHusbando.anime}\n`;
-            }
-            
-            messageBody += `\n© 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
-
             await message.reply({
-                body: messageBody,
+                body: "🌸 𝑅𝑎𝑛𝑑𝑜𝑚 𝐴𝑛𝑖𝑚𝑒 𝐻𝑢𝑠𝑏𝑎𝑛𝑑𝑜 🌸\n\n© 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
                 attachment: stream
             });
 
