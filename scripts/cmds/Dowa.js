@@ -18,8 +18,8 @@ module.exports.config = {
         bn: "ইসলামিক দোয়া ও প্রার্থনার সংগ্রহ"
     },
     guide: {
-        en: "{p}doya [দোয়ার নম্বর]",
-        bn: "{p}doya [দোয়ার নম্বর]"
+        en: "{p}Dowa [দোয়ার নম্বর]",
+        bn: "{p}Dowa [দোয়ার নম্বর]"
     },
     dependencies: {
         "axios": "",
