@@ -23,263 +23,263 @@ const toBI = (text) => {
   return text.split('').map(char => map[char] || char).join('');
 };
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "banner3",
-    aliases: ["banner", "bnr", "custombanner"],
+    aliases: ["custombanner3", "bannerstyle"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
     role: 0,
     category: "media",
     shortDescription: {
-        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑔𝑟𝑒𝑎𝑡 𝑏𝑎𝑛𝑛𝑒𝑟"
+      en: "🎨 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑔𝑟𝑒𝑎𝑡 𝑏𝑎𝑛𝑛𝑒𝑟"
     },
     longDescription: {
-        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚 𝑏𝑎𝑛𝑛𝑒𝑟𝑠 𝑤𝑖𝑡ℎ 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑠𝑡𝑦𝑙𝑒𝑠 𝑎𝑛𝑑 𝑜𝑝𝑡𝑖𝑜𝑛𝑠"
+      en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚 𝑏𝑎𝑛𝑛𝑒𝑟𝑠 𝑤𝑖𝑡ℎ 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑠𝑡𝑦𝑙𝑒𝑠 𝑎𝑛𝑑 𝑜𝑝𝑡𝑖𝑜𝑛𝑠"
     },
     guide: {
-        en: "{p}banner3 [𝑓𝑖𝑛𝑑] 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑢𝑠𝑒"
+      en: "{p}banner3 [𝑓𝑖𝑛𝑑] 𝑜𝑟 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑢𝑠𝑒"
     },
+    countDown: 5,
     dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "canvas": "",
-        "path": ""
+      "axios": "",
+      "fs-extra": "",
+      "canvas": "",
+      "path": ""
     }
-};
+  },
 
-module.exports.onStart = async function ({ event, message, args, api }) {
+  onStart: async function ({ event, message, args }) {
     try {
-        // Create cache directory if it doesn't exist
-        const cacheDir = path.join(__dirname, 'cache', 'banner3');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, 'cache', 'banner3');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      
+      if (args[0] === "find" || args[0] === "tìm") {
+        if (!args[1]) {
+          return message.reply(toBI("❎ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝐼𝐷"));
         }
         
-        if (args[0] === "find" || args[0] === "tìm") {
-            if (!args[1]) {
-                return message.reply(toBI("❎ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝐼𝐷"));
-            }
-            
-            const lengthchar = (await axios.get('https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864')).data;
-            const character = lengthchar[args[1]];
-            
-            if (!character) {
-                return message.reply(toBI("❎ 𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑"));
-            }
-            
-            const imageStream = (await axios.get(character.imgAnime, { responseType: "stream" })).data;
-            const msg = {
-                body: toBI(`𝒄𝒉𝒂𝒓 𝒄𝒂𝒓𝒓𝒊𝒆𝒔 𝒐𝒓𝒅𝒊𝒏𝒂𝒍 𝒏𝒖𝒎𝒃𝒆𝒓 ${args[1]}`),
-                attachment: imageStream
-            };
-            return message.reply(msg);
-        }
-        
-        if (!args[0]) {
-            const abcxyz = [
-                "https://imgur.com/7AiLKO5.png",
-                "https://imgur.com/6we7T1g.png", 
-                "https://imgur.com/W1TNnj9.png",
-                "https://imgur.com/qZAh20x.png"
-            ];
-            
-            let attachments = [];
-            for (let i = 0; i < 4; i++) {
-                const imageStream = (await axios.get(abcxyz[i], { responseType: "stream" })).data;
-                attachments.push(imageStream);
-            }
-            
-            const msg = {
-                body: toBI("𝑹𝒆𝒑𝒍𝒚 𝑴𝒆𝒔𝒔𝒂𝒈𝒆 𝑻𝒐 𝑪𝒉𝒐𝒐𝒔𝒆 𝑺𝒕𝒚𝒍𝒆 (1-4)"),
-                attachment: attachments
-            };
-            
-            return message.reply(msg, (err, info) => {
-                global.client.handleReply.push({
-                    step: 1,
-                    name: "banner3",
-                    author: event.senderID,
-                    messageID: info.messageID
-                });
-            });
-        }
-    } catch (error) {
-        console.error("𝐵𝑎𝑛𝑛𝑒𝑟3 𝑒𝑟𝑟𝑜𝑟:", error);
-        return message.reply(toBI("❎ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟"));
-    }
-};
-
-module.exports.onReply = async function({ event, message, Reply, api }) {
-    try {
-        if (event.senderID !== Reply.author) {
-            return message.reply(toBI("❎ 𝐴𝑐𝑐𝑒𝑠𝑠 𝑑𝑒𝑛𝑖𝑒𝑑"));
-        }
-
-        // Create cache directory
-        const cacheDir = path.join(__dirname, 'cache', 'banner3');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
-        }
-
         const lengthchar = (await axios.get('https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864')).data;
+        const character = lengthchar[args[1]];
         
-        // Define paths for temporary files
-        const pathImg = path.join(cacheDir, 'avatar_1.png');
-        const pathAva = path.join(cacheDir, 'avatar_2.png');
-        const pathLine = path.join(cacheDir, 'avatar_3.png');
-        const pathImg1 = path.join(cacheDir, 'avatar_1_11.png');
-        const pathImg2 = path.join(cacheDir, 'avatar_1_21.png');
-
-        // Download fonts
-        const fonts = [
-            { name: "GMV_DIN_Pro.ttf", url: "https://github.com/hanakuUwU/font/raw/main/GMV_DIN_Pro.ttf" },
-            { name: "Asem-Kandis-PERSONAL-USE.ttf", url: "https://github.com/hanakuUwU/font/raw/main/Asem-Kandis-PERSONAL-USE.ttf" },
-            { name: "MTD William Letter.otf", url: "https://drive.google.com/u/0/uc?id=1HsVzLw3LOsKfIeuCm9VlTuN_9zqucOni&export=download" },
-            { name: "SteelfishRg-Regular.otf", url: "https://drive.google.com/u/0/uc?id=1SZD5VXMnXQTBYzHG834pHnfyt7B2tfRF&export=download" },
-            { name: "SVN-BigNoodleTitling.otf", url: "https://drive.google.com/u/0/uc?id=1uCXXgyepedb9xwlqMsMsvH48D6wwCmUn&export=download" },
-            { name: "UTM-Avo.ttf", url: "https://github.com/hanakuUwU/font/blob/main/UTM%20Avo.ttf?raw=true" }
+        if (!character) {
+          return message.reply(toBI("❎ 𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑"));
+        }
+        
+        const imageStream = (await axios.get(character.imgAnime, { responseType: "stream" })).data;
+        const msg = {
+          body: toBI(`𝒄𝒉𝒂𝒓 𝒄𝒂𝒓𝒓𝒊𝒆𝒔 𝒐𝒓𝒅𝒊𝒏𝒂𝒍 𝒏𝒖𝒏𝒎𝒃𝒆𝒓 ${args[1]}`),
+          attachment: imageStream
+        };
+        return message.reply(msg);
+      }
+      
+      if (!args[0]) {
+        const abcxyz = [
+          "https://imgur.com/7AiLKO5.png",
+          "https://imgur.com/6we7T1g.png", 
+          "https://imgur.com/W1TNnj9.png",
+          "https://imgur.com/qZAh20x.png"
         ];
-
-        for (const font of fonts) {
-            const fontPath = path.join(cacheDir, font.name);
-            if (!fs.existsSync(fontPath)) {
-                try {
-                    const fontData = (await axios.get(font.url, { responseType: "arraybuffer" })).data;
-                    fs.writeFileSync(fontPath, Buffer.from(fontData));
-                } catch (fontError) {
-                    console.error(`𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑓𝑜𝑛𝑡 ${font.name}:`, fontError);
-                }
-            }
+        
+        let attachments = [];
+        for (let i = 0; i < 4; i++) {
+          const imageStream = (await axios.get(abcxyz[i], { responseType: "stream" })).data;
+          attachments.push(imageStream);
         }
-
-        if (Reply.step === 1) {
-            const styleNum = parseInt(event.body);
-            if (isNaN(styleNum) || styleNum < 1 || styleNum > 4) {
-                return message.reply(toBI('❎ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-4'));
-            }
-            
-            message.unsend(Reply.messageID);
-            return message.reply(toBI(`𝒀𝒐𝒖 𝒄𝒉𝒐𝒔𝒆 𝒔𝒕𝒚𝒍𝒆 ${styleNum} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑰𝑫`), (err, info) => {
-                global.client.handleReply.push({
-                    step: 2,
-                    name: "banner3",
-                    author: event.senderID,
-                    kieu: styleNum,
-                    messageID: info.messageID
-                });
-            });
-        } 
-        else if (Reply.step === 2) {
-            const charId = event.body.trim();
-            const character = lengthchar[charId];
-            
-            if (!character) {
-                return message.reply(toBI("❎ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝐼𝐷. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛"));
-            }
-            
-            message.unsend(Reply.messageID);
-            return message.reply(toBI(`𝒀𝒐𝒖 𝒄𝒉𝒐𝒔𝒆 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑰𝑫 ${charId} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒎𝒂𝒊𝒏 𝒏𝒂𝒎𝒆`), (err, info) => {
-                global.client.handleReply.push({
-                    step: 3,
-                    name: "banner3",
-                    author: event.senderID,
-                    kieu: Reply.kieu,
-                    idnv: charId,
-                    messageID: info.messageID
-                });
-            });
-        } 
-        else if (Reply.step === 3) {
-            message.unsend(Reply.messageID);
-            return message.reply(toBI(`𝒀𝒐𝒖𝒓 𝒎𝒂𝒊𝒏 𝒏𝒂𝒎𝒆: ${event.body} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒔𝒖𝒃𝒏𝒂𝒎𝒆`), (err, info) => {
-                global.client.handleReply.push({
-                    step: 4,
-                    name: "banner3",
-                    author: event.senderID,
-                    kieu: Reply.kieu,
-                    idnv: Reply.idnv,
-                    tenchinh: event.body,
-                    messageID: info.messageID
-                });
-            });
-        } 
-        else if (Reply.step === 4) {
-            message.unsend(Reply.messageID);
-            return message.reply(toBI(`𝒀𝒐𝒖𝒓 𝒔𝒖𝒃𝒏𝒂𝒎𝒆: ${event.body} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒹 𝒄𝒐𝒍𝒐𝒓 (𝒐𝒓 "𝒏𝒐" 𝒇𝒐𝒓 𝒅𝒆𝒇𝒂𝒖𝒍𝒕)`), (err, info) => {
-                global.client.handleReply.push({
-                    step: 5,
-                    name: "banner3",
-                    author: event.senderID,
-                    kieu: Reply.kieu,
-                    idnv: Reply.idnv,
-                    tenchinh: Reply.tenchinh,
-                    tenphu: event.body,
-                    messageID: info.messageID
-                });
-            });
-        } 
-        else if (Reply.step === 5) {
-            message.unsend(Reply.messageID);
-            
-            const type = Reply.kieu;
-            const charId = Reply.idnv;
-            const tenchinh = Reply.tenchinh;
-            const subname = Reply.tenphu;
-            const colorInput = event.body.trim();
-            
-            const character = lengthchar[charId];
-            if (!character) {
-                return message.reply(toBI("❎ 𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑑𝑎𝑡𝑎 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑"));
-            }
-            
-            const color_ = (colorInput.toLowerCase() === "no") ? character.colorBg : colorInput;
-
-            try {
-                // Download character image
-                const avtAnime = (await axios.get(character.imgAnime, { responseType: "arraybuffer" })).data;
-                fs.writeFileSync(pathAva, Buffer.from(avtAnime));
-
-                if (type == 1) {
-                    await createStyle1(pathImg, pathAva, pathLine, tenchinh, subname, color_);
-                } 
-                else if (type == 2) {
-                    await createStyle2(pathImg, pathAva, pathLine, tenchinh, subname, color_);
-                }
-                else if (type == 3) {
-                    await createStyle3(pathImg, pathAva, pathLine, tenchinh, subname, color_);
-                }
-                else if (type == 4) {
-                    await createStyle4(pathImg, pathAva, pathLine, pathImg1, pathImg2, tenchinh, subname, color_, event.senderID);
-                }
-
-                return message.reply({
-                    body: toBI("𝒀𝒐𝒖𝒓 𝒃𝒂𝒏𝒏𝒆𝒓 𝒊𝒔 𝒓𝒆𝒂𝒅𝒚"),
-                    attachment: fs.createReadStream(pathImg)
-                }, () => {
-                    // Cleanup files
-                    const filesToDelete = [pathImg, pathAva, pathLine, pathImg1, pathImg2];
-                    filesToDelete.forEach(filePath => {
-                        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-                    });
-                });
-                
-            } catch (error) {
-                console.error("𝐵𝑎𝑛𝑛𝑒𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
-                return message.reply(toBI("❎ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑏𝑎𝑛𝑛𝑒𝑟"));
-            }
-        }
+        
+        const msg = {
+          body: toBI("𝑹𝒆𝒑𝒍𝒚 𝑴𝒆𝒔𝒔𝒂𝒈𝒆 𝑻𝒐 𝑪𝒉𝒐𝒐𝒔𝒆 𝑺𝒕𝒚𝒍𝒆 (1-4)"),
+          attachment: attachments
+        };
+        
+        return message.reply(msg, (err, info) => {
+          global.client.handleReply = global.client.handleReply || [];
+          global.client.handleReply.push({
+            step: 1,
+            name: "banner3",
+            author: event.senderID,
+            messageID: info.messageID
+          });
+        });
+      }
     } catch (error) {
-        console.error("𝑅𝑒𝑝𝑙𝑦 ℎ𝑎𝑛𝑑𝑙𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:", error);
-        return message.reply(toBI("❎ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛"));
+      console.error("𝐵𝑎𝑛𝑛𝑒𝑟3 𝑒𝑟𝑟𝑜𝑟:", error);
+      return message.reply(toBI("❎ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟"));
     }
+  },
+
+  onReply: async function({ event, message, Reply }) {
+    try {
+      if (event.senderID !== Reply.author) {
+        return message.reply(toBI("❎ 𝐴𝑐𝑐𝑒𝑠𝑠 𝑑𝑒𝑛𝑖𝑒𝑑"));
+      }
+
+      // Create cache directory
+      const cacheDir = path.join(__dirname, 'cache', 'banner3');
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      const lengthchar = (await axios.get('https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864')).data;
+      
+      // Define paths for temporary files
+      const pathImg = path.join(cacheDir, 'avatar_1.png');
+      const pathAva = path.join(cacheDir, 'avatar_2.png');
+      const pathLine = path.join(cacheDir, 'avatar_3.png');
+      const pathImg1 = path.join(cacheDir, 'avatar_1_11.png');
+      const pathImg2 = path.join(cacheDir, 'avatar_1_21.png');
+
+      // Download fonts
+      const fonts = [
+        { name: "GMV_DIN_Pro.ttf", url: "https://github.com/hanakuUwU/font/raw/main/GMV_DIN_Pro.ttf" },
+        { name: "Asem-Kandis-PERSONAL-USE.ttf", url: "https://github.com/hanakuUwU/font/raw/main/Asem-Kandis-PERSONAL-USE.ttf" },
+        { name: "MTD William Letter.otf", url: "https://drive.google.com/u/0/uc?id=1HsVzLw3LOsKfIeuCm9VlTuN_9zqucOni&export=download" },
+        { name: "SteelfishRg-Regular.otf", url: "https://drive.google.com/u/0/uc?id=1SZD5VXMnXQTBYzHG834pHnfyt7B2tfRF&export=download" },
+        { name: "SVN-BigNoodleTitling.otf", url: "https://drive.google.com/u/0/uc?id=1uCXXgyepedb9xwlqMsMsvH48D6wwCmUn&export=download" },
+        { name: "UTM-Avo.ttf", url: "https://github.com/hanakuUwU/font/blob/main/UTM%20Avo.ttf?raw=true" }
+      ];
+
+      for (const font of fonts) {
+        const fontPath = path.join(cacheDir, font.name);
+        if (!fs.existsSync(fontPath)) {
+          try {
+            const fontData = (await axios.get(font.url, { responseType: "arraybuffer" })).data;
+            fs.writeFileSync(fontPath, Buffer.from(fontData));
+          } catch (fontError) {
+            console.error(`𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑓𝑜𝑛𝑡 ${font.name}:`, fontError);
+          }
+        }
+      }
+
+      if (Reply.step === 1) {
+        const styleNum = parseInt(event.body);
+        if (isNaN(styleNum) || styleNum < 1 || styleNum > 4) {
+          return message.reply(toBI('❎ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-4'));
+        }
+        
+        message.unsend(Reply.messageID);
+        return message.reply(toBI(`𝒀𝒐𝒖 𝒄𝒉𝒐𝒔𝒆 𝒔𝒕𝒚𝒍𝒆 ${styleNum} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑰𝑫`), (err, info) => {
+          global.client.handleReply.push({
+            step: 2,
+            name: "banner3",
+            author: event.senderID,
+            kieu: styleNum,
+            messageID: info.messageID
+          });
+        });
+      } 
+      else if (Reply.step === 2) {
+        const charId = event.body.trim();
+        const character = lengthchar[charId];
+        
+        if (!character) {
+          return message.reply(toBI("❎ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝐼𝐷. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛"));
+        }
+        
+        message.unsend(Reply.messageID);
+        return message.reply(toBI(`𝒀𝒐𝒖 𝒄𝒉𝒐𝒔𝒆 𝒄𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑰𝑫 ${charId} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒎𝒂𝒊𝒏 𝒏𝒂𝒎𝒆`), (err, info) => {
+          global.client.handleReply.push({
+            step: 3,
+            name: "banner3",
+            author: event.senderID,
+            kieu: Reply.kieu,
+            idnv: charId,
+            messageID: info.messageID
+          });
+        });
+      } 
+      else if (Reply.step === 3) {
+        message.unsend(Reply.messageID);
+        return message.reply(toBI(`𝒀𝒐𝒖𝒓 𝒎𝒂𝒊𝒏 𝒏𝒂𝒎𝒆: ${event.body} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒔𝒖𝒃𝒏𝒂𝒎𝒆`), (err, info) => {
+          global.client.handleReply.push({
+            step: 4,
+            name: "banner3",
+            author: event.senderID,
+            kieu: Reply.kieu,
+            idnv: Reply.idnv,
+            tenchinh: event.body,
+            messageID: info.messageID
+          });
+        });
+      } 
+      else if (Reply.step === 4) {
+        message.unsend(Reply.messageID);
+        return message.reply(toBI(`𝒀𝒐𝒖𝒓 𝒔𝒖𝒃𝒏𝒂𝒎𝒆: ${event.body} - 𝑹𝒆𝒑𝒍𝒚 𝒘𝒊𝒕𝒉 𝒄𝒐𝒍𝒐𝒓 (𝒐𝒓 "𝒏𝒐" 𝒇𝒐𝒓 𝒅𝒆𝒇𝒂𝒖𝒍𝒕)`), (err, info) => {
+          global.client.handleReply.push({
+            step: 5,
+            name: "banner3",
+            author: event.senderID,
+            kieu: Reply.kieu,
+            idnv: Reply.idnv,
+            tenchinh: Reply.tenchinh,
+            tenphu: event.body,
+            messageID: info.messageID
+          });
+        });
+      } 
+      else if (Reply.step === 5) {
+        message.unsend(Reply.messageID);
+        
+        const type = Reply.kieu;
+        const charId = Reply.idnv;
+        const tenchinh = Reply.tenchinh;
+        const subname = Reply.tenphu;
+        const colorInput = event.body.trim();
+        
+        const character = lengthchar[charId];
+        if (!character) {
+          return message.reply(toBI("❎ 𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑑𝑎𝑡𝑎 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑"));
+        }
+        
+        const color_ = (colorInput.toLowerCase() === "no") ? character.colorBg : colorInput;
+
+        try {
+          // Download character image
+          const avtAnime = (await axios.get(character.imgAnime, { responseType: "arraybuffer" })).data;
+          fs.writeFileSync(pathAva, Buffer.from(avtAnime));
+
+          if (type == 1) {
+            await createStyle1(pathImg, pathAva, pathLine, tenchinh, subname, color_);
+          } 
+          else if (type == 2) {
+            await createStyle2(pathImg, pathAva, pathLine, tenchinh, subname, color_);
+          }
+          else if (type == 3) {
+            await createStyle3(pathImg, pathAva, pathLine, tenchinh, subname, color_);
+          }
+          else if (type == 4) {
+            await createStyle4(pathImg, pathAva, pathLine, pathImg1, pathImg2, tenchinh, subname, color_, event.senderID);
+          }
+
+          return message.reply({
+            body: toBI("𝒀𝒐𝒖𝒓 𝒃𝒂𝒏𝒏𝒆𝒓 𝒊𝒔 𝒓𝒆𝒂𝒅𝒚"),
+            attachment: fs.createReadStream(pathImg)
+          }, () => {
+            // Cleanup files
+            const filesToDelete = [pathImg, pathAva, pathLine, pathImg1, pathImg2];
+            filesToDelete.forEach(filePath => {
+              if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            });
+          });
+          
+        } catch (error) {
+          console.error("𝐵𝑎𝑛𝑛𝑒𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+          return message.reply(toBI("❎ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑏𝑎𝑛𝑛𝑒𝑟"));
+        }
+      }
+    } catch (error) {
+      console.error("𝑅𝑒𝑝𝑙𝑦 ℎ𝑎𝑛𝑑𝑙𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:", error);
+      return message.reply(toBI("❎ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛"));
+    }
+  }
 };
 
 // Style creation functions
 async function createStyle1(pathImg, pathAva, pathLine, tenchinh, subname, color_) {
-  const axios = require('axios');
-  const { createCanvas, loadImage } = require('canvas');
-  
   const line = (await axios.get("https://i.imgur.com/4BQHmeI.png", { responseType: "arraybuffer" })).data;
   const background = (await axios.get("https://i.imgur.com/HUblFwC.png", { responseType: "arraybuffer" })).data;
   fs.writeFileSync(pathLine, Buffer.from(line));
@@ -356,9 +356,6 @@ async function createStyle1(pathImg, pathAva, pathLine, tenchinh, subname, color
 }
 
 async function createStyle2(pathImg, pathAva, pathLine, tenchinh, subname, color_) {
-  const axios = require('axios');
-  const { createCanvas, loadImage } = require('canvas');
-  
   const line = (await axios.get("https://1.bp.blogspot.com/-5SECGn_32Co/YQkQ-ZyDSPI/AAAAAAAAv1o/nZYKV0s_UPY41XlfWfNIX0HbVoRLhnlogCNcBGAsYHQ/s0/line.png", { responseType: "arraybuffer" })).data;
   const background = (await axios.get("https://i.imgur.com/j8FVO1W.jpg", { responseType: "arraybuffer" })).data;
   fs.writeFileSync(pathLine, Buffer.from(line));
@@ -402,9 +399,6 @@ async function createStyle2(pathImg, pathAva, pathLine, tenchinh, subname, color
 }
 
 async function createStyle3(pathImg, pathAva, pathLine, tenchinh, subname, color_) {
-  const axios = require('axios');
-  const { createCanvas, loadImage } = require('canvas');
-  
   const background = (await axios.get("https://lh3.googleusercontent.com/-p0IHqcx8eWE/YXZN2izzTrI/AAAAAAAAym8/T-hqrJ2IFooUfHPeVTbiwu047RkmxGLzgCNcBGAsYHQ/s0/layer2.jpg", { responseType: "arraybuffer" })).data;
   const hieuung = (await axios.get("https://lh3.googleusercontent.com/-F8w1tQRZ9s0/YXZZmKaylRI/AAAAAAAAynI/HBoYISaw-LE2z8QOE39OGwTUiFjHUH6xgCNcBGAsYHQ/s0/layer4.png", { responseType: "arraybuffer" })).data;
   fs.writeFileSync(pathImg, Buffer.from(background));
@@ -412,7 +406,7 @@ async function createStyle3(pathImg, pathAva, pathLine, tenchinh, subname, color
   
   const h = await loadImage(pathImg);
   const u = await loadImage(pathAva);
-  const k = await loadImage(pathLine);
+   const k = await loadImage(pathLine);
   
   const canvas = createCanvas(h.width, h.height);
   const ctx = canvas.getContext("2d");
@@ -457,9 +451,6 @@ async function createStyle3(pathImg, pathAva, pathLine, tenchinh, subname, color
 }
 
 async function createStyle4(pathImg, pathAva, pathLine, pathImg1, pathImg2, tenchinh, subname, color_, senderID) {
-  const axios = require('axios');
-  const { createCanvas, loadImage } = require('canvas');
-  
   const background = (await axios.get("https://lh3.googleusercontent.com/-JZxo4uTVIKQ/YaS7VBjAojI/AAAAAAAA1rk/mg_Bp0Z6_yUGLp1lfC9ugriYTGFfRaXTwCNcBGAsYHQ/s0/layer-2.png", { responseType: "arraybuffer" })).data;
   fs.writeFileSync(pathImg, Buffer.from(background));
   
