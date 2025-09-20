@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports.config = {
     name: "animegirl",
-    aliases: ["animepic", "animeimage"],
+    aliases: ["animewaifu", "animeimage"],
     version: "5.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 3,
@@ -173,9 +173,6 @@ module.exports.onStart = async function({ message, args }) {
             } else if (randomApi.includes('nekobot.xyz')) {
                 const response = await axios.get(randomApi);
                 imageUrl = response.data.message;
-            } else if (randomApi.includes('nekos.moe')) {
-                const response = await axios.get(randomApi);
-                imageUrl = `https://nekos.moe/image/${response.data.images[0].id}`;
             }
 
             if (imageUrl) {
