@@ -3,111 +3,113 @@ const fs = require("fs-extra");
 const path = require("path");
 const jimp = require("jimp");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "hugv3",
-    aliases: ["hug", "embrace"],
+    aliases: ["embracev3", "hugfriend"],
     version: "7.3.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
-    category: "img",
+    category: "fun",
     shortDescription: {
-        en: "🥰 | 𝑀𝑒𝓃𝓉𝒾𝑜𝓃𝑒𝒹 𝒻𝓇𝒾𝑒𝓃𝒹 𝓀𝑒 𝒽𝓊𝑔 𝒹𝒾𝓈𝒽𝒶𝓃 𝒹𝒶𝓃𝑜"
+      en: "🥰 | 𝐻𝑢𝑔 𝑎 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑓𝑟𝑖𝑒𝑛𝑑"
     },
     longDescription: {
-        en: "𝒮𝑒𝓃𝒹 𝒶 𝒽𝓊𝑔 𝓂𝑒𝓈𝓈𝒶𝑔𝑒 𝓌𝒾𝓉𝒽 𝓂𝑒𝓃𝓉𝒾𝑜𝓃𝑒𝒹 𝓊𝓈𝑒𝓇'𝓈 𝒶𝓋𝒶𝓉𝒶𝓇"
+      en: "𝑆𝑒𝑛𝑑 𝑎 ℎ𝑢𝑔 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟'𝑠 𝑎𝑣𝑎𝑡𝑎𝑟"
     },
     guide: {
-        en: "{p}hugv3 [@𝓂𝑒𝓃𝓉𝒾𝑜𝓃]"
+      en: "{p}hugv3 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
     },
     dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "path": "",
-        "jimp": ""
+      "axios": "",
+      "fs-extra": "",
+      "path": "",
+      "jimp": ""
     }
-};
+  },
 
-module.exports.onLoad = async function() {
+  onLoad: async function() {
     const { existsSync, mkdirSync } = fs;
     const dirMaterial = __dirname + `/cache/canvas/`;
     const filePath = __dirname + '/cache/canvas/hugv3.png';
     
     if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
     if (!existsSync(filePath)) {
-        try {
-            const imageData = await axios.get("https://i.imgur.com/7lPqHjw.jpg", { responseType: 'arraybuffer' });
-            fs.writeFileSync(filePath, Buffer.from(imageData.data));
-        } catch (error) {
-            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑢𝑔 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒:", error);
-        }
+      try {
+        const imageData = await axios.get("https://i.imgur.com/7lPqHjw.jpg", { responseType: 'arraybuffer' });
+        fs.writeFileSync(filePath, Buffer.from(imageData.data));
+      } catch (error) {
+        console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑢𝑔 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒:", error);
+      }
     }
-};
+  },
 
-module.exports.onStart = async function({ message, event, args }) {
+  onStart: async function({ message, event, args }) {
     try {
-        const { threadID, messageID, senderID } = event;
-        const mention = Object.keys(event.mentions);
-        
-        if (!mention[0]) {
-            return message.reply("💔 | 𝒟𝒶𝓎𝒶 𝓀𝑜𝓇𝑒 1 𝒿𝒶𝓃𝑒𝓇 @𝓂𝑒𝓃𝓉𝒾𝑜𝓃 𝒹𝒶𝓃 🥺", threadID, messageID);
-        }
-        
-        async function circle(image) {
-            const img = await jimp.read(image);
-            img.circle();
-            return await img.getBufferAsync("image/png");
-        }
+      const { threadID, messageID, senderID } = event;
+      const mention = Object.keys(event.mentions);
+      
+      if (!mention[0]) {
+        return message.reply("💔 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑎 𝑓𝑟𝑖𝑒𝑛𝑑 𝑡𝑜 ℎ𝑢𝑔 🥺");
+      }
+      
+      async function circle(image) {
+        const img = await jimp.read(image);
+        img.circle();
+        return await img.getBufferAsync("image/png");
+      }
 
-        async function makeImage(one, two) {
-            const __root = path.resolve(__dirname, "cache", "canvas");
-            const batgiam_img = await jimp.read(__root + "/hugv3.png");
-            const pathImg = __root + `/hugv3_${one}_${two}.png`;
-            const avatarOne = __root + `/avt_${one}.png`;
-            const avatarTwo = __root + `/avt_${two}.png`;
-            
-            const getAvatar = async (uid, path) => {
-                try {
-                    const data = (await axios.get(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-                    fs.writeFileSync(path, Buffer.from(data, 'utf-8'));
-                } catch (error) {
-                    console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎𝑣𝑎𝑡𝑎𝑟:", error);
-                }
-            };
-
-            await Promise.all([
-                getAvatar(one, avatarOne),
-                getAvatar(two, avatarTwo)
-            ]);
-
-            const circleOne = await jimp.read(await circle(avatarOne));
-            const circleTwo = await jimp.read(await circle(avatarTwo));
-            
-            batgiam_img.composite(circleOne.resize(220, 220), 200, 50)
-                      .composite(circleTwo.resize(220, 220), 490, 200);
-            
-            const raw = await batgiam_img.getBufferAsync("image/png");
-            fs.writeFileSync(pathImg, raw);
-            
-            // Clean up temporary avatar files
-            if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
-            if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
-            
-            return pathImg;
-        }
-
-        const pathImg = await makeImage(senderID, mention[0]);
+      async function makeImage(one, two) {
+        const __root = path.resolve(__dirname, "cache", "canvas");
+        const batgiam_img = await jimp.read(__root + "/hugv3.png");
+        const pathImg = __root + `/hugv3_${one}_${two}.png`;
+        const avatarOne = __root + `/avt_${one}.png`;
+        const avatarTwo = __root + `/avt_${two}.png`;
         
-        await message.reply({
-            body: "🥰 | 𝓨𝓸𝓾 𝓻𝓮𝓬𝓮𝓲𝓿𝓮𝓭 𝓪 𝔀𝓪𝓻𝓶 𝓱𝓾𝓰!",
-            attachment: fs.createReadStream(pathImg)
-        }, threadID);
+        const getAvatar = async (uid, path) => {
+          try {
+            const data = (await axios.get(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
+            fs.writeFileSync(path, Buffer.from(data, 'utf-8'));
+          } catch (error) {
+            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎𝑣𝑎𝑡𝑎𝑟:", error);
+          }
+        };
+
+        await Promise.all([
+          getAvatar(one, avatarOne),
+          getAvatar(two, avatarTwo)
+        ]);
+
+        const circleOne = await jimp.read(await circle(avatarOne));
+        const circleTwo = await jimp.read(await circle(avatarTwo));
         
-        // Clean up generated image
-        if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg);
+        batgiam_img.composite(circleOne.resize(220, 220), 200, 50)
+                  .composite(circleTwo.resize(220, 220), 490, 200);
         
+        const raw = await batgiam_img.getBufferAsync("image/png");
+        fs.writeFileSync(pathImg, raw);
+        
+        // Clean up temporary avatar files
+        if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
+        if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
+        
+        return pathImg;
+      }
+
+      const pathImg = await makeImage(senderID, mention[0]);
+      
+      await message.reply({
+        body: "🥰 | 𝒀𝒐𝒖 𝒓𝒆𝒄𝒆𝒊𝒗𝒆𝒅 𝒂 𝒘𝒂𝒓𝒎 𝒉𝒖𝒈!",
+        attachment: fs.createReadStream(pathImg)
+      });
+      
+      // Clean up generated image
+      if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg);
+      
     } catch (error) {
-        console.error("𝐻𝑢𝑔𝑣3 𝐸𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ | 𝓐𝓷 𝓮𝓻𝓻𝓸𝓻 𝓸𝓬𝓬𝓾𝓻𝓮𝓭 𝔀𝓱𝓲𝓵𝓮 𝓹𝓻𝓸𝓬𝓮𝓼𝓼𝓲𝓷𝓰 𝓽𝓱𝓮 𝓲𝓶𝓪𝓼𝓮", event.threadID, event.messageID);
+      console.error("𝐻𝑢𝑔𝑣3 𝐸𝑟𝑟𝑜𝑟:", error);
+      message.reply("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒");
     }
+  }
 };
