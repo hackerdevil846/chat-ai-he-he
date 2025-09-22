@@ -4,11 +4,12 @@ const Canvas = require("canvas");
 const jimp = require("jimp");
 const superfetch = require("node-superfetch");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "family",
-    aliases: ["familyphoto", "groupphoto"],
+    aliases: ["familypic", "groupfamily"], // CHANGED TO UNIQUE NAMES
     version: "2.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 15,
     role: 1,
     category: "𝑝ℎ𝑜𝑡𝑜 𝑒𝑑𝑖𝑡",
