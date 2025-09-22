@@ -1,41 +1,43 @@
-module.exports.config = {
-	name: "girl2", // Command name
-	version: "1.0.0", 
-	hasPermssion: 0, // 0 = everyone
-	credits: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
-	description: "🌸 Random সুন্দর মেয়ের ছবি দেখাবে",
-	category: "random-img", 
-	usages: "girl2", 
-	cooldowns: 5, 
-	dependencies: {
-		"request": "",
-		"fs-extra": "",
-		"axios": ""
-	}
-};
+const axios = require("axios");
+const fs = require("fs-extra");
 
-module.exports.languages = {
-	"bn": {
-		notEnoughMoney: "⚠️ আপনার কাছে অন্তত 200$ থাকতে হবে এই ছবি দেখার জন্য! 💸",
-		success: "🌸 সুন্দর মেয়ের ছবি 🌸\n📸 মোট ছবি সংখ্যা: %1\n💸 -200$ খরচ হয়েছে!"
-	},
-	"en": {
-		notEnoughMoney: "⚠️ You need at least 200$ to view this picture! 💸",
-		success: "🌸 Beautiful Girl Photo 🌸\n📸 Total photos: %1\n💸 -200$ has been deducted!"
-	}
-};
+module.exports = {
+  config: {
+    name: "girl2",
+    aliases: ["beautygirl", "prettygirl"],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    role: 0,
+    category: "image",
+    shortDescription: {
+      en: "🌸 𝑅𝑎𝑛𝑑𝑜𝑚 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑔𝑖𝑟𝑙 𝑖𝑚𝑎𝑔𝑒𝑠"
+    },
+    longDescription: {
+      en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑔𝑖𝑟𝑙 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑐𝑜𝑠𝑡 𝑜𝑓 200$"
+    },
+    guide: {
+      en: "{p}girl2"
+    },
+    countDown: 5,
+    dependencies: {
+      "axios": "",
+      "fs-extra": ""
+    }
+  },
 
-module.exports.onLoad = function () {
-	// Runs when the command is loaded
-};
+  langs: {
+    en: {
+      notEnoughMoney: "❌ 𝑌𝑜𝑢 𝑛𝑒𝑒𝑑 𝑎𝑡 𝑙𝑒𝑎𝑠𝑡 200$ 𝑡𝑜 𝑣𝑖𝑒𝑤 𝑡ℎ𝑖𝑠 𝑝𝑖𝑐𝑡𝑢𝑟𝑒! 💸",
+      success: "🌸 𝐵𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝐺𝑖𝑟𝑙 𝑃ℎ𝑜𝑡𝑜 🌸\n📸 𝑇𝑜𝑡𝑎𝑙 𝑝ℎ𝑜𝑡𝑜𝑠: %1\n💸 -200$ ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑑𝑒𝑑𝑢𝑐𝑡𝑒𝑑!"
+    }
+  },
 
-module.exports.onStart = async function({ api, event, args, Currencies, getText }) {
-	const axios = global.nodemodule["axios"];
-	const request = global.nodemodule["request"];
-	const fs = global.nodemodule["fs-extra"];
+  onStart: async function ({ api, event, args, message, usersData, getText }) {
+    try {
+      const { threadID, senderID } = event;
 
-	// Premium collection of beautiful girl images
-	var link = [
+      // Premium collection of beautiful girl images
+      const imageLinks = [
 "https://i.imgur.com/FNRRTy7.jpg",
 "https://i.imgur.com/GDEBTl2.jpg",
 "https://i.imgur.com/dOZwgSd.jpg",
@@ -46643,37 +46645,38 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
 "https://i.imgur.com/5Sy0mk1.jpg",
   ];
 
-        // Get user balance
-        const userData = await usersData.get(event.senderID);
-        const money = userData.money;
+      // Get user balance
+      const userData = await usersData.get(senderID);
+      const money = userData.money;
 
-        // Check balance
-        if (money < 200) {
-            return message.reply(getText("notEnoughMoney"));
-        }
+      // Check balance
+      if (money < 200) {
+        return message.reply(getText("notEnoughMoney"));
+      }
 
-        // Deduct money
-        await usersData.set(event.senderID, { money: money - 200 });
+      // Deduct money
+      await usersData.set(senderID, { money: money - 200 });
 
-        // Pick random image
-        const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
-        const imagePath = __dirname + "/cache/girl2.jpg";
+      // Pick random image
+      const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+      const imagePath = __dirname + "/cache/girl2.jpg";
 
-        // Download image
-        const response = await axios.get(randomImage, { responseType: "arraybuffer" });
-        await fs.writeFileSync(imagePath, Buffer.from(response.data, "utf-8"));
+      // Download image
+      const response = await axios.get(randomImage, { responseType: "arraybuffer" });
+      await fs.writeFileSync(imagePath, Buffer.from(response.data, "utf-8"));
 
-        // Send message with attachment
-        await message.reply({
-            body: getText("success", imageLinks.length),
-            attachment: fs.createReadStream(imagePath)
-        });
+      // Send message with attachment
+      await message.reply({
+        body: getText("success", imageLinks.length),
+        attachment: fs.createReadStream(imagePath)
+      });
 
-        // Clean up
-        fs.unlinkSync(imagePath);
+      // Clean up
+      fs.unlinkSync(imagePath);
 
     } catch (error) {
-        console.error("𝐺𝑖𝑟𝑙2 𝐸𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("𝐺𝑖𝑟𝑙2 𝐸𝑟𝑟𝑜𝑟:", error);
+      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
+  }
 };
