@@ -3,22 +3,23 @@ const path = require("path");
 const https = require("https");
 const axios = require("axios");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "inappropriatefilter",
-    aliases: ["filter", "contentfilter"],
+    aliases: ["contentfilter", "badwordfilter"],
     version: "1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 1,
+    category: "protection",
     shortDescription: {
-        en: "𝐴𝑢𝑡𝑜-𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑤𝑜𝑟𝑑𝑠 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑𝑠 𝑤𝑎𝑟𝑛𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒𝑠"
+      en: "🛡️ 𝐴𝑢𝑡𝑜-𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡"
     },
     longDescription: {
-        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑𝑠 𝑤𝑎𝑟𝑛𝑖𝑛𝑔 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠"
+      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑤𝑜𝑟𝑑𝑠 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑𝑠 𝑤𝑎𝑟𝑛𝑖𝑛𝑔𝑠"
     },
-    category: "𝑝𝑟𝑜𝑡𝑒𝑐𝑡𝑖𝑜𝑛",
     guide: {
-        en: "𝑈𝑠𝑒 {𝑝}inappropriatefilter on/off 𝑡𝑜 𝑡𝑜𝑔𝑔𝑙𝑒\n𝑈𝑠𝑒 {𝑝}inappropriatefilter 𝑡𝑜 𝑐ℎ𝑒𝑐𝑘 𝑠𝑡𝑎𝑡𝑢𝑠"
+      en: "{p}inappropriatefilter on/off"
     },
     dependencies: {
         "fs-extra": "",
