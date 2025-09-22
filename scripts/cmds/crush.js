@@ -3,30 +3,31 @@ const fs = require("fs-extra");
 const path = require("path");
 const jimp = require("jimp");
 
-module.exports.config = {
+module.exports = {
+  config: {
     name: "crush",
-    aliases: ["lovepair", "couple"],
+    aliases: ["lovematch", "romanticpair"], // ← CHANGED TO UNIQUE ALIASES
     version: "7.3.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
-    category: "𝑙𝑜𝑣𝑒",
+    category: "love",
     shortDescription: {
-        en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑙𝑜𝑣𝑒 𝑝𝑎𝑖𝑟 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
+      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑙𝑜𝑣𝑒 𝑝𝑎𝑖𝑟 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
     },
     longDescription: {
-        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒 𝑝𝑎𝑖𝑟𝑖𝑛𝑔 𝑦𝑜𝑢 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
+      en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒 𝑝𝑎𝑖𝑟𝑖𝑛𝑔 𝑦𝑜𝑢 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑟𝑢𝑠ℎ"
     },
     guide: {
-        en: "{p}crush [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+      en: "{p}crush [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
     },
     dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "path": "",
-        "jimp": ""
+      "axios": "",
+      "fs-extra": "",
+      "path": "",
+      "jimp": ""
     }
-};
+  },
 
 module.exports.onLoad = async () => {
     const { existsSync, mkdirSync } = fs;
