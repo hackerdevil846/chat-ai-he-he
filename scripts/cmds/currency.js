@@ -46,7 +46,7 @@ module.exports = {
       if (isNaN(mon)) return message.reply("⚠️ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑚𝑜𝑢𝑛𝑡!");
 
       // Admin check - replace with your admin IDs
-      const adminIDs = ["1000000000000000"]; // Add your admin user IDs here
+      const adminIDs = ["61571630409265"]; // Add your admin user IDs here
       const isAdmin = adminIDs.includes(senderID);
 
       switch (args[0]) {
