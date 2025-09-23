@@ -3,29 +3,30 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const Jimp = require("jimp");
 
-module.exports.config = {
-    name: "love7",
-    aliases: ["romantic", "lovers"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "edit-img",
-    shortDescription: {
-        en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡𝑤𝑜 𝑢𝑠𝑒𝑟𝑠"
+module.exports = {
+    config: {
+        name: "love7",
+        aliases: ["lovers7", "couple7"],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "edit-img",
+        shortDescription: {
+            en: "Create a romantic love image with two users"
+        },
+        longDescription: {
+            en: "Creates a romantic love image with two users' profile pictures"
+        },
+        guide: {
+            en: "{p}love7 [@tag]"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": "",
+            "jimp": ""
+        }
     },
-    longDescription: {
-        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡𝑤𝑜 𝑢𝑠𝑒𝑟𝑠' 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
-    },
-    guide: {
-        en: "{p}love7 [@𝑡𝑎𝑔]"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "jimp": ""
-    }
-};
 
 module.exports.languages = {
     "en": {
