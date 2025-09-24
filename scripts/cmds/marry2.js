@@ -6,7 +6,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "marry2",
-        aliases: ["marriage", "propose"],
+        aliases: ["proposal2", "wedding2"], // CHANGED: Unique aliases
         version: "2.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         role: 0,
