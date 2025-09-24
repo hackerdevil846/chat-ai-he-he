@@ -6,7 +6,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "night",
-        aliases: ["ratri", "goodnight"],
+        aliases: ["ratri", "shubharatri"], // Changed "goodnight" to "shubharatri"
         version: "1.0.2",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
