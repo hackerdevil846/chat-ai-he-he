@@ -1,7 +1,7 @@
 module.exports = {
     config: {
-        name: "murgi2",
-        aliases: ["interactive"],
+        name: "murgi3",
+        aliases: ["interactive2", "funsequence"],
         version: "1.0.2",
         role: 2,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -13,7 +13,7 @@ module.exports = {
         },
         category: "𝑓𝑢𝑛",
         guide: {
-            en: "{p}murgi2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+            en: "{p}murgi3 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
         },
         countDown: 5,
         dependencies: {}
