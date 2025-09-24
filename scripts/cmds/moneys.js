@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
 module.exports = {
     config: {
         name: "moneys",
-        aliases: ["balance", "money"],
+        aliases: ["wealth", "cashdisplay"],
         version: "2.0.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -144,8 +144,8 @@ module.exports = {
                 ctx.stroke();
 
                 // User name with shadow effect
-                ctx.font = 'bold 42px "𝑆𝑒𝑔𝑜𝑒 𝑈𝐼"';
-                ctx.fillStyle = '#𝐹𝐹𝐹𝐹𝐹𝐹';
+                ctx.font = 'bold 42px "Segoe UI"';
+                ctx.fillStyle = '#FFFFFF';
                 ctx.textAlign = 'center';
                 ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
                 ctx.shadowBlur = 10;
@@ -154,24 +154,24 @@ module.exports = {
                 ctx.fillText(userInfo.name, 450, 130);
 
                 // Balance label
-                ctx.font = '28px "𝑆𝑒𝑔𝑜𝑒 𝑈𝐼"';
-                ctx.fillStyle = '#𝐶𝐶𝐶𝐶𝐶𝐶';
+                ctx.font = '28px "Segoe UI"';
+                ctx.fillStyle = '#CCCCCC';
                 ctx.fillText('𝐶𝑢𝑟𝑟𝑒𝑛𝑡 𝐵𝑎𝑙𝑎𝑛𝑐𝑒', 450, 250);
 
                 // Balance amount with luxurious gold color
-                ctx.font = 'bold 72px "𝑆𝑒𝑔𝑜𝑒 𝑈𝐼"';
-                ctx.fillStyle = '#𝐹𝐹𝐷700';
+                ctx.font = 'bold 72px "Segoe UI"';
+                ctx.fillStyle = '#FFD700';
                 ctx.fillText(`$${balance.toLocaleString()}`, 450, 310);
 
                 // Decorative money bag icon
-                ctx.font = 'bold 80px "𝑆𝑒𝑔𝑜𝑒 𝑈𝐼"';
+                ctx.font = 'bold 80px "Segoe UI"';
                 ctx.fillText('💰', 750, 230);
 
                 // Footer with date and decorative elements
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetX = 0;
                 ctx.shadowOffsetY = 0;
-                ctx.font = 'italic 18px "𝑆𝑒𝑔𝑜𝑒 𝑈𝐼"';
+                ctx.font = 'italic 18px "Segoe UI"';
                 ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                 ctx.fillText(
                     `𝐶ℎ𝑒𝑐𝑘𝑒𝑑 𝑜𝑛 ${moment().tz(timezone).format('𝑌𝑌𝑌𝑌-𝑀𝑀-𝐷𝐷 ℎℎ:𝑚𝑚:𝑠𝑠 𝐴')}`,
@@ -180,7 +180,7 @@ module.exports = {
                 );
 
                 // Add decorative corner elements
-                ctx.strokeStyle = '#𝐹𝐹𝐷700';
+                ctx.strokeStyle = '#FFD700';
                 ctx.lineWidth = 2;
                 
                 // Top-left corner
