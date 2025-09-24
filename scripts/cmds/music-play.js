@@ -9,15 +9,15 @@ const ytSearch = require("yt-search");
 module.exports = {
     config: {
         name: "music-play",
-        aliases: ["song", "music"],
+        aliases: ["ytmusic", "playmusic"], // CHANGED: Unique aliases
         version: "1.0.4",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         shortDescription: {
-            en: "🎶 𝙆𝙚𝙮𝙬𝙤𝙧𝙙 𝙙𝙞𝙮𝙚 𝙗𝙖 𝙡𝙞𝙣𝙠 𝙩𝙝𝙚𝙠𝙚 𝙔𝙤𝙪𝙏𝙪𝙗𝙚 𝙜𝙖𝙖𝙣 𝙙𝙤𝙤𝙬𝙣𝙡𝙤𝙖𝙙 𝙠𝙤𝙧𝙪𝙣 🎧"
+            en: "🎶 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑚𝑢𝑠𝑖𝑐 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑟"
         },
         longDescription: {
-            en: "𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑓𝑟𝑜𝑚 𝑚𝑢𝑠𝑖𝑐 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑤𝑖𝑡ℎ 𝑘𝑒𝑦𝑤𝑜𝑟𝑑 𝑜𝑟 𝑙𝑖𝑛𝑘"
+            en: "𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑚𝑢𝑠𝑖𝑐 𝑓𝑟𝑜𝑚 𝑌𝑜𝑢𝑇𝑢𝑏𝑒 𝑤𝑖𝑡ℎ 𝑘𝑒𝑦𝑤𝑜𝑟𝑑 𝑜𝑟 𝑙𝑖𝑛𝑘"
         },
         category: "𝑚𝑒𝑑𝑖𝑎",
         guide: {
@@ -58,10 +58,10 @@ module.exports = {
             }
 
             if (!query) {
-                return message.reply("❔ | 𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒆𝒌𝒕𝒊 𝒈𝒂𝒂𝒏𝒆𝒓 𝒏𝒂𝒂𝒎 𝒃𝒂 𝒍𝒊𝒏𝒌 𝒅𝒊𝒏. 🎶");
+                return message.reply("❔ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑠𝑜𝑛𝑔 𝑛𝑎𝑚𝑒 𝑜𝑟 𝑙𝑖𝑛𝑘.");
             }
             
-            const processingMessage = await message.reply("✅ | 𝑨𝒑𝒏𝒂𝒓 𝒐𝒏𝒖𝒓𝒐𝒅𝒉 𝒑𝒓𝒐𝒔𝒆𝒔 𝒌𝒐𝒓𝒂 𝒉𝒐𝒄𝒄𝒉𝒆. 𝑫𝒐𝒚𝒂 𝒌𝒐𝒓𝒆 𝒐𝒑𝒆𝒌𝒌𝒉𝒂 𝒌𝒐𝒓𝒖𝒏... ⏳");
+            const processingMessage = await message.reply("✅ 𝑃𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡... ⏳");
 
             let videoId;
             if (ytdl.validateURL(query)) {
@@ -69,7 +69,7 @@ module.exports = {
             } else {
                 const searchResults = await ytSearch(query);
                 if (!searchResults || !searchResults.videos.length) {
-                    throw new Error("𝑨𝒑𝒏𝒂𝒓 𝒌𝒉𝒐𝒋𝒂𝒓 𝒋𝒐ᱱ𝒏𝒐 𝒌𝒐ᱱ𝒐 𝒇𝒐𝒍𝒂𝒇𝒐𝒍 𝒑𝒂𝒐𝒂 𝒋𝒂𝒚𝒏𝒊. 😔");
+                    throw new Error("𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑠𝑒𝑎𝑟𝑐ℎ.");
                 }
                 videoId = searchResults.videos[0].videoId;
             }
@@ -89,11 +89,11 @@ module.exports = {
                     if (err) {
                         console.error(`𝐹𝐹𝑚𝑝𝑒𝑔 𝑒𝑟𝑟𝑜𝑟: ${err.message}`);
                         message.unsend(processingMessage.messageID);
-                        return message.reply("❌ | 𝑨udio 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒃𝒚𝒂𝒓𝒕𝒉𝒐. 😞");
+                        return message.reply("❌ 𝐴𝑢𝑑𝑖𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑.");
                     }
                     message.reply({
                         attachment: fs.createReadStream(downloadPath),
-                        body: `✨ 𝑻𝒊𝒕𝒍𝒆: ${info.videoDetails.title}\n\n🎶 𝑬𝒊 𝒏𝒊𝒏 𝒂𝒑𝒏𝒂𝒓 𝒂𝒖𝒅𝒊𝒐 🎧`
+                        body: `✨ 𝑇𝑖𝑡𝑙𝑒: ${info.videoDetails.title}\n\n🎶 𝐻𝑒𝑟𝑒 𝑖𝑠 𝑦𝑜𝑢𝑟 𝑎𝑢𝑑𝑖𝑜 🎧`
                     }, () => {
                         fs.unlinkSync(downloadPath);
                         message.unsend(processingMessage.messageID);
@@ -105,7 +105,7 @@ module.exports = {
                     .on('finish', () => {
                         message.reply({
                             attachment: fs.createReadStream(downloadPath),
-                            body: `✨ 𝑻𝒊𝒕𝒍𝒆: ${info.videoDetails.title}\n\n🎬 𝑬𝒊 𝒏𝒊𝒏 𝒂𝒑𝒏𝒂𝒓 𝒗𝒊𝒅𝒆𝒐 🎥`
+                            body: `✨ 𝑇𝑖𝑡𝑙𝑒: ${info.videoDetails.title}\n\n🎬 𝐻𝑒𝑟𝑒 𝑖𝑠 𝑦𝑜𝑢𝑟 𝑣𝑖𝑑𝑒𝑜 🎥`
                         }, () => {
                             fs.unlinkSync(downloadPath);
                             message.unsend(processingMessage.messageID);
@@ -114,13 +114,13 @@ module.exports = {
                     .on('error', (err) => {
                         console.error(`𝑉𝑖𝑑𝑒𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟: ${err.message}`);
                         message.unsend(processingMessage.messageID);
-                        message.reply("❌ | 𝑽ideo 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒃𝒚𝒂𝒓𝒕𝒉𝒐. 😞");
+                        message.reply("❌ 𝑉𝑖𝑑𝑒𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑.");
                     });
             }
         } catch (error) {
-            console.error(`❌ | 𝑮𝒂𝒂𝒏 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒆𝒃𝒐𝒏𝒈 𝒑𝒂𝒕𝒉𝒂𝒕𝒆 𝒃𝒚𝒂𝒓𝒕𝒉𝒐: ${error.message}`);
+            console.error(`❌ 𝐸𝑟𝑟𝑜𝑟: ${error.message}`);
             message.unsend(processingMessage?.messageID);
-            message.reply(`❌ | 𝑮𝒂𝒂𝒏 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒌𝒐𝒓𝒕𝒆 𝒃𝒚𝒂𝒓𝒕𝒉𝒐: ${error.message}`);
+            message.reply(`❌ 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑: ${error.message}`);
         }
     }
 };
