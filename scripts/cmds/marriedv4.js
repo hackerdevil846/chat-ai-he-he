@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports = {
     config: {
         name: "marriedv4",
-        aliases: ["marriage", "couple"],
+        aliases: ["couplev4", "weddingv4"], // Changed to unique aliases
         version: "3.1.1",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
@@ -20,48 +20,11 @@ module.exports = {
         },
         guide: {
             en: "{p}marriedv4 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
-        },
-        dependencies: {
-            "axios": "",
-            "fs-extra": "",
-            "path": "",
-            "jimp": ""
-        }
-    },
-
-    onLoad: async function() {
-        try {
-            const { existsSync, mkdirSync } = fs;
-            const dirMaterial = path.join(__dirname, 'cache', 'canvas');
-            const filePath = path.join(dirMaterial, 'marriedv4.png');
-            
-            if (!existsSync(dirMaterial)) {
-                mkdirSync(dirMaterial, { recursive: true });
-            }
-            
-            if (!existsSync(filePath)) {
-                const { data } = await axios.get("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", {
-                    responseType: 'arraybuffer'
-                });
-                fs.writeFileSync(filePath, Buffer.from(data, 'binary'));
-            }
-        } catch (error) {
-            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒:", error);
         }
     },
 
     onStart: async function({ message, event, args, usersData }) {
         try {
-            // Dependency check
-            try {
-                require("axios");
-                require("fs-extra");
-                require("path");
-                require("jimp");
-            } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑝𝑎𝑡ℎ, 𝑎𝑛𝑑 𝑗𝑖𝑚𝑝.");
-            }
-
             const { threadID, messageID, senderID } = event;
             const mention = Object.keys(event.mentions);
 
@@ -85,10 +48,25 @@ module.exports = {
             const two = mention[0];
             const __root = path.join(__dirname, "cache", "canvas");
             const marriedImgPath = path.join(__root, `married_${one}_${two}.png`);
+            
+            // Ensure cache directory exists
+            if (!fs.existsSync(__root)) {
+                fs.mkdirSync(__root, { recursive: true });
+            }
+
+            // Download background image if not exists
+            const bgPath = path.join(__root, 'marriedv4.png');
+            if (!fs.existsSync(bgPath)) {
+                const { data } = await axios.get("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", {
+                    responseType: 'arraybuffer'
+                });
+                fs.writeFileSync(bgPath, Buffer.from(data, 'binary'));
+            }
+
+            // Download avatars
             const avatarOnePath = path.join(__root, `avt_${one}.png`);
             const avatarTwoPath = path.join(__root, `avt_${two}.png`);
             
-            // Download avatars
             const avatarOneUrl = `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
             const avatarTwoUrl = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
             
@@ -109,7 +87,7 @@ module.exports = {
             }
             
             // Composite image
-            const marriedImg = await jimp.read(path.join(__root, "marriedv4.png"));
+            const marriedImg = await jimp.read(bgPath);
             const circleOneImg = await jimp.read(circleOne);
             const circleTwoImg = await jimp.read(circleTwo);
             
@@ -124,8 +102,9 @@ module.exports = {
             fs.writeFileSync(marriedImgPath, buffer);
             
             // Cleanup temp files
-            fs.unlinkSync(avatarOnePath);
-            fs.unlinkSync(avatarTwoPath);
+            [avatarOnePath, avatarTwoPath].forEach(path => {
+                if (fs.existsSync(path)) fs.unlinkSync(path);
+            });
             
             // Get user names
             const userOneInfo = await usersData.get(one);
@@ -139,7 +118,9 @@ module.exports = {
             });
 
             // Cleanup final image
-            fs.unlinkSync(marriedImgPath);
+            if (fs.existsSync(marriedImgPath)) {
+                fs.unlinkSync(marriedImgPath);
+            }
             
         } catch (error) {
             console.error("𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
