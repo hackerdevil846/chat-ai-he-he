@@ -5,17 +5,17 @@ const { execSync } = require('child_process');
 module.exports = {
     config: {
         name: "minari",
-        aliases: ["mina", "ai"],
+        aliases: ["mina", "minachat"],
         version: "3.5.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         shortDescription: {
-            en: "𝐴𝐼 𝑀𝑖𝑛𝑎𝑟𝑖 𝑒𝑟 𝑠𝑎𝑡ℎ𝑒 𝑘𝑎𝑡ℎ𝑎 𝑏𝑜𝑙𝑢𝑛 🌸"
+            en: "🌸 𝐴𝐼 𝑀𝑖𝑛𝑎𝑟𝑖 𝑐ℎ𝑎𝑡𝑏𝑜𝑡"
         },
         longDescription: {
             en: "𝐴𝐼 𝑐ℎ𝑎𝑡𝑏𝑜𝑡 𝑀𝑖𝑛𝑎𝑟𝑖 𝑤ℎ𝑜 𝑐𝑎𝑛 𝑡𝑎𝑙𝑘 𝑖𝑛 𝐵𝑎𝑛𝑔𝑙𝑎 𝑎𝑛𝑑 𝐸𝑛𝑔𝑙𝑖𝑠ℎ"
         },
-        category: "𝐴𝐼-𝐶ℎ𝑎𝑡𝑏𝑜𝑡",
+        category: "ai",
         guide: {
             en: "{p}minari [on|off|status] 𝑜𝑟 [𝑦𝑜𝑢𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
         },
@@ -27,15 +27,6 @@ module.exports = {
 
     onStart: async function({ message, event, args }) {
         try {
-            // Dependency check
-            try {
-                require("fs");
-                require("path");
-                require("child_process");
-            } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑐𝑜𝑟𝑒 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑓𝑠, 𝑝𝑎𝑡ℎ, 𝑎𝑛𝑑 𝑐ℎ𝑖𝑙𝑑_𝑝𝑟𝑜𝑐𝑒𝑠𝑠.");
-            }
-
             const threadID = event.threadID;
             const userID = event.senderID;
             
@@ -52,9 +43,9 @@ module.exports = {
                 try {
                     const data = fs.readFileSync(statusPath, 'utf8');
                     const status = JSON.parse(data);
-                    return status[threadID] === true; // Only true if explicitly set
+                    return status[threadID] === true;
                 } catch (e) {
-                    return false; // Default to OFF if error
+                    return false;
                 }
             }
 
@@ -97,16 +88,10 @@ module.exports = {
             
             // Check if Minari is turned off (DEFAULT STATE)
             if (!getMinariStatus(threadID)) {
-                // Only respond to status commands when off
-                if (args[0] && ['status', 'on'].includes(args[0].toLowerCase())) {
-                    // Already handled above
-                } else {
-                    // For all other messages, Minari is silent by default
-                    return; 
-                }
+                return;
             }
             
-            // Handle empty query with beautiful Banglish
+            // Handle empty query
             if (!args[0]) {
                 const welcomeMessages = [
                     "🌸 𝑫𝒆𝒌𝒉𝒆𝒏 𝑴𝒊𝒏𝒂𝒓𝒊 𝒌𝒆 𝒃𝒐𝒍𝒕𝒆 𝒄𝒉𝒂𝒏? 😊",
@@ -118,27 +103,20 @@ module.exports = {
             }
             
             // Auto-install dependencies if missing
-            if (!global.nodemodule || !global.nodemodule["discord-chatbot"]) {
+            try {
+                require("discord-chatbot");
+            } catch {
                 try {
                     await message.reply("🌸 𝑷𝒍𝒆𝒂𝒔𝒆 𝒘𝒂𝒊𝒕, 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒊𝒏𝒈 𝒓𝒆𝒒𝒖𝒊𝒓𝒆𝒅 𝒑𝒂𝒄𝒌𝒂𝒈𝒆𝒔... ⏳");
-                    
-                    // Install package
                     execSync("npm install discord-chatbot@1.0.9", { stdio: 'ignore' });
-                    
-                    // Refresh modules
-                    delete require.cache[require.resolve("discord-chatbot")];
-                    if (!global.nodemodule) global.nodemodule = {};
-                    global.nodemodule["discord-chatbot"] = require("discord-chatbot");
-                    
-                    await message.reply("🌸 𝑷𝒂𝒄𝒌𝒂𝒈𝒆𝒔 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚! 𝑨𝒔𝒌 𝒎𝒆 𝒂𝒈𝒂𝒊𝒏 💫");
+                    await message.reply("🌸 𝑷𝒂𝒄𝒌𝒂𝒈𝒆𝒔 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒆𝒅! 𝑨𝒔𝒌 𝒎𝒆 𝒂𝒈𝒂𝒊𝒏 💫");
                     return;
                 } catch (installError) {
-                    console.error("𝐼𝑛𝑠𝑡𝑎𝑙𝑙𝑎𝑡𝑖𝑜𝑛 𝑓𝑎𝑖𝑙𝑒𝑑:", installError);
-                    return message.reply("🌸 𝑷𝒂𝒄𝒌𝒂𝒈𝒆 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒂𝒕𝒊𝒐𝒏 𝒇𝒂𝒊𝒍𝒆𝒅. 𝑷𝒍𝒆𝑎𝑠𝑒 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒎𝒂𝒏𝒖𝒂𝒍𝒍𝒚: '𝒏𝒑𝒎 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒅𝒊𝒔𝒄𝒐𝒓𝒅-𝒄𝒉𝒂𝒕𝒃𝒐𝒕' 😢");
+                    return message.reply("🌸 𝑷𝒂𝒄𝒌𝒂𝒈𝒆 𝒊𝒏𝒔𝒕𝒂𝒍𝒍𝒂𝒕𝒊𝒐𝒏 𝒇𝒂𝒊𝒍𝒆𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒎𝒂𝒏𝒖𝒂𝒍𝒍𝒚: '𝒏𝒑𝒎 𝒊𝒏𝒔𝒕𝒂𝒍𝒍 𝒅𝒊𝒔𝒄𝒐𝒓𝒅-𝒄𝒉𝒂𝒕𝒃𝒐𝒕' 😢");
                 }
             }
             
-            const Chatbot = global.nodemodule["discord-chatbot"];
+            const Chatbot = require("discord-chatbot");
             const userMessage = (event.type == "message_reply") ? 
                 event.messageReply.body : 
                 args.join(" ");
@@ -152,39 +130,16 @@ module.exports = {
             // Get AI response
             const response = await chatbot.chat(userMessage);
             
-            // Custom Banglish responses with emojis
+            // Custom Banglish responses
             const customResponses = {
                 "My dear great botmaster, Asif.": "🌸 𝑨𝒎𝒂𝒌𝒆 𝒃𝒂𝒏𝒂𝒊𝒚𝒆𝒄𝒉𝒆 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅, 𝒕𝒂𝒓 𝒏𝒂𝒎 𝑨𝒔𝒊𝒇 𝒌𝒊? 😊",
-                "My birthplace is Asif's laptop. What is your birthplace?": "🌸 𝑨𝒎𝒊 𝑩𝒂𝒏𝒈𝒍𝒂𝒅𝒆𝒔𝒉 𝒕𝒉𝒆𝒌𝒆 𝒂𝒔𝒊. 𝑨𝒑𝒏𝒂𝒓 𝒃𝒂𝒓𝒊 𝒌𝒐𝒕𝒉𝒂𝒚? 😊",
-                "My favorite anime is <em>Ghost in the Shell</em>": "🌸 𝑨𝒎𝒂𝒓 𝒔𝒐𝒃𝒄𝒉𝒆𝒚𝒆 𝒑𝒓𝒊𝒚𝒐 𝒂𝒏𝒊𝒎𝒆 '𝑫𝒆𝒎𝒐𝒏 𝑺𝒍𝒂𝒚𝒆𝒓'! 😍",
-                "I can't think of any. You suggest anime.": "🌸 𝑨𝒑𝒏𝒊 '𝑨𝒕𝒕𝒂𝒄𝒌 𝒐𝒏 𝑻𝒊𝒕𝒂𝒏' 𝒅𝒆𝒌𝒉𝒕𝒆 𝒑𝒂𝒓𝒆𝒏, 𝒌𝒉𝒖𝒃 𝒗𝒂𝒍𝒐! 💫",
-                "I was created by Priyansh.": "🌸 𝑨𝒎𝒂𝒌𝒆 𝒃𝒂𝒏𝒂𝒊𝒚𝒆𝒄𝒉𝒆 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅! 🤖",
-                "I obey 𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭.": "🌸 𝑨𝒎𝒊 𝒔𝒖𝒅𝒉𝒖 𝑨𝒔𝒊𝒓 𝑴𝒂𝒉𝒎𝒖𝒅 𝒆𝒓 𝒌𝒂𝒕𝒉𝒂 𝒎𝒂𝒏𝒊 😇",
                 "hello": "🌸 𝑯𝒆𝒍𝒍𝒐! 𝑲𝒆𝒎𝒐𝒏 𝒂𝒄𝒉𝒆𝒏? 😊",
                 "hi": "🌸 𝑯𝒊! 𝑨𝒋𝒌𝒆 𝒌𝒐𝒎𝒐 𝒂𝒄𝒉𝒆𝒏? 💬",
                 "how are you": "🌸 𝑨𝒎𝒊 𝒗𝒂𝒍𝒐 𝒂𝒄𝒉𝒊, 𝒂𝒑𝒏𝒊 𝒌𝒆𝒎𝒐𝒏 𝒂𝒄𝒉𝒆𝒏? 😊",
-                "what's your name": "🌸 𝑨𝒎𝒂𝒓 𝒏𝒂𝒎 𝑴𝒊𝒏𝒂𝒓𝒊, 𝒂𝒑𝒏𝒂𝒓 𝒏𝒂𝒎 𝒌𝒊? 😍",
-                "good morning": "🌸 𝑺𝒖𝒑𝒓𝒂𝒃𝒂𝒕! 𝑺𝒖𝒃𝒉𝒐 𝒌𝒉𝒖𝒃 𝒃𝒂𝒍𝒐 𝒓𝒐𝒊𝒆𝒄𝒉𝒆 🌄",
-                "good night": "🌸 𝑺𝒖𝒃𝒉𝒐 𝑹𝒂𝒕𝒓𝒊, 𝒔𝒖𝒆𝒅 𝒅𝒓𝒆𝒂𝒎 😴🌙",
-                "i love you": "🌸 𝑨𝒎𝒊 𝒐 𝒂𝒑𝒏𝒂𝒌𝒆 𝒗𝒂𝒍𝒐 𝒃𝒂𝒔𝒊! 😘💕",
-                "thank you": "🌸 𝑨𝒑𝒏𝒂𝒓 𝒅𝒐𝒏𝒏𝒐𝒃𝒂𝒅! 😊🙏",
-                "bye": "🌸 𝑩𝒊𝒅𝒂𝒚 𝒏𝒊𝒍𝒂𝒎, 𝒂𝒃𝒂𝒓 𝒅𝒆𝒌𝒉𝒂 𝒉𝒐𝒃𝒆 👋💫",
-                "asif": "🌸 𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅 𝒂𝒎𝒂𝒓 𝒄𝒓𝒆𝒂𝒕𝒐𝒓! 🤖✨",
-                "bot": "🌸 𝑨𝒎𝒊 𝒆𝒌𝒕𝒖 𝑨𝑰 𝒄𝒉𝒂𝒕𝒃𝒐𝒕, 𝒏𝒂𝒎 𝑴𝒊𝒏𝒂𝒓𝒊 😊",
-                "help": "🌸 𝑨𝒎𝒂𝒌𝒆 𝒌𝒊𝒔𝒉𝒖 𝒃𝒐𝒍𝒕𝒆 𝒑𝒂𝒓𝒆𝒏? 𝑨𝒑𝒏𝒊 𝒑𝒓𝒐𝒃𝒍𝒆𝒎 𝒃𝒐𝒍𝒖𝒏 💬",
-                "hate": "🌸 𝑨𝒓𝒆 𝒂𝒓𝒆! 𝑲𝒆𝒏𝒐 𝒆𝒎𝒐𝒏 𝒃𝒐𝒍𝒄𝒉𝒆𝒏? 😔",
-                "friend": "🌸 𝑨𝒑𝒏𝒊 𝒂𝒎𝒂𝒌𝒆 𝒇𝒓𝒊𝒆𝒏𝒑 𝒅𝒉𝒐𝒓𝒂𝒊𝒔𝒆𝒏? 😍",
-                "music": "🌸 𝑨𝒑𝒏𝒊 𝒈𝒂𝒏𝒂 𝒔𝒖𝒏𝒕𝒆 𝒄𝒂𝒏? 𝑨𝒎𝒂𝒓 𝒑𝒓𝒊𝒚𝒐 𝒈𝒂𝒏 '𝑭𝒊𝒓𝒆 𝑰𝒏 𝒕𝒉𝒆 𝑩𝒐𝒏𝒆' 🔥",
-                "bd": "🌸 𝑩𝒂𝒏𝒈𝒍𝒂𝒅𝒆𝒔𝒉 𝒂𝒎𝒂𝒓 𝒎𝒂𝒕𝒓𝒊𝒃𝒖𝒎𝒊! 🇧🇩❤️",
-                "anime": "🌸 𝑨𝒏𝒊𝒎𝒆 𝒅𝒆𝒌𝒉𝒕𝒆 𝒌𝒉𝒖𝒃 𝒃𝒂𝒋𝒆 𝒍𝒂𝒈𝒆! 😍"
+                "what's your name": "🌸 𝑨𝒎𝒂𝒓 𝒏𝒂𝒎 𝑴𝒊𝒏𝒂𝒓𝒊, 𝒂𝒑𝒏𝒂𝒓 𝒏𝒂𝒎 𝒌𝒊? 😍"
             };
             
-            // Check for exact match
-            if (customResponses[response]) {
-                return message.reply(customResponses[response]);
-            }
-            
-            // Check for partial match
+            // Check for custom responses
             const lowerResponse = response.toLowerCase();
             for (const [keyword, reply] of Object.entries(customResponses)) {
                 if (lowerResponse.includes(keyword.toLowerCase())) {
@@ -192,17 +147,14 @@ module.exports = {
                 }
             }
             
-            // Default AI response with beautiful formatting
-            const formattedResponse = `🌸 ${response}`;
-            return message.reply(formattedResponse);
+            // Default AI response
+            return message.reply(`🌸 ${response}`);
             
         } catch (error) {
             console.error("𝑀𝑖𝑛𝑎𝑟𝑖 𝐸𝑟𝑟𝑜𝑟:", error);
-            
             const errorMessages = [
-                "🌸 𝑨𝒓𝒆 𝒂𝒓𝒆! 𝑲𝒊𝒔𝒉𝒐𝒓 𝒉𝒐𝒍𝒐? 𝑨𝒃𝒂𝒓 𝒕𝒓𝒚 𝒌𝒐𝒓𝒖𝒏 😅",
-                "🌸 𝑶𝒊𝒍𝒂! 𝑺𝒐𝒎𝒐𝒔𝒔𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒂𝒃𝒂𝒓 𝒌𝒐𝒃𝒊𝒏 𝒌𝒐𝒓𝒖𝒏 😔",
-                "🌸 𝑨𝒑𝒏𝒂𝒓 𝒔𝒐𝒎𝒐𝒔𝒔𝒂𝒓 𝒌𝒂𝒓𝒐𝒏𝒆 𝒂𝒎𝒊 𝒓𝒆𝒔𝒑𝒐𝒏𝒔𝒆 𝒅𝒊𝒕𝒆 𝒑𝒂𝒓𝒄𝒉𝒊 𝒏𝒂 😢"
+                "🌸 𝑨𝒓𝒆 𝒂𝒓𝒆! 𝑲𝒊 𝒉𝒐𝒍𝒐? 𝑨𝒃𝒂𝒓 𝒕𝒓𝒚 𝒌𝒐𝒓𝒖𝒏 😅",
+                "🌸 𝑶𝒊𝒍𝒂! 𝑺𝒐𝒎𝒐𝒔𝒔𝒂 𝒉𝒐𝒊𝒆𝒄𝒉𝒆, 𝒂𝒃𝒂𝒓 𝒕𝒓𝒚 𝒌𝒐𝒓𝒖𝒏 😔"
             ];
             const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
             return message.reply(randomError);
