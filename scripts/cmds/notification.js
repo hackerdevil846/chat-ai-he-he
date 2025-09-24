@@ -7,7 +7,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "notification",
-        aliases: ["notify", "noti"],
+        aliases: ["broadcast", "announce"],
         version: "2.0",
         role: 2,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
