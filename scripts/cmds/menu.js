@@ -4,12 +4,12 @@ const path = require('path');
 
 module.exports = {
     config: {
-        name: "menu",
-        aliases: ["help", "cmd"],
+        name: "menu2", // Changed from "menu" to avoid conflict
+        aliases: ["help2", "commands2"], // Unique aliases
         version: "1.2.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         role: 0,
-        category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
+        category: "utility",
         shortDescription: {
             en: "𝑉𝑖𝑒𝑤 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑙𝑖𝑠𝑡 𝑤𝑖𝑡ℎ 𝑖𝑚𝑎𝑔𝑒𝑠"
         },
