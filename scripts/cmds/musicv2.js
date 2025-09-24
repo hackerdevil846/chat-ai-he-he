@@ -39,7 +39,7 @@ const YOUTUBE_API_KEY = "AIzaSyAGQrBQYworsR7T2gu0nYhLPSsi2WFVrgQ";
 module.exports = {
   config: {
     name: "musicv2",
-    aliases: ["song", "ytmusic"],
+    aliases: ["ytdlpro", "youtubedlpro"],
     version: "1.0.0",
     role: 0,
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
