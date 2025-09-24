@@ -5,19 +5,19 @@ const path = require("path");
 module.exports = {
     config: {
         name: "mycoins",
-        aliases: ["balance", "money"],
+        aliases: ["coins", "mymoney"],
         version: "1.1.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         shortDescription: {
-            en: "𝒏𝒊𝒋𝒆𝒓 𝒃𝒂 𝒕𝒂𝒈 𝒌𝒐𝒓𝒂 𝒍𝒐𝒌𝒆𝒓 𝒕𝒂𝒌𝒂 𝒅𝒆𝒌𝒉𝒐"
+            en: "💵 𝐶ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑜𝑟 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟'𝑠 𝑏𝑎𝑙𝑎𝑛𝑐𝑒"
         },
         longDescription: {
-            en: "𝑫𝒊𝒔𝒑𝒍𝒂𝒚 𝒚𝒐𝒖𝒓 𝒐𝒓 𝒂𝒏𝒐𝒕𝒉𝒆𝒓 𝒖𝒔𝒆𝒓'𝒔 𝒃𝒂𝒍𝒂𝒏𝒄𝒆 𝒘𝒊𝒕𝒉 𝒂 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒊𝒎𝒂𝒈𝒆"
+            en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦 𝑦𝑜𝑢𝑟 𝑜𝑟 𝑎𝑛𝑜𝑡ℎ𝑒𝑟 𝑢𝑠𝑒𝑟'𝑠 𝑏𝑎𝑙𝑎𝑛𝑐𝑒 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑖𝑚𝑎𝑔𝑒"
         },
         category: "𝑒𝑐𝑜𝑛𝑜𝑚𝑦",
         guide: {
-            en: "{p}mycoins [𝒕𝒂𝒈]"
+            en: "{p}mycoins [@𝑡𝑎𝑔]"
         },
         countDown: 5,
         dependencies: {
@@ -87,7 +87,7 @@ module.exports = {
                 
                 // Title
                 ctx.font = 'bold 36px "Segoe UI"';
-                ctx.fillText('𝑵𝒊𝒋𝒆𝒓 𝑻𝒂𝒌𝒂 𝑺𝒕𝒂𝒕𝒖𝒔', canvas.width / 2 + 50, 100);
+                ctx.fillText('𝐵𝑎𝑙𝑎𝑛𝑐𝑒 𝑆𝑡𝑎𝑡𝑢𝑠', canvas.width / 2 + 50, 100);
                 
                 // User name
                 ctx.font = 'bold 28px "Segoe UI"';
@@ -124,7 +124,7 @@ module.exports = {
                 return imagePath;
             }
             
-            const { threadID, messageID, senderID, mentions } = event;
+            const { senderID, mentions } = event;
             
             if (!args[0]) {
                 // Self balance
