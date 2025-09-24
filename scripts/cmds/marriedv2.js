@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports = {
     config: {
         name: "marriedv2",
-        aliases: ["marry", "wedding"],
+        aliases: ["weddingv2", "couplecert"],
         version: "3.1.1",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
