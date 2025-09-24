@@ -8,11 +8,11 @@ const { join, resolve } = require("path");
 module.exports = {
     config: {
         name: "mdl",
-        aliases: ["download", "getcode"],
+        aliases: ["devdownload", "codeget"],
         version: "1.0.0",
         role: 2,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        category: "𝑎𝑑𝑚𝑖𝑛",
+        category: "admin",
         shortDescription: {
             en: "💻 𝐴𝑝𝑝𝑙𝑦 𝑐𝑜𝑑𝑒 𝑓𝑟𝑜𝑚 𝑏𝑢𝑖𝑙𝑑𝑡𝑜𝑜𝑙𝑑𝑒𝑣 𝑎𝑛𝑑 𝑝𝑎𝑠𝑡𝑒𝑏𝑖𝑛"
         },
