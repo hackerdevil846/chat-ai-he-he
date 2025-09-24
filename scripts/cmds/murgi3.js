@@ -23,7 +23,7 @@ module.exports = {
         try {
             const mention = Object.keys(event.mentions)[0];
             if (!mention) {
-                return message.reply("✨ 𝐵𝑜𝑠 𝑗𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 𝑘𝑢𝑑𝑑𝑒 𝑐ℎ𝑎𝑢 𝑠𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 @𝑚𝑎𝑛𝑠ℎ𝑜𝑛 𝑑𝑒𝑢 ✨");
+                return message.reply("✨ 𝐵𝑜𝑠 𝑗𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 𝑐𝑢𝑑𝑑𝑒 𝑐ℎ𝑎𝑢 𝑠𝑒 𝑚𝑒𝑦𝑒𝑘𝑒 @𝑚𝑎𝑛𝑠ℎ𝑜𝑛 𝑑𝑒𝑢 ✨");
             }
 
             const name = event.mentions[mention];
