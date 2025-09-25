@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "war",
-    aliases: ["battle", "fight"],
+    aliases: [],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
