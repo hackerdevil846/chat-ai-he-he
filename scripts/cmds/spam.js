@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "spam",
-    aliases: ["spammer", "repeat"],
+    aliases: ["spammer"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 2,
