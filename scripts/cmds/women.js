@@ -23,26 +23,31 @@ module.exports = {
     }
   },
 
-  onChat: async function({ event, message }) {
-    const { threadID, messageID, body } = event;
-    if (!body) return;
+  onStart: async function ({ message }) {
+    // Basic onStart function to prevent the error
+    await message.reply("✅ 𝑊𝑜𝑚𝑒𝑛 𝑡𝑟𝑖𝑔𝑔𝑒𝑟 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑖𝑠 𝑟𝑒𝑎𝑑𝑦! 𝑇𝑦𝑝𝑒 '𝑤𝑜𝑚𝑒𝑛' 𝑜𝑟 '☕' 𝑡𝑜 𝑡𝑟𝑖𝑔𝑔𝑒𝑟.");
+  },
 
-    if (
-      body.indexOf("Women") === 0 ||
-      body.indexOf("women") === 0 ||
-      body.indexOf("WOMEN") === 0 ||
-      body.indexOf("☕") === 0
-    ) {
-      try {
+  onChat: async function({ event, message }) {
+    try {
+      const { body } = event;
+      if (!body) return;
+
+      if (
+        body.indexOf("Women") === 0 ||
+        body.indexOf("women") === 0 ||
+        body.indexOf("WOMEN") === 0 ||
+        body.indexOf("☕") === 0
+      ) {
         const msg = {
           body: "𝐻𝑎ℎ𝑎ℎ𝑎 𝑀𝑜ℎ𝑖𝑙𝑎 🤣☕",
           attachment: fs.createReadStream(__dirname + "/noprefix/wn.mp4")
         };
         await message.reply(msg);
         message.react("☕");
-      } catch (error) {
-        console.error("Women command error:", error);
       }
+    } catch (error) {
+      console.error("Women command error:", error);
     }
   }
 };
