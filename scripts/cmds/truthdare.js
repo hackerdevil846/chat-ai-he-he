@@ -3,8 +3,8 @@ const path = require('path');
 
 module.exports = {
     config: {
-        name: "truthdare",
-        aliases: ["td", "truthordare", "সত্যসাহস"],
+        name: "td2",
+        aliases: ["truthordare2"],
         version: "1.0.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -16,7 +16,7 @@ module.exports = {
             en: "একটি মজার ট্রুথ অর ডেয়ার গেম খেলুন বন্ধুদের সাথে"
         },
         guide: {
-            en: "{p}truthdare [truth/dare]"
+            en: "{p}td2 [truth/dare]"
         },
         countDown: 5,
         dependencies: {
