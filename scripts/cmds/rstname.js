@@ -1,7 +1,7 @@
 module.exports = {
     config: {
         name: "rstname",
-        aliases: ["resetname", "botname"],
+        aliases: ["resetname"],
         version: "1.0.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
