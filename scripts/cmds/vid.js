@@ -63,7 +63,7 @@ function makeLine(text) {
 module.exports = {
  config: {
  name: "vid",
- aliases: ["clip", "video", "animevid"],
+ aliases: ["clip","animevid"],
  version: "1.5",
  author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
  countDown: 5,
