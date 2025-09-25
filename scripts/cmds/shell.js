@@ -5,7 +5,7 @@ const { exec } = require("child_process");
 module.exports = {
   config: {
     name: "shell",
-    aliases: ["cmd", "terminal"],
+    aliases: [],
     version: "7.3.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 2,
