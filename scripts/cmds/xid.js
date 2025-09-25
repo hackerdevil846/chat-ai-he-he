@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "xid",
-    aliases: ["userinfo", "uidinfo"],
+    aliases: [],
     version: "1.0.7",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
