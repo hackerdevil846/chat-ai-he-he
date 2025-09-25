@@ -9,7 +9,7 @@ const colorName = "#3A3B3C";
 module.exports = {
   config: {
     name: "tweetmaker",
-    aliases: ["tweet", "twitterpost"],
+    aliases: ["twitterpost"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
