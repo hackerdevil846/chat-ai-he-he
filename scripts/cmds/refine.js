@@ -7,7 +7,7 @@ const { createCanvas, loadImage } = require('canvas');
 module.exports = {
   config: {
     name: "refine",
-    aliases: ["enhance", "aiimage"],
+    aliases: ["aiimage"],
     version: "1.5.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
