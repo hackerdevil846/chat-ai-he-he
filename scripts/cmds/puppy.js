@@ -6,7 +6,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "puppy",
-    aliases: ["dogpic", "doggo"],
+    aliases: ["dogpic"],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
