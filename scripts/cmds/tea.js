@@ -4,7 +4,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "teatime",
-    aliases: ["tea", "cha"],
+    aliases: ["tea"],
     version: "1.0.2",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
