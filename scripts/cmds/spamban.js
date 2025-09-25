@@ -6,7 +6,7 @@ const timee = 120; // time window in seconds
 module.exports = {
   config: {
     name: "spamban",
-    aliases: ["antispam", "autoban"],
+    aliases: ["antispam"],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 1,
