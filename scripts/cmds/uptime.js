@@ -5,7 +5,7 @@ const { createCanvas, loadImage, registerFont } = require("canvas");
 module.exports = {
   config: {
     name: "uptime",
-    aliases: ["upt", "botinfo"],
+    aliases: ["upt"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
