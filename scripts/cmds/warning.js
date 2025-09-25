@@ -4,7 +4,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "warning",
-    aliases: ["warn", "warnsystem"],
+    aliases: [],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 2,
