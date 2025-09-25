@@ -3,7 +3,7 @@ const fs = require("fs-extra");
 module.exports = {
   config: {
     name: "setlang",
-    aliases: ["language", "lang"],
+    aliases: [],
     version: "1.5",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
