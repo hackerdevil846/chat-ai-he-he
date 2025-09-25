@@ -4,9 +4,9 @@ const request = require("request");
 module.exports = {
   config: {
     name: "emojireact",
-    aliases: ["er", "emoji"],
+    aliases: ["er", "emojivid"],
     version: "1.0.1",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     shortDescription: {
