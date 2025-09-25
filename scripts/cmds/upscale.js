@@ -4,7 +4,7 @@ const FormData = require("form-data");
 module.exports = {
   config: {
     name: "upscale",
-    aliases: ["enhance", "hdphoto"],
+    aliases: ["enhanced", "hdphoto"],
     version: "1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
