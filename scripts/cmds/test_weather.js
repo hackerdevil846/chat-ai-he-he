@@ -2,7 +2,7 @@ const axios = require('axios');
 
 module.exports = {
     config: {
-        name: "weather",
+        name: "test_weather",
         version: "1.0",
         author: "Your Name",
         countDown: 5,
