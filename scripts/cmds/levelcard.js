@@ -18,7 +18,7 @@ const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(
 module.exports = {
 	config: {
 		name: "levelcard",
-		aliases: ["rank", "level"],
+		aliases: ["rank"],
 		version: "1.7",
 		author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
 		countDown: 5,
