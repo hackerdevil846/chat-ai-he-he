@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "sim",
-    aliases: ["ai", "deepseek", "chatai"],
+    aliases: [],
     version: "4.3.8",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
