@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "slot",
-    aliases: ["slots", "spin"],
+    aliases: ["spin"],
     version: "1.0.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
