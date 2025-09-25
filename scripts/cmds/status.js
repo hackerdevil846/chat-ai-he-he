@@ -3,7 +3,7 @@ const fs = require("fs-extra");
 module.exports = {
   config: {
     name: "status",
-    aliases: ["botstatus", "settings"],
+    aliases: [],
     version: "1.2.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
