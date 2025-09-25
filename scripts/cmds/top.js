@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "top",
-    aliases: ["leaderboard", "ranking"],
+    aliases: ["leaderboard"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
