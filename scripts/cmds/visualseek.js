@@ -4,8 +4,8 @@ const { createCanvas, loadImage } = require("canvas");
 
 module.exports = {
   config: {
-    name: "imagesearch",
-    aliases: ["imgfind", "picsearch"],
+    name: "visualseek",
+    aliases: ["imgfetch", "picdiscover"],
     version: "1.1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
@@ -18,7 +18,7 @@ module.exports = {
       en: "🔍 𝐼𝑚𝑎𝑔𝑒 𝑠𝑒𝑎𝑟𝑐ℎ 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑎𝑛𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 ℎ𝑒𝑎𝑑𝑒𝑟"
     },
     guide: {
-      en: "{𝑝}𝑖𝑚𝑎𝑔𝑒𝑠𝑒𝑎𝑟𝑐ℎ [𝑞𝑢𝑒𝑟𝑦] - [𝑛𝑢𝑚𝑏𝑒𝑟]"
+      en: "{𝑝}𝑣𝑖𝑠𝑢𝑎𝑙𝑠𝑒𝑒𝑘 [𝑞𝑢𝑒𝑟𝑦] - [𝑛𝑢𝑚𝑏𝑒𝑟]"
     },
     dependencies: {
       "axios": "",
@@ -43,13 +43,17 @@ module.exports = {
       
       if (!keySearch.includes("-")) {
         return api.sendMessage(
-          `✨ 𝑈𝑠𝑎𝑔𝑒 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝑖𝑚𝑎𝑔𝑒𝑠𝑒𝑎𝑟𝑐ℎ 𝑐𝑎𝑡𝑠 - 5\n\n🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦 - 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠`,
+          `✨ 𝑈𝑠𝑎𝑔𝑒 𝐸𝑥𝑎𝑚𝑝𝑙𝑒:\n𝑣𝑖𝑠𝑢𝑎𝑙𝑠𝑒𝑒𝑘 𝑐𝑎𝑡𝑠 - 5\n\n🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑞𝑢𝑒𝑟𝑦 - 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠`,
           threadID, messageID
         );
       }
 
       const [query, number] = keySearch.split("-").map(str => str.trim());
       const numberSearch = parseInt(number) || 6;
+
+      if (numberSearch > 10) {
+        return api.sendMessage("❌ 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 10 𝑖𝑚𝑎𝑔𝑒𝑠 𝑎𝑙𝑙𝑜𝑤𝑒𝑑", threadID, messageID);
+      }
 
       api.sendMessage(`🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 "${query}"...`, threadID, messageID);
       
@@ -69,18 +73,18 @@ module.exports = {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // 𝑇𝑖𝑡𝑙𝑒
-      ctx.font = '𝑏𝑜𝑙𝑑 30𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.font = 'bold 30px Arial';
       ctx.fillStyle = '#1abc9c';
-      ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
+      ctx.textAlign = 'center';
       ctx.fillText('🔍 𝐼𝑀𝐴𝐺𝐸 𝑆𝐸𝐴𝑅𝐶𝐻', canvas.width/2, 60);
       
       // 𝑄𝑢𝑒𝑟𝑦
-      ctx.font = '25𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.font = '25px Arial';
       ctx.fillStyle = '#ecf0f1';
       ctx.fillText(`"${query}"`, canvas.width/2, 110);
       
       // 𝐹𝑜𝑜𝑡𝑒𝑟
-      ctx.font = '18𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
+      ctx.font = '18px Arial';
       ctx.fillStyle = '#3498db';
       ctx.fillText(`𝐹𝑜𝑢𝑛𝑑: ${data.length} 𝑖𝑚𝑎𝑔𝑒${data.length > 1 ? '𝑠' : ''}`, canvas.width/2, 160);
       
@@ -100,21 +104,26 @@ module.exports = {
           axios.get(data[i], { responseType: 'arraybuffer' })
             .then(res => fs.writeFile(path, res.data))
             .then(() => imgData.push(fs.createReadStream(path)))
+            .catch(err => console.error(`Error downloading image ${i + 1}:`, err))
         );
       }
       
       await Promise.all(downloadPromises);
       
-      api.sendMessage({
+      await api.sendMessage({
         body: `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑟𝑒𝑡𝑟𝑖𝑒𝑣𝑒𝑑 ${data.length} 𝑖𝑚𝑎𝑔𝑒${data.length > 1 ? '𝑠' : ''} 𝑓𝑜𝑟:\n"${query}"`,
         attachment: imgData
-      }, threadID, async () => {
-        // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑓𝑖𝑙𝑒𝑠
-        fs.unlinkSync(headerPath);
-        for (let i = 0; i < data.length; i++) {
+      }, threadID);
+
+      // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑓𝑖𝑙𝑒𝑠
+      fs.unlinkSync(headerPath);
+      for (let i = 0; i < data.length; i++) {
+        try {
           fs.unlinkSync(__dirname + `/cache/img${i + 1}.jpg`);
+        } catch (cleanupErr) {
+          console.error(`Error cleaning up image ${i + 1}:`, cleanupErr);
         }
-      }, messageID);
+      }
       
     } catch (error) {
       console.error(error);
