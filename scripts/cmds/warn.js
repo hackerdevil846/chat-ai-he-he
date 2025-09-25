@@ -3,7 +3,7 @@ const { getTime } = global.utils;
 module.exports = {
   config: {
     name: "warn",
-    aliases: ["warning", "warnsystem"],
+    aliases: ["warnsystem"],
     version: "1.8",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
