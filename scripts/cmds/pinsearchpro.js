@@ -5,8 +5,8 @@ const { createCanvas, loadImage } = require("canvas");
 
 module.exports = {
   config: {
-    name: "pinterestpro",
-    aliases: ["pinsearch", "pindl"],
+    name: "pinsearchpro",
+    aliases: ["pinfinder", "pindownload"],
     version: "1.6.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
@@ -19,7 +19,7 @@ module.exports = {
       en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑖𝑔ℎ-𝑞𝑢𝑎𝑙𝑖𝑡𝑦 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑏𝑎𝑛𝑛𝑒𝑟𝑠"
     },
     guide: {
-      en: "{𝑝}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]"
+      en: "{𝑝}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]"
     },
     dependencies: {
       "axios": "",
@@ -32,7 +32,7 @@ module.exports = {
   },
 
   onLoad: function() {
-    const tempDir = path.join(__dirname, "poli_cache");
+    const tempDir = path.join(__dirname, "pinsearch_cache");
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
@@ -40,25 +40,15 @@ module.exports = {
 
   onStart: async function({ api, event, args }) {
     try {
-      // 𝐶ℎ𝑒𝑐𝑘 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠
-      try {
-        if (!axios || !fs || !path || !createCanvas || !loadImage) {
-          throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
-        }
-      } catch (err) {
-        return api.sendMessage("❌ | 𝑅𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠 𝑎𝑟𝑒 𝑚𝑖𝑠𝑠𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑎𝑛𝑑 𝑐𝑎𝑛𝑣𝑎𝑠.", event.threadID, event.messageID);
-      }
-
       const { threadID, messageID, senderID } = event;
       const { apiUrl } = this.config.envConfig;
       
       const input = args.join(" ");
       
-      // 𝑆ℎ𝑜𝑤 ℎ𝑒𝑙𝑝 𝑖𝑓 𝑛𝑜 𝑖𝑛𝑝𝑢𝑡 𝑜𝑟 𝑖𝑛𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑓𝑜𝑟𝑚𝑎𝑡
       if (!input || !input.includes("-")) {
         const helpMessage = `🖼️ 𝗣𝗶𝗻𝘁𝗲𝗿𝗲𝘀𝘁 𝗜𝗺𝗮𝗴𝗲 𝗦𝗲𝗮𝗿𝗰𝗵\n\n` +
-          `📝 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]\n` +
-          `💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑝𝑟𝑜 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑠𝑢𝑛𝑠𝑒𝑡-5\n\n` +
+          `📝 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]\n` +
+          `💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑠𝑢𝑛𝑠𝑒𝑡-5\n\n` +
           `⚠️ 𝑁𝑜𝑡𝑒: 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 10 𝑖𝑚𝑎𝑔𝑒𝑠 𝑝𝑒𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡`;
         return api.sendMessage(helpMessage, threadID, messageID);
       }
@@ -72,14 +62,13 @@ module.exports = {
 
       imageCount = Math.max(1, Math.min(imageCount, 10));
       
-      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑠𝑒𝑎𝑟𝑐ℎ 𝑏𝑎𝑛𝑛𝑒𝑟
       const bannerPath = await createSearchBanner(keyword, senderID);
       
       api.sendMessage({
         body: `🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑓𝑜𝑟: "${keyword}"...`,
         attachment: fs.createReadStream(bannerPath)
       }, threadID, async () => {
-        fs.unlinkSync(bannerPath); // 𝐷𝑒𝑙𝑒𝑡𝑒 𝑏𝑎𝑛𝑛𝑒𝑟 𝑎𝑓𝑡𝑒𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔
+        fs.unlinkSync(bannerPath);
         
         try {
           const response = await axios.get(apiUrl, { 
@@ -98,15 +87,13 @@ module.exports = {
           }
           
           const imageUrls = response.data.data.slice(0, imageCount);
-          const tempDir = path.join(__dirname, "poli_cache");
+          const tempDir = path.join(__dirname, "pinsearch_cache");
           const imgPaths = [];
           
-          // 𝐶𝑙𝑒𝑎𝑛 𝑝𝑟𝑒𝑣𝑖𝑜𝑢𝑠 𝑓𝑖𝑙𝑒𝑠
           fs.readdirSync(tempDir)
             .filter(file => file.startsWith(`${senderID}_`))
             .forEach(file => fs.unlinkSync(path.join(tempDir, file)));
           
-          // 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑝𝑟𝑜𝑔𝑟𝑒𝑠𝑠
           let downloadedCount = 0;
           for (let i = 0; i < imageUrls.length; i++) {
             try {
@@ -134,7 +121,6 @@ module.exports = {
             }, threadID, (err) => {
               if (err) console.error("𝑆𝑒𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", err);
               
-              // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑎𝑓𝑡𝑒𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔
               imgPaths.forEach(filePath => {
                 if (fs.existsSync(filePath)) {
                   fs.unlinkSync(filePath);
@@ -164,7 +150,6 @@ async function createSearchBanner(keyword, userId) {
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
   
-  // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑
   const gradient = ctx.createLinearGradient(0, 0, width, height);
   gradient.addColorStop(0, '#8a2387');
   gradient.addColorStop(0.5, '#e94057');
@@ -172,26 +157,22 @@ async function createSearchBanner(keyword, userId) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
   
-  // 𝐷𝑟𝑎𝑤 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑙𝑜𝑔𝑜 𝑝𝑟𝑜𝑔𝑟𝑎𝑚𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦
   const logoSize = 60;
   const logoPadding = 20;
   const logoX = logoPadding + logoSize/2;
   const logoY = height/2;
   
-  // 𝐷𝑟𝑎𝑤 𝑟𝑒𝑑 𝑐𝑖𝑟𝑐𝑙𝑒 (𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑏𝑟𝑎𝑛𝑑 𝑐𝑜𝑙𝑜𝑟)
   ctx.beginPath();
   ctx.arc(logoX, logoY, logoSize/2, 0, Math.PI * 2);
-  ctx.fillStyle = '#E60023'; // 𝑂𝑓𝑓𝑖𝑐𝑖𝑎𝑙 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑟𝑒𝑑
+  ctx.fillStyle = '#E60023';
   ctx.fill();
   
-  // 𝐷𝑟𝑎𝑤 𝑤ℎ𝑖𝑡𝑒 "𝑃" 𝑖𝑛 𝑡ℎ𝑒 𝑐𝑒𝑛𝑡𝑒𝑟
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '𝑏𝑜𝑙𝑑 40𝑝𝑥 𝐴𝑟𝑖𝑎𝑙';
-  ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
-  ctx.textBaseline = '𝑚𝑖𝑑𝑑𝑙𝑒';
+  ctx.font = 'bold 40px Arial';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillText('P', logoX, logoY);
   
-  // 𝐴𝑑𝑑 𝑑𝑒𝑐𝑜𝑟𝑎𝑡𝑖𝑣𝑒 𝑒𝑙𝑒𝑚𝑒𝑛𝑡𝑠
   ctx.beginPath();
   for (let i = 0; i < 8; i++) {
     const size = Math.random() * 30 + 15;
@@ -200,29 +181,26 @@ async function createSearchBanner(keyword, userId) {
     ctx.moveTo(x, y);
     ctx.arc(x, y, size, 0, Math.PI * 2);
   }
-  ctx.fillStyle = '𝑟𝑔𝑏𝑎(255, 255, 255, 0.15)';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.fill();
   
-  // 𝐴𝑑𝑑 𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑥𝑡
-  ctx.font = '𝑏𝑜𝑙𝑑 38𝑝𝑥 "𝐴𝑟𝑖𝑎𝑙"';
-  ctx.fillStyle = '#𝑓𝑓𝑓𝑓𝑓𝑓';
-  ctx.textAlign = '𝑐𝑒𝑛𝑡𝑒𝑟';
-  ctx.shadowColor = '𝑟𝑔𝑏𝑎(0, 0, 0, 0.7)';
+  ctx.font = 'bold 38px Arial';
+  ctx.fillStyle = '#ffffff';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
   ctx.shadowBlur = 8;
   ctx.shadowOffsetX = 3;
   ctx.shadowOffsetY = 3;
   
-  ctx.fillText('𝑃𝐼𝑁𝑇𝐸𝑅𝐸𝑆𝑇 𝐼𝑀𝐴𝐺𝐸 𝑆𝐸𝐴𝑅𝐶𝐻', width / 2, 100);
+  ctx.fillText('PINTEREST IMAGE SEARCH', width / 2, 100);
   
-  // 𝐴𝑑𝑑 𝑘𝑒𝑦𝑤𝑜𝑟𝑑 𝑖𝑛 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑏𝑜𝑥
   const text = `"${keyword}"`;
-  ctx.font = '𝑖𝑡𝑎𝑙𝑖𝑐 32𝑝𝑥 "𝐴𝑟𝑖𝑎𝑙"';
+  ctx.font = 'italic 32px Arial';
   const textWidth = ctx.measureText(text).width;
   const boxWidth = textWidth + 50;
   const boxHeight = 60;
   const cornerRadius = 15;
   
-  // 𝐷𝑟𝑎𝑤 𝑟𝑜𝑢𝑛𝑑𝑒𝑑 𝑟𝑒𝑐𝑡𝑎𝑛𝑔𝑙𝑒
   const x = width / 2 - boxWidth / 2;
   const y = 130;
   ctx.beginPath();
@@ -237,15 +215,13 @@ async function createSearchBanner(keyword, userId) {
   ctx.quadraticCurveTo(x, y, x + cornerRadius, y);
   ctx.closePath();
   
-  ctx.fillStyle = '𝑟𝑔𝑏𝑎(0, 0, 0, 0.35)';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
   ctx.fill();
   
-  // 𝐴𝑑𝑑 𝑡𝑒𝑥𝑡
-  ctx.fillStyle = '#𝑓𝑓𝑓𝑓𝑓𝑓';
+  ctx.fillStyle = '#ffffff';
   ctx.fillText(text, width / 2, 170);
   
-  // 𝑆𝑎𝑣𝑒 𝑎𝑛𝑑 𝑟𝑒𝑡𝑢𝑟𝑛 𝑝𝑎𝑡ℎ
-  const bannerPath = path.join(__dirname, "poli_cache", `${userId}_banner.png`);
+  const bannerPath = path.join(__dirname, "pinsearch_cache", `${userId}_banner.png`);
   fs.writeFileSync(bannerPath, canvas.toBuffer('image/png'));
   
   return bannerPath;
