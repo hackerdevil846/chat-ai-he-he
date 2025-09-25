@@ -5,7 +5,7 @@ const moment = require("moment-timezone");
 module.exports = {
   config: {
     name: "sendnoti",
-    aliases: ["notify", "broadcast"],
+    aliases: [],
     version: "1.0.2",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 2,
