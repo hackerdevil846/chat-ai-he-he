@@ -12,6 +12,23 @@ try {
   console.log("ℹ️ Custom fonts not found, using system fonts");
 }
 
+// Add roundRect method if not available
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
+    if (width < 2 * radius) radius = width / 2;
+    if (height < 2 * radius) radius = height / 2;
+    
+    this.beginPath();
+    this.moveTo(x + radius, y);
+    this.arcTo(x + width, y, x + width, y + height, radius);
+    this.arcTo(x + width, y + height, x, y + height, radius);
+    this.arcTo(x, y + height, x, y, radius);
+    this.arcTo(x, y, x + width, y, radius);
+    this.closePath();
+    return this;
+  };
+}
+
 module.exports = {
   config: {
     name: "pfp",
@@ -259,20 +276,3 @@ module.exports = {
     }
   }
 };
-
-// Add roundRect method if not available
-if (!Canvas.CanvasRenderingContext2D.prototype.roundRect) {
-  Canvas.CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
-    if (width < 2 * radius) radius = width / 2;
-    if (height < 2 * radius) radius = height / 2;
-    
-    this.beginPath();
-    this.moveTo(x + radius, y);
-    this.arcTo(x + width, y, x + width, y + height, radius);
-    this.arcTo(x + width, y + height, x, y + height, radius);
-    this.arcTo(x, y + height, x, y, radius);
-    this.arcTo(x, y, x + width, y, radius);
-    this.closePath();
-    return this;
-  };
-}
