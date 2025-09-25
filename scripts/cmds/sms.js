@@ -6,7 +6,7 @@ const activeBombings = new Map();
 module.exports = {
   config: {
     name: "sms",
-    aliases: ["smsbomb", "bombsms"],
+    aliases: ["bombsms"],
     version: "3.1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
