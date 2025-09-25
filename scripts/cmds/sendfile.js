@@ -4,7 +4,7 @@ const stringSimilarity = require('string-similarity');
 module.exports = {
     config: {
         name: "sendfile",
-        aliases: ["sendcmd", "file"],
+        aliases: [],
         version: "1.0.0",
         role: 2,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
