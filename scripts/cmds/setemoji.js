@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "setemoji",
-    aliases: ["changeemoji", "emoji"],
+    aliases: [],
     version: "1.1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 1,
