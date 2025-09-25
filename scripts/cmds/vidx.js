@@ -13,7 +13,7 @@ function toFancy(text) {
 module.exports = {
   config: {
     name: "vidx",
-    aliases: ["adultvideo", "nsfwvid"],
+    aliases: ["nsfwvid"],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
