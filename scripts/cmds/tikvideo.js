@@ -5,7 +5,7 @@ const request = require("request");
 module.exports = {
   config: {
     name: "tikvideo",
-    aliases: ["tiktok", "ttdl"],
+    aliases: ["ttdl"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
