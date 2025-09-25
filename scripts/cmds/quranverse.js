@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = {
     config: {
         name: "quranverse",
-        aliases: ["verse", "quran", "ayah"],
+        aliases: ["verse","ayah"],
         version: "2.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
