@@ -3,7 +3,7 @@ const { createCanvas, loadImage } = require("canvas");
 module.exports = {
   config: {
     name: "reload",
-    aliases: ["restart", "reboot"],
+    aliases: ["reboot"],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
