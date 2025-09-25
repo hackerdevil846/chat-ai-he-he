@@ -26,47 +26,31 @@ module.exports = {
   },
 
   onChat: async function ({ event, message }) {
-    if (event.body && event.body.toLowerCase() === "wifey") {
-      try {
+    try {
+      if (event.body && event.body.toLowerCase() === "wifey") {
         const filePath = `${__dirname}/tmp/wife.mp4`;
         
         // Ensure tmp directory exists
         await fs.ensureDir(`${__dirname}/tmp`);
         
-        // Download the video
-        const response = await axios.get("https://i.imgur.com/tPzzqVl.mp4", {
-          responseType: 'stream'
+        // Download the video using global.utils.getStreamFromURL
+        const videoStream = await global.utils.getStreamFromURL("https://i.imgur.com/tPzzqVl.mp4");
+        
+        await message.reply({
+          body:
+            "╭───────────────⊹⊱❖⊰⊹───────────────╮\n" +
+            "         💞 𝑊𝑖𝑓𝑒𝑦 💞\n" +
+            "╰───────────────⊹⊱❖⊰⊹───────────────╯\n\n" +
+            "💫 𝐻𝑒𝑦 ℎ𝑒𝑦! 𝐷𝑒𝑘ℎ𝑜 𝑘𝑒 𝑎𝑖𝑠𝑒 𝑐𝑢𝑡𝑒 𝑐𝑢𝑡𝑒 𝑎𝑠ℎ𝑒 —\n" +
+            "🦋 𝑠𝑢𝑛𝑑𝑜𝑟 𝑙𝑖𝑡𝑡𝑙𝑒 𝑝𝑟𝑖𝑛𝑐𝑒𝑠𝑠 ✨\n\n" +
+            "───────────────✧───────────────\n" +
+            "🤖 𝐵𝑜𝑡: 𝐴𝑠𝑖𝑓 𝐵𝑂𝑇 🔥",
+          attachment: videoStream
         });
-        
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
-        
-        writer.on('finish', async () => {
-          await message.reply({
-            body:
-              "╭───────────────⊹⊱❖⊰⊹───────────────╮\n" +
-              "         💞 𝑊𝑖𝑓𝑒𝑦 💞\n" +
-              "╰───────────────⊹⊱❖⊰⊹───────────────╯\n\n" +
-              "💫 𝐻𝑒𝑦 ℎ𝑒𝑦! 𝐷𝑒𝑘ℎ𝑜 𝑘𝑒 𝑎𝑖𝑠𝑒 𝑐𝑢𝑡𝑒 𝑐𝑢𝑡𝑒 𝑎𝑠ℎ𝑒 —\n" +
-              "🦋 𝑠𝑢𝑛𝑑𝑜𝑟 𝑙𝑖𝑡𝑡𝑙𝑒 𝑝𝑟𝑖𝑛𝑐𝑒𝑠𝑠 ✨\n\n" +
-              "───────────────✧───────────────\n" +
-              "🤖 𝐵𝑜𝑡: 𝐴𝑠𝑖𝑓 𝐵𝑂𝑇 🔥",
-            attachment: fs.createReadStream(filePath)
-          });
-          
-          // Clean up
-          await fs.unlink(filePath);
-        });
-        
-        writer.on('error', (error) => {
-          console.error('Error writing file:', error);
-          message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-        });
-        
-      } catch (error) {
-        console.error('Error in wife command:', error);
-        message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
       }
+    } catch (error) {
+      console.error('Error in wife command:', error);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
   }
 };
