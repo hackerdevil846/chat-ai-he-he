@@ -1,6 +1,4 @@
 const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
 
 module.exports = {
     config: {
@@ -10,7 +8,7 @@ module.exports = {
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
         role: 0,
-        category: "anime",
+        category: "𝑎𝑛𝑖𝑚𝑒",
         shortDescription: {
             en: "𝐴𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 - 𝑏𝑜𝑡ℎ 𝑆𝐹𝑊 𝑎𝑛𝑑 𝑁𝑆𝐹𝑊"
         },
@@ -21,64 +19,14 @@ module.exports = {
             en: "{p}alime [𝑡𝑎𝑔]\n{p}alime 𝑙𝑖𝑠𝑡 - 𝑆ℎ𝑜𝑤 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑡𝑎𝑔𝑠"
         },
         dependencies: {
-            "axios": "",
-            "fs-extra": ""
+            "axios": ""
         }
     },
 
     onStart: async function({ message, event, args }) {
         try {
-            // Backup API endpoints
-            const backupApis = {
-                "nsfw": {
-                    "anal": "https://api.fluxpoint.dev/nsfw/img/anal",
-                    "anus": "https://api.fluxpoint.dev/nsfw/img/anus",
-                    "ass": "https://api.fluxpoint.dev/nsfw/img/ass",
-                    "azurlane": "https://api.fluxpoint.dev/nsfw/img/azurlane",
-                    "bdsm": "https://api.fluxpoint.dev/nsfw/img/bdsm",
-                    "blowjob": "https://api.fluxpoint.dev/nsfw/img/blowjob",
-                    "boobs": "https://api.fluxpoint.dev/nsfw/img/boobs",
-                    "cosplay": "https://api.fluxpoint.dev/nsfw/img/cosplay",
-                    "cum": "https://api.fluxpoint.dev/nsfw/img/cum",
-                    "feet": "https://api.fluxpoint.dev/nsfw/img/feet",
-                    "femdom": "https://api.fluxpoint.dev/nsfw/img/femdom",
-                    "futa": "https://api.fluxpoint.dev/nsfw/img/futa",
-                    "gasm": "https://api.fluxpoint.dev/nsfw/img/gasm",
-                    "holo": "https://api.fluxpoint.dev/nsfw/img/holo",
-                    "kitsune": "https://api.fluxpoint.dev/nsfw/img/kitsune",
-                    "lewd": "https://api.fluxpoint.dev/nsfw/img/lewd",
-                    "neko": "https://api.fluxpoint.dev/nsfw/img/neko",
-                    "nekopara": "https://api.fluxpoint.dev/nsfw/img/nekopara",
-                    "pantyhose": "https://api.fluxpoint.dev/nsfw/img/pantyhose",
-                    "peeing": "https://api.fluxpoint.dev/nsfw/img/peeing",
-                    "petplay": "https://api.fluxpoint.dev/nsfw/img/petplay",
-                    "pussy": "https://api.fluxpoint.dev/nsfw/img/pussy",
-                    "slimes": "https://api.fluxpoint.dev/nsfw/img/slimes",
-                    "solo": "https://api.fluxpoint.dev/nsfw/img/solo",
-                    "swimsuit": "https://api.fluxpoint.dev/nsfw/img/swimsuit",
-                    "tentacle": "https://api.fluxpoint.dev/nsfw/img/tentacle",
-                    "thighs": "https://api.fluxpoint.dev/nsfw/img/thighs",
-                    "trap": "https://api.fluxpoint.dev/nsfw/img/trap",
-                    "yaoi": "https://api.fluxpoint.dev/nsfw/img/yaoi",
-                    "yuri": "https://api.fluxpoint.dev/nsfw/img/yuri",
-                    "waifu_im_ero": "https://api.waifu.im/search?is_nsfw=true&included_tags=ero",
-                    "waifu_im_ass": "https://api.waifu.im/search?is_nsfw=true&included_tags=ass",
-                    "waifu_im_hentai": "https://api.waifu.im/search?is_nsfw=true&included_tags=hentai",
-                    "waifu_im_milf": "https://api.waifu.im/search?is_nsfw=true&included_tags=milf",
-                    "waifu_im_oral": "https://api.waifu.im/search?is_nsfw=true&included_tags=oral",
-                    "waifu_im_paizuri": "https://api.waifu.im/search?is_nsfw=true&included_tags=paizuri",
-                    "waifu_im_ecchi": "https://api.waifu.im/search?is_nsfw=true&included_tags=ecchi",
-                    "purrbot_anal": "https://api.purrbot.site/v2/img/nsfw/anal/gif",
-                    "purrbot_cum": "https://api.purrbot.site/v2/img/nsfw/cum/gif",
-                    "purrbot_fuck": "https://api.purrbot.site/v2/img/nsfw/fuck/gif",
-                    "purrbot_neko": "https://api.purrbot.site/v2/img/nsfw/neko/gif",
-                    "purrbot_pussy": "https://api.purrbot.site/v2/img/nsfw/pussy/gif",
-                    "purrbot_solo": "https://api.purrbot.site/v2/img/nsfw/solo/gif",
-                    "purrbot_threesome_fff": "https://api.purrbot.site/v2/img/nsfw/threesome_fff/gif",
-                    "purrbot_threesome_ffm": "https://api.purrbot.site/v2/img/nsfw/threesome_ffm/gif",
-                    "purrbot_threesome_mmf": "https://api.purrbot.site/v2/img/nsfw/threesome_mmf/gif",
-                    "purrbot_yuri": "https://api.purrbot.site/v2/img/nsfw/yuri/gif"
-                },
+            // All API endpoints
+            const apiEndpoints = {
                 "sfw": {
                     "waifu": "https://api.waifu.pics/sfw/waifu",
                     "neko": "https://api.waifu.pics/sfw/neko",
@@ -111,18 +59,25 @@ module.exports = {
                     "poke": "https://api.waifu.pics/sfw/poke",
                     "dance": "https://api.waifu.pics/sfw/dance",
                     "cringe": "https://api.waifu.pics/sfw/cringe"
+                },
+                "nsfw": {
+                    "neko": "https://api.waifu.pics/nsfw/neko",
+                    "waifu": "https://api.waifu.pics/nsfw/waifu",
+                    "blowjob": "https://api.waifu.pics/nsfw/blowjob",
+                    "hentai": "https://nekobot.xyz/api/image?type=hentai",
+                    "pgif": "https://nekobot.xyz/api/image?type=pgif"
                 }
             };
 
+            // Show tag list if requested
             if (!args[0] || args[0].toLowerCase() === 'list') {
-                // Show available tags
-                const sfwTags = Object.keys(backupApis.sfw).join(", ");
-                const nsfwTags = Object.keys(backupApis.nsfw).join(", ");
+                const sfwTags = Object.keys(apiEndpoints.sfw).join(", ");
+                const nsfwTags = Object.keys(apiEndpoints.nsfw).join(", ");
                 
                 const tagList = `🎨 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝐴𝑛𝑖𝑚𝑒 𝑇𝑎𝑔𝑠:\n\n` +
                                `🌈 𝑆𝐹𝑊 𝑇𝑎𝑔𝑠:\n${sfwTags}\n\n` +
                                `🔞 𝑁𝑆𝐹𝑊 𝑇𝑎𝑔𝑠:\n${nsfwTags}\n\n` +
-                               `💡 𝑈𝑠𝑒: ${global.config.PREFIX}alime [𝑡𝑎𝑔]`;
+                               `💡 𝑈𝑠𝑒: ${global.config.PREFIX || '-'}alime [𝑡𝑎𝑔]`;
                 
                 return message.reply(tagList);
             }
@@ -130,42 +85,43 @@ module.exports = {
             const tag = args[0].toLowerCase();
             let apiUrl;
 
-            if (backupApis.sfw.hasOwnProperty(tag)) {
-                apiUrl = backupApis.sfw[tag];
-            } else if (backupApis.nsfw.hasOwnProperty(tag)) {
-                apiUrl = backupApis.nsfw[tag];
+            // Check if tag exists in either category
+            if (apiEndpoints.sfw.hasOwnProperty(tag)) {
+                apiUrl = apiEndpoints.sfw[tag];
+            } else if (apiEndpoints.nsfw.hasOwnProperty(tag)) {
+                apiUrl = apiEndpoints.nsfw[tag];
             } else {
-                return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑡𝑎𝑔. 𝑈𝑠𝑒 '" + global.config.PREFIX + "alime 𝑙𝑖𝑠𝑡' 𝑡𝑜 𝑠𝑒𝑒 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑡𝑎𝑔𝑠.");
+                // If no valid tag provided, choose random from all categories
+                const allTags = { ...apiEndpoints.sfw, ...apiEndpoints.nsfw };
+                const randomTags = Object.keys(allTags);
+                const randomTag = randomTags[Math.floor(Math.random() * randomTags.length)];
+                apiUrl = allTags[randomTag];
             }
 
             // Show processing message
-            const processingMsg = await message.reply("🔄 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒...");
+            const processingMsg = await message.reply("🔄 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑎𝑛𝑖𝑚𝑒 𝑖𝑚𝑎𝑔𝑒...");
 
             try {
-                const response = await axios.get(apiUrl);
+                const response = await axios.get(apiUrl, { timeout: 10000 });
                 let imageUrl;
                 
                 // Handle different API response formats
-                if (apiUrl.includes('waifu.im')) {
-                    imageUrl = response.data?.images?.[0]?.url;
-                } else if (apiUrl.includes('purrbot.site')) {
-                    imageUrl = response.data?.data?.link;
-                } else if (apiUrl.includes('fluxpoint.dev')) {
-                    imageUrl = response.data?.file;
+                if (apiUrl.includes('nekobot.xyz')) {
+                    imageUrl = response.data.message;
                 } else if (apiUrl.includes('waifu.pics')) {
-                    imageUrl = response.data?.url;
+                    imageUrl = response.data.url;
                 } else {
-                    imageUrl = response.data?.url || response.data?.file || response.data?.images?.[0]?.url || response.data?.data?.link;
+                    imageUrl = response.data?.url || response.data?.message;
                 }
                 
                 if (!imageUrl) {
-                    throw new Error("𝑁𝑜 𝑖𝑚𝑎𝑔𝑒 𝑢𝑟𝑙 𝑓𝑜𝑢𝑛𝑑");
+                    throw new Error("𝑁𝑜 𝑖𝑚𝑎𝑔𝑒 𝑢𝑟𝑙 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒");
                 }
 
                 const imageStream = await global.utils.getStreamFromURL(imageUrl);
 
                 await message.reply({
-                    body: `🎨 𝐴𝑛𝑖𝑚𝑒 𝐼𝑚𝑎𝑔𝑒 - 𝑇𝑎𝑔: ${tag}`,
+                    body: `🎨 𝐴𝑛𝑖𝑚𝑒 𝐼𝑚𝑎𝑔𝑒\n━━━━━━━━━━━━━━\n✨ 𝑇𝑎𝑔: ${tag || '𝑟𝑎𝑛𝑑𝑜𝑚'}\n💫 𝑆𝑜𝑢𝑟𝑐𝑒: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
                     attachment: imageStream
                 });
 
@@ -176,12 +132,12 @@ module.exports = {
 
             } catch (error) {
                 console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-                // Don't send error message to avoid spam
+                await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
             }
 
         } catch (error) {
             console.error("𝐴𝑙𝑖𝑚𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-            // Don't send error message to avoid spam
+            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
         }
     }
 };
