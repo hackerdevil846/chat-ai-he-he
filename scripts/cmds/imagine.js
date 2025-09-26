@@ -4,7 +4,7 @@ const fs = require('fs-extra');
 module.exports = {
   config: {
     name: "imagine",
-    aliases: ["aiimg", "generateimg"],
+    aliases: [],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 2,
