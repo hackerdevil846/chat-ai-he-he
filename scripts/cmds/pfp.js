@@ -12,21 +12,23 @@ try {
   console.log("ℹ️ Custom fonts not found, using system fonts");
 }
 
-// Add roundRect method if not available
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, width, height, radius) {
-    if (width < 2 * radius) radius = width / 2;
-    if (height < 2 * radius) radius = height / 2;
-    
-    this.beginPath();
-    this.moveTo(x + radius, y);
-    this.arcTo(x + width, y, x + width, y + height, radius);
-    this.arcTo(x + width, y + height, x, y + height, radius);
-    this.arcTo(x, y + height, x, y, radius);
-    this.arcTo(x, y, x + width, y, radius);
-    this.closePath();
-    return this;
-  };
+// Add roundRect method to canvas context
+function addRoundRectMethod(ctx) {
+  if (!ctx.roundRect) {
+    ctx.roundRect = function(x, y, width, height, radius) {
+      if (width < 2 * radius) radius = width / 2;
+      if (height < 2 * radius) radius = height / 2;
+      
+      this.beginPath();
+      this.moveTo(x + radius, y);
+      this.arcTo(x + width, y, x + width, y + height, radius);
+      this.arcTo(x + width, y + height, x, y + height, radius);
+      this.arcTo(x, y + height, x, y, radius);
+      this.arcTo(x, y, x + width, y, radius);
+      this.closePath();
+      return this;
+    };
+  }
 }
 
 module.exports = {
@@ -120,8 +122,11 @@ module.exports = {
       };
 
       // Create enhanced canvas
-      const canvas = createCanvas(800, 450); // Larger canvas for better design
+      const canvas = createCanvas(800, 450);
       const ctx = canvas.getContext("2d");
+
+      // Add roundRect method to this context
+      addRoundRectMethod(ctx);
 
       // Enhanced gradient background
       const gradients = [
@@ -201,13 +206,13 @@ module.exports = {
 
       // Panel background with blur effect
       ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-      ctx.beginPath();
       ctx.roundRect(panelX, panelY, panelWidth, panelHeight, 20);
       ctx.fill();
 
       // Panel border
       ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
       ctx.lineWidth = 2;
+      ctx.roundRect(panelX, panelY, panelWidth, panelHeight, 20);
       ctx.stroke();
 
       // User name with glow effect
@@ -270,7 +275,9 @@ module.exports = {
     } catch (error) {
       console.error("Profile card error:", error);
       try {
-        await api.unsendMessage(processingMsg.messageID);
+        if (processingMsg && processingMsg.messageID) {
+          await api.unsendMessage(processingMsg.messageID);
+        }
       } catch {}
       message.reply("❌ 𝑺𝒐𝒓𝒓𝒚, 𝒕𝒉𝒆𝒓𝒆 𝒘𝒂𝒔 𝒂𝒏 𝒆𝒓𝒓𝒐𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒄𝒂𝒓𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
     }
