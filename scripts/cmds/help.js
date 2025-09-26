@@ -15,7 +15,7 @@ const data = [
 module.exports = {
   config: {
     name: "help",
-    aliases: ["menu", "cmds", "commandlist"], // CHANGED: removed "commands" alias
+    aliases: ["h"], // CHANGED: removed "commands" alias
     version: "1.3",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
