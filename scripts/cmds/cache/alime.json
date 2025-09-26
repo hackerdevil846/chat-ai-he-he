@@ -1,4 +1,5 @@
-https://nekos.best/api/v2/happy
+{
+  https://nekos.best/api/v2/happy
 https://nekos.best/api/v2/dance
 https://api.otakugifs.xyz/gif?reaction=kiss
 https://api.otakugifs.xyz/gif/allreactions
@@ -63,3 +64,4 @@ https://nekobot.xyz/api/image?type=hentai
 
 human nsf gif:
 https://nekobot.xyz/api/image?type=pgif
+}
