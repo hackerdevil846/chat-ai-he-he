@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
   config: {
     name: "emojiReact2",
-    aliases: ["er2", "emojivid"],
+    aliases: ["er2"],
     version: "1.0.1",
     author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
     countDown: 5,
