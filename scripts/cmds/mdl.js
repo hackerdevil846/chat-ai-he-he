@@ -42,12 +42,12 @@ module.exports = {
                 require("cheerio");
                 require("pastebin-api");
             } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑙𝑙 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑝𝑎𝑐𝑘𝑎𝑔𝑒𝑠.");
+                return;
             }
 
             const permission = ["61571630409265"];
             if (!permission.includes(event.senderID)) {
-                return message.reply("𝑅𝑒𝑝𝑜𝑟𝑡 𝑡𝑜 𝑎𝑑𝑚𝑖𝑛: 𝑆𝑜𝑚𝑒𝑜𝑛𝑒 𝑖𝑠 𝑡𝑟𝑦𝑖𝑛𝑔 𝑡𝑜 𝑢𝑠𝑒 𝑚𝑑𝑙 𝑤𝑖𝑡ℎ𝑜𝑢𝑡 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 😏");
+                return;
             }
 
             const { senderID, threadID, messageID, messageReply, type } = event;
@@ -58,14 +58,14 @@ module.exports = {
             }
             
             if (!text && !name) {
-                return message.reply('𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑎 𝑙𝑖𝑛𝑘 𝑡𝑜 𝑢𝑝𝑙𝑜𝑎𝑑 𝑡𝑜 𝑝𝑎𝑠𝑡𝑒𝑏𝑖𝑛');
+                return message.reply('💡 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑎 𝑙𝑖𝑛𝑘 𝑜𝑟 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑓𝑖𝑙𝑒𝑛𝑎𝑚𝑒');
             }
             
             if (!text && name) {
                 const filePath = `${__dirname}/${args[0]}.js`;
                 
                 if (!fs.existsSync(filePath)) {
-                    return message.reply(`𝐶𝑜𝑚𝑚𝑎𝑛𝑑 ${args[0]} 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡!`);
+                    return message.reply(`❌ 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 "${args[0]}" 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡!`);
                 }
                 
                 try {
@@ -83,10 +83,10 @@ module.exports = {
                     const id = url.split('/')[3];
                     const rawLink = 'https://pastebin.com/raw/' + id;
                     
-                    return message.reply(rawLink);
+                    return message.reply(`📋 𝑃𝑎𝑠𝑡𝑒𝑏𝑖𝑛 𝑐𝑟𝑒𝑎𝑡𝑒𝑑: ${rawLink}`);
                 } catch (error) {
                     console.error(error);
-                    return message.reply("𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑝𝑎𝑠𝑡𝑒𝑏𝑖𝑛");
+                    return;
                 }
             }
             
@@ -94,66 +94,66 @@ module.exports = {
             const url = text.match(urlR);
             
             if (!url) {
-                return message.reply("𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑈𝑅𝐿 𝑝𝑟𝑜𝑣𝑖𝑑𝑒𝑑");
+                return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑈𝑅𝐿 𝑝𝑟𝑜𝑣𝑖𝑑𝑒𝑑");
             }
             
             if (url[0].includes('pastebin')) {
                 try {
-                    const response = await axios.get(url[0]);
+                    const response = await axios.get(url[0].includes('raw') ? url[0] : url[0].replace('pastebin.com', 'pastebin.com/raw'));
                     const data = response.data;
                     const filePath = `${__dirname}/${args[0]}.js`;
                     
                     fs.writeFileSync(filePath, data, "utf-8");
-                    return message.reply(`𝐴𝑝𝑝𝑙𝑖𝑒𝑑 𝑐𝑜𝑑𝑒 𝑡𝑜 ${args[0]}.𝑗𝑠, 𝑢𝑠𝑒 𝑡ℎ𝑒 𝑙𝑜𝑎𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑡𝑜 𝑢𝑠𝑒 𝑖𝑡!`);
+                    return message.reply(`✅ 𝐴𝑝𝑝𝑙𝑖𝑒𝑑 𝑐𝑜𝑑𝑒 𝑡𝑜 ${args[0]}.𝑗𝑠\n💡 𝑈𝑠𝑒: ${global.config.PREFIX}𝑙𝑜𝑎𝑑 ${args[0]}`);
                 } catch (error) {
                     console.error(error);
-                    return message.reply(`𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑎𝑝𝑝𝑙𝑦𝑖𝑛𝑔 𝑐𝑜𝑑𝑒 𝑡𝑜 ${args[0]}.𝑗𝑠`);
+                    return;
                 }
             }
             
             if (url[0].includes('buildtool') || url[0].includes('tinyurl.com')) {
-                const options = {
-                    method: 'GET',
-                    url: messageReply.body
-                };
-                
-                request(options, function (error, response, body) {
-                    if (error) {
-                        return message.reply('𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑜𝑛𝑙𝑦 𝑎 𝑙𝑖𝑛𝑘 (𝑤𝑖𝑡ℎ𝑜𝑢𝑡 𝑎𝑛𝑦 𝑜𝑡ℎ𝑒𝑟 𝑡𝑒𝑥𝑡)');
-                    }
+                return new Promise((resolve) => {
+                    const options = {
+                        method: 'GET',
+                        url: messageReply.body
+                    };
                     
-                    const $ = cheerio.load(body);
-                    $('.language-js').each((index, el) => {
-                        if (index !== 0) return;
+                    request(options, function (error, response, body) {
+                        if (error) {
+                            return message.reply('❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑙𝑖𝑛𝑘');
+                        }
                         
-                        const code = $(el).text();
-                        const filePath = `${__dirname}/${args[0]}.js`;
-                        
-                        fs.writeFile(filePath, code, "utf-8", function (err) {
-                            if (err) {
-                                return message.reply(`𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑎𝑝𝑝𝑙𝑦𝑖𝑛𝑔 𝑛𝑒𝑤 𝑐𝑜𝑑𝑒 𝑡𝑜 "${args[0]}.𝑗𝑠".`);
-                            }
-                            return message.reply(`𝐴𝑑𝑑𝑒𝑑 𝑡ℎ𝑖𝑠 𝑐𝑜𝑑𝑒 𝑡𝑜 "${args[0]}.𝑗𝑠", 𝑢𝑠𝑒 𝑡ℎ𝑒 𝑙𝑜𝑎𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑡𝑜 𝑢𝑠𝑒 𝑖𝑡!`);
+                        const $ = cheerio.load(body);
+                        $('.language-js').each((index, el) => {
+                            if (index !== 0) return;
+                            
+                            const code = $(el).text();
+                            const filePath = `${__dirname}/${args[0]}.js`;
+                            
+                            fs.writeFile(filePath, code, "utf-8", function (err) {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                return message.reply(`✅ 𝐴𝑑𝑑𝑒𝑑 𝑐𝑜𝑑𝑒 𝑡𝑜 "${args[0]}.𝑗𝑠"\n💡 𝑈𝑠𝑒: ${global.config.PREFIX}𝑙𝑜𝑎𝑑 ${args[0]}`);
+                            });
                         });
                     });
                 });
-                return;
             }
             
             if (url[0].includes('drive.google')) {
                 try {
-                    const id = url[0].match(/[-\w]{25,}/);
-                    const path = resolve(__dirname, `${args[0]}.js`);
-                    
-                    return message.reply(`𝐺𝑜𝑜𝑔𝑙𝑒 𝐷𝑟𝑖𝑣𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑠𝑢𝑝𝑝𝑜𝑟𝑡 𝑛𝑒𝑒𝑑𝑠 𝑡𝑜 𝑏𝑒 𝑖𝑚𝑝𝑙𝑒𝑚𝑒𝑛𝑡𝑒𝑑 𝑝𝑟𝑜𝑝𝑒𝑟𝑙𝑦. 𝐹𝑖𝑙𝑒 𝐼𝐷: ${id}`);
+                    return message.reply("🔧 𝐺𝑜𝑜𝑔𝑙𝑒 𝐷𝑟𝑖𝑣𝑒 𝑠𝑢𝑝𝑝𝑜𝑟𝑡 𝑖𝑠 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 𝑢𝑛𝑑𝑒𝑟 𝑑𝑒𝑣𝑒𝑙𝑜𝑝𝑚𝑒𝑛𝑡");
                 } catch (e) {
-                    return message.reply(`𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑎𝑝𝑝𝑙𝑦𝑖𝑛𝑔 𝑛𝑒𝑤 𝑐𝑜𝑑𝑒 𝑡𝑜 "${args[0]}.𝑗𝑠".`);
+                    console.error(e);
+                    return;
                 }
             }
             
         } catch (error) {
             console.error(error);
-            message.reply("𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
+            // Don't send error message to avoid spam
         }
     }
 };
