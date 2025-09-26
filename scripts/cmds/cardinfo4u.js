@@ -4,7 +4,7 @@ const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTM
 module.exports = {
   config: {
     name: "cardinfo4u",
-    aliases: ["usercard", "profilecard4u"],
+    aliases: [],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
