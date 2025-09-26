@@ -1,5 +1,5 @@
-const { createCanvas, loadImage } = require("canvas");
 const axios = require("axios");
+const jimp = require("jimp");
 const fs = require("fs-extra");
 const path = require("path");
 
@@ -8,56 +8,45 @@ module.exports = {
     name: "obamatweet",
     aliases: ["obamatw", "presidentialtweet"],
     version: "1.1.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
     role: 0,
-    category: "𝒊𝒎𝒂𝒈𝒆",
+    category: "image",
     shortDescription: {
-      en: "🇺🇸 𝑪𝒓𝒆𝒂𝒕𝒆 𝒑𝒓𝒆𝒔𝒊𝒅𝒆𝒏𝒕𝒊𝒂𝒍 𝑶𝒃𝒂𝒎𝒂-𝒔𝒕𝒚𝒍𝒆 𝒕𝒘𝒆𝒆𝒕 𝒊𝒎𝒂𝒈𝒆𝒔"
+      en: "🇺🇸 𝐶𝑟𝑒𝑎𝑡𝑒 𝑝𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑡𝑖𝑎𝑙 𝑂𝑏𝑎𝑚𝑎-𝑠𝑡𝑦𝑙𝑒 𝑡𝑤𝑒𝑒𝑡 𝑖𝑚𝑎𝑔𝑒𝑠"
     },
     longDescription: {
-      en: "🇺🇸 𝑪𝒓𝒆𝒂𝒕𝒆 𝒑𝒓𝒆𝒔𝒊𝒅𝒆𝒏𝒕𝒊𝒂𝒍 𝑶𝒃𝒂𝒎𝒂-𝒔𝒕𝒚𝒍𝒆 𝒕𝒘𝒆𝒆𝒕 𝒊𝒎𝒂𝒈𝒆𝒔 𝒘𝒊𝒕𝒉 𝒚𝒐𝒖𝒓 𝒄𝒖𝒔𝒕𝒐𝒎 𝒕𝒆𝒙𝒕"
+      en: "🇺🇸 𝐶𝑟𝑒𝑎𝑡𝑒 𝑝𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑡𝑖𝑎𝑙 𝑂𝑏𝑎𝑚𝑎-𝑠𝑡𝑦𝑙𝑒 𝑡𝑤𝑒𝑒𝑡 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
     },
     guide: {
-      en: "{𝑝}obamatweet [𝒕𝒆𝒙𝒕]"
+      en: "{p}obamatweet [𝑡𝑒𝑥𝑡]"
     },
     dependencies: {
-      "canvas": "",
       "axios": "",
+      "jimp": "",
       "fs-extra": ""
     }
   },
 
-  onStart: async function({ api, event, args }) {
+  onStart: async function({ message, event, args }) {
     try {
-      // Dependency check
-      if (!createCanvas || !loadImage) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑐𝑎𝑛𝑣𝑎𝑠");
-      if (!axios) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑎𝑥𝑖𝑜𝑠");
-      if (!fs) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎");
-
-      const { threadID, messageID } = event;
+      const { threadID } = event;
 
       if (args.length === 0) {
-        return api.sendMessage(
-          "🇺🇸 𝑶𝒃𝒂𝒎𝒂 𝑻𝒘𝒆𝒆𝒕 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒓𝒆𝒂𝒅𝒚! 𝑻𝒚𝒑𝒆 'obamatweet [𝒕𝒆𝒙𝒕]' 𝒕𝒐 𝒄𝒓𝒆𝒂𝒕𝒆 𝒚𝒐𝒖𝒓 𝒑𝒓𝒆𝒔𝒊𝒅𝒆𝒏𝒕𝒊𝒂𝒍 𝒕𝒘𝒆𝒆𝒕",
-          threadID,
-          messageID
+        return message.reply(
+          "🇺🇸 𝑂𝑏𝑎𝑚𝑎 𝑇𝑤𝑒𝑒𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑟𝑒𝑎𝑑𝑦! 𝑇𝑦𝑝𝑒 '{p}obamatweet [𝑡𝑒𝑥𝑡]' 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑦𝑜𝑢𝑟 𝑝𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑡𝑖𝑎𝑙 𝑡𝑤𝑒𝑒𝑡"
         );
       }
 
       const text = args.join(" ");
       if (!text.trim()) {
-        return api.sendMessage(
-          "✍️ 𝑷𝒍𝒆𝒂𝒔𝒆 𝒑𝒓𝒐𝒗𝒊𝒅𝒆 𝒕𝒆𝒙𝒕 𝒇𝒐𝒓 𝑶𝒃𝒂𝒎𝒂'𝒔 𝒕𝒘𝒆𝒆𝒕\n𝑬𝒙𝒂𝒎𝒑𝒍𝒆: obamatweet 𝒀𝒆𝒔 𝒘𝒆 𝒄𝒂𝒏! 𝑪𝒉𝒂𝒏𝒈𝒆 𝒊𝒔 𝒄𝒐𝒎𝒊𝒏𝒈.",
-          threadID,
-          messageID
+        return message.reply(
+          "✍️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑡𝑒𝑥𝑡 𝑓𝑜𝑟 𝑂𝑏𝑎𝑚𝑎'𝑠 𝑡𝑤𝑒𝑒𝑡\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}obamatweet 𝑌𝑒𝑠 𝑤𝑒 𝑐𝑎𝑛! 𝐶ℎ𝑎𝑛𝑔𝑒 𝑖𝑠 𝑐𝑜𝑚𝑖𝑛𝑔."
         );
       }
 
-      const processingMsg = await api.sendMessage(
-        "🔄 𝑷𝒓𝒆𝒔𝒊𝒅𝒆𝒏𝒕 𝑶𝒃𝒂𝒎𝒂 𝒊𝒔 𝒄𝒐𝒎𝒑𝒐𝒔𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒕𝒘𝒆𝒆𝒕...",
-        threadID,
-        messageID
+      const processingMsg = await message.reply(
+        "🔄 𝑃𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑡 𝑂𝑏𝑎𝑚𝑎 𝑖𝑠 𝑐𝑜𝑚𝑝𝑜𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑡𝑤𝑒𝑒𝑡..."
       );
 
       const cacheDir = path.join(__dirname, 'cache');
@@ -71,105 +60,64 @@ module.exports = {
         const { data } = await axios.get(templateUrl, { responseType: 'arraybuffer' });
         await fs.writeFile(templatePath, Buffer.from(data, 'binary'));
       } catch (error) {
-        await api.unsendMessage(processingMsg.messageID);
-        return api.sendMessage(
-          "❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅 𝒕𝒆𝒎𝒑𝒍𝒂𝒕𝒆. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.",
-          threadID,
-          messageID
+        await message.unsendMessage(processingMsg.messageID);
+        return message.reply(
+          "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟."
         );
       }
       
-      // Create canvas
-      const baseImage = await loadImage(templatePath);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
-      
-      // Draw template
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      
-      // Text styling
-      ctx.font = "500 45px 'Helvetica Neue', Arial, sans-serif";
-      ctx.fillStyle = "#14171a";
-      ctx.textBaseline = "top";
-      ctx.textAlign = "left";
+      // Load template image
+      const image = await jimp.read(templatePath);
+      const font = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
 
-      // Dynamic font sizing
-      let fontSize = 45;
-      while (ctx.measureText(text).width > 1160 && fontSize > 24) {
-        fontSize -= 1;
-        ctx.font = `500 ${fontSize}px 'Helvetica Neue', Arial, sans-serif`;
-      }
+      // Simple text wrapping function
+      function wrapText(text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
 
-      // Multi-line text rendering
-      const wrapText = async (ctx, text, maxWidth) => {
-        return new Promise(resolve => {
-          if (ctx.measureText(text).width <= maxWidth) return resolve([text]);
-          
-          const words = text.split(' ');
-          const lines = [];
-          let currentLine = '';
-          
-          for (let i = 0; i < words.length; i++) {
-            const word = words[i];
-            const testLine = currentLine ? `${currentLine} ${word}` : word;
-            const testWidth = ctx.measureText(testLine).width;
-            
-            if (testWidth <= maxWidth) {
-              currentLine = testLine;
-            } else {
-              if (currentLine) lines.push(currentLine);
-              currentLine = word;
-            }
-            
-            if (i === words.length - 1 && currentLine) {
-              lines.push(currentLine);
-            }
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i];
+          const width = jimp.measureText(font, currentLine + " " + word);
+          if (width < maxWidth) {
+            currentLine += " " + word;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
           }
-          
-          return resolve(lines);
-        });
-      };
-
-      const lines = await wrapText(ctx, text, 1160);
-      const lineHeight = fontSize * 1.4;
-      const startY = 165;
-      
-      for (let i = 0; i < lines.length; i++) {
-        ctx.fillText(lines[i], 60, startY + (i * lineHeight));
+        }
+        lines.push(currentLine);
+        return lines;
       }
 
-      // Add verification badge
-      ctx.fillStyle = "#1da1f2";
-      ctx.beginPath();
-      ctx.arc(60 + ctx.measureText(lines[0]).width + 30, startY + 10, 15, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "bold 24px Arial";
-      ctx.fillText("✓", 60 + ctx.measureText(lines[0]).width + 22, startY + 15);
+      // Add text to image
+      const lines = wrapText(text, 1160);
+      const startY = 165;
+      const lineHeight = 40;
+      
+      lines.forEach((line, index) => {
+        const textWidth = jimp.measureText(font, line);
+        image.print(font, 60, startY + (index * lineHeight), line);
+      });
 
-      // Save image
+      // Save the modified image
       const outputPath = path.join(cacheDir, `obama_${Date.now()}.png`);
-      const buffer = canvas.toBuffer('image/png');
-      await fs.writeFile(outputPath, buffer);
+      await image.writeAsync(outputPath);
       
       // Send result
-      await api.sendMessage({
-        body: "🇺🇸 𝑷𝒓𝒆𝒔𝒊𝒅𝒆𝒏𝒕𝒊𝒂𝒍 𝑻𝒘𝒆𝒆𝒕:",
+      await message.reply({
+        body: "🇺🇸 𝑃𝑟𝑒𝑠𝑖𝑑𝑒𝑛𝑡𝑖𝑎𝑙 𝑇𝑤𝑒𝑒𝑡:",
         attachment: fs.createReadStream(outputPath)
-      }, threadID, messageID);
+      });
       
       // Cleanup
       await fs.unlink(templatePath);
       await fs.unlink(outputPath);
-      await api.unsendMessage(processingMsg.messageID);
+      await message.unsendMessage(processingMsg.messageID);
 
     } catch (error) {
-      console.error("𝑶𝒃𝒂𝒎𝒂 𝑪𝒐𝒎𝒎𝒂𝒏𝒅 𝑬𝒓𝒓𝒐𝒓:", error);
-      api.sendMessage(
-        `❌ 𝑭𝒂𝒊𝒍𝒆𝒅 𝒕𝒐 𝒄𝒓𝒆𝒂𝒕𝒆 𝒕𝒘𝒆𝒆𝒕. 𝑬𝒓𝒓𝒐𝒓: ${error.message}`,
-        event.threadID,
-        event.messageID
-      );
+      console.error("𝑂𝑏𝑎𝑚𝑎 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
+      // Don't send error message to avoid spam
     }
   }
 };
