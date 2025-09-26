@@ -29,7 +29,7 @@ module.exports = {
             
             const imageStream = await global.utils.getStreamFromURL(profileImageURL);
 
-            const msg = {
+            await message.reply({
                 body: `╔════ஜ۞۞ஜ═══╗
 
 🥀 𝑁𝑎𝑎𝑚 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
@@ -42,13 +42,10 @@ module.exports = {
 🥀 𝐵𝑜𝑡 𝑒𝑟 𝑀𝑎𝑙𝑖𝑘 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
 »»————-　★　————-««`,
                 attachment: imageStream
-            };
-
-            await message.reply(msg);
+            });
             
         } catch (error) {
             console.error("𝐴𝑑𝑚𝑖𝑛 𝑖𝑛𝑓𝑜 𝑒𝑟𝑟𝑜𝑟:", error);
-            // Send without image if error occurs
             await message.reply(`╔════ஜ۞۞ஜ═══╗
 
 🥀 𝑁𝑎𝑎𝑚 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑
