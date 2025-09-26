@@ -4,7 +4,7 @@ const fs = require('fs');
 module.exports = {
   config: {
     name: "wordchain",
-    aliases: ["wordgame", "chainword"],
+    aliases: [],
     version: "1.1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
