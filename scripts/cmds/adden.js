@@ -1,140 +1,135 @@
-const { createCanvas, loadImage, registerFont } = require("canvas");
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
+const os = require('os');
+const moment = require('moment-timezone');
 
-module.exports.config = {
-    name: "anhdaden",
-    aliases: ["whitememe", "daden"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 10,
-    role: 0,
-    category: "edit-img",
-    shortDescription: {
-        en: "𝑊ℎ𝑖𝑡𝑒 𝑏𝑟𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑜𝑟"
+module.exports = {
+    config: {
+        name: "admin2",
+        aliases: ["adminpanel", "sysinfo"],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 0,
+        role: 2,
+        category: "system",
+        shortDescription: {
+            en: "✨ 𝐴𝑑𝑚𝑖𝑛 𝑆𝑦𝑠𝑡𝑒𝑚 𝐼𝑛𝑓𝑜 ✨"
+        },
+        longDescription: {
+            en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑟𝑒𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑏𝑜𝑡 𝑠𝑡𝑎𝑡𝑠"
+        },
+        guide: {
+            en: "{p}admin2"
+        },
+        dependencies: {
+            "moment-timezone": ""
+        }
     },
-    longDescription: {
-        en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑤ℎ𝑖𝑡𝑒 𝑏𝑟𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑒 𝑤𝑖𝑡ℎ 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
-    },
-    guide: {
-        en: "{p}anhdaden [𝑡𝑒𝑥𝑡 1] | [𝑡𝑒𝑥𝑡 2]"
-    },
-    dependencies: {
-        "canvas": "",
-        "fs-extra": "",
-        "axios": "",
-        "path": ""
-    }
-};
 
-module.exports.onStart = async function({ message, event, args }) {
-    try {
-        // Check dependencies
-        if (!createCanvas || !loadImage) {
-            throw new Error("𝑐𝑎𝑛𝑣𝑎𝑠 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-        }
-        if (!fs.existsSync) {
-            throw new Error("𝑓𝑠-𝑒𝑥𝑡𝑟𝑎 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-        }
-
-        const text = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|");
-        
-        if (!text[0] || !text[1]) {
-            return message.reply("𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑤𝑜 𝑡𝑒𝑥𝑡𝑠 𝑠𝑒𝑝𝑎𝑟𝑎𝑡𝑒𝑑 𝑏𝑦 \"|\" 𝑠𝑦𝑚𝑏𝑜𝑙\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}anhdaden 𝑇𝑒𝑥𝑡 1 | 𝑇𝑒𝑥𝑡 2");
-        }
-
-        // Create cache directory if it doesn't exist
-        const cacheDir = path.join(__dirname, 'cache');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
-        }
-        
-        const pathImg = path.join(cacheDir, 'anhdaden.png');
-        const fontPath = path.join(cacheDir, 'SVN-Arial 2.ttf');
-
-        // Download the base image
-        const imageResponse = await axios.get("https://i.imgur.com/2ggq8wM.png", {
-            responseType: 'arraybuffer'
-        });
-        fs.writeFileSync(pathImg, Buffer.from(imageResponse.data));
-
-        // Download the font if it doesn't exist
-        if (!fs.existsSync(fontPath)) {
-            try {
-                const fontResponse = await axios.get("https://drive.google.com/u/0/uc?id=11YxymRp0y3Jle5cFBmLzwU89XNqHIZux&export=download", {
-                    responseType: 'arraybuffer'
-                });
-                fs.writeFileSync(fontPath, Buffer.from(fontResponse.data));
-            } catch (fontError) {
-                console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑜𝑛𝑡, 𝑢𝑠𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘:", fontError);
-                // Use system font as fallback
-            }
-        }
-
-        // Load and process the image
-        const baseImage = await loadImage(pathImg);
-        const canvas = createCanvas(baseImage.width, baseImage.height);
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-        // Register and use the font
+    onStart: async function({ message, usersData, threadsData, api }) {
         try {
-            if (fs.existsSync(fontPath)) {
-                registerFont(fontPath, { family: "SVN-Arial 2" });
-                ctx.font = "𝑖𝑡𝑎𝑙𝑖𝑐 𝑏𝑜𝑙𝑑 35𝑝𝑥 '𝑆𝑉𝑁-𝐴𝑟𝑖𝑎𝑙 2'";
-            } else {
-                ctx.font = "𝑖𝑡𝑎𝑙𝑖𝑐 𝑏𝑜𝑙𝑑 35𝑝𝑥 𝐴𝑟𝑖𝑎𝑙"; // Fallback font
+            // Dependency check
+            try {
+                require("moment-timezone");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑚𝑜𝑚𝑒𝑛𝑡-𝑡𝑖𝑚𝑒𝑧𝑜𝑛𝑒");
             }
-        } catch (fontError) {
-            ctx.font = "𝑖𝑡𝑎𝑙𝑖𝑐 𝑏𝑜𝑙𝑑 35𝑝𝑥 𝐴𝑟𝑖𝑎𝑙"; // Fallback font
+
+            // Utility Functions
+            const formatBytes = (bytes) => {
+                if (bytes === 0) return '0 𝐵';
+                const k = 1024;
+                const sizes = ['𝐵', '𝐾𝐵', '𝑀𝐵', '𝐺𝐵', '𝑇𝐵'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+
+            const getCPUInfo = () => {
+                const cpus = os.cpus();
+                if (!cpus || cpus.length === 0) return '𝑁/𝐴';
+                const cpu = cpus[0];
+                return `${cpu.model} | ${cpus.length} 𝑐𝑜𝑟𝑒𝑠`;
+            };
+
+            const getOSInfo = () => {
+                return `${os.platform()} ${os.release()} | ${os.arch()}`;
+            };
+
+            const getUptime = () => {
+                const uptime = process.uptime();
+                const days = Math.floor(uptime / 86400);
+                const hours = Math.floor((uptime % 86400) / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                const seconds = Math.floor(uptime % 60);
+                return `${days}𝑑 ${hours}ℎ ${minutes}𝑚 ${seconds}𝑠`;
+            };
+
+            // Get real time and date
+            const now = moment().tz('Asia/Dhaka');
+            const formattedTime = now.format('HH:mm:ss');
+            const formattedDate = now.format('YYYY-MM-DD');
+            const dayName = now.format('dddd');
+
+            // Get real system information
+            const totalMem = formatBytes(os.totalmem());
+            const freeMem = formatBytes(os.freemem());
+            const usedMem = formatBytes(os.totalmem() - os.freemem());
+            const memoryUsage = formatBytes(process.memoryUsage().rss);
+
+            // Get real bot statistics
+            let threadCount = '𝑁/𝐴';
+            let userCount = '𝑁/𝐴';
+            
+            try {
+                // Try to get real thread count
+                const allThreads = await threadsData.getAll();
+                threadCount = Array.isArray(allThreads) ? allThreads.length : '𝑁/𝐴';
+            } catch (e) {
+                threadCount = '𝑁/𝐴';
+            }
+
+            try {
+                // Try to get real user count
+                const allUsers = await usersData.getAll();
+                userCount = Array.isArray(allUsers) ? allUsers.length : '𝑁/𝐴';
+            } catch (e) {
+                userCount = '𝑁/𝐴';
+            }
+
+            // Get command count from global client
+            const commandCount = global.client && global.client.commands ? 
+                global.client.commands.size : '𝑁/𝐴';
+
+            // Get Node.js version
+            const nodeVersion = process.version;
+
+            const response = `
+🦋✨ 𝑨𝒅𝒎𝒊𝒏 𝑺𝒚𝒔𝒕𝒆𝒎 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 ✨🦋
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 𝐷𝑎𝑡𝑒: ${formattedDate} (${dayName})
+🕰️ 𝑇𝑖𝑚𝑒: ${formattedTime} (𝐵𝐷𝑇)
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 𝑺𝒚𝒔𝒕𝒆𝒎 𝑰𝒏𝒇𝒐:
+• 𝐹𝑟𝑒𝑒 𝑅𝐴𝑀: ${freeMem}
+• 𝑈𝑠𝑒𝑑 𝑅𝐴𝑀: ${usedMem} 
+• 𝑇𝑜𝑡𝑎𝑙 𝑅𝐴𝑀: ${totalMem}
+• 𝐵𝑜𝑡 𝑅𝐴𝑀: ${memoryUsage}
+• 𝐶𝑃𝑈: ${getCPUInfo()}
+• 𝑂𝑆: ${getOSInfo()}
+• 𝑁𝑜𝑑𝑒.𝑗𝑠: ${nodeVersion}
+• 𝑈𝑝𝑡𝑖𝑚𝑒: ${getUptime()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 𝑩𝒐𝒕 𝑺𝒕𝒂𝒕𝒔:
+• 𝑇ℎ𝑟𝑒𝑎𝑑𝑠: ${threadCount}
+• 𝑈𝑠𝑒𝑟𝑠: ${userCount} 
+• 𝐶𝑜𝑚𝑚𝑎𝑛𝑑𝑠: ${commandCount}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💫 𝑺𝒚𝒔𝒕𝒆𝒎 𝑯𝒆𝒂𝒍𝒕𝒉: ✅ 𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑎𝑙
+🦋━━━━━━━━━━━━━━━━━━━━🦋`;
+
+            await message.reply(response);
+
+        } catch (error) {
+            console.error('𝐴𝑑𝑚𝑖𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:', error);
+            await message.reply('❌ 𝐸𝑟𝑟𝑜𝑟 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.');
         }
-
-        ctx.fillStyle = "#000077";
-        ctx.textAlign = "center";
-
-        // Text wrapping function
-        const wrapText = (text, maxWidth) => {
-            const words = text.split(' ');
-            const lines = [];
-            let currentLine = words[0];
-
-            for (let i = 1; i < words.length; i++) {
-                const word = words[i];
-                const width = ctx.measureText(currentLine + " " + word).width;
-                if (width < maxWidth) {
-                    currentLine += " " + word;
-                } else {
-                    lines.push(currentLine);
-                    currentLine = word;
-                }
-            }
-            lines.push(currentLine);
-            return lines;
-        };
-
-        // Draw the text
-        const line1 = wrapText(text[0], 464);
-        const line2 = wrapText(text[1], 464);
-
-        ctx.fillText(line1.join("\n"), 170, 129);
-        ctx.fillText(line2.join("\n"), 170, 440);
-
-        // Save the modified image
-        const imageBuffer = canvas.toBuffer();
-        fs.writeFileSync(pathImg, imageBuffer);
-
-        // Send the result
-        await message.reply({
-            body: "𝑀𝑒𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦! 🎨",
-            attachment: fs.createReadStream(pathImg)
-        });
-
-        // Clean up
-        fs.unlinkSync(pathImg);
-
-    } catch (error) {
-        console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑎𝑛ℎ𝑑𝑎𝑑𝑒𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
-        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑚𝑒𝑚𝑒.");
     }
 };
