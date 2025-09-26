@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "allgroups",
-    aliases: ["grouplist", "managedgroups"],
+    aliases: [],
     version: "2.0.0",
     author: "Asif Mahmud",
     countDown: 5,
