@@ -8,7 +8,7 @@ const fontsInfo = 28;
 module.exports = {
   config: {
     name: "cardinfov3",
-    aliases: ["profilecard", "usercard"],
+    aliases: [],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
@@ -126,3 +126,4 @@ module.exports = {
     }
   }
 };
+
