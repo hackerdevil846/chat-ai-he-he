@@ -25,14 +25,18 @@ module.exports = {
     }
   },
 
+  onStart: async function ({ message }) {
+    try {
+      return message.reply("💞 𝑇ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑤ℎ𝑒𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑦𝑝𝑒𝑠 '𝑤𝑖𝑓𝑒𝑦' 𝑖𝑛 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡!");
+    } catch (error) {
+      console.error('Error in wife command onStart:', error);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑖𝑛𝑔 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
+    }
+  },
+
   onChat: async function ({ event, message }) {
     try {
       if (event.body && event.body.toLowerCase() === "wifey") {
-        const filePath = `${__dirname}/tmp/wife.mp4`;
-        
-        // Ensure tmp directory exists
-        await fs.ensureDir(`${__dirname}/tmp`);
-        
         // Download the video using global.utils.getStreamFromURL
         const videoStream = await global.utils.getStreamFromURL("https://i.imgur.com/tPzzqVl.mp4");
         
@@ -49,8 +53,8 @@ module.exports = {
         });
       }
     } catch (error) {
-      console.error('Error in wife command:', error);
-      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error('Error in wife command onChat:', error);
+      // Don't send error message in chat to avoid spam
     }
   }
 };
