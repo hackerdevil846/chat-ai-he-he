@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports = {
     config: {
         name: "marry",
-        aliases: ["propose", "wedding"], // Changed "marriage" to "wedding"
+        aliases: [], // Changed "marriage" to "wedding"
         version: "3.0.1",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
