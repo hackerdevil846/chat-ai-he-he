@@ -3,7 +3,7 @@ const axios = require('axios');
 module.exports = {
   config: {
     name: "animeimg",
-    aliases: ["animeart", "animepicture"],
+    aliases: [],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
