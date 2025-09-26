@@ -1,6 +1,5 @@
 const fs = require("fs-extra");
 const axios = require("axios");
-const Canvas = require("canvas");
 const jimp = require("jimp");
 const superfetch = require("node-superfetch");
 
@@ -22,11 +21,9 @@ module.exports = {
     guide: {
       en: "{p}family [𝑠𝑖𝑧𝑒] [#𝑐𝑜𝑙𝑜𝑟] [𝑡𝑖𝑡𝑙𝑒 𝑡𝑒𝑥𝑡]"
     },
-    countDown: 15,
     dependencies: {
       "fs-extra": "",
       "axios": "",
-      "canvas": "",
       "jimp": "",
       "node-superfetch": ""
     },
@@ -40,9 +37,17 @@ module.exports = {
   },
 
   onStart: async function({ api, event, args, threadsData, message }) {
+    // Check if Canvas is available, if not use alternative method
+    let Canvas;
+    try {
+      Canvas = require("canvas");
+    } catch (error) {
+      return message.reply("❌ 𝐶𝑎𝑛𝑣𝑎𝑠 𝑖𝑠 𝑛𝑜𝑡 𝑖𝑛𝑠𝑡𝑎𝑙𝑙𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑖𝑡 𝑢𝑠𝑖𝑛𝑔: 𝑛𝑝𝑚 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑐𝑎𝑛𝑣𝑎𝑠");
+    }
+
     try {
       // Check dependencies
-      if (!fs.existsSync || !axios || !Canvas || !jimp || !superfetch) {
+      if (!fs.existsSync || !axios || !jimp || !superfetch) {
         throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
       }
 
@@ -58,25 +63,34 @@ module.exports = {
       
       // Ensure cache directory exists
       if (!fs.existsSync(__dirname + '/cache')) {
-        fs.mkdirSync(__dirname + '/cache');
+        fs.mkdirSync(__dirname + '/cache', { recursive: true });
       }
       
       // Download font if not exists
       if (!fs.existsSync(__dirname + '/cache/VNCORSI.ttf')) {
         await message.reply("📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑓𝑜𝑛𝑡...");
-        const fontData = await axios.get(this.config.envConfig.fontUrl, { responseType: "arraybuffer" });
-        fs.writeFileSync(__dirname + "/cache/VNCORSI.ttf", Buffer.from(fontData.data));
+        try {
+          const fontData = await axios.get(this.config.envConfig.fontUrl, { responseType: "arraybuffer", timeout: 30000 });
+          fs.writeFileSync(__dirname + "/cache/VNCORSI.ttf", Buffer.from(fontData.data));
+        } catch (fontError) {
+          global.client.family = false;
+          return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑜𝑛𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        }
       }
       
       // Show help if no arguments or help requested
       if (!args[0] || isNaN(args[0]) || args[0].toLowerCase() === "help") {
         if (!fs.existsSync(__dirname + "/cache/help_family.png")) {
-          const helpImg = await axios.get(this.config.envConfig.helpImage, { responseType: "arraybuffer" });
-          fs.writeFileSync(__dirname + "/cache/help_family.png", Buffer.from(helpImg.data));
+          try {
+            const helpImg = await axios.get(this.config.envConfig.helpImage, { responseType: "arraybuffer", timeout: 30000 });
+            fs.writeFileSync(__dirname + "/cache/help_family.png", Buffer.from(helpImg.data));
+          } catch (helpError) {
+            console.error("Failed to download help image:", helpError);
+          }
         }
         global.client.family = false;
         
-        return message.reply({
+        const helpMessage = {
           body: "🎨 𝗙𝗔𝗠𝗜𝗟𝗬 𝗣𝗛𝗢𝗧𝗢 𝗖𝗥𝗘𝗔𝗧𝗢𝗥\n\n" +
                 "📝 𝗨𝘀𝗮𝗴𝗲: family <size> [#color] <title>\n\n" +
                 "• 𝗦𝗶𝘇𝗲: Avatar size in pixels (0 for auto-size)\n" +
@@ -84,9 +98,14 @@ module.exports = {
                 "• 𝗧𝗶𝘁𝗹𝗲: Custom title text (optional)\n\n" +
                 "📌 𝗘𝘅𝗮𝗺𝗽𝗹𝗲𝘀:\n" +
                 "• family 200 #FFFFFF My Family\n" +
-                "• family 0 #FFD700 Best Friends Forever",
-          attachment: fs.createReadStream(__dirname + "/cache/help_family.png")
-        });
+                "• family 0 #FFD700 Best Friends Forever"
+        };
+        
+        if (fs.existsSync(__dirname + "/cache/help_family.png")) {
+          helpMessage.attachment = fs.createReadStream(__dirname + "/cache/help_family.png");
+        }
+        
+        return message.reply(helpMessage);
       }
       
       // Get thread information
@@ -100,14 +119,33 @@ module.exports = {
         return message.reply(`❌ 𝑇ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 𝑡𝑜𝑜 𝑚𝑎𝑛𝑦 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 (${participantIDs.length}). 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑎𝑙𝑙𝑜𝑤𝑒𝑑 𝑖𝑠 ${this.config.envConfig.maxParticipants}.`);
       }
       
-      // Load background image
-      const background = await Canvas.loadImage(this.config.envConfig.defaultBackground);
+      if (participantIDs.length === 0) {
+        global.client.family = false;
+        return message.reply("❌ 𝑁𝑜 𝑝𝑎𝑟𝑡𝑖𝑐𝑖𝑝𝑎𝑛𝑡𝑠 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝.");
+      }
+      
+      // Load background image with error handling
+      let background;
+      try {
+        const bgResponse = await axios.get(this.config.envConfig.defaultBackground, { responseType: "arraybuffer", timeout: 30000 });
+        background = await Canvas.loadImage(Buffer.from(bgResponse.data));
+      } catch (bgError) {
+        global.client.family = false;
+        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      }
+      
       const xbground = background.width;
       const ybground = background.height;
       
       // Parse arguments
       let size = parseInt(args[0]);
       let mode = "";
+      
+      // Validate size
+      if (isNaN(size) || size < 0) {
+        global.client.family = false;
+        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑠𝑖𝑧𝑒 (𝑛𝑢𝑚𝑏𝑒𝑟 𝑔𝑟𝑒𝑎𝑡𝑒𝑟 𝑡ℎ𝑎𝑛 𝑜𝑟 𝑒𝑞𝑢𝑎𝑙 𝑡𝑜 0).");
+      }
       
       // Auto-size calculation
       if (size === 0) {
@@ -120,12 +158,12 @@ module.exports = {
       const spacing = parseInt(size / 15);
       let x = spacing;
       let y = 200;
-      let xcrop = participantIDs.length * size;
+      let xcrop = Math.min(participantIDs.length * size, xbground);
       let ycrop = 200 + size;
       
       // Parse color and title
       let color = "#FFFFFF";
-      let title = threadInfo.threadName;
+      let title = threadInfo.threadName || "Family Photo";
       let colorIndex = -1;
       
       // Find color argument
@@ -144,7 +182,7 @@ module.exports = {
         title = args.slice(1).join(" ");
       }
       
-      // Validate size
+      // Validate size against background
       if (size > Math.min(xbground, ybground)) {
         global.client.family = false;
         return message.reply(
@@ -164,21 +202,40 @@ module.exports = {
         `⏳ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡, 𝑡ℎ𝑖𝑠 𝑚𝑎𝑦 𝑡𝑎𝑘𝑒 𝑎 𝑤ℎ𝑖𝑙𝑒...`
       );
       
-      // Create canvas
-      const canvas = Canvas.createCanvas(xbground, ybground);
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      // Create canvas with error handling
+      let canvas, ctx;
+      try {
+        canvas = Canvas.createCanvas(xbground, ybground);
+        ctx = canvas.getContext('2d');
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+      } catch (canvasError) {
+        global.client.family = false;
+        await api.unsendMessage(processingMsg.messageID);
+        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑐𝑎𝑛𝑣𝑎𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑚𝑎𝑙𝑙𝑒𝑟 𝑠𝑖𝑧𝑒.");
+      }
       
       let processedCount = 0;
       let filteredUsers = 0;
-      const frame = await Canvas.loadImage(this.config.envConfig.frameImage);
+      
+      // Load frame image
+      let frame;
+      try {
+        const frameResponse = await axios.get(this.config.envConfig.frameImage, { responseType: "arraybuffer", timeout: 30000 });
+        frame = await Canvas.loadImage(Buffer.from(frameResponse.data));
+      } catch (frameError) {
+        console.error("Failed to load frame image:", frameError);
+      }
       
       // Process each participant
       for (const id of participantIDs) {
         try {
-          // Fetch avatar
-          const avatar = await superfetch.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${TOKEN}`);
-          if (avatar.url.includes(".gif")) throw new Error("𝐺𝐼𝐹 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑛𝑜𝑡 𝑠𝑢𝑝𝑝𝑜𝑟𝑡𝑒𝑑");
+          // Fetch avatar with timeout
+          const avatar = await superfetch.get(`https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=${TOKEN}`).timeout(10000);
+          
+          if (avatar.url.includes(".gif")) {
+            filteredUsers++;
+            continue;
+          }
           
           // Handle positioning
           if (x + size > xbground) {
@@ -190,7 +247,7 @@ module.exports = {
           
           // Check if we exceed background height
           if (y + size > ybground) {
-            message.reply("⚠️ 𝑁𝑜𝑡 𝑎𝑙𝑙 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑐𝑜𝑢𝑙𝑑 𝑓𝑖𝑡 𝑖𝑛 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒 𝑑𝑢𝑒 𝑡𝑜 𝑠𝑖𝑧𝑒 𝑐𝑜𝑛𝑠𝑡𝑟𝑎𝑖𝑛𝑡𝑠");
+            await message.reply("⚠️ 𝑁𝑜𝑡 𝑎𝑙𝑙 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑐𝑜𝑢𝑙𝑑 𝑓𝑖𝑡 𝑖𝑛 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒 𝑑𝑢𝑒 𝑡𝑜 𝑠𝑖𝑧𝑒 𝑐𝑜𝑛𝑠𝑡𝑟𝑎𝑖𝑛𝑡𝑠");
             break;
           }
           
@@ -198,8 +255,8 @@ module.exports = {
           const avatarImg = await Canvas.loadImage(avatar.body);
           ctx.drawImage(avatarImg, x, y, size, size);
           
-          // Add frame for admins
-          if (adminIDs.includes(id)) {
+          // Add frame for admins if frame is available
+          if (frame && adminIDs.includes(id)) {
             ctx.drawImage(frame, x, y, size, size);
           }
           
@@ -211,31 +268,45 @@ module.exports = {
         }
       }
       
-      // Add title text
-      Canvas.registerFont(__dirname + "/cache/VNCORSI.ttf", { family: "𝐷𝑎𝑛𝑐𝑖𝑛𝑔 𝑆𝑐𝑟𝑖𝑝𝑡" });
-      ctx.font = `110px 𝐷𝑎𝑛𝑐𝑖𝑛𝑔 𝑆𝑐𝑟𝑖𝑝𝑡`;
-      ctx.fillStyle = color;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      
-      // Add text shadow for better visibility
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-      ctx.shadowBlur = 10;
-      ctx.shadowOffsetX = 2;
-      ctx.shadowOffsetY = 2;
-      
-      ctx.fillText(title, xcrop / 2, 133);
-      
-      // Remove shadow for clean output
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+      // Add title text if we have space
+      if (ycrop > 200) {
+        try {
+          Canvas.registerFont(__dirname + "/cache/VNCORSI.ttf", { family: "VNCORSI" });
+          ctx.font = `110px VNCORSI`;
+          ctx.fillStyle = color;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          
+          // Add text shadow for better visibility
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetX = 2;
+          ctx.shadowOffsetY = 2;
+          
+          ctx.fillText(title, xcrop / 2, 133);
+          
+          // Remove shadow for clean output
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+        } catch (fontError) {
+          console.error("Failed to add text:", fontError);
+        }
+      }
       
       // Save and crop image
       const outputPath = __dirname + `/cache/family_${threadID}_${Date.now()}.png`;
-      const image = await jimp.read(canvas.toBuffer());
-      image.crop(0, 0, xcrop, ycrop + spacing - 30).write(outputPath);
+      try {
+        const imageBuffer = canvas.toBuffer();
+        const image = await jimp.read(imageBuffer);
+        image.crop(0, 0, Math.min(xcrop, xbground), Math.min(ycrop + spacing - 30, ybground));
+        await image.writeAsync(outputPath);
+      } catch (imageError) {
+        global.client.family = false;
+        await api.unsendMessage(processingMsg.messageID);
+        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
+      }
       
       // Calculate processing time
       const processingTime = Math.floor((Date.now() - timestart) / 1000);
@@ -259,7 +330,9 @@ module.exports = {
       // Delete processing message
       try {
         await api.unsendMessage(processingMsg.messageID);
-      } catch (e) {}
+      } catch (e) {
+        console.error("Failed to unsend message:", e);
+      }
       
       global.client.family = false;
       
