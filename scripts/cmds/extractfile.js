@@ -2,7 +2,7 @@ const fs = require('fs');
 
 module.exports.config = {
     name: "extractfile",
-    aliases: ["file", "getfile"],
+    aliases: [],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
