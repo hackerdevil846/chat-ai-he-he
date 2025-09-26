@@ -16,25 +16,14 @@ module.exports = {
       en: "💼 𝑊𝑜𝑟𝑘 𝑡𝑜 𝑒𝑎𝑟𝑛 𝑚𝑜𝑛𝑒𝑦 𝑤𝑖𝑡ℎ 𝑣𝑎𝑟𝑖𝑜𝑢𝑠 𝑗𝑜𝑏𝑠 - 𝐸𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝐸𝑑𝑖𝑡𝑖𝑜𝑛"
     },
     guide: {
-      en: "{p}jobcenter [𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟]"
+      en: "{p}jobcenter"
     },
     dependencies: {
       "moment-timezone": ""
     }
   },
 
-  langs: {
-    "en": {
-      "cooldown": "⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 %1 𝑚𝑖𝑛𝑢𝑡𝑒(𝑠) %2 𝑠𝑒𝑐𝑜𝑛𝑑(𝑠) 𝑏𝑒𝑓𝑜𝑟𝑒 𝑤𝑜𝑟𝑘𝑖𝑛𝑔 𝑎𝑔𝑎𝑖𝑛 ✨",
-      "invalidNumber": "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-7 🌟",
-      "invalidJob": "❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 𝑎 𝑗𝑜𝑏 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑙𝑖𝑠𝑡 📋",
-      "jobError": "❌ 𝐽𝑜𝑏 𝑒𝑟𝑟𝑜𝑟! 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑦𝑜𝑢𝑟 𝑗𝑜𝑏. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 🔄",
-      "systemError": "❌ 𝑆𝑦𝑠𝑡𝑒𝑚 𝑒𝑟𝑟𝑜𝑟! 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑎𝑐𝑐𝑒𝑠𝑠 𝑗𝑜𝑏 𝑐𝑒𝑛𝑡𝑒𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟 🛠️",
-      "welcome": "💼 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑡𝑜 𝑡ℎ𝑒 𝐸𝑙𝑖𝑡𝑒 𝐽𝑜𝑏 𝐶𝑒𝑛𝑡𝑒𝑟! 𝐸𝑎𝑟𝑛 𝑐𝑜𝑖𝑛𝑠 𝑎𝑛𝑑 𝑙𝑒𝑣𝑒𝑙 𝑢𝑝 𝑦𝑜𝑢𝑟 𝑐𝑎𝑟𝑒𝑒𝑟 🚀"
-    }
-  },
-
-  onStart: async function ({ event, api, message, usersData, getText }) {
+  onStart: async function ({ event, api, message, usersData }) {
     try {
       const { threadID, senderID } = event;
       const cooldownTime = 300000; // 5 minutes
@@ -48,7 +37,7 @@ module.exports = {
         const seconds = Math.floor((remainingTime % 60000) / 1000);
         
         return message.reply(
-          getText("cooldown", minutes, seconds < 10 ? "0" + seconds : seconds)
+          `⏱️ 𝐶𝑜𝑜𝑙𝑑𝑜𝑤𝑛: 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 ${minutes} 𝑚𝑖𝑛𝑢𝑡𝑒(𝑠) ${seconds < 10 ? "0" + seconds : seconds} 𝑠𝑒𝑐𝑜𝑛𝑑(𝑠) 𝑏𝑒𝑓𝑜𝑟𝑒 𝑤𝑜𝑟𝑘𝑖𝑛𝑔 𝑎𝑔𝑎𝑖𝑛 ✨`
         );
       }
 
@@ -65,7 +54,7 @@ module.exports = {
       let menu = `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n`;
       menu += `         💼 𝐸𝐿𝐼𝑇𝐸 𝐽𝑂𝐵 𝐶𝐸𝑁𝑇𝐸𝑅 💼\n`;
       menu += `✨━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━✨\n\n`;
-      menu += `${getText("welcome")}\n\n`;
+      menu += `💼 𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑡𝑜 𝑡ℎ𝑒 𝐸𝑙𝑖𝑡𝑒 𝐽𝑜𝑏 𝐶𝑒𝑛𝑡𝑒𝑟! 𝐸𝑎𝑟𝑛 𝑐𝑜𝑖𝑛𝑠 𝑎𝑛𝑑 𝑙𝑒𝑣𝑒𝑙 𝑢𝑝 𝑦𝑜𝑢𝑟 𝑐𝑎𝑟𝑒𝑒𝑟 🚀\n\n`;
       menu += `🎯 𝐶ℎ𝑜𝑜𝑠𝑒 𝑎 𝑗𝑜𝑏 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑤𝑖𝑡ℎ 𝑖𝑡𝑠 𝑛𝑢𝑚𝑏𝑒𝑟:\n\n`;
       
       for (const [id, job] of Object.entries(jobTypes)) {
@@ -87,35 +76,35 @@ module.exports = {
 
     } catch (error) {
       console.error("𝐽𝑜𝑏 𝑆𝑦𝑠𝑡𝑒𝑚 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply(getText("systemError"));
+      // Don't send error message to avoid spam
     }
   },
 
-  onReply: async function({ event, message, Reply, usersData, getText }) {
-    const { threadID, senderID, body } = event;
-    
-    if (Reply.author !== senderID) return;
-    
-    const jobType = parseInt(body);
-    const jobTypes = {
-      1: { name: "🏭 𝐼𝑛𝑑𝑢𝑠𝑡𝑟𝑖𝑎𝑙 𝑍𝑜𝑛𝑒", minCoins: 200, maxCoins: 600, emoji: "🏭" },
-      2: { name: "💼 𝑆𝑒𝑟𝑣𝑖𝑐𝑒 𝐴𝑟𝑒𝑎", minCoins: 200, maxCoins: 1000, emoji: "💼" },
-      3: { name: "🛢️ 𝑂𝑖𝑙 𝐹𝑖𝑒𝑙𝑑", minCoins: 300, maxCoins: 800, emoji: "🛢️" },
-      4: { name: "⛏️ 𝑀𝑖𝑛𝑖𝑛𝑔 𝑂𝑟𝑒", minCoins: 250, maxCoins: 750, emoji: "⛏️" },
-      5: { name: "💎 𝐷𝑖𝑔𝑔𝑖𝑛𝑔 𝑅𝑜𝑐𝑘", minCoins: 200, maxCoins: 500, emoji: "💎" },
-      6: { name: "🌟 𝑆𝑝𝑒𝑐𝑖𝑎𝑙 𝐽𝑜𝑏", minCoins: 500, maxCoins: 1500, emoji: "🌟" },
-      7: { name: "🚀 𝐸𝑙𝑖𝑡𝑒 𝑀𝑖𝑠𝑠𝑖𝑜𝑛", minCoins: 800, maxCoins: 2500, emoji: "🚀" }
-    };
-
-    if (isNaN(jobType)) {
-      return message.reply(getText("invalidNumber"));
-    }
-
-    if (!jobTypes[jobType]) {
-      return message.reply(getText("invalidJob"));
-    }
-
+  onReply: async function({ event, message, Reply, usersData }) {
     try {
+      const { senderID, body } = event;
+      
+      if (Reply.author !== senderID) return;
+      
+      const jobType = parseInt(body);
+      const jobTypes = {
+        1: { name: "🏭 𝐼𝑛𝑑𝑢𝑠𝑡𝑟𝑖𝑎𝑙 𝑍𝑜𝑛𝑒", minCoins: 200, maxCoins: 600, emoji: "🏭" },
+        2: { name: "💼 𝑆𝑒𝑟𝑣𝑖𝑐𝑒 𝐴𝑟𝑒𝑎", minCoins: 200, maxCoins: 1000, emoji: "💼" },
+        3: { name: "🛢️ 𝑂𝑖𝑙 𝐹𝑖𝑒𝑙𝑑", minCoins: 300, maxCoins: 800, emoji: "🛢️" },
+        4: { name: "⛏️ 𝑀𝑖𝑛𝑖𝑛𝑔 𝑂𝑟𝑒", minCoins: 250, maxCoins: 750, emoji: "⛏️" },
+        5: { name: "💎 𝐷𝑖𝑔𝑔𝑖𝑛𝑔 𝑅𝑜𝑐𝑘", minCoins: 200, maxCoins: 500, emoji: "💎" },
+        6: { name: "🌟 𝑆𝑝𝑒𝑐𝑖𝑎𝑙 𝐽𝑜𝑏", minCoins: 500, maxCoins: 1500, emoji: "🌟" },
+        7: { name: "🚀 𝐸𝑙𝑖𝑡𝑒 𝑀𝑖𝑠𝑠𝑖𝑜𝑛", minCoins: 800, maxCoins: 2500, emoji: "🚀" }
+      };
+
+      if (isNaN(jobType)) {
+        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-7 🌟");
+      }
+
+      if (!jobTypes[jobType]) {
+        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑗𝑜𝑏 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑜𝑜𝑠𝑒 𝑎 𝑗𝑜𝑏 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑙𝑖𝑠𝑡 📋");
+      }
+
       const job = jobTypes[jobType];
       const coinsEarned = Math.floor(Math.random() * (job.maxCoins - job.minCoins + 1)) + job.minCoins;
       
@@ -124,7 +113,7 @@ module.exports = {
       const userData = await usersData.get(senderID);
       userData.data = userData.data || {};
       userData.data.workTime = Date.now();
-      await usersData.setData(senderID, userData);
+      await usersData.set(senderID, userData);
 
       const messages = [
         `💼 ${job.emoji} 𝑌𝑂𝑈𝑅 𝑊𝑂𝑅𝐾 𝑅𝐸𝑆𝑈𝐿𝑇𝑆 ${job.emoji}\n\n𝐽𝑜𝑏: ${job.name}\n𝐶𝑜𝑖𝑛𝑠 𝐸𝑎𝑟𝑛𝑒𝑑: ${coinsEarned} 💰\n\n𝐾𝑒𝑒𝑝 𝑢𝑝 𝑡ℎ𝑒 𝑔𝑟𝑒𝑎𝑡 𝑤𝑜𝑟𝑘! 🚀`,
@@ -133,12 +122,11 @@ module.exports = {
       ];
 
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-
-      message.reply(randomMessage);
+      await message.reply(randomMessage);
 
     } catch (error) {
       console.error("𝐽𝑜𝑏 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply(getText("jobError"));
+      // Don't send error message to avoid spam
     }
   }
 };
