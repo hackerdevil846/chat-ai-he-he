@@ -5,11 +5,12 @@ const path = require("path");
 module.exports = {
   config: {
     name: "danger",
-    aliases: ["caution", "warningsign"], // Changed "warning" to "warningsign"
+    aliases: ["caution", "warningsign"],
     version: "1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
+    category: "image",
     shortDescription: {
       en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑑𝑎𝑛𝑔𝑒𝑟 𝑠𝑡𝑦𝑙𝑒 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
     },
