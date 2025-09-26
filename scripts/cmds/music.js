@@ -7,7 +7,7 @@ const ytSearch = require("yt-search");
 module.exports = {
     config: {
         name: "music",
-        aliases: ["ytdownload", "ytaudio"],
+        aliases: [],
         version: "1.1.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
