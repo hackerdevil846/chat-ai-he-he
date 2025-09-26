@@ -6,7 +6,7 @@ const request = require('request');
 module.exports = {
   config: {
     name: "punch",
-    aliases: ["punch2", "attack", "strike"], // Unique names not used elsewhere
+    aliases: [], // Unique names not used elsewhere
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
