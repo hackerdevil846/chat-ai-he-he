@@ -3,7 +3,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "currency",
-    aliases: ["wallet", "bal", "cash"],
+    aliases: [],
     version: "2.2.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 0,
