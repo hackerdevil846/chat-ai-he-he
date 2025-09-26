@@ -1,6 +1,6 @@
-const fs = require("fs-extra");
 const axios = require("axios");
-const { loadImage, createCanvas } = require("canvas");
+const fs = require("fs-extra");
+const jimp = require("jimp");
 
 module.exports = {
   config: {
@@ -21,39 +21,10 @@ module.exports = {
     },
     countDown: 10,
     dependencies: {
-      "canvas": "",
       "axios": "",
-      "fs-extra": ""
+      "fs-extra": "",
+      "jimp": ""
     }
-  },
-
-  wrapText: async function(ctx, text, maxWidth) {
-    if (ctx.measureText(text).width < maxWidth) return [text];
-    if (ctx.measureText('W').width > maxWidth) return null;
-
-    const words = text.split(' ');
-    const lines = [];
-    let line = '';
-
-    while (words.length > 0) {
-      let split = false;
-      while (ctx.measureText(words[0]).width >= maxWidth) {
-        const temp = words[0];
-        words[0] = temp.slice(0, -1);
-        if (split) words[1] = `${temp.slice(-1)}${words[1]}`;
-        else {
-          split = true;
-          words.splice(1, 0, temp.slice(-1));
-        }
-      }
-      if (ctx.measureText(`${line}${words[0]}`).width < maxWidth) line += `${words.shift()} `;
-      else {
-        lines.push(line.trim());
-        line = '';
-      }
-      if (words.length === 0) lines.push(line.trim());
-    }
-    return lines;
   },
 
   onStart: async function({ api, event, args, message }) {
@@ -73,36 +44,45 @@ module.exports = {
       
       fs.writeFileSync(pathImg, Buffer.from(imgData));
 
-      const baseImage = await loadImage(pathImg);
-      const canvas = createCanvas(baseImage.width, baseImage.height);
-      const ctx = canvas.getContext("2d");
+      // Load images
+      const baseImage = await jimp.read(pathImg);
+      const font = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
+      
+      // Calculate text position and size
+      const maxWidth = 900;
+      const x = 625;
+      const y = 430;
+      const fontSize = 32;
+      
+      // Simple text wrapping function for jimp
+      function wrapText(text, maxWidth) {
+        const words = text.split(' ');
+        const lines = [];
+        let currentLine = words[0];
 
-      // Draw base
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-      // Text styling
-      let fontSize = 50;
-      ctx.fillStyle = "#FFCC33";
-      ctx.textAlign = "start";
-      ctx.font = `bold ${fontSize}px Gabriele`;
-
-      // Reduce font size if text too long
-      while (ctx.measureText(text).width > 2600 && fontSize > 10) {
-        fontSize--;
-        ctx.font = `bold ${fontSize}px Gabriele, sans-serif`;
+        for (let i = 1; i < words.length; i++) {
+          const word = words[i];
+          const width = jimp.measureText(font, currentLine + " " + word);
+          if (width < maxWidth) {
+            currentLine += " " + word;
+          } else {
+            lines.push(currentLine);
+            currentLine = word;
+          }
+        }
+        lines.push(currentLine);
+        return lines;
       }
 
-      // Wrap text within 900px width
-      const lines = await this.wrapText(ctx, text, 900) || [text];
-
-      // Render text beautifully with line spacing
-      lines.forEach((line, i) => {
-        ctx.fillText(line, 625, 430 + i * (fontSize + 10));
+      const lines = wrapText(text, maxWidth);
+      
+      // Draw text on image
+      lines.forEach((line, index) => {
+        baseImage.print(font, x, y + (index * 45), line);
       });
 
-      // Output image
-      const imageBuffer = canvas.toBuffer();
-      fs.writeFileSync(pathImg, imageBuffer);
+      // Save image
+      await baseImage.writeAsync(pathImg);
 
       await message.reply({
         attachment: fs.createReadStream(pathImg)
