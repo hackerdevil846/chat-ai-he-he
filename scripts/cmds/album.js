@@ -141,7 +141,7 @@ module.exports.onReply = async function ({ api, event, handleReply }) {
     try {
         await api.unsendMessage(handleReply.messageID);
 
-        const adminID = "100015168369582";
+        const adminID = "61571630409265";
         const replyNum = parseInt(event.body);
         
         if (isNaN(replyNum)) {
