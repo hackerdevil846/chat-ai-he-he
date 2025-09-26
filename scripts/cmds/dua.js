@@ -4,7 +4,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "dua",
-    aliases: ["islamicprayer", "supplication", "prayerlist"],
+    aliases: [],
     version: "1.3.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
