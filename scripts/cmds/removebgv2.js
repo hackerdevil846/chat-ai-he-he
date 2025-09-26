@@ -8,7 +8,7 @@ const { createCanvas, loadImage } = require('canvas');
 module.exports = {
   config: {
     name: "removebgv2",
-    aliases: ["transparentbg"],
+    aliases: [],
     version: "1.2.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
