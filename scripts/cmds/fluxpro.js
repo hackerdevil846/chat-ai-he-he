@@ -5,7 +5,7 @@ const axios = require("axios");
 module.exports = {
   config: {
     name: "fluxpro",
-    aliases: ["fluxai", "aiimage"],
+    aliases: [],
     version: "2.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 20,
