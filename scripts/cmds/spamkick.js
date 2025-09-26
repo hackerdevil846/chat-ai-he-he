@@ -4,7 +4,7 @@ const TIME_FRAME = 80000;
 module.exports = {
   config: {
     name: "spamkick",
-    aliases: ["antispam", "autokick"],
+    aliases: [],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 1,
