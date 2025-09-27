@@ -3,25 +3,25 @@ module.exports = {
     name: "out",
     aliases: ["leave", "exit"],
     version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 10,
     role: 2,
     shortDescription: {
-      en: "𝐵𝑜𝑡 𝑙𝑒𝑎𝑣𝑒𝑠 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝"
+      en: "Bot leaves the group"
     },
     longDescription: {
-      en: "𝑀𝑎𝑘𝑒𝑠 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑙𝑒𝑎𝑣𝑒 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑔𝑟𝑜𝑢𝑝 𝑜𝑟 𝑎 𝑠𝑝𝑒𝑐𝑖𝑓𝑖𝑒𝑑 𝑔𝑟𝑜𝑢𝑝"
+      en: "Makes the bot leave the current group or a specified group"
     },
-    category: "𝑎𝑑𝑚𝑖𝑛",
+    category: "admin",
     guide: {
-      en: "{p}out [𝑔𝑟𝑜𝑢𝑝_𝐼𝐷]"
+      en: "{p}out [group_ID]"
     }
   },
 
   onStart: async function({ message, args, event, api }) {
     try {
       if (!args[0]) {
-        await message.reply(`🥲 𝐴𝑚𝑖 𝑡𝑜𝑑𝑒𝑟 𝑠𝑢𝑘ℎ 𝑑𝑒𝑤𝑎𝑟 𝑗𝑜𝑛𝑛𝑜 𝑎𝑠𝑐ℎ𝑖𝑙𝑎𝑚...\n😞 𝐾𝑖𝑛𝑡𝑢 𝑡𝑜𝑟𝑎 𝑎𝑚𝑎𝑟 𝑗𝑜𝑔𝑔𝑜 𝑛𝑎...`);
+        await message.reply(`🥲 Ami toder sukh dewar jonno aschilam...\n😞 Kintu tora amar joggo na...`);
         await new Promise(resolve => setTimeout(resolve, 2000));
         return api.removeUserFromGroup(api.getCurrentUserID(), event.threadID);
       }
@@ -30,10 +30,10 @@ module.exports = {
         return api.removeUserFromGroup(api.getCurrentUserID(), args[0]);
       }
 
-      await message.reply("❌ 𝐵𝑎𝑟𝑜 𝑔𝑟𝑜𝑢𝑝 𝐼𝐷 𝑑𝑖𝑎 𝑛𝑎...");
+      await message.reply("❌ Please provide a valid group ID...");
     } catch (error) {
-      console.log("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑢𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
-      await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑒𝑑: " + error.message);
+      console.log("Error in out command:", error);
+      await message.reply("❌ Error occurred: " + error.message);
     }
   }
 };
