@@ -8,18 +8,18 @@ module.exports = {
     name: "date2",
     aliases: [],
     version: "2.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "image",
     shortDescription: {
-      en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑜𝑢𝑝𝑙𝑒 𝑠ℎ𝑖𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑝𝑎𝑟𝑡𝑛𝑒𝑟"
+      en: "Create couple ship images with your partner"
     },
     longDescription: {
-      en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑐𝑜𝑢𝑝𝑙𝑒 𝑠ℎ𝑖𝑝 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑝𝑎𝑟𝑡𝑛𝑒𝑟"
+      en: "Create romantic couple ship images with your partner"
     },
     guide: {
-      en: "{p}date2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+      en: "{p}date2 [@mention]"
     },
     dependencies: {
       "axios": "",
