@@ -1,60 +1,71 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-const https = require("https");
 
-module.exports.config = {
-    name: "fox",
-    aliases: ["randomfox", "foxpic"],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-        en: "𝑅𝑎𝑛𝑑𝑜𝑚 𝑓𝑜𝑥 𝑖𝑚𝑎𝑔𝑒𝑠"
+module.exports = {
+    config: {
+        name: "fox",
+        aliases: ["randomfox", "foxpic"],
+        version: "1.0",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "fun",
+        shortDescription: {
+            en: "Random fox images"
+        },
+        longDescription: {
+            en: "Get random fox images from randomfox.ca API"
+        },
+        guide: {
+            en: "{p}fox"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
     },
-    longDescription: {
-        en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑓𝑜𝑥 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑟𝑎𝑛𝑑𝑜𝑚𝑓𝑜𝑥.𝑐𝑎 𝐴𝑃𝐼"
-    },
-    category: "𝑓𝑢𝑛",
-    guide: {
-        en: "{p}fox"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
 
-module.exports.onStart = async function({ message }) {
-    try {
-        const res = await axios.get("https://randomfox.ca/floof/");
-        const img = res.data.image;
-        const file = path.join(__dirname, "cache/fox.jpg");
-        
-        const response = await axios({
-            method: 'GET',
-            url: img,
-            responseType: 'stream'
-        });
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                return message.reply("❌ Missing dependencies: axios and fs-extra");
+            }
 
-        const writer = fs.createWriteStream(file);
-        response.data.pipe(writer);
-
-        writer.on('finish', () => {
-            message.reply({
-                body: "🦊 𝑅𝑎𝑛𝑑𝑜𝑚 𝐹𝑜𝑥:",
-                attachment: fs.createReadStream(file)
+            const res = await axios.get("https://randomfox.ca/floof/");
+            const img = res.data.image;
+            const file = path.join(__dirname, "cache/fox.jpg");
+            
+            const response = await axios({
+                method: 'GET',
+                url: img,
+                responseType: 'stream'
             });
-        });
 
-        writer.on('error', (error) => {
-            console.error("𝐹𝑜𝑥 𝐸𝑟𝑟𝑜𝑟:", error);
-            message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑜𝑥 𝑖𝑚𝑎𝑔𝑒.");
-        });
+            const writer = fs.createWriteStream(file);
+            response.data.pipe(writer);
 
-    } catch (error) {
-        console.error("𝐹𝑜𝑥 𝐴𝑃𝐼 𝐸𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑓𝑜𝑥 𝑖𝑚𝑎𝑔𝑒.");
+            writer.on('finish', () => {
+                message.reply({
+                    body: "🦊 Random Fox:",
+                    attachment: fs.createReadStream(file)
+                });
+                // Clean up file after sending
+                fs.unlinkSync(file);
+            });
+
+            writer.on('error', (error) => {
+                console.error("Fox Error:", error);
+                message.reply("❌ Failed to download fox image.");
+            });
+
+        } catch (error) {
+            console.error("Fox API Error:", error);
+            message.reply("❌ Failed to get fox image.");
+        }
     }
 };
