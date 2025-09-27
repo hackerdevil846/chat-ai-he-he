@@ -46644,7 +46644,6 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
 "https://i.imgur.com/xNOKINt.jpg",
 "https://i.imgur.com/5Sy0mk1.jpg",
   ];
-
       // Get user balance
       const userData = await usersData.get(senderID);
       const money = userData.money;
