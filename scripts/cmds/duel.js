@@ -7,18 +7,18 @@ module.exports = {
     name: "fight",
     aliases: ["duel", "conflict"],
     version: "1.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "𝗔𝘀𝗶𝗳 𝗠𝗮𝗵𝗺𝘂𝗱",
     countDown: 10,
     role: 0,
     shortDescription: {
-      en: "⚔️ 𝐹𝑖𝑔ℎ𝑡 𝑤𝑖𝑡ℎ 𝑓𝑟𝑖𝑒𝑛𝑑𝑠"
+      en: "⚔️ 𝐅𝐈𝐆𝐇𝐓 𝐖𝐈𝐓𝐇 𝐅𝐑𝐈𝐄𝐍𝐃𝐒"
     },
     longDescription: {
-      en: "💥 𝐶ℎ𝑎𝑙𝑙𝑒𝑛𝑔𝑒 𝑦𝑜𝑢𝑟 𝑓𝑟𝑖𝑒𝑛𝑑 𝑡𝑜 𝑎𝑛 𝑒𝑝𝑖𝑐 𝑏𝑎𝑡𝑡𝑙𝑒"
+      en: "💥 𝐂𝐇𝐀𝐋𝐋𝐄𝐍𝐆𝐄 𝐘𝐎𝐔𝐑 𝐅𝐑𝐈𝐄𝐍𝐃 𝐓𝐎 𝐀𝐍 𝐄𝐏𝐈𝐂 𝐁𝐀𝐓𝐓𝐋𝐄"
     },
-    category: "𝑔𝑎𝑚𝑒",
+    category: "𝐆𝐀𝐌𝐄",
     guide: {
-      en: "{p}𝑓𝑖𝑔ℎ𝑡 @𝑚𝑒𝑛𝑡𝑖𝑜𝑛"
+      en: "{p}𝐟𝐢𝐠𝐡𝐭 @𝐦𝐞𝐧𝐭𝐢𝐨𝐧"
     }
   },
 
@@ -26,19 +26,19 @@ module.exports = {
     try {
       const threadID = event.threadID;
       if (ongoingFights.has(threadID)) {
-        return message.reply("⚔️ | 𝐴𝑙𝑟𝑒𝑎𝑑𝑦 𝑎 𝑓𝑖𝑔ℎ𝑡 𝑜𝑛𝑔𝑜𝑖𝑛𝑔 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝!");
+        return message.reply("⚔️ | 𝐀𝐋𝐑𝐄𝐀𝐃𝐘 𝐀 𝐅𝐈𝐆𝐇𝐓 𝐎𝐍𝐆𝐎𝐈𝐍𝐆 𝐈𝐍 𝐓𝐇𝐈𝐒 𝐆𝐑𝐎𝐔𝐏!");
       }
 
       const mention = Object.keys(event.mentions);
       if (mention.length !== 1) {
-        return message.reply("❓ | 𝑀𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑛𝑒 𝑝𝑒𝑟𝑠𝑜𝑛 𝑡𝑜 𝑓𝑖𝑔ℎ𝑡 𝑤𝑖𝑡ℎ!");
+        return message.reply("❓ | 𝐌𝐄𝐍𝐓𝐈𝐎𝐍 𝐎𝐍𝐄 𝐏𝐄𝐑𝐒𝐎𝐍 𝐓𝐎 𝐅𝐈𝐆𝐇𝐓 𝐖𝐈𝐓𝐇!");
       }
 
       const challengerID = event.senderID;
       const opponentID = mention[0];
       
       if (challengerID === opponentID) {
-        return message.reply("⚠️ | 𝑌𝑜𝑢 𝑐𝑎𝑛𝑛𝑜𝑡 𝑓𝑖𝑔ℎ𝑡 𝑦𝑜𝑢𝑟𝑠𝑒𝑙𝑓!");
+        return message.reply("⚠️ | 𝐘𝐎𝐔 𝐂𝐀𝐍𝐍𝐎𝐓 𝐅𝐈𝐆𝐇𝐓 𝐘𝐎𝐔𝐑𝐒𝐄𝐋𝐅!");
       }
 
       const challenger = await usersData.getName(challengerID);
@@ -66,8 +66,8 @@ module.exports = {
       startTimeout(threadID, message);
 
     } catch (error) {
-      console.error("𝐹𝑖𝑔ℎ𝑡 𝑂𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑡𝑎𝑟𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑓𝑖𝑔ℎ𝑡.");
+      console.error("𝐅𝐈𝐆𝐇𝐓 𝐎𝐍𝐒𝐓𝐀𝐑𝐓 𝐄𝐑𝐑𝐎𝐑:", error);
+      message.reply("❌ 𝐀𝐍 𝐄𝐑𝐑𝐎𝐑 𝐎𝐂𝐂𝐔𝐑𝐑𝐄𝐃 𝐖𝐇𝐈𝐋𝐄 𝐒𝐓𝐀𝐑𝐓𝐈𝐍𝐆 𝐓𝐇𝐄 𝐅𝐈𝐆𝐇𝐓.");
     }
   },
 
@@ -84,7 +84,7 @@ module.exports = {
       if (event.senderID !== currentPlayerID) {
         if (!gameInstance.turnMessageSent) {
           gameInstance.turnMessageSent = true;
-          return message.reply(`⏳ | 𝐼𝑡'𝑠 ${currentPlayer.name}'𝑠 𝑡𝑢𝑟𝑛!`);
+          return message.reply(`⏳ | 𝐈𝐓'𝐒 ${currentPlayer.name}'𝐒 𝐓𝐔𝐑𝐍!`);
         }
         return;
       }
@@ -92,7 +92,7 @@ module.exports = {
       const opponent = gameInstance.fight.participants.find(p => p.id !== currentPlayerID);
 
       if (attack === "forfeit") {
-        message.reply(`🏃 | ${currentPlayer.name} 𝑓𝑜𝑟𝑓𝑒𝑖𝑡𝑒𝑑! ${opponent.name} 𝑤𝑖𝑛𝑠! 🏆`);
+        message.reply(`🏃 | ${currentPlayer.name} 𝐅𝐎𝐑𝐅𝐄𝐈𝐓𝐄𝐃! ${opponent.name} 𝐖𝐈𝐍𝐒! 🏆`);
         return endFight(threadID);
       }
 
@@ -107,14 +107,14 @@ module.exports = {
         };
 
         await message.reply(
-          `${attackEmojis[attack]} | ${currentPlayer.name} 𝑢𝑠𝑒𝑠 ${attack} 𝑜𝑛 ${opponent.name}\n` +
-          `💥 𝐷𝑎𝑚𝑎𝑔𝑒: ${damage} 𝐻𝑃\n` +
-          `❤️ ${opponent.name}: ${opponent.hp} 𝐻𝑃 | ${currentPlayer.name}: ${currentPlayer.hp} 𝐻𝑃`
+          `${attackEmojis[attack]} | ${currentPlayer.name} 𝐔𝐒𝐄𝐒 ${attack.toUpperCase()} 𝐎𝐍 ${opponent.name}\n` +
+          `💥 𝐃𝐀𝐌𝐀𝐆𝐄: ${damage} 𝐇𝐏\n` +
+          `❤️ ${opponent.name}: ${opponent.hp} 𝐇𝐏 | ${currentPlayer.name}: ${currentPlayer.hp} 𝐇𝐏`
         );
 
         if (opponent.hp <= 0) {
           await message.reply(
-            `🏁 | ${opponent.name} 𝑖𝑠 𝑑𝑒𝑓𝑒𝑎𝑡𝑒𝑑! ${currentPlayer.name} 𝑤𝑖𝑛𝑠 𝑡ℎ𝑒 𝑏𝑎𝑡𝑡𝑙𝑒! 🎉`
+            `🏁 | ${opponent.name} 𝐈𝐒 𝐃𝐄𝐅𝐄𝐀𝐓𝐄𝐃! ${currentPlayer.name} 𝐖𝐈𝐍𝐒 𝐓𝐇𝐄 𝐁𝐀𝐓𝐓𝐋𝐄! 🎉`
           );
           return endFight(threadID);
         }
@@ -124,13 +124,13 @@ module.exports = {
         gameInstance.lastPlayer = currentPlayer;
         gameInstance.turnMessageSent = false;
 
-        message.reply(`🎯 | 𝑁𝑜𝑤 𝑖𝑡'𝑠 ${opponent.name}'𝑠 𝑡𝑢𝑟𝑛!`);
+        message.reply(`🎯 | 𝐍𝐎𝐖 𝐈𝐓'𝐒 ${opponent.name}'𝐒 𝐓𝐔𝐑𝐍!`);
       } else {
-        message.reply("❌ | 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑎𝑡𝑡𝑎𝑐𝑘! 𝑈𝑠𝑒 '𝑘𝑖𝑐𝑘', '𝑝𝑢𝑛𝑐ℎ', '𝑠𝑙𝑎𝑝', 𝑜𝑟 '𝑓𝑜𝑟𝑓𝑒𝑖𝑡'");
+        message.reply("❌ | 𝐈𝐍𝐕𝐀𝐋𝐈𝐃 𝐀𝐓𝐓𝐀𝐂𝐊! 𝐔𝐒𝐄 '𝐊𝐈𝐂𝐊', '𝐏𝐔𝐍𝐂𝐇', '𝐒𝐋𝐀𝐏', 𝐎𝐑 '𝐅𝐎𝐑𝐅𝐄𝐈𝐓'");
       }
     } catch (error) {
-      console.error("𝐹𝑖𝑔ℎ𝑡 𝑂𝑛𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑑𝑢𝑟𝑖𝑛𝑔 𝑡ℎ𝑒 𝑓𝑖𝑔ℎ𝑡.");
+      console.error("𝐅𝐈𝐆𝐇𝐓 𝐎𝐍𝐂𝐇𝐀𝐓 𝐄𝐑𝐑𝐎𝐑:", error);
+      message.reply("❌ 𝐀𝐍 𝐄𝐑𝐑𝐎𝐑 𝐎𝐂𝐂𝐔𝐑𝐑𝐄𝐃 𝐃𝐔𝐑𝐈𝐍𝐆 𝐓𝐇𝐄 𝐅𝐈𝐆𝐇𝐓.");
     }
   }
 };
@@ -140,10 +140,10 @@ function startFight(message, fight) {
   const [p1, p2] = fight.participants;
   const starter = fight.participants.find(p => p.id === fight.currentPlayer);
   message.reply(
-    `⚔️ | ${p1.name} 𝑐ℎ𝑎𝑙𝑙𝑒𝑛𝑔𝑒𝑑 ${p2.name} 𝑡𝑜 𝑎 𝑓𝑖𝑔ℎ𝑡!\n` +
-    `❤️ 𝐵𝑜𝑡ℎ ℎ𝑎𝑣𝑒 100 𝐻𝑃\n` +
-    `🎲 ${starter.name} 𝑔𝑜𝑒𝑠 𝑓𝑖𝑟𝑠𝑡!\n` +
-    `📝 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠: 𝑘𝑖𝑐𝑘, 𝑝𝑢𝑛𝑐ℎ, 𝑠𝑙𝑎𝑝, 𝑓𝑜𝑟𝑓𝑒𝑖𝑡`
+    `⚔️ | ${p1.name} 𝐂𝐇𝐀𝐋𝐋𝐄𝐍𝐆𝐄𝐃 ${p2.name} 𝐓𝐎 𝐀 𝐅𝐈𝐆𝐇𝐓!\n` +
+    `❤️ 𝐁𝐎𝐓𝐇 𝐇𝐀𝐕𝐄 𝟏𝟎𝟎 𝐇𝐏\n` +
+    `🎲 ${starter.name} 𝐆𝐎𝐄𝐒 𝐅𝐈𝐑𝐒𝐓!\n` +
+    `📝 𝐀𝐕𝐀𝐈𝐋𝐀𝐁𝐋𝐄 𝐂𝐎𝐌𝐌𝐀𝐍𝐃𝐒: 𝐊𝐈𝐂𝐊, 𝐏𝐔𝐍𝐂𝐇, 𝐒𝐋𝐀𝐏, 𝐅𝐎𝐑𝐅𝐄𝐈𝐓`
   );
 }
 
@@ -157,8 +157,8 @@ function startTimeout(threadID, message) {
     const loser = participants[0].hp > participants[1].hp ? participants[1] : participants[0];
 
     message.reply(
-      `⏰ | 𝑇𝑖𝑚𝑒'𝑠 𝑢𝑝! ${winner.name} 𝑤𝑖𝑛𝑠 𝑤𝑖𝑡ℎ ${winner.hp} 𝐻𝑃! 🏆\n` +
-      `💔 ${loser.name} 𝑙𝑜𝑠𝑡 𝑤𝑖𝑡ℎ ${loser.hp} 𝐻𝑃`
+      `⏰ | 𝐓𝐈𝐌𝐄'𝐒 𝐔𝐏! ${winner.name} 𝐖𝐈𝐍𝐒 𝐖𝐈𝐓𝐇 ${winner.hp} 𝐇𝐏! 🏆\n` +
+      `💔 ${loser.name} 𝐋𝐎𝐒𝐓 𝐖𝐈𝐓𝐇 ${loser.hp} 𝐇𝐏`
     );
     endFight(threadID);
   }, TIMEOUT_SECONDS * 1000);
