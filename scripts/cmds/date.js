@@ -8,18 +8,18 @@ module.exports = {
     name: "date",
     aliases: ["romance", "lovemerge"],
     version: "2.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "fun",
     shortDescription: {
-      en: "💑 𝑀𝑒𝑟𝑔𝑒 𝑝𝑟𝑜𝑓𝑖𝑙𝑒𝑠 𝑓𝑜𝑟 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒"
+      en: "💑 Merge profiles for romantic image"
     },
     longDescription: {
-      en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑚𝑒𝑟𝑔𝑒𝑑 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟"
+      en: "Creates a romantic merged image with mentioned user"
     },
     guide: {
-      en: "{p}date [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+      en: "{p}date [@mention]"
     },
     dependencies: {
       "axios": "",
@@ -43,7 +43,7 @@ module.exports = {
         });
         await fs.writeFileSync(pathToImg, Buffer.from(imageData.data));
       } catch (error) {
-        console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑏𝑎𝑠𝑒 𝑖𝑚𝑎𝑔𝑒:", error);
+        console.error("Failed to download base image:", error);
       }
     }
   },
@@ -54,19 +54,19 @@ module.exports = {
       const mention = Object.keys(event.mentions)[0];
       
       if (!mention) {
-        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ!");
+        return message.reply("❌ Please mention someone to create a romantic image with!");
       }
       
       const one = senderID;
       const two = mention;
       const tag = event.mentions[mention].replace("@", "");
       
-      await message.reply("⏳ 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒...");
+      await message.reply("⏳ Creating your romantic image...");
       
       const imagePath = await makeImage({ one, two });
       
       await message.reply({
-        body: `💖 𝑅𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒 𝑐𝑟𝑒𝑎𝑡𝑒𝑑! 💑\n\n✨ 𝑀𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑: @${tag}`,
+        body: `💖 Romantic image created! 💑\n\n✨ Mentioned: @${tag}`,
         mentions: [{
           tag: tag,
           id: mention
@@ -80,8 +80,8 @@ module.exports = {
       }
 
     } catch (error) {
-      console.error("𝐷𝑎𝑡𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("Date command error:", error);
+      message.reply("❌ Failed to create romantic image. Please try again later.");
     }
   }
 };
@@ -121,7 +121,7 @@ async function makeImage({ one, two }) {
     
     return pathImg;
   } catch (error) {
-    console.error("𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒:", error);
+    console.error("Error creating image:", error);
     throw error;
   }
 }
@@ -132,7 +132,7 @@ async function circle(imagePath) {
     image.circle();
     return await image.getBufferAsync("image/png");
   } catch (error) {
-    console.error("𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑐𝑖𝑟𝑐𝑢𝑙𝑎𝑟 𝑖𝑚𝑎𝑔𝑒:", error);
+    console.error("Error creating circular image:", error);
     throw error;
   }
 }
