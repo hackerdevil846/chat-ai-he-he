@@ -5,18 +5,18 @@ module.exports.config = {
     name: "tea",
     aliases: ["chai", "cha"],
     version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     shortDescription: {
-        en: "☕ | 𝑇𝑒𝑎 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑣𝑒𝑛𝑡 ℎ𝑎𝑛𝑑𝑙𝑒𝑟"
+        en: "☕ | Tea command event handler"
     },
     longDescription: {
-        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑡𝑜 𝑡𝑒𝑎-𝑟𝑒𝑙𝑎𝑡𝑒𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑣𝑖𝑑𝑒𝑜"
+        en: "Automatically responds to tea-related messages with a video"
     },
-    category: "𝑓𝑢𝑛",
+    category: "fun",
     guide: {
-        en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 '𝑡𝑒𝑎', '𝑐ℎ𝑎𝑖', 𝑜𝑟 '𝑐ℎ𝑎' 𝑖𝑛 𝑐ℎ𝑎𝑡"
+        en: "Just type 'tea', 'chai', or 'cha' in chat"
     },
     dependencies: {
         "fs": "",
@@ -41,15 +41,15 @@ module.exports.onChat = async function({ api, event }) {
         
         if (fs.existsSync(teaVideoPath)) {
             const msg = {
-                body: "☕ | 𝑎𝑖𝑖 𝑙𝑜 𝑏𝑎𝑏𝑦 ☕",
+                body: "☕ | aii lo baby ☕",
                 attachment: fs.createReadStream(teaVideoPath)
             };
             await api.sendMessage(msg, threadID);
             await api.setMessageReaction("🫖", messageID, (err) => {}, true);
         } else {
-            await api.sendMessage("☕ | 𝑎𝑖𝑖 𝑙𝑜 𝑏𝑎𝑏𝑦 ☕\n❌ 𝑉𝑖𝑑𝑒𝑜 𝑓𝑖𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑!", threadID, messageID);
+            await api.sendMessage("☕ | aii lo baby ☕\n❌ Video file not found!", threadID, messageID);
         }
     } catch (error) {
-        console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑡𝑒𝑎 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
+        console.error("Error in tea command:", error);
     }
 };
