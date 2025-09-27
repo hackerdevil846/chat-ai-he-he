@@ -7,16 +7,16 @@ const baseApiUrl = async () => {
   return base.data.api;
 };
 
-// Bold Italic Math Font Mapping
+// Bold Capital Anime Style Font Mapping
 function transformText(input) {
   const fontMap = {
     " ": " ",
-    a: "𝑎", b: "𝑏", c: "𝑐", d: "𝑑", e: "𝑒", f: "𝑓", g: "𝑔", h: "ℎ", i: "𝑖",
-    j: "𝑗", k: "𝑘", l: "𝑙", m: "𝑚", n: "𝑛", o: "𝑜", p: "𝑝", q: "𝑞", r: "𝑟",
-    s: "𝑠", t: "𝑡", u: "𝑢", v: "𝑣", w: "𝑤", x: "𝑥", y: "𝑦", z: "𝑧",
-    A: "𝐴", B: "𝐵", C: "𝐶", D: "𝐷", E: "𝐸", F: "𝐹", G: "𝐺", H: "𝐻", I: "𝐼",
-    J: "𝐽", K: "𝐾", L: "𝐿", M: "𝑀", N: "𝑁", O: "𝑂", P: "𝑃", Q: "𝑄", R: "𝑅",
-    S: "𝑆", T: "𝑇", U: "𝑈", V: "𝑉", W: "𝑊", X: "𝑋", Y: "𝑌", Z: "𝑍"
+    a: "𝗔", b: "𝗕", c: "𝗖", d: "𝗗", e: "𝗘", f: "𝗙", g: "𝗚", h: "𝗛", i: "𝗜",
+    j: "𝗝", k: "𝗞", l: "𝗟", m: "𝗠", n: "𝗡", o: "𝗢", p: "𝗣", q: "𝗤", r: "𝗥",
+    s: "𝗦", t: "𝗧", u: "𝗨", v: "𝗩", w: "𝗪", x: "𝗫", y: "𝗬", z: "𝗭",
+    A: "𝗔", B: "𝗕", C: "𝗖", D: "𝗗", E: "𝗘", F: "𝗙", G: "𝗚", H: "𝗛", I: "𝗜",
+    J: "𝗝", K: "𝗞", L: "𝗟", M: "𝗠", N: "𝗡", O: "𝗢", P: "𝗣", Q: "𝗤", R: "𝗥",
+    S: "𝗦", T: "𝗧", U: "𝗨", V: "𝗩", W: "𝗪", X: "𝗫", Y: "𝗬", Z: "𝗭"
   };
   return input.split("").map(c => fontMap[c] || c).join("");
 }
@@ -25,18 +25,18 @@ module.exports.config = {
     name: "flaghunt",
     aliases: ["flagGame", "flag"],
     version: "3.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "𝗔𝗦𝗜𝗙 𝗠𝗔𝗛𝗠𝗨𝗗",
     countDown: 0,
     role: 0,
     shortDescription: {
-        en: transformText("🎌 Guess the flag and win rewards!")
+        en: transformText("🎌 GUESS THE FLAG AND WIN REWARDS!")
     },
     longDescription: {
-        en: transformText("🎌 Guess the flag and win rewards!")
+        en: transformText("🎌 GUESS THE FLAG AND WIN REWARDS!")
     },
-    category: "game",
+    category: "GAME",
     guide: {
-        en: transformText("{pn} - reply to the flag image with the country name\nExample: {pn} - reply with 'france' for French flag")
+        en: transformText("{PN} - REPLY TO THE FLAG IMAGE WITH THE COUNTRY NAME\nEXAMPLE: {PN} - REPLY WITH 'FRANCE' FOR FRENCH FLAG")
     },
     dependencies: {
         "axios": ""
@@ -57,7 +57,7 @@ module.exports.onReply = async function ({ api, event, Reply, usersData }) {
 
     if (attempts >= maxAttempts) {
         return api.sendMessage(
-            transformText("🚫 | Oops! You've reached the max attempts (5). Try again later!"),
+            transformText("🚫 | OOPS! YOU'VE REACHED THE MAX ATTEMPTS (5). TRY AGAIN LATER!"),
             event.threadID,
             event.messageID
         );
@@ -74,7 +74,7 @@ module.exports.onReply = async function ({ api, event, Reply, usersData }) {
             });
 
             await api.sendMessage(
-                transformText(`✅ | Yay! You got it right!\n💰 Earned: ${coinReward} coins 💎\n✨ Level up: +${expReward} EXP`),
+                transformText(`✅ | YAY! YOU GOT IT RIGHT!\n💰 EARNED: ${coinReward} COINS 💎\n✨ LEVEL UP: +${expReward} EXP`),
                 event.threadID,
                 event.messageID
             );
@@ -85,7 +85,7 @@ module.exports.onReply = async function ({ api, event, Reply, usersData }) {
         Reply.attempts += 1;
         global.client.handleReply.set(messageID, Reply);
         await api.sendMessage(
-            transformText(`❌ | Nope! That's not it! You have ${maxAttempts - Reply.attempts} tries left.\n💖 Try again baby~`),
+            transformText(`❌ | NOPE! THAT'S NOT IT! YOU HAVE ${maxAttempts - Reply.attempts} TRIES LEFT.\n💖 TRY AGAIN BABY~`),
             event.threadID,
             event.messageID
         );
@@ -101,7 +101,7 @@ module.exports.onStart = async function ({ api, args, event, message }) {
             const { link, country } = response.data;
 
             await message.reply({
-                body: transformText("🎌 | Guess this flag! Reply with the country name to win! 💖"),
+                body: transformText("🎌 | GUESS THIS FLAG! REPLY WITH THE COUNTRY NAME TO WIN! 💖"),
                 attachment: await global.utils.getStreamFromURL(link)
             }, (error, info) => {
                 global.client.handleReply.set(info.messageID, {
@@ -118,7 +118,7 @@ module.exports.onStart = async function ({ api, args, event, message }) {
     } catch (error) {
         console.error(`Error: ${error.message}`);
         await message.reply(
-            transformText(`⚠️ | Sorry, something went wrong... 💔`)
+            transformText(`⚠️ | SORRY, SOMETHING WENT WRONG... 💔`)
         );
     }
 };
