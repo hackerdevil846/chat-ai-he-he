@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports.config = {
     name: "islam",
-    aliases: ["islamic", "quran"],
+    aliases: [],
     version: "1.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
