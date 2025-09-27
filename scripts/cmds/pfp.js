@@ -34,7 +34,7 @@ function addRoundRectMethod(ctx) {
 module.exports = {
   config: {
     name: "pfp",
-    aliases: ["profile", "profilecard", "card"],
+    aliases: [],
     version: "3.5",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
