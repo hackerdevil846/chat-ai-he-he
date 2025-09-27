@@ -1,99 +1,101 @@
 const axios = require('axios');
 const fs = require('fs-extra');
 
-module.exports.config = {
-    name: "doya",
-    aliases: ["dua", "islamicprayer"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "islam",
-    shortDescription: {
-        en: "𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑝𝑟𝑎𝑦𝑒𝑟 𝑐𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛"
-    },
-    longDescription: {
-        en: "𝐶𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛 𝑜𝑓 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑝𝑟𝑎𝑦𝑒𝑟𝑠 𝑎𝑛𝑑 𝑑𝑢𝑎𝑠"
-    },
-    guide: {
-        en: "{p}doya [𝑝𝑟𝑎𝑦𝑒𝑟 𝑛𝑢𝑚𝑏𝑒𝑟]"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ message, args, event }) {
-    const { threadID, messageID } = event;
-    
-    const doyaContent = [
-        {
-            title: "📖 𝐼𝑚𝑎𝑛 𝑤𝑖𝑡ℎ 𝑑𝑒𝑎𝑡ℎ 𝑝𝑟𝑎𝑦𝑒𝑟",
-            body: "✨ 𝑂 𝑜𝑢𝑟 𝐿𝑜𝑟𝑑, 𝑓𝑜𝑟𝑔𝑖𝑣𝑒 𝑜𝑢𝑟 𝑠𝑖𝑛𝑠, 𝑟𝑒𝑚𝑜𝑣𝑒 𝑎𝑙𝑙 𝑒𝑣𝑖𝑙 𝑓𝑟𝑜𝑚 𝑢𝑠, 𝑎𝑛𝑑 𝑔𝑟𝑎𝑛𝑡 𝑢𝑠 𝑡ℎ𝑒 𝑐𝑜𝑚𝑝𝑎𝑛𝑦 𝑜𝑓 𝑡ℎ𝑒 𝑟𝑖𝑔ℎ𝑡𝑒𝑜𝑢𝑠.",
-            image: "https://i.imgur.com/aESlOKd.jpeg"
+module.exports = {
+    config: {
+        name: "doya",
+        aliases: ["dua", "islamicprayer"],
+        version: "1.0.0",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "islam",
+        shortDescription: {
+            en: "Islamic prayer collection"
         },
-        {
-            title: "🌺 𝑃𝑟𝑎𝑦𝑒𝑟 𝑓𝑜𝑟 𝑔𝑜𝑜𝑑 𝑠𝑝𝑜𝑢𝑠𝑒",
-            body: "📜 𝑅𝑎𝑏𝑏𝑎𝑛𝑎 ℎ𝑎𝑏𝑙𝑎𝑛𝑎 𝑚𝑖𝑛 𝑎𝑧𝑤𝑎𝑗𝑖𝑛𝑎 𝑤𝑎 𝑧𝑢𝑟𝑟𝑖𝑦𝑎𝑡𝑖𝑛𝑎 𝑞𝑢𝑟𝑟𝑎𝑡𝑎 𝑎𝑦𝑢𝑛𝑖𝑛 𝑤𝑎𝑎𝑗𝑎𝑙𝑛𝑎 𝑙𝑖𝑙𝑚𝑢𝑡𝑡𝑎𝑞𝑖𝑛𝑎 𝑖𝑚𝑎𝑚𝑎.\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝑂 𝑜𝑢𝑟 𝐿𝑜𝑟𝑑! 𝐺𝑟𝑎𝑛𝑡 𝑢𝑠 𝑐𝑜𝑚𝑓𝑜𝑟𝑡 𝑖𝑛 𝑜𝑢𝑟 𝑠𝑝𝑜𝑢𝑠𝑒𝑠 𝑎𝑛𝑑 𝑐ℎ𝑖𝑙𝑑𝑟𝑒𝑛, 𝑎𝑛𝑑 𝑚𝑎𝑘𝑒 𝑢𝑠 𝑙𝑒𝑎𝑑𝑒𝑟𝑠 𝑜𝑓 𝑡ℎ𝑒 𝑟𝑖𝑔ℎ𝑡𝑒𝑜𝑢𝑠.'",
-            image: "https://i.imgur.com/3Bmg4Nd.jpeg"
+        longDescription: {
+            en: "Collection of Islamic prayers and duas"
         },
-        {
-            title: "❤️ 𝑃𝑟𝑎𝑦𝑒𝑟 𝑏𝑒𝑓𝑜𝑟𝑒 𝑖𝑛𝑡𝑖𝑚𝑎𝑐𝑦",
-            body: "📜 𝐵𝑖𝑠𝑚𝑖𝑙𝑙𝑎ℎ𝑖 𝐴𝑙𝑙𝑎ℎ𝑢𝑚𝑚𝑎 𝑗𝑎𝑛𝑛𝑖𝑏𝑛𝑎𝑠ℎ 𝑠ℎ𝑎𝑦𝑡𝑎𝑛𝑎 𝑤𝑎 𝑗𝑎𝑛𝑛𝑖𝑏𝑖𝑠ℎ 𝑠ℎ𝑎𝑦𝑡𝑎𝑛𝑎 𝑚𝑎 𝑟𝑎𝑧𝑎𝑞𝑡𝑎𝑛𝑎.\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝐼𝑛 𝑡ℎ𝑒 𝑛𝑎𝑚𝑒 𝑜𝑓 𝐴𝑙𝑙𝑎ℎ. 𝑂 𝐴𝑙𝑙𝑎ℎ! 𝑃𝑟𝑜𝑡𝑒𝑐𝑡 𝑢𝑠 𝑓𝑟𝑜𝑚 𝑆ℎ𝑎𝑦𝑡𝑎𝑛.'",
-            image: "https://i.imgur.com/TUm1LQW.jpeg"
+        guide: {
+            en: "{p}doya [prayer number]"
         },
-        {
-            title: "🕋 𝑃𝑟𝑎𝑦𝑒𝑟 𝑓𝑜𝑟 𝑝𝑟𝑜𝑡𝑒𝑐𝑡𝑖𝑜𝑛 𝑓𝑟𝑜𝑚 𝑝𝑢𝑛𝑖𝑠ℎ𝑚𝑒𝑛𝑡",
-            body: "📜 𝐴𝑙𝑙𝑎ℎ𝑢𝑚𝑚𝑎 𝑞𝑖𝑛𝑛𝑖 𝑎𝑧𝑎𝑏𝑎𝑘𝑎 𝑦𝑎𝑤𝑚𝑎 𝑡𝑎𝑏𝑎𝑡ℎ𝑢 𝑖𝑏𝑎𝑑𝑎𝑘𝑎\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝑂 𝐴𝑙𝑙𝑎ℎ! 𝑃𝑟𝑜𝑡𝑒𝑐𝑡 𝑚𝑒 𝑓𝑟𝑜𝑚 𝑌𝑜𝑢𝑟 𝑝𝑢𝑛𝑖𝑠ℎ𝑚𝑒𝑛𝑡 𝑜𝑛 𝑡ℎ𝑒 𝑑𝑎𝑦 𝑌𝑜𝑢 𝑟𝑎𝑖𝑠𝑒 𝑌𝑜𝑢𝑟 𝑠𝑒𝑟𝑣𝑎𝑛𝑡𝑠.'",
-            image: "https://i.imgur.com/wp7hM0m.jpeg"
-        },
-        {
-            title: "🌙 𝑃𝑟𝑎𝑦𝑒𝑟 𝑓𝑜𝑟 𝑓𝑜𝑟𝑔𝑖𝑣𝑒𝑛𝑒𝑠𝑠 𝑎𝑛𝑑 𝑚𝑒𝑟𝑐𝑦",
-            body: "📜 𝑅𝑎𝑏𝑏𝑎𝑛𝑎 𝑎𝑚𝑎𝑛𝑛𝑎 𝑓𝑎𝑔ℎ𝑓𝑖𝑟𝑙𝑎𝑛𝑎 𝑤𝑎𝑟ℎ𝑎𝑚𝑛𝑎 𝑤𝑎𝑎𝑛𝑡𝑎 𝑘ℎ𝑎𝑖𝑟𝑢𝑟 𝑟𝑎ℎ𝑖𝑚𝑖𝑛.\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝑂 𝑜𝑢𝑟 𝐿𝑜𝑟𝑑! 𝑊𝑒 ℎ𝑎𝑣𝑒 𝑏𝑒𝑙𝑖𝑒𝑣𝑒𝑑, 𝑠𝑜 𝑓𝑜𝑟𝑔𝑖𝑣𝑒 𝑢𝑠 𝑎𝑛𝑑 ℎ𝑎𝑣𝑒 𝑚𝑒𝑟𝑐𝑦 𝑜𝑛 𝑢𝑠, 𝑎𝑛𝑑 𝑌𝑜𝑢 𝑎𝑟𝑒 𝑡ℎ𝑒 𝐵𝑒𝑠𝑡 𝑜𝑓 𝑡ℎ𝑒 𝑚𝑒𝑟𝑐𝑖𝑓𝑢𝑙.'",
-            image: "https://i.imgur.com/pFvUmsm.jpeg"
-        },
-        {
-            title: "👨‍👩‍👧‍👦 𝑃𝑟𝑎𝑦𝑒𝑟 𝑓𝑜𝑟 𝑟𝑖𝑔ℎ𝑡𝑒𝑜𝑢𝑠 𝑐ℎ𝑖𝑙𝑑𝑟𝑒𝑛",
-            body: "📜 𝑅𝑎𝑏𝑏𝑖 ℎ𝑎𝑏 𝑙𝑖 𝑚𝑖𝑛 𝑙𝑎𝑑𝑢𝑛𝑘𝑎 𝑧𝑢𝑟𝑟𝑖𝑦𝑦𝑎𝑡𝑎𝑛 𝑡𝑎𝑦𝑦𝑖𝑏𝑎𝑡𝑎𝑛 𝑖𝑛𝑛𝑎𝑘𝑎 𝑠𝑎𝑚𝑖𝑢𝑑 𝑑𝑢𝑎𝑖.\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝑀𝑦 𝐿𝑜𝑟𝑑! 𝐺𝑟𝑎𝑛𝑡 𝑚𝑒 𝑓𝑟𝑜𝑚 𝑌𝑜𝑢𝑟𝑠𝑒𝑙𝑓 𝑎 𝑔𝑜𝑜𝑑 𝑜𝑓𝑓𝑠𝑝𝑟𝑖𝑛𝑔. 𝑌𝑜𝑢 𝑎𝑟𝑒 𝑡ℎ𝑒 𝐻𝑒𝑎𝑟𝑒𝑟 𝑜𝑓 𝑠𝑢𝑝𝑝𝑙𝑖𝑐𝑎𝑡𝑖𝑜𝑛.'",
-            image: "https://i.imgur.com/LH2qVcm.jpeg"
-        },
-        {
-            title: "🕌 𝐺𝑟𝑎𝑣𝑒 𝑣𝑖𝑠𝑖𝑡 𝑝𝑟𝑜𝑐𝑒𝑑𝑢𝑟𝑒",
-            body: "✨ 𝐺𝑟𝑎𝑣𝑒 𝑣𝑖𝑠𝑖𝑡 𝑝𝑟𝑜𝑐𝑒𝑑𝑢𝑟𝑒:\n\n• 1𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑙-𝐹𝑎𝑡𝑖ℎ𝑎\n• 1𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑛-𝑁𝑎𝑠\n• 1𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑙-𝐹𝑎𝑙𝑎𝑞\n• 3𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑙-𝐼𝑘ℎ𝑙𝑎𝑠\n• 1𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑙-𝐾𝑎𝑓𝑖𝑟𝑢𝑛\n• 2𝑥 𝑆𝑢𝑟𝑎ℎ 𝐴𝑡-𝑇𝑎𝑘𝑎𝑡ℎ𝑢𝑟\n• 11𝑥 𝐷𝑢𝑟𝑢𝑑 𝑆ℎ𝑎𝑟𝑖𝑓\n• 11𝑥 𝐴𝑠𝑡𝑎𝑔ℎ𝑓𝑖𝑟𝑢𝑙𝑙𝑎ℎ\n\n💫 𝐴𝑙𝑤𝑎𝑦𝑠 𝑓𝑎𝑐𝑒 𝑤𝑒𝑠𝑡 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑎𝑦𝑖𝑛𝑔",
-            image: "https://i.imgur.com/28Et6s2.jpeg"
-        },
-        {
-            title: "📿 𝐺𝑒𝑛𝑒𝑟𝑎𝑙 𝑝𝑟𝑎𝑦𝑒𝑟",
-            body: "📜 𝐴𝑙𝑙𝑎ℎ𝑢𝑚𝑚𝑎 𝑖𝑛𝑛𝑖 𝑎𝑠𝑎𝑙𝑢𝑘𝑎 𝑡ℎ-𝑡ℎ𝑎𝑏𝑎𝑡𝑎 𝑓𝑖𝑙 𝑎𝑚𝑟𝑖 𝑤𝑎𝑙 𝑎𝑧𝑖𝑚𝑎𝑡𝑎 𝑎𝑙𝑎 𝑟-𝑟𝑢𝑠ℎ𝑑𝑖.\n\n💫 𝑀𝑒𝑎𝑛𝑖𝑛𝑔: '𝑂 𝐴𝑙𝑙𝑎ℎ! 𝐼 𝑎𝑠𝑘 𝑌𝑜𝑢 𝑓𝑜𝑟 𝑠𝑡𝑒𝑎𝑑𝑓𝑎𝑠𝑡𝑛𝑒𝑠𝑠 𝑖𝑛 𝑑𝑒𝑐𝑖𝑠𝑖𝑜𝑛𝑠 𝑎𝑛𝑑 𝑑𝑒𝑡𝑒𝑟𝑚𝑖𝑛𝑎𝑡𝑖𝑜𝑛 𝑖𝑛 𝑟𝑖𝑔ℎ𝑡𝑒𝑜𝑢𝑠𝑛𝑒𝑠𝑠.'",
-            image: "https://i.imgur.com/NIjfdfz.jpeg"
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
         }
-    ];
+    },
 
-    if (args[0] && !isNaN(args[0])) {
-        const choice = parseInt(args[0]);
-        if (choice < 1 || choice > doyaContent.length) {
-            return message.reply(`⚠️ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑟𝑖𝑡𝑒 𝑎 𝑛𝑢𝑚𝑏𝑒𝑟 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 1-${doyaContent.length}.`, threadID, messageID);
+    onStart: async function({ message, args, event }) {
+        const { threadID, messageID } = event;
+        
+        const doyaContent = [
+            {
+                title: "📖 Iman with death prayer",
+                body: "✨ O our Lord, forgive our sins, remove all evil from us, and grant us the company of the righteous.",
+                image: "https://i.imgur.com/aESlOKd.jpeg"
+            },
+            {
+                title: "🌺 Prayer for good spouse",
+                body: "📜 Rabbana hablana min azwajina wa zurriyatina qurrata ayunin waajalna lilmuttaqina imama.\n\n💫 Meaning: 'O our Lord! Grant us comfort in our spouses and children, and make us leaders of the righteous.'",
+                image: "https://i.imgur.com/3Bmg4Nd.jpeg"
+            },
+            {
+                title: "❤️ Prayer before intimacy",
+                body: "📜 Bismillahi Allahumma jannibnash shaytana wa jannibish shaytana ma razaktana.\n\n💫 Meaning: 'In the name of Allah. O Allah! Protect us from Shaytan.'",
+                image: "https://i.imgur.com/TUm1LQW.jpeg"
+            },
+            {
+                title: "🕋 Prayer for protection from punishment",
+                body: "📜 Allahumma qinni azabaka yawma tabathu ibadaka\n\n💫 Meaning: 'O Allah! Protect me from Your punishment on the day You raise Your servants.'",
+                image: "https://i.imgur.com/wp7hM0m.jpeg"
+            },
+            {
+                title: "🌙 Prayer for forgiveness and mercy",
+                body: "📜 Rabbana amanna faghfirlana warhamna waanta khairur rahimin.\n\n💫 Meaning: 'O our Lord! We have believed, so forgive us and have mercy on us, and You are the Best of the merciful.'",
+                image: "https://i.imgur.com/pFvUmsm.jpeg"
+            },
+            {
+                title: "👨‍👩‍👧‍👦 Prayer for righteous children",
+                body: "📜 Rabbi hab li min ladunka zurriyyatan tayyibatan innaka samiud duai.\n\n💫 Meaning: 'My Lord! Grant me from Yourself a good offspring. You are the Hearer of supplication.'",
+                image: "https://i.imgur.com/LH2qVcm.jpeg"
+            },
+            {
+                title: "🕌 Grave visit procedure",
+                body: "✨ Grave visit procedure:\n\n• 1x Surah Al-Fatiha\n• 1x Surah An-Nas\n• 1x Surah Al-Falaq\n• 3x Surah Al-Ikhlas\n• 1x Surah Al-Kafirun\n• 2x Surah At-Takathur\n• 11x Durud Sharif\n• 11x Astaghfirullah\n\n💫 Always face west while praying",
+                image: "https://i.imgur.com/28Et6s2.jpeg"
+            },
+            {
+                title: "📿 General prayer",
+                body: "📜 Allahumma inni asaluka th-thabata fil amri wal azimata ala r-rushdi.\n\n💫 Meaning: 'O Allah! I ask You for steadfastness in decisions and determination in righteousness.'",
+                image: "https://i.imgur.com/NIjfdfz.jpeg"
+            }
+        ];
+
+        if (args[0] && !isNaN(args[0])) {
+            const choice = parseInt(args[0]);
+            if (choice < 1 || choice > doyaContent.length) {
+                return message.reply(`⚠️ Invalid selection! Please write a number between 1-${doyaContent.length}.`);
+            }
+            
+            const doya = doyaContent[choice - 1];
+            try {
+                const imageStream = await global.utils.getStreamFromURL(doya.image);
+                return message.reply({
+                    body: `${doya.title}\n\n${doya.body}`,
+                    attachment: imageStream
+                });
+            } catch (error) {
+                console.error("Error sending prayer:", error);
+                return message.reply("⚠️ Could not send prayer, please try again later");
+            }
         }
         
-        const doya = doyaContent[choice - 1];
-        try {
-            const imageStream = await global.utils.getStreamFromURL(doya.image);
-            return message.reply({
-                body: `${doya.title}\n\n${doya.body}`,
-                attachment: imageStream
-            }, threadID, messageID);
-        } catch (error) {
-            console.error("𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑝𝑟𝑎𝑦𝑒𝑟:", error);
-            return message.reply("⚠️ 𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑠𝑒𝑛𝑑 𝑝𝑟𝑎𝑦𝑒𝑟, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟", threadID, messageID);
-        }
+        let menuMessage = "📖 Islamic Prayer Collection:\n\n";
+        doyaContent.forEach((doya, index) => {
+            menuMessage += `${index + 1}. ${doya.title}\n`;
+        });
+        
+        menuMessage += "\n💫 Write your preferred prayer number (1-8)";
+        message.reply(menuMessage);
     }
-    
-    let menuMessage = "📖 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑃𝑟𝑎𝑦𝑒𝑟 𝐶𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛:\n\n";
-    doyaContent.forEach((doya, index) => {
-        menuMessage += `${index + 1}. ${doya.title}\n`;
-    });
-    
-    menuMessage += "\n💫 𝑊𝑟𝑖𝑡𝑒 𝑦𝑜𝑢𝑟 𝑝𝑟𝑒𝑓𝑒𝑟𝑟𝑒𝑑 𝑝𝑟𝑎𝑦𝑒𝑟 𝑛𝑢𝑚𝑏𝑒𝑟 (1-8)";
-    message.reply(menuMessage, threadID, messageID);
 };
