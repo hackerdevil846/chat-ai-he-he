@@ -5,15 +5,15 @@ module.exports.config = {
     name: "dogfact",
     aliases: ["dog", "puppyfact"],
     version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "fun",
     shortDescription: {
-        en: "🐕 𝑅𝑎𝑛𝑑𝑜𝑚 𝑑𝑜𝑔 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑖𝑛𝑔 𝑓𝑎𝑐𝑡𝑠"
+        en: "Random dog images with interesting facts"
     },
     longDescription: {
-        en: "𝐺𝑒𝑡 𝑟𝑎𝑛𝑑𝑜𝑚 𝑑𝑜𝑔 𝑖𝑚𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡𝑖𝑛𝑔 𝑓𝑎𝑐𝑡𝑠 𝑎𝑏𝑜𝑢𝑡 𝑑𝑜𝑔𝑠"
+        en: "Get random dog images with interesting facts about dogs"
     },
     guide: {
         en: "{p}dogfact"
@@ -39,14 +39,14 @@ module.exports.onStart = async function({ message, event }) {
         await fs.writeFileSync(imagePath, Buffer.from(imageResponse.data, 'binary'));
 
         await message.reply({
-            body: `🐶 | 𝐷𝑜𝑔 𝐹𝑎𝑐𝑡:\n${data.fact}`,
+            body: `🐶 | Dog Fact:\n${data.fact}`,
             attachment: fs.createReadStream(imagePath)
         });
 
         fs.unlinkSync(imagePath);
             
     } catch (error) {
-        console.error("𝐷𝑜𝑔𝐹𝑎𝑐𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑑𝑜𝑔 𝑓𝑎𝑐𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+        console.error("DogFact Error:", error);
+        await message.reply("❌ | Failed to fetch dog fact. Please try again later.");
     }
 };
