@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 
 module.exports.config = {
     name: "doya2",
-    aliases: ["দোয়া", "প্রার্থনা", "ইসলাম"],
+    aliases: [],
     version: "1.3.0",
     author: "আসিফ মাহমুদ",
     countDown: 5,
