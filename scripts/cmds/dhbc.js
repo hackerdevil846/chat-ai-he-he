@@ -9,10 +9,10 @@ module.exports.config = {
     role: 0,
     category: "game",
     shortDescription: {
-        en: "🎮 𝑃𝑙𝑎𝑦 𝑔𝑎𝑚𝑒 - 𝑐𝑎𝑡𝑐ℎ 𝑡ℎ𝑒 𝑤𝑜𝑟𝑑 𝑓𝑟𝑜𝑚 𝑖𝑚𝑎𝑔𝑒𝑠"
+        en: "🎮 𝙿𝚕𝚊𝚢 𝚐𝚊𝚖𝚎 - 𝚌𝚊𝚝𝚌𝚑 𝚝𝚑𝚎 𝚠𝚘𝚛𝚍 𝚏𝚛𝚘𝚖 𝚒𝚖𝚊𝚐𝚎𝚜"
     },
     longDescription: {
-        en: "🎮 𝑃𝑙𝑎𝑦 𝑎 𝑓𝑢𝑛 𝑤𝑜𝑟𝑑 𝑔𝑢𝑒𝑠𝑠𝑖𝑛𝑔 𝑔𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑚𝑎𝑔𝑒𝑠"
+        en: "🎮 𝙿𝚕𝚊𝚢 𝚊 𝚏𝚞𝚗 𝚠𝚘𝚛𝚍 𝚐𝚞𝚎𝚜𝚜𝚒𝚗𝚐 𝚐𝚊𝚖𝚎 𝚠𝚒𝚝𝚑 𝚛𝚊𝚗𝚍𝚘𝚖 𝚒𝚖𝚊𝚐𝚎𝚜"
     },
     guide: {
         en: "{p}dhbc"
@@ -27,10 +27,10 @@ module.exports.config = {
 
 module.exports.languages = {
     "en": {
-        "reply": "🖼️ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑎𝑛𝑠𝑤𝑒𝑟!\n%1",
-        "notPlayer": "⚠️ | 𝑌𝑜𝑢 𝑎𝑟𝑒 𝑛𝑜𝑡 𝑡ℎ𝑒 𝑝𝑙𝑎𝑦𝑒𝑟 𝑜𝑓 𝑡ℎ𝑖𝑠 𝑞𝑢𝑒𝑠𝑡𝑖𝑜𝑛!",
-        "correct": "🎉 | 𝐶𝑜𝑛𝑔𝑟𝑎𝑡𝑢𝑙𝑎𝑡𝑖𝑜𝑛𝑠! 𝑌𝑜𝑢 𝑎𝑛𝑠𝑤𝑒𝑟𝑒𝑑 𝑐𝑜𝑟𝑟𝑒𝑐𝑡𝑙𝑦 𝑎𝑛𝑑 𝑟𝑒𝑐𝑒𝑖𝑣𝑒𝑑 %1$",
-        "wrong": "❌ | 𝐼𝑛𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑎𝑛𝑠𝑤𝑒𝑟! 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛."
+        "reply": "🖼️ | 𝙿𝚕𝚎𝚊𝚜𝚎 𝚛𝚎𝚙𝚕𝚢 𝚝𝚘 𝚝𝚑𝚒𝚜 𝚖𝚎𝚜𝚜𝚊𝚐𝚎 𝚠𝚒𝚝𝚑 𝚢𝚘𝚞𝚛 𝚊𝚗𝚜𝚠𝚎𝚛!\n%1",
+        "notPlayer": "⚠️ | 𝚈𝚘𝚞 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚝𝚑𝚎 𝚙𝚕𝚊𝚢𝚎𝚛 𝚘𝚏 𝚝𝚑𝚒𝚜 𝚚𝚞𝚎𝚜𝚝𝚒𝚘𝚗!",
+        "correct": "🎉 | 𝙲𝚘𝚗𝚐𝚛𝚊𝚝𝚞𝚕𝚊𝚝𝚒𝚘𝚗𝚜! 𝚈𝚘𝚞 𝚊𝚗𝚜𝚠𝚎𝚛𝚎𝚍 𝚌𝚘𝚛𝚛𝚎𝚌𝚝𝚕𝚢 𝚊𝚗𝚍 𝚛𝚎𝚌𝚎𝚒𝚟𝚎𝚍 %1$",
+        "wrong": "❌ | 𝙸𝚗𝚌𝚘𝚛𝚛𝚎𝚌𝚝 𝚊𝚗𝚜𝚠𝚎𝚛! 𝙿𝚕𝚎𝚊𝚜𝚎 𝚝𝚛𝚢 𝚊𝚐𝚊𝚒𝚗."
     }
 };
 
@@ -63,7 +63,7 @@ module.exports.onStart = async function ({ api, event, getText }) {
         });
     } catch (error) {
         console.error(error);
-        api.sendMessage("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑡𝑎𝑟𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑔𝑎𝑚𝑒!", event.threadID, event.messageID);
+        api.sendMessage("❌ | 𝙰𝚗 𝚎𝚛𝚛𝚘𝚛 𝚘𝚌𝚌𝚞𝚛𝚛𝚎𝚍 𝚠𝚑𝚒𝚕𝚎 𝚜𝚝𝚊𝚛𝚝𝚒𝚗𝚐 𝚝𝚑𝚎 𝚐𝚊𝚖𝚎!", event.threadID, event.messageID);
     }
 };
 
