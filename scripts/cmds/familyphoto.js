@@ -5,13 +5,13 @@ const superfetch = require("node-superfetch");
 
 module.exports = {
   config: {
-    name: "family",
-    aliases: ["familypic", "groupfamily"],
+    name: "familyphoto",
+    aliases: [""],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
     role: 1,
-    category: "photo",
+    category: "image",
     shortDescription: {
       en: "🎭 𝐶𝑟𝑒𝑎𝑡𝑒 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜𝑠 𝑤𝑖𝑡ℎ 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠' 𝑎𝑣𝑎𝑡𝑎𝑟𝑠"
     },
@@ -19,7 +19,7 @@ module.exports = {
       en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑐𝑢𝑠𝑡𝑜𝑚𝑖𝑧𝑎𝑏𝑙𝑒 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜𝑠 𝑤𝑖𝑡ℎ 𝑔𝑟𝑜𝑢𝑝 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 𝑎𝑣𝑎𝑡𝑎𝑟𝑠 𝑎𝑛𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑖𝑡𝑙𝑒𝑠"
     },
     guide: {
-      en: "{p}family [𝑠𝑖𝑧𝑒] [#𝑐𝑜𝑙𝑜𝑟] [𝑡𝑖𝑡𝑙𝑒 𝑡𝑒𝑥𝑡]"
+      en: "{p}familyphoto [𝑠𝑖𝑧𝑒] [#𝑐𝑜𝑙𝑜𝑟] [𝑡𝑖𝑡𝑙𝑒 𝑡𝑒𝑥𝑡]"
     },
     dependencies: {
       "fs-extra": "",
@@ -52,10 +52,10 @@ module.exports = {
       }
 
       // Check if command is already running
-      if (global.client.family) {
+      if (global.client.familyphoto) {
         return message.reply("🔄 𝐴𝑛𝑜𝑡ℎ𝑒𝑟 𝑓𝑎𝑚𝑖𝑙𝑦 𝑟𝑒𝑞𝑢𝑒𝑠𝑡 𝑖𝑠 𝑏𝑒𝑖𝑛𝑔 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡...");
       }
-      global.client.family = true;
+      global.client.familyphoto = true;
       
       const timestart = Date.now();
       const { threadID, messageID } = event;
@@ -73,7 +73,7 @@ module.exports = {
           const fontData = await axios.get(this.config.envConfig.fontUrl, { responseType: "arraybuffer", timeout: 30000 });
           fs.writeFileSync(__dirname + "/cache/VNCORSI.ttf", Buffer.from(fontData.data));
         } catch (fontError) {
-          global.client.family = false;
+          global.client.familyphoto = false;
           return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑜𝑛𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
         }
       }
@@ -88,17 +88,17 @@ module.exports = {
             console.error("Failed to download help image:", helpError);
           }
         }
-        global.client.family = false;
+        global.client.familyphoto = false;
         
         const helpMessage = {
           body: "🎨 𝗙𝗔𝗠𝗜𝗟𝗬 𝗣𝗛𝗢𝗧𝗢 𝗖𝗥𝗘𝗔𝗧𝗢𝗥\n\n" +
-                "📝 𝗨𝘀𝗮𝗴𝗲: family <size> [#color] <title>\n\n" +
+                "📝 𝗨𝘀𝗮𝗴𝗲: familyphoto <size> [#color] <title>\n\n" +
                 "• 𝗦𝗶𝘇𝗲: Avatar size in pixels (0 for auto-size)\n" +
                 "• 𝗖𝗼𝗹𝗼𝗿: Hex color code for title (e.g. #FF0000)\n" +
                 "• 𝗧𝗶𝘁𝗹𝗲: Custom title text (optional)\n\n" +
                 "📌 𝗘𝘅𝗮𝗺𝗽𝗹𝗲𝘀:\n" +
-                "• family 200 #FFFFFF My Family\n" +
-                "• family 0 #FFD700 Best Friends Forever"
+                "• familyphoto 200 #FFFFFF My Family\n" +
+                "• familyphoto 0 #FFD700 Best Friends Forever"
         };
         
         if (fs.existsSync(__dirname + "/cache/help_family.png")) {
@@ -115,12 +115,12 @@ module.exports = {
       
       // Validate participant count
       if (participantIDs.length > this.config.envConfig.maxParticipants) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         return message.reply(`❌ 𝑇ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝 ℎ𝑎𝑠 𝑡𝑜𝑜 𝑚𝑎𝑛𝑦 𝑚𝑒𝑚𝑏𝑒𝑟𝑠 (${participantIDs.length}). 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 𝑎𝑙𝑙𝑜𝑤𝑒𝑑 𝑖𝑠 ${this.config.envConfig.maxParticipants}.`);
       }
       
       if (participantIDs.length === 0) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         return message.reply("❌ 𝑁𝑜 𝑝𝑎𝑟𝑡𝑖𝑐𝑖𝑝𝑎𝑛𝑡𝑠 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝.");
       }
       
@@ -130,7 +130,7 @@ module.exports = {
         const bgResponse = await axios.get(this.config.envConfig.defaultBackground, { responseType: "arraybuffer", timeout: 30000 });
         background = await Canvas.loadImage(Buffer.from(bgResponse.data));
       } catch (bgError) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
       }
       
@@ -143,7 +143,7 @@ module.exports = {
       
       // Validate size
       if (isNaN(size) || size < 0) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑠𝑖𝑧𝑒 (𝑛𝑢𝑚𝑏𝑒𝑟 𝑔𝑟𝑒𝑎𝑡𝑒𝑟 𝑡ℎ𝑎𝑛 𝑜𝑟 𝑒𝑞𝑢𝑎𝑙 𝑡𝑜 0).");
       }
       
@@ -184,7 +184,7 @@ module.exports = {
       
       // Validate size against background
       if (size > Math.min(xbground, ybground)) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         return message.reply(
           `❌ 𝐴𝑣𝑎𝑡𝑎𝑟 𝑠𝑖𝑧𝑒 𝑖𝑠 𝑡𝑜𝑜 𝑙𝑎𝑟𝑔𝑒 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑!\n` +
           `📐 𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑠𝑖𝑧𝑒: ${xbground}x${ybground} 𝑝𝑖𝑥𝑒𝑙𝑠\n` +
@@ -209,7 +209,7 @@ module.exports = {
         ctx = canvas.getContext('2d');
         ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
       } catch (canvasError) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         await api.unsendMessage(processingMsg.messageID);
         return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑐𝑎𝑛𝑣𝑎𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑚𝑎𝑙𝑙𝑒𝑟 𝑠𝑖𝑧𝑒.");
       }
@@ -303,7 +303,7 @@ module.exports = {
         image.crop(0, 0, Math.min(xcrop, xbground), Math.min(ycrop + spacing - 30, ybground));
         await image.writeAsync(outputPath);
       } catch (imageError) {
-        global.client.family = false;
+        global.client.familyphoto = false;
         await api.unsendMessage(processingMsg.messageID);
         return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
       }
@@ -334,11 +334,11 @@ module.exports = {
         console.error("Failed to unsend message:", e);
       }
       
-      global.client.family = false;
+      global.client.familyphoto = false;
       
     } catch (error) {
       console.error("𝐹𝑎𝑚𝑖𝑙𝑦 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-      global.client.family = false;
+      global.client.familyphoto = false;
       
       message.reply(
         `❌ 𝐸𝑅𝑅𝑂𝑅: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑓𝑎𝑚𝑖𝑙𝑦 𝑝ℎ𝑜𝑡𝑜\n` +
