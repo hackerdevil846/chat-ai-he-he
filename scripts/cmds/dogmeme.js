@@ -7,18 +7,18 @@ module.exports.config = {
     name: "dogmeme",
     aliases: ["doggo", "puppymeme"],
     version: "4.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 15,
     role: 0,
     category: "fun",
     shortDescription: {
-        en: "🐕 𝐶𝑟𝑒𝑎𝑡𝑒 𝑝𝑒𝑟𝑠𝑜𝑛𝑎𝑙𝑖𝑧𝑒𝑑 𝑑𝑜𝑔 𝑚𝑒𝑚𝑒𝑠 𝑤𝑖𝑡ℎ 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑓𝑜𝑟𝑚𝑎𝑡𝑡𝑖𝑛𝑔"
+        en: "Create personalized dog memes with beautiful formatting"
     },
     longDescription: {
-        en: "🐶 𝐶𝑟𝑒𝑎𝑡𝑒 𝑓𝑢𝑛𝑛𝑦 𝑑𝑜𝑔 𝑚𝑒𝑚𝑒𝑠 𝑤𝑖𝑡ℎ 𝑢𝑠𝑒𝑟 𝑛𝑎𝑚𝑒𝑠 𝑎𝑛𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
+        en: "Create funny dog memes with user names and custom text"
     },
     guide: {
-        en: "{p}dogmeme [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+        en: "{p}dogmeme [@mention]"
     },
     dependencies: {
         "axios": "",
@@ -33,9 +33,9 @@ module.exports.config = {
 
 module.exports.languages = {
     "en": {
-        "processing": "🐾 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑎 𝑑𝑜𝑔 𝑚𝑒𝑚𝑒 𝑓𝑜𝑟 %1...\n⏱️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 10-15 𝑠𝑒𝑐𝑜𝑛𝑑𝑠...",
-        "success": "🐶 %1, 𝑦𝑜𝑢'𝑣𝑒 𝑏𝑒𝑒𝑛 𝑑𝑜𝑔𝑔𝑜-𝑓𝑖𝑒𝑑! 🎉",
-        "error": "😿 𝑊𝑜𝑜𝑓! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔...\n• 𝐷𝑜𝑔 𝐴𝑃𝐼 𝑚𝑖𝑔ℎ𝑡 𝑏𝑒 𝑑𝑜𝑤𝑛\n• 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟\n• 𝑀𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑒𝑙𝑠𝑒"
+        "processing": "🐾 Creating a dog meme for %1...\n⏱️ Please wait 10-15 seconds...",
+        "success": "🐶 %1, you've been doggo-fied! 🎉",
+        "error": "😿 Woof! Something went wrong...\n• Dog API might be down\n• Try again later\n• Mention someone else"
     }
 };
 
@@ -71,7 +71,7 @@ module.exports.onStart = async function ({ api, event, args, getText }) {
         api.unsendMessage(processingMsg.messageID);
         
     } catch (error) {
-        console.error("❌ 𝐷𝑜𝑔𝑀𝑒𝑚𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
+        console.error("❌ DogMeme Error:", error);
         api.sendMessage(
             getText("error"),
             event.threadID,
@@ -83,9 +83,9 @@ module.exports.onStart = async function ({ api, event, args, getText }) {
 module.exports.getUserName = async function(api, userID) {
     try {
         const userInfo = await api.getUserInfo(userID);
-        return userInfo[userID]?.name || "𝐹𝑟𝑖𝑒𝑛𝑑";
+        return userInfo[userID]?.name || "Friend";
     } catch {
-        return "𝐹𝑟𝑖𝑒𝑛𝑑";
+        return "Friend";
     }
 };
 
@@ -106,7 +106,7 @@ module.exports.createDogMeme = async function(userID, userName) {
         });
         
         const dogImage = dogResponse.data.message;
-        if (!dogImage) throw new Error("𝑁𝑜 𝑑𝑜𝑔 𝑖𝑚𝑎𝑔𝑒 𝑓𝑜𝑢𝑛𝑑");
+        if (!dogImage) throw new Error("No dog image found");
         
         // Download dog image
         const dogPath = path.join(cacheDir, `dog_temp_${Date.now()}.jpg`);
@@ -125,8 +125,8 @@ module.exports.createDogMeme = async function(userID, userName) {
         const subtitleFont = await jimp.loadFont(jimp.FONT_SANS_16_BLACK);
         
         // Prepare text
-        const titleText = `${userName} 𝑎𝑠 𝑎 𝑑𝑜𝑔𝑔𝑜!`;
-        const subtitleText = "𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑤𝑖𝑡ℎ 🐕 𝐷𝑜𝑔𝑀𝑒𝑚𝑒 𝐶𝑜𝑚𝑚𝑎𝑛𝑑";
+        const titleText = `${userName} as a doggo!`;
+        const subtitleText = "Created with 🐕 DogMeme Command";
         
         // Calculate positions
         const titleWidth = jimp.measureText(titleFont, titleText);
@@ -174,7 +174,7 @@ module.exports.createDogMeme = async function(userID, userName) {
         return memePath;
         
     } catch (error) {
-        console.error("𝑀𝑒𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+        console.error("Meme creation error:", error);
         
         // Fallback to local dog image if available
         const fallbackPath = path.join(__dirname, 'assets', 'dog_fallback.jpg');
