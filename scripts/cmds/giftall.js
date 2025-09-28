@@ -1,7 +1,7 @@
 module.exports = {
   config: {
     name: "giftall",
-    version: "1.0.0",
+    version: "1.0.1",
     role: 3,
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 0,
@@ -14,9 +14,6 @@ module.exports = {
     },
     guide: {
       en: "{p}giftall allbox"
-    },
-    dependencies: {
-      "moment": ""
     }
   },
 
@@ -124,52 +121,69 @@ module.exports = {
       "𝐼 𝑤𝑜𝑢𝑙𝑑 𝑟𝑎𝑡ℎ𝑒𝑟 𝑠𝑚𝑒𝑙𝑙 𝑦𝑜𝑢𝑟 ℎ𝑎𝑖𝑟 𝑜𝑛𝑐𝑒. 𝐼 𝑤𝑜𝑢𝑙𝑑 𝑟𝑎𝑡ℎ𝑒𝑟 𝑠𝑞𝑢𝑒𝑒𝑧𝑒 𝑦𝑜𝑢𝑟 ℎ𝑎𝑛𝑑 𝑡𝑖𝑔ℎ𝑡𝑙𝑦 𝑜𝑛𝑐𝑒, 𝐼 𝑤𝑜𝑢𝑙𝑑 𝑟𝑎𝑡ℎ𝑒𝑟 𝑡𝑎𝑠𝑡𝑒 𝑡ℎ𝑒 𝑠𝑤𝑒𝑒𝑡𝑛𝑒𝑠𝑠 𝑜𝑓 𝑦𝑜𝑢𝑟 𝑘𝑖𝑠𝑠 𝑜𝑛𝑐𝑒 𝑡ℎ𝑎𝑛 𝑙𝑖𝑣𝑒 𝑖𝑚𝑚𝑜𝑟𝑡𝑎𝑙𝑙𝑦 𝑤𝑖𝑡ℎ𝑜𝑢𝑡 𝑖𝑡.",
       "𝐴𝑑𝑑𝑖𝑐𝑡𝑒𝑑 𝑡𝑜 𝑠𝑡𝑎𝑦𝑖𝑛𝑔 𝑢𝑝 𝑙𝑎𝑡𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑚𝑜𝑟𝑖𝑒𝑠 𝑜𝑓 𝑦𝑜𝑢, 𝐼 𝑡𝑟𝑖𝑒𝑑 𝑏𝑢𝑡 𝑐𝑜𝑢𝑙𝑑𝑛'𝑡 𝑓𝑖𝑥 𝑖𝑡.",
       "𝐼 𝑤𝑎𝑛𝑡 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑦𝑜𝑢 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜𝑑𝑎𝑦 𝑏𝑒𝑐𝑎𝑢𝑠𝑒 𝑡𝑜𝑑𝑎𝑦 𝐼 𝑓𝑒𝑒𝑙 𝑙𝑜𝑣𝑒 𝑓𝑜𝑟 𝑦𝑜𝑢 𝑎𝑏𝑛𝑜𝑟𝑚𝑎𝑙𝑙𝑦.",
-      "𝐼 ℎ𝑎𝑡𝑒 𝑦𝑜𝑢 𝑠𝑜 𝑚𝑢𝑐ℎ, 𝑑𝑜 𝑦𝑜𝑢 𝑘𝑛𝑜𝑤? 𝐵𝑒𝑐𝑎𝑢𝑠𝑒 𝑦𝑜𝑢 𝑘𝑒𝑒𝑝 𝑓𝑙𝑦𝑖𝑛𝑔 𝑎𝑟𝑜𝑢𝑛𝑑 𝑖𝑛 𝑚𝑦 ℎ𝑒𝑎𝑑 𝑎𝑙𝑙 𝑑𝑎𝑦, 𝑚𝑎𝑘𝑖𝑛𝑔 𝑚𝑒 𝑢𝑛𝑎𝑏𝑙𝑒 𝑡𝑜 𝑡ℎ𝑖𝑛𝑘 𝑎𝑏𝑜𝑢𝑡 𝑎𝑛𝑦𝑡ℎ𝑖𝑛𝑔…ℎ𝑢ℎ𝑢."
+      "𝐼 ℎ𝑎𝑡𝑒 𝑦𝑜𝑢 𝑠𝑜 𝑚𝑢𝑐ℎ, 𝑑𝑜 𝑦𝑜𝑢 𝑘𝑛𝑜𝑤? 𝐵𝑒𝑐𝑎𝑢𝑠𝑒 𝑦𝑜𝑢 𝑘𝑒𝑒𝑝 𝑓𝑙𝑦𝑖𝑛𝑔 𝑎𝑟𝑜𝑢𝑛𝑑 𝑖𝑛 𝑚𝑦 ℎ𝑒𝑎𝑟𝑡 𝑎𝑙𝑙 𝑑𝑎𝑦, 𝑚𝑎𝑘𝑖𝑛𝑔 𝑚𝑒 𝑢𝑛𝑎𝑏𝑙𝑒 𝑡𝑜 𝑡ℎ𝑖𝑛𝑘 𝑎𝑏𝑜𝑢𝑡 𝑎𝑛𝑦𝑡ℎ𝑖𝑛𝑔…ℎ𝑢ℎ𝑢."
     ];
 
     if (args[0] === 'allbox') {
-      const allUserIDs = global.data.allUserID || [];
-      const allThreadIDs = global.data.allThreadID || [];
-      const randomAmount = Math.floor(Math.random() * 10000000) + 100;
-      
-      let successCount = 0;
-      let failCount = 0;
-
-      // Send money to all users
-      for (const userID of allUserIDs) {
-        try {
-          await usersData.increaseMoney(userID, randomAmount);
-          successCount++;
-        } catch (error) {
-          failCount++;
-          console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 ${userID}:`, error);
+      try {
+        // Check if global data exists
+        if (!global.data || !global.data.allUserID || !global.data.allThreadID) {
+          return api.sendMessage("❌ 𝐺𝑙𝑜𝑏𝑎𝑙 𝑑𝑎𝑡𝑎 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑠𝑢𝑟𝑒 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑖𝑠 𝑝𝑟𝑜𝑝𝑒𝑟𝑙𝑦 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑒𝑑.", event.threadID);
         }
-      }
 
-      // Send message to all threads
-      const randomMessage = flirtyMessages[Math.floor(Math.random() * flirtyMessages.length)];
-      
-      for (const threadID of allThreadIDs) {
-        try {
-          await api.sendMessage(
-            `🎁 𝗔𝗟𝗟 𝗕𝗢𝗫 𝗚𝗜𝗙𝗧 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 🎁\n\n⏰ 𝑇𝑖𝑚𝑒: ${time}\n` +
-            `💰 𝐺𝑖𝑓𝑡: 𝑅𝑎𝑛𝑑𝑜𝑚 100-10𝑀 $\n` +
-            `💌 𝑀𝑒𝑠𝑠𝑎𝑔𝑒: ${randomMessage}\n` +
-            `🤖 𝐸𝑛𝑗𝑜𝑦 𝑢𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝐵𝑂𝑇!`,
-            threadID
-          );
-        } catch (error) {
-          console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑡ℎ𝑟𝑒𝑎𝑑 ${threadID}:`, error);
+        const allUserIDs = global.data.allUserID;
+        const allThreadIDs = global.data.allThreadID;
+        const randomAmount = Math.floor(Math.random() * 10000000) + 100;
+        
+        let successCount = 0;
+        let failCount = 0;
+
+        // Send money to all users
+        for (const userID of allUserIDs) {
+          try {
+            await usersData.setMoney(userID, (await usersData.getMoney(userID)) + randomAmount);
+            successCount++;
+          } catch (error) {
+            failCount++;
+            console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 ${userID}:`, error);
+          }
         }
-      }
 
-      return api.sendMessage(
-        `✅ 𝐺𝑖𝑓𝑡𝑠 𝑠𝑒𝑛𝑡 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!\n` +
-        `👥 𝑈𝑠𝑒𝑟𝑠: ${successCount} 𝑠𝑢𝑐𝑐𝑒𝑠𝑠, ${failCount} 𝑓𝑎𝑖𝑙𝑒𝑑\n` +
-        `💵 𝐴𝑚𝑜𝑢𝑛𝑡: 𝑅𝑎𝑛𝑑𝑜𝑚 ${randomAmount} $\n` +
-        `📋 𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑠𝑒𝑛𝑡 𝑡𝑜 𝑎𝑙𝑙 𝑔𝑟𝑜𝑢𝑝𝑠`,
-        event.threadID
-      );
+        // Send message to all threads
+        const randomMessage = flirtyMessages[Math.floor(Math.random() * flirtyMessages.length)];
+        let threadSuccess = 0;
+        let threadFail = 0;
+        
+        for (const threadID of allThreadIDs) {
+          try {
+            await api.sendMessage(
+              `🎁 𝗔𝗟𝗟 𝗕𝗢𝗫 𝗚𝗜𝗙𝗧 𝗡𝗢𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 🎁\n\n⏰ 𝑇𝑖𝑚𝑒: ${time}\n` +
+              `💰 𝐺𝑖𝑓𝑡: ${randomAmount} $\n` +
+              `💌 𝑀𝑒𝑠𝑠𝑎𝑔𝑒: ${randomMessage}\n` +
+              `🤖 𝐸𝑛𝑗𝑜𝑦 𝑢𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝐵𝑂𝑇!`,
+              threadID
+            );
+            threadSuccess++;
+          } catch (error) {
+            threadFail++;
+            console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑡ℎ𝑟𝑒𝑎𝑑 ${threadID}:`, error);
+          }
+        }
+
+        return api.sendMessage(
+          `✅ 𝐺𝑖𝑓𝑡𝑠 𝑠𝑒𝑛𝑡 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!\n\n` +
+          `👥 𝑈𝑠𝑒𝑟𝑠: ${successCount} 𝑠𝑢𝑐𝑐𝑒𝑠𝑠, ${failCount} 𝑓𝑎𝑖𝑙𝑒𝑑\n` +
+          `💵 𝐴𝑚𝑜𝑢𝑛𝑡: ${randomAmount} $\n` +
+          `📋 𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠: ${threadSuccess} 𝑠𝑢𝑐𝑐𝑒𝑠𝑠, ${threadFail} 𝑓𝑎𝑖𝑙𝑒𝑑\n` +
+          `⏰ 𝑇𝑖𝑚𝑒: ${time}`,
+          event.threadID
+        );
+      } catch (error) {
+        console.error("Giftall Error:", error);
+        return api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑔𝑖𝑓𝑡𝑠.", event.threadID);
+      }
+    } else {
+      return api.sendMessage("❌ 𝑈𝑠𝑒: {p}giftall allbox", event.threadID);
     }
   }
 };
