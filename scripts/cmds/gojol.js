@@ -2,52 +2,46 @@ const fs = require('fs-extra');
 const path = require('path');
 const axios = require('axios');
 
-module.exports.config = {
-    name: "gojol",
-    aliases: ["gazal", "islamicsong"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "islamic",
-    shortDescription: {
-        en: "𝑃𝑙𝑎𝑦 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑔𝑎𝑧𝑎𝑙𝑠 🎶"
-    },
-    longDescription: {
-        en: "𝑃𝑙𝑎𝑦 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑔𝑎𝑧𝑎𝑙𝑠 𝑎𝑛𝑑 𝑛𝑎𝑎𝑡𝑠"
-    },
-    guide: {
-        en: "{p}gojol"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ message, event }) {
-    try {
-        // Check dependencies
-        if (!fs.existsSync || !axios) {
-            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+module.exports = {
+    config: {
+        name: "gojol",
+        aliases: ["gazal", "islamicsong"],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "islamic",
+        shortDescription: {
+            en: "Play beautiful Islamic gazals"
+        },
+        longDescription: {
+            en: "Play beautiful Islamic gazals and naats"
+        },
+        guide: {
+            en: "{p}gojol"
         }
+    },
 
-        // Ensure cache directory exists
-        const cacheDir = path.join(__dirname, 'cache');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
-        }
+    onStart: async function({ message }) {
+        try {
+            // Ensure cache directory exists
+            const cacheDir = path.join(__dirname, 'cache');
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
 
-        // Islamic gazal messages
-        const messages = [
-            "🎧 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑔𝑎𝑧𝑎𝑙\n𝑈𝑠𝑒 ℎ𝑒𝑎𝑑𝑝ℎ𝑜𝑛𝑒𝑠 𝑓𝑜𝑟 𝑏𝑒𝑡𝑡𝑒𝑟 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒 🌸",
-            "🕋 𝑁𝑎𝑎𝑡 𝑠ℎ𝑎𝑟𝑖𝑓\n𝑈𝑠𝑒 ℎ𝑒𝑎𝑑𝑝ℎ𝑜𝑛𝑒𝑠 𝑓𝑜𝑟 𝑏𝑒𝑠𝑡 𝑠𝑜𝑢𝑛𝑑 𝑞𝑢𝑎𝑙𝑖𝑡𝑦 💖",
-            "📿 𝐷𝑖𝑣𝑖𝑛𝑒 𝑚𝑒𝑙𝑜𝑑𝑖𝑒𝑠\n𝐻𝑒𝑎𝑑𝑝ℎ𝑜𝑛𝑒𝑠 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑒𝑑 𝑓𝑜𝑟 𝑖𝑚𝑚𝑒𝑟𝑠𝑖𝑣𝑒 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒 ✨",
-            "🌙 𝑆𝑝𝑖𝑟𝑖𝑡𝑢𝑎𝑙 𝑔𝑎𝑧𝑎𝑙𝑠\n𝑈𝑠𝑒 ℎ𝑒𝑎𝑑𝑝ℎ𝑜𝑛𝑒𝑠 𝑓𝑜𝑟 𝑐𝑙𝑒𝑎𝑟 𝑎𝑢𝑑𝑖𝑜 🤲"
-        ];
+            // Islamic gazal messages
+            const messages = [
+                "🎵 Islamic Gazal 🎵\n🎧 Use headphones for better experience",
+                "🕌 Naat Sharif 🕌\n🎧 Use headphones for best sound quality",
+                "📿 Divine Melodies 📿\n🎧 Headphones recommended for immersive experience",
+                "🕋 Spiritual Gazals 🕋\n🎧 Use headphones for clear audio",
+                "🌟 Islamic Songs 🌟\n🎧 Enjoy with headphones",
+                "📖 Quranic Melodies 📖\n🎧 Best experienced with headphones"
+            ];
 
-        // Audio file URLs (Islamic gazals)
-        const audioUrls = [
+            // Audio file URLs (Islamic gazals - direct MP3 links)
+            const audioUrls = [
             "https://drive.google.com/uc?id=1xjyq3BrlW3bGrp8y7eedQSuddCbdvLMN",
             "https://drive.google.com/uc?id=1ySwrEG6xVqPdY5BcBP8I3YFCUOX4jV9e",
             "https://drive.google.com/uc?id=1xnht0PdBt9DnLGzW7GmJUTsTIJnxxByo",
@@ -62,48 +56,95 @@ module.exports.onStart = async function({ message, event }) {
             "https://drive.google.com/uc?id=1xxMQnp-9-4BoLrGpReps93JQv4k8WUOP"
         ];
 
-        // Pick random message & audio
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-        const randomAudioUrl = audioUrls[Math.floor(Math.random() * audioUrls.length)];
+            // Pick random message & audio
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const randomAudioUrl = audioUrls[Math.floor(Math.random() * audioUrls.length)];
 
-        // Unique filename
-        const audioPath = path.join(cacheDir, `gazal_${Date.now()}.mp3`);
+            // Unique filename with timestamp
+            const timestamp = Date.now();
+            const audioPath = path.join(cacheDir, `gazal_${timestamp}.mp3`);
 
-        // Notify user
-        await message.reply("📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑔𝑎𝑧𝑎𝑙, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡... ⏳", event.threadID);
+            // Notify user
+            await message.reply("📥 Downloading Islamic gazal, please wait...");
 
-        // Download audio
-        const response = await axios({
-            method: 'GET',
-            url: randomAudioUrl,
-            responseType: 'stream',
-            timeout: 60000
-        });
+            // Download audio with better error handling
+            const response = await axios({
+                method: 'GET',
+                url: randomAudioUrl,
+                responseType: 'stream',
+                timeout: 60000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            });
 
-        // Save file
-        const writer = fs.createWriteStream(audioPath);
-        response.data.pipe(writer);
+            // Check if response is valid
+            if (response.status !== 200) {
+                throw new Error(`HTTP ${response.status}: Failed to download audio`);
+            }
 
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
+            // Save file with proper error handling
+            const writer = fs.createWriteStream(audioPath);
+            response.data.pipe(writer);
 
-        // Send gazal with message
-        await message.reply({
-            body: randomMessage,
-            attachment: fs.createReadStream(audioPath)
-        }, event.threadID);
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', (error) => {
+                    reject(new Error(`File write error: ${error.message}`));
+                });
+            });
 
-        // Clean up
-        try {
-            fs.unlinkSync(audioPath);
-        } catch (cleanupErr) {
-            console.error('❌ 𝐹𝑖𝑙𝑒 𝑐𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:', cleanupErr);
+            // Check if file was created and has content
+            if (!fs.existsSync(audioPath)) {
+                throw new Error('Downloaded file not found');
+            }
+
+            const stats = fs.statSync(audioPath);
+            if (stats.size === 0) {
+                throw new Error('Downloaded file is empty');
+            }
+
+            // Send gazal with message
+            await message.reply({
+                body: randomMessage,
+                attachment: fs.createReadStream(audioPath)
+            });
+
+            // Clean up with error handling
+            try {
+                if (fs.existsSync(audioPath)) {
+                    fs.unlinkSync(audioPath);
+                }
+            } catch (cleanupErr) {
+                console.error('File cleanup error:', cleanupErr);
+            }
+
+        } catch (error) {
+            console.error('Gazal command error:', error);
+            
+            // Clean up on error
+            try {
+                const audioPath = path.join(__dirname, 'cache', `gazal_*.mp3`);
+                // Remove any leftover files
+                const files = fs.readdirSync(path.join(__dirname, 'cache')).filter(file => file.startsWith('gazal_'));
+                for (const file of files) {
+                    fs.unlinkSync(path.join(__dirname, 'cache', file));
+                }
+            } catch (cleanupErr) {
+                console.error('Error cleanup failed:', cleanupErr);
+            }
+
+            let errorMessage = "❌ Failed to download Islamic gazal. Please try again later.";
+            
+            if (error.message.includes('timeout')) {
+                errorMessage = "⏰ Download timeout. Please try again.";
+            } else if (error.message.includes('ENOTFOUND')) {
+                errorMessage = "🌐 Network error. Please check your connection.";
+            } else if (error.message.includes('404')) {
+                errorMessage = "🔍 Audio file not found. Please try another gazal.";
+            }
+
+            await message.reply(errorMessage);
         }
-
-    } catch (error) {
-        console.error('❌ 𝐺𝑎𝑧𝑎𝑙 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:', error);
-        await message.reply("⚠️ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑔𝑎𝑧𝑎𝑙. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", event.threadID);
     }
 };
