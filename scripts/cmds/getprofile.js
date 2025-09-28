@@ -1,65 +1,80 @@
-module.exports.config = {
-    name: "getprofile",
-    aliases: ["profile", "getid"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 0,
-    role: 0,
-    category: "utility",
-    shortDescription: {
-        en: "𝐺𝑒𝑡 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝐼𝐷 𝑜𝑟 𝑙𝑖𝑛𝑘"
-    },
-    longDescription: {
-        en: "𝐺𝑒𝑡 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝐼𝐷 𝑜𝑟 𝑙𝑖𝑛𝑘 𝑓𝑟𝑜𝑚 𝑟𝑒𝑝𝑙𝑦, 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑜𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑈𝑅𝐿"
-    },
-    guide: {
-        en: "{p}getprofile [𝑟𝑒𝑝𝑙𝑦|𝑚𝑒𝑛𝑡𝑖𝑜𝑛|𝑝𝑟𝑜𝑓𝑖𝑙𝑒_𝑢𝑟𝑙]"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ api, event, args }) {
-    try {
-        // Check dependencies
-        const axios = require("axios");
-        const fs = require("fs-extra");
-    } catch (e) {
-        return api.sendMessage("❌ | 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎", event.threadID, event.messageID);
-    }
-
-    try {
-        if (event.type === "message_reply") { 
-            const uid = event.messageReply.senderID;
-            return api.sendMessage(`https://www.facebook.com/profile.php?id=${uid}`, event.threadID, event.messageID);
+module.exports = {
+    config: {
+        name: "getprofile",
+        aliases: [],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 0,
+        role: 0,
+        category: "utility",
+        shortDescription: {
+            en: "Get Facebook profile ID or link"
+        },
+        longDescription: {
+            en: "Get Facebook profile ID or link from reply, mention or profile URL"
+        },
+        guide: {
+            en: "{p}getprofile [reply|mention|profile_url]"
         }
-        
-        if (!args[0]) {
-            return api.sendMessage(`https://www.facebook.com/profile.php?id=${event.senderID}`, event.threadID, event.messageID);
-        } else {
-            if (args[0].includes(".com/")) {
+    },
+
+    onStart: async function({ api, event, args }) {
+        try {
+            // Fixed dependency check
+            let axios, fs;
+            try {
+                axios = require("axios");
+                fs = require("fs-extra");
+            } catch (e) {
+                return api.sendMessage("❌ | Missing dependencies: axios and fs-extra", event.threadID, event.messageID);
+            }
+
+            // Handle message reply
+            if (event.type === "message_reply") { 
+                const uid = event.messageReply.senderID;
+                const profileLink = `https://www.facebook.com/profile.php?id=${uid}`;
+                return api.sendMessage(`👤 Profile Link:\n${profileLink}\n\n🆔 UID: ${uid}`, event.threadID, event.messageID);
+            }
+            
+            // No arguments - get own profile
+            if (!args[0]) {
+                const profileLink = `https://www.facebook.com/profile.php?id=${event.senderID}`;
+                return api.sendMessage(`👤 Your Profile Link:\n${profileLink}\n\n🆔 Your UID: ${event.senderID}`, event.threadID, event.messageID);
+            }
+            
+            // Handle profile URL
+            if (args[0].includes("facebook.com") || args[0].includes("fb.com") || args[0].startsWith("http")) {
                 try {
                     const res_ID = await api.getUID(args[0]);  
-                    return api.sendMessage(`${res_ID}`, event.threadID, event.messageID);
-                } catch (error) {
-                    return api.sendMessage("❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑈𝐼𝐷 𝑓𝑟𝑜𝑚 𝑙𝑖𝑛𝑘", event.threadID, event.messageID);
-                }
-            } else {
-                if (Object.keys(event.mentions).length > 0) {
-                    let message = "";
-                    for (const [id, name] of Object.entries(event.mentions)) {
-                        message += `${name.replace('@', '')}\n→ 𝑃𝑟𝑜𝑓𝑖𝑙𝑒: https://www.facebook.com/profile.php?id=${id}\n\n`;
+                    if (res_ID) {
+                        const profileLink = `https://www.facebook.com/profile.php?id=${res_ID}`;
+                        return api.sendMessage(`👤 Profile Link:\n${profileLink}\n\n🆔 UID: ${res_ID}`, event.threadID, event.messageID);
+                    } else {
+                        return api.sendMessage("❌ | Failed to get UID from the provided link", event.threadID, event.messageID);
                     }
-                    return api.sendMessage(message, event.threadID, event.messageID);
-                } else {
-                    return api.sendMessage(`https://www.facebook.com/profile.php?id=${event.senderID}`, event.threadID, event.messageID);
+                } catch (error) {
+                    console.error("UID Extraction Error:", error);
+                    return api.sendMessage("❌ | Invalid profile link or failed to extract UID", event.threadID, event.messageID);
                 }
             }
+            
+            // Handle mentions
+            if (Object.keys(event.mentions).length > 0) {
+                let message = "👥 Profile Links:\n\n";
+                for (const [id, name] of Object.entries(event.mentions)) {
+                    const profileLink = `https://www.facebook.com/profile.php?id=${id}`;
+                    message += `📛 ${name.replace('@', '')}\n🔗 ${profileLink}\n🆔 ${id}\n\n`;
+                }
+                return api.sendMessage(message, event.threadID, event.messageID);
+            }
+            
+            // Default fallback - own profile
+            const profileLink = `https://www.facebook.com/profile.php?id=${event.senderID}`;
+            return api.sendMessage(`👤 Your Profile Link:\n${profileLink}\n\n🆔 Your UID: ${event.senderID}`, event.threadID, event.messageID);
+
+        } catch (error) {
+            console.error("GetProfile Error:", error);
+            return api.sendMessage("❌ | An error occurred while processing your request", event.threadID, event.messageID);
         }
-    } catch (error) {
-        console.error("𝐺𝑒𝑡𝑃𝑟𝑜𝑓𝑖𝑙𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
-        return api.sendMessage("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑒𝑠𝑡", event.threadID, event.messageID);
     }
 };
