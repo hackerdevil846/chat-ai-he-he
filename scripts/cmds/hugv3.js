@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports = {
   config: {
     name: "hugv3",
-    aliases: ["embracev3", "hugfriend"],
+    aliases: [],
     version: "7.3.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
@@ -38,14 +38,14 @@ module.exports = {
     if (!existsSync(filePath)) {
       try {
         const imageData = await axios.get("https://i.imgur.com/7lPqHjw.jpg", { responseType: 'arraybuffer' });
-        fs.writeFileSync(filePath, Buffer.from(imageData.data));
+        await fs.writeFileSync(filePath, Buffer.from(imageData.data));
       } catch (error) {
         console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑢𝑔 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒:", error);
       }
     }
   },
 
-  onStart: async function({ message, event, args }) {
+  onStart: async function({ message, event, args, usersData }) {
     try {
       const { threadID, messageID, senderID } = event;
       const mention = Object.keys(event.mentions);
@@ -69,8 +69,8 @@ module.exports = {
         
         const getAvatar = async (uid, path) => {
           try {
-            const data = (await axios.get(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
-            fs.writeFileSync(path, Buffer.from(data, 'utf-8'));
+            const response = await axios.get(`https://graph.facebook.com/${uid}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' });
+            await fs.writeFileSync(path, Buffer.from(response.data, 'utf-8'));
           } catch (error) {
             console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎𝑣𝑎𝑡𝑎𝑟:", error);
           }
@@ -88,24 +88,27 @@ module.exports = {
                   .composite(circleTwo.resize(220, 220), 490, 200);
         
         const raw = await batgiam_img.getBufferAsync("image/png");
-        fs.writeFileSync(pathImg, raw);
+        await fs.writeFileSync(pathImg, raw);
         
         // Clean up temporary avatar files
-        if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
-        if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
+        if (fs.existsSync(avatarOne)) await fs.unlinkSync(avatarOne);
+        if (fs.existsSync(avatarTwo)) await fs.unlinkSync(avatarTwo);
         
         return pathImg;
       }
 
       const pathImg = await makeImage(senderID, mention[0]);
       
+      const userName = await usersData.getName(senderID);
+      const mentionedName = await usersData.getName(mention[0]);
+      
       await message.reply({
-        body: "🥰 | 𝒀𝒐𝒖 𝒓𝒆𝒄𝒆𝒊𝒗𝒆𝒅 𝒂 𝒘𝒂𝒓𝒎 𝒉𝒖𝒈!",
+        body: `🥰 | ${userName} 𝐠𝐚𝐯𝐞 ${mentionedName} 𝐚 𝐰𝐚𝐫𝐦 𝐡𝐮𝐠! 🤗`,
         attachment: fs.createReadStream(pathImg)
       });
       
       // Clean up generated image
-      if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg);
+      if (fs.existsSync(pathImg)) await fs.unlinkSync(pathImg);
       
     } catch (error) {
       console.error("𝐻𝑢𝑔𝑣3 𝐸𝑟𝑟𝑜𝑟:", error);
