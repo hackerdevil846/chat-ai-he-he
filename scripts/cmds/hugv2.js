@@ -6,7 +6,7 @@ const jimp = require("jimp");
 module.exports = {
   config: {
     name: "hugv2",
-    aliases: ["embracev2", "cuddlev2"],
+    aliases: [],
     version: "3.1.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
@@ -46,20 +46,20 @@ module.exports = {
         const { data } = await axios.get("https://i.ibb.co/zRdZJzG/1626342271-28-kartinkin-com-p-anime-obnimashki-v-posteli-anime-krasivo-30.jpg", { 
           responseType: 'arraybuffer' 
         });
-        fs.writeFileSync(filePath, Buffer.from(data, 'binary'));
+        await fs.writeFileSync(filePath, Buffer.from(data, 'binary'));
       } catch (error) {
         console.error("Failed to download base image:", error);
       }
     }
   },
 
-  onStart: async function({ message, event, args, usersData }) {
+  onStart: async function({ message, event, args, usersData, getLang }) {
     try {
       const { threadID, messageID, senderID } = event;
       const { readFileSync, unlinkSync, writeFileSync } = fs;
 
       const mention = Object.keys(event.mentions);
-      if (!mention[0]) return message.reply(this.langs.en.missingMention);
+      if (!mention[0]) return message.reply(getLang("missingMention"));
 
       const one = senderID, two = mention[0];
       const avatarOne = path.resolve(__dirname, 'cache/canvas', `avt_${one}.png`);
@@ -67,9 +67,9 @@ module.exports = {
       const pathImg = path.resolve(__dirname, 'cache/canvas', `hug_${one}_${two}.png`);
 
       async function circle(image) {
-        image = await jimp.read(image);
-        image.circle();
-        return await image.getBufferAsync("image/png");
+        const img = await jimp.read(image);
+        img.circle();
+        return await img.getBufferAsync("image/png");
       }
 
       const [getAvatarOne, getAvatarTwo] = await Promise.all([
@@ -77,8 +77,8 @@ module.exports = {
         axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })
       ]);
 
-      writeFileSync(avatarOne, Buffer.from(getAvatarOne.data, 'binary'));
-      writeFileSync(avatarTwo, Buffer.from(getAvatarTwo.data, 'binary'));
+      await writeFileSync(avatarOne, Buffer.from(getAvatarOne.data, 'binary'));
+      await writeFileSync(avatarTwo, Buffer.from(getAvatarTwo.data, 'binary'));
 
       const baseImage = await jimp.read(path.resolve(__dirname, 'cache/canvas', 'hugv2.png'));
       const circleOne = await jimp.read(await circle(avatarOne));
@@ -88,7 +88,7 @@ module.exports = {
                .composite(circleTwo.resize(100, 100), 330, 150);
 
       const raw = await baseImage.getBufferAsync("image/png");
-      writeFileSync(pathImg, raw);
+      await writeFileSync(pathImg, raw);
 
       const userName = await usersData.getName(one);
       const mentionedName = event.mentions[two].replace(/@/g, "");
