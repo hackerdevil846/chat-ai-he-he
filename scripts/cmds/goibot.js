@@ -1,111 +1,122 @@
 const moment = require("moment-timezone");
 
-module.exports.config = {
-    name: "goibot",
-    aliases: ["botresponse", "botreply"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "no-prefix",
-    shortDescription: {
-        en: "𝐵𝑜𝑡 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑡𝑜 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠"
-    },
-    longDescription: {
-        en: "𝐵𝑜𝑡 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑤ℎ𝑒𝑛 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑜𝑟 𝑐𝑎𝑙𝑙𝑒𝑑"
-    },
-    guide: {
-        en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 '𝑏𝑜𝑡' 𝑜𝑟 '𝐵𝑜𝑡' 𝑎𝑡 𝑡ℎ𝑒 𝑏𝑒𝑔𝑖𝑛𝑛𝑖𝑛𝑔 𝑜𝑓 𝑦𝑜𝑢𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
-    },
-    dependencies: {
-        "moment-timezone": ""
-    }
-};
-
-module.exports.onChat = async function({ api, event, Users }) {
-    try {
-        const { threadID, messageID, senderID, body } = event;
-        if (!body) return;
-
-        const name = await Users.getNameUser(senderID);
-        const time = moment.tz("𝐴𝑠𝑖𝑎/𝐷ℎ𝑎𝑘𝑎").format("𝐷𝐷/𝑀𝑀/𝑌𝑌𝑌𝑌 || 𝐻𝐻:𝑚𝑚:𝑠𝑠");
-
-        // 𝐵𝑜𝑡'𝑠 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑙𝑖𝑠𝑡
-        const responses = [
-            "𝑇𝑢𝑚𝑖 𝑘𝑖 𝐸𝐿𝑣𝑖𝑠ℎ 𝐵ℎ𝑎𝑖𝑒𝑟 𝑎𝑔𝑒 𝑏𝑜𝑙𝑏𝑒?🙄",
-            "𝐶𝑎𝑚𝑒𝑟𝑎𝑚𝑎𝑛, 𝑐ℎ𝑜𝑏𝑖 𝑡𝑢𝑙𝑡𝑒 𝑠𝑢𝑟𝑢 𝑘𝑜𝑟𝑜 📸",
-            "𝐿𝑎ℎ𝑜𝑟𝑒𝑟 𝑚𝑜𝑡𝑜 𝑙𝑎𝑔𝑐ℎ𝑒🙈",
-            "𝐶ℎ𝑎 𝑘ℎ𝑎𝑏𝑒?",
-            "𝐴𝑚𝑎𝑑𝑒𝑟 𝑗𝑜𝑛𝑛𝑜 𝑐ℎ𝑎 𝑏𝑎𝑛𝑖𝑦𝑒 𝑎𝑛, 𝑝𝑢𝑟𝑎 𝑑𝑖𝑛 𝑏𝑜𝑡 𝑏𝑜𝑡 𝑑𝑒𝑘ℎ𝑒🙄",
-            "𝐷𝑖𝑛 𝑡ℎ𝑒𝑘𝑒 𝑡𝑜𝑚𝑎𝑟 𝑗𝑜𝑛𝑛𝑜 𝑡𝑖𝑚𝑒 𝑘𝑎𝑡𝑖𝑦𝑒, 𝑎𝑚𝑖 𝑝𝑟𝑜𝑚𝑖𝑠𝑒 𝑘𝑜𝑟𝑐ℎ𝑖 𝑎𝑠𝑏𝑜",
-            "𝐸𝑖 𝑘𝑎𝑡ℎ𝑎 𝐷𝑒𝑙ℎ𝑖 𝑝𝑜𝑟𝑗𝑜𝑛𝑡𝑜 𝑗𝑎𝑏𝑒",
-            "𝐾𝑜𝑛𝑜 𝑠ℎ𝑜𝑛𝑑𝑒ℎ𝑜 𝑛𝑒𝑖, 𝑐ℎ𝑒𝑐𝑘 𝑘𝑜𝑟𝑒 𝑑𝑒𝑘ℎ𝑜",
-            "𝐴𝑚𝑖 ℎ𝑒𝑟𝑎𝑛 ℎ𝑜𝑦𝑒 𝑔𝑒𝑙𝑎𝑚 𝑡𝑢𝑚𝑖 𝑏𝑟𝑎𝑖𝑛 𝑐ℎ𝑎𝑟𝑎 𝑘𝑒𝑚𝑛𝑒 𝑡ℎ𝑎𝑘𝑜☹️",
-            "𝑆ℎ𝑒𝑘ℎ𝑎𝑛𝑒 𝑟𝑢𝑘𝑘𝑎 𝑏𝑎𝑗𝑖𝑦𝑒𝑐ℎ𝑒 𝑅𝑎𝑜 𝑆𝑎𝑎𝑏🙄",
-            "𝑇𝑢𝑚𝑖 𝑡𝑜 𝑏𝑒𝑤𝑎𝑓𝑎 ℎ𝑜𝑦𝑒 𝑔𝑒𝑐ℎ𝑜🙂🤨",
-            "𝑆𝑦𝑠𝑡𝑒𝑚𝑚𝑚𝑚𝑚𝑚𝑚😴",
-            "𝑁𝑖𝑦𝑒 𝑗𝑎𝑜, 𝑛𝑖𝑦𝑒 𝑗𝑎𝑜 𝑡𝑢𝑚𝑖 7 𝑠𝑎𝑚𝑢𝑑𝑟𝑎 𝑝𝑎𝑟𝑒🙈🙈",
-            "𝐿𝑎𝑑𝑜, 𝑎𝑚𝑖 𝑗𝑖𝑔𝑔𝑒𝑠ℎ 𝑘𝑜𝑟𝑖 𝑘𝑒𝑛𝑜 𝑡𝑜𝑚𝑎𝑟 𝑟𝑎𝑛𝑔 𝑘𝑎𝑙𝑜?",
-            "𝑀𝑜𝑦𝑒 𝑚𝑜𝑦𝑒 𝑚𝑜𝑦𝑒 𝑚𝑜𝑦𝑒🙆🏻‍♀🙆🏻‍♀",
-            "𝐸𝑖 𝑑𝑢𝑘𝑘ℎ𝑜 𝑘𝑒𝑛𝑜 𝑠ℎ𝑒𝑠ℎ ℎ𝑜𝑦 𝑛𝑎🙁",
-            "𝑇𝑢𝑚𝑖 𝑡𝑜 𝑑𝑜𝑘𝑒𝑏𝑎𝑧",
-            "𝑇𝑢𝑚𝑖 𝑡𝑜 𝑑𝑒𝑘ℎ𝑡𝑒 𝑘ℎ𝑢𝑏 𝑠𝑢𝑛𝑑𝑜𝑟😶",
-            "𝐴𝑚𝑎𝑟 𝑎𝑘𝑎𝑠ℎ 𝑡𝑜𝑚𝑎𝑟 𝑚𝑎𝑡𝑖 𝑘ℎ𝑢𝑗𝑒",
-            "𝐾𝑎𝑙 𝑎𝑠ℎ𝑜, 𝑎𝑘ℎ𝑜𝑛 𝑙𝑢𝑛𝑐ℎ 𝑒𝑟 𝑡𝑖𝑚𝑒",
-            "𝐽𝑜𝑘ℎ𝑜𝑛 𝑑𝑒𝑘ℎ𝑜 𝑏𝑜𝑡 𝑏𝑜𝑡 𝑏𝑜𝑡😒😒",
-            "𝐶ℎℎ𝑜𝑟𝑜 𝑛𝑎, 𝑘𝑒𝑢 𝑑𝑒𝑘ℎ𝑡𝑒 𝑝𝑎𝑏𝑒🤭",
-            "𝐾𝑜𝑏𝑒 𝑎𝑠ℎ𝑏𝑒 𝑚𝑜𝑟 𝑏𝑎𝑛𝑗𝑎𝑟𝑒?",
-            "𝑇𝑢𝑚𝑖 𝑠𝑒𝑖 𝑛𝑎, 𝑗𝑎𝑘𝑒 𝑎𝑚𝑖 𝑐ℎ𝑖𝑛𝑖 𝑛𝑎🙂",
-            "𝐸𝑖 𝐼 𝑙𝑜𝑣𝑒 𝑦𝑜𝑢 𝑘𝑖?",
-            "𝑆ℎ𝑢𝑛𝑎𝑖 𝑑𝑒𝑦, 𝑎𝑚𝑖 𝑏𝑎𝑑ℎ𝑖𝑟 𝑛𝑜𝑦😒",
-            "𝐾𝑜𝑡𝑜 𝑠ℎ𝑢𝑛𝑑𝑜𝑟, 𝑘𝑜𝑡𝑜 𝑠ℎ𝑢𝑛𝑑𝑜𝑟, 𝑗𝑢𝑠𝑡 𝑙𝑜𝑜𝑘𝑖𝑛𝑔 𝑙𝑖𝑘𝑒 𝑎 𝑤𝑜𝑤🤭",
-            "𝑏𝑒𝑔𝑎𝑛🙂",
-            "𝐴𝑦𝑒𝑖𝑛🤔",
-            "𝐼 𝐿𝑜𝑣𝑒 𝑦𝑜𝑢 𝑏𝑎𝑏𝑦, 𝑎𝑚𝑎𝑟 𝑟𝑒𝑐ℎ𝑎𝑟𝑔𝑒 𝑠ℎ𝑒𝑠ℎ ℎ𝑜𝑦𝑒 𝑗𝑎𝑐𝑐ℎ𝑒",
-            "𝑃𝑎𝑛𝑖 𝑝𝑎𝑛𝑖 𝑢𝑛𝑐𝑙𝑒 𝑗𝑖",
-            "𝐴𝑝𝑛𝑎𝑟 𝐿𝑎𝑏ℎ𝑎𝑟 𝑘𝑒 𝑑ℎ𝑜𝑘𝑎 𝑑𝑎𝑜, 𝑎𝑚𝑎𝑘𝑒 𝑜 𝑚𝑜𝑘𝑎 𝑑𝑎𝑜🙈",
-            "𝐴𝑟𝑟𝑒 𝑏𝑎𝑠 𝑘𝑜𝑟𝑜🤣😛",
-            "𝐴𝑚𝑖 𝑛𝑎𝑖𝑙𝑒 𝑘𝑒?",
-            "𝑁𝑎𝑚 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑, 𝑐𝑙𝑎𝑠𝑠 12𝑒 𝑝𝑜𝑟𝑒, 𝑓𝑎𝑣𝑜𝑟𝑖𝑡𝑒 𝑠𝑢𝑏𝑗𝑒𝑐𝑡 𝑏𝑒𝑔𝑎𝑛😘",
-            "𝐴𝑚𝑎𝑟 𝑚𝑎𝑡ℎ𝑎𝑦 𝑘ℎ𝑎𝑚𝑢 𝑛𝑎😒😒",
-            "𝐶ℎ𝑢𝑝 𝑠𝑎𝑡ℎ𝑒 𝑓𝑎𝑖𝑙😒",
-            "𝑆𝑎𝑠𝑡𝑒 𝑛𝑎𝑠ℎ𝑎 𝑘𝑖 𝑏𝑎𝑛𝑑ℎ 𝑘𝑜𝑟𝑏𝑒?",
-            "𝐴𝑚𝑖 𝐽𝑎𝑛𝑢𝑟 𝑠𝑎𝑡ℎ𝑒 𝑏𝑢𝑠𝑦, 𝑎𝑚𝑎𝑘𝑒 𝑑𝑎𝑘𝑖𝑜 𝑛𝑎",
-            "𝐻𝑎𝑦𝑟𝑒 𝐽𝑎𝑛𝑢, 𝑎𝑚𝑎𝑘𝑒 𝑚𝑜𝑛𝑒 𝑝𝑜𝑟𝑙𝑒?🙈",
-            "𝐻𝑎𝑦𝑟𝑒 𝑒𝑚𝑜𝑛 𝑑𝑎𝑘𝑎 𝑑𝑎𝑘𝑎𝑖𝑜 𝑛𝑎, 𝑎𝑚𝑎𝑟 𝑙𝑎𝑔𝑒😊",
-            "𝑆𝑦𝑠𝑡𝑒𝑚 𝑒𝑟 𝑢𝑝𝑜𝑟 𝑠𝑦𝑠𝑡𝑒𝑚 𝑏𝑜𝑠ℎ𝑎𝑐𝑐ℎ𝑜 𝑏𝑜𝑡 𝑒𝑟 𝑚𝑒𝑦𝑒",
-            "𝑁𝑎𝑐ℎ 𝑟𝑒 𝑏𝑢𝑙𝑏𝑢𝑙, 𝑡𝑎𝑘𝑎 𝑝𝑎𝑏𝑒",
-            "𝐴𝑚𝑖 𝑒𝑘ℎ𝑎𝑛𝑒 𝑡ℎ𝑒𝑘𝑒, 𝑎𝑝𝑛𝑖 𝑘𝑜𝑡ℎ𝑎𝑦?",
-            "𝐾ℎ𝑒𝑙𝑏𝑒 𝐹𝑟𝑒𝑒 𝐹𝑖𝑟𝑒🙈🙈",
-            "𝐴𝑦𝑒 ℎ𝑎𝑦𝑒 𝑜𝑦𝑒 ℎ𝑜𝑦𝑒 𝑎𝑦𝑒 ℎ𝑎𝑦𝑒 𝑜𝑦𝑒 ℎ𝑜𝑦𝑒😍 𝑏𝑎𝑑𝑜 𝑏𝑎𝑑𝑖 𝑏𝑎𝑑𝑜 𝑏𝑎𝑑𝑖😘",
-            "𝐻𝑎𝑙𝑜 𝑏ℎ𝑎𝑖, 𝑏ℎ𝑜𝑦 𝑝𝑎𝑐𝑐ℎ𝑜?",
-            "𝐶ℎ𝑜𝑘ℎ 𝑙𝑎𝑔𝑒 𝑏𝑎𝑑𝑜 𝑏𝑎𝑑𝑖",
-            "𝐻𝑎𝑦𝑟𝑒 𝑔𝑎𝑟𝑚𝑖😕",
-            "𝐴𝑠𝑜 𝑘𝑎𝑏𝑎𝑟 𝑏𝑎𝑟𝑖𝑡𝑒😍",
-            "𝐾ℎ𝑒𝑙𝑏𝑒 𝐹𝑟𝑒𝑒 𝐹𝑖𝑟𝑒🥴",
-            "𝐻𝑒𝑙𝑙𝑜 𝑏ℎ𝑎𝑖, 𝑡𝑢𝑖 𝑏ℎ𝑜𝑦 𝑝𝑎𝑐𝑐ℎ𝑖𝑠?",
-            "𝐽𝑎𝑛𝑢 𝑑𝑎𝑘𝑐ℎ𝑒 𝑎𝑚𝑎𝑘𝑒",
-            "𝐼 𝑐𝑎𝑛'𝑡 𝑙𝑖𝑣𝑒 𝑤𝑖𝑡ℎ𝑜𝑢𝑡 𝑦𝑜𝑢 𝑏𝑎𝑏𝑢😘",
-            "𝐻𝑎𝑎 𝑚𝑜𝑟 𝑗𝑎𝑎𝑛",
-            "𝐴𝑏𝑎𝑟 𝑏𝑜𝑡 𝑏𝑜𝑡 𝑘𝑜𝑟𝑐ℎℎ𝑜🙄",
-            "𝐾𝑜𝑛 𝑐𝑜𝑙𝑜𝑟 𝑒𝑟 𝑗𝑎𝑐𝑘𝑒𝑡 𝑝𝑜𝑟𝑏𝑒, 𝑏𝑜𝑙𝑜 𝑛𝑎😚",
-            "𝐷ℎ𝑎𝑛 𝑘ℎ𝑎𝑐𝑐ℎ𝑒 𝑏𝑜𝑜𝑦𝑎𝑎ℎ"
-        ];
-        
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-
-        // 𝐶ℎ𝑒𝑐𝑘 𝑖𝑓 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑠𝑡𝑎𝑟𝑡𝑠 𝑤𝑖𝑡ℎ "𝐵𝑜𝑡" 𝑜𝑟 "𝑏𝑜𝑡"
-        if (body.indexOf("𝐵𝑜𝑡") === 0 || body.indexOf("𝑏𝑜𝑡") === 0) {
-            const msg = {
-                body: `✨ ${name} ✨\n\n『 ${randomResponse} 』\n\n❤️ 𝐷ℎ𝑜𝑛𝑛𝑜𝑏𝑎𝑑 : 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑 🌹\n⏰ ${time}`
-            };
-            return api.sendMessage(msg, threadID, messageID);
+module.exports = {
+    config: {
+        name: "goibot",
+        aliases: ["botresponse", "botreply"],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 0,
+        role: 0,
+        category: "no-prefix",
+        shortDescription: {
+            en: "Bot responds to messages"
+        },
+        longDescription: {
+            en: "Bot responds when mentioned or called"
+        },
+        guide: {
+            en: "Just type 'bot' or 'Bot' at the beginning of your message"
         }
-    } catch (error) {
-        console.error("𝐺𝑜𝑖𝐵𝑜𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-    }
-};
+    },
 
-module.exports.onStart = async function() {
-    // 𝑅𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑏𝑦 𝑓𝑟𝑎𝑚𝑒𝑤𝑜𝑟𝑘 — 𝑙𝑒𝑓𝑡 𝑏𝑙𝑎𝑛𝑘
+    onChat: async function({ api, event, usersData }) {
+        try {
+            const { threadID, messageID, senderID, body } = event;
+            
+            // Check if message exists and is not from bot
+            if (!body || event.senderID === api.getCurrentUserID()) return;
+
+            const name = await usersData.getName(senderID);
+            const time = moment.tz("Asia/Dhaka").format("DD/MM/YYYY || HH:mm:ss");
+
+            // Bot's response list
+            const responses = [
+                "Tumi ki ELvish Bhairer age bolbe?🙄",
+                "Cameraman, chobi tulte suru koro 📸",
+                "Lahorer moto lagche🙈",
+                "Cha khabe?",
+                "Amader jonno cha baniye an, pura din bot bot dekhe🙄",
+                "Din theke tomar jonno time katiye, ami promise korchi asbo",
+                "Ei katha Delhi porjonto jabe",
+                "Kono shondheo nei, check kore dekho",
+                "Ami heran hoye gelam tumi brain chara kemne thako☹️",
+                "Shekhane rukka bajiyeche Rao Saab🙄",
+                "Tumi to bewafa hoye gecho🙂🤨",
+                "Systemmmmmmm😴",
+                "Niye jao, niye jao tumi 7 samudra pare🙈🙈",
+                "Lado, ami jiggesh kori keno tomar rang kalo?",
+                "Moye moye moye moye🙆🏻‍♀🙆🏻‍♀",
+                "Ei dukkho keno sesh hoy na🙁",
+                "Tumi to dokebaz",
+                "Tumi to dekhte khub sundor😶",
+                "Amar akash tomar mati khuje",
+                "Kal asho, akhon lunch er time",
+                "Jokhon dekho bot bot bot😒😒",
+                "Chhoro na, keu dekhte pabe🤭",
+                "Kobe ashbe mor banjare?",
+                "Tumi sei na, jake ami chini na🙂",
+                "Ei I love you ki?",
+                "Shunai dey, ami badhir noy😒",
+                "Koto shundor, koto shundor, just looking like a wow🤭",
+                "began🙂",
+                "Ayein🤔",
+                "I Love you baby, amar recharge sesh hoye jacche",
+                "Pani pani uncle ji",
+                "Apnar Labhar ke dhoka dao, amake o moka dao🙈",
+                "Arre bas koro🤣😛",
+                "Ami naile ke?",
+                "Nam Asif Mahmud, class 12e pore, favorite subject began😘",
+                "Amar mathay khamu na😒😒",
+                "Chup sathe fail😒",
+                "Saste nasha ki bandh korbe?",
+                "Ami Janur sathe busy, amake dakio na",
+                "Hayre Janu, amake mone porle?🙈",
+                "Hayre emon daka dakaiyo na, amar lage😊",
+                "System er upor system boshaccho bot er meye",
+                "Nach re bulbul, taka pabe",
+                "Ami ekhane theke, apni kothay?",
+                "Khelbe Free Fire🙈🙈",
+                "Aye haye oye hoye aye haye oye hoye😍 bado badi bado badi😘",
+                "Halo bhai, bhoy paccho?",
+                "Chokh lage bado badi",
+                "Hayre garmi😕",
+                "Aso kabar barite😍",
+                "Khelbe Free Fire🥴",
+                "Hello bhai, tui bhoy pacchis?",
+                "Janu dakche amake",
+                "I can't live without you babu😘",
+                "Haa mor jaan",
+                "Abar bot bot korchho🙄",
+                "Kon color er jacket porbe, bolo na😚",
+                "Dhan khacche booyaah"
+            ];
+            
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+            // Check if message starts with "Bot" or "bot" (case insensitive)
+            const messageText = body.trim().toLowerCase();
+            if (messageText.startsWith("bot")) {
+                const msg = {
+                    body: `✨ ${name} ✨\n\n『 ${randomResponse} 』\n\n❤️ Dhonnobad : Asif Mahmud 🌹\n⏰ ${time}`
+                };
+                return api.sendMessage(msg, threadID, messageID);
+            }
+        } catch (error) {
+            console.error("GoiBot Error:", error);
+        }
+    },
+
+    onStart: async function({ message }) {
+        // Help information when command is used directly
+        await message.reply({
+            body: "🤖 GoiBot - No Prefix Command\n\n" +
+                  "Just type 'bot' or 'Bot' at the beginning of your message and I'll respond!\n\n" +
+                  "Examples:\n" +
+                  "• bot hello\n" +
+                  "• Bot kemon acho?\n" +
+                  "• bot ki korcho\n\n" +
+                  "Made by: Asif Mahmud 🌹"
+        });
+    }
 };
