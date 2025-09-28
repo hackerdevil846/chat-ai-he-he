@@ -4,7 +4,7 @@ const fs = require("fs-extra");
 module.exports = {
   config: {
     name: "groupmention",
-    aliases: ["gmention", "allmention"],
+    aliases: [],
     version: "0.0.5",
     author: "Asif Mahmud",
     countDown: 80,
