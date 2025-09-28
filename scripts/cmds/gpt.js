@@ -10,7 +10,7 @@ module.exports = {
   config: {
     name: "gpt",
     aliases: ["aibot", "assistantai"],
-    version: "1.5",
+    version: "1.6",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
@@ -23,9 +23,6 @@ module.exports = {
     },
     guide: {
       en: "{p}gpt [𝑝𝑟𝑜𝑚𝑝𝑡] 𝑜𝑟 {p}gpt 𝑑𝑟𝑎𝑤 [𝑝𝑟𝑜𝑚𝑝𝑡] 𝑜𝑟 {p}gpt 𝑐𝑙𝑒𝑎𝑟"
-    },
-    dependencies: {
-      "axios": ""
     }
   },
 
@@ -38,7 +35,9 @@ module.exports = {
       error: "❌ 𝐸𝑟𝑟𝑜𝑟: %1",
       clearHistory: "✅ 𝐶𝑜𝑛𝑣𝑒𝑟𝑠𝑎𝑡𝑖𝑜𝑛 ℎ𝑖𝑠𝑡𝑜𝑟𝑦 𝑐𝑙𝑒𝑎𝑟𝑒𝑑.",
       noApiKey: "ℹ️ 𝑈𝑠𝑖𝑛𝑔 𝑓𝑟𝑒𝑒 𝑠𝑒𝑟𝑣𝑖𝑐𝑒𝑠.",
-      attribution: "📸 𝐼𝑚𝑎𝑔𝑒 𝑓𝑟𝑜𝑚 𝑈𝑛𝑠𝑝𝑙𝑎𝑠ℎ"
+      attribution: "📸 𝐼𝑚𝑎𝑔𝑒 𝑓𝑟𝑜𝑚 𝑈𝑛𝑠𝑝𝑙𝑎𝑠ℎ",
+      imageError: "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.",
+      apiError: "❌ 𝐴𝐼 𝑠𝑒𝑟𝑣𝑖𝑐𝑒𝑠 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑟𝑖𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒. 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟."
     }
   },
 
@@ -66,6 +65,10 @@ module.exports = {
             const processingMsg = await message.reply(getText('processingRequest'));
             const images = await this.generateFreeImage(args.slice(1).join(' '), unsplashAccessKey);
 
+            if (!images || images.length === 0) {
+              throw new Error(getText('imageError'));
+            }
+
             await message.reply({
               body: "🎨 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑖𝑚𝑎𝑔𝑒:\n" + getText('attribution'),
               attachment: images
@@ -75,7 +78,8 @@ module.exports = {
               await api.unsendMessage(processingMsg.messageID);
             }
           } catch (err) {
-            await message.reply(getText('error', err.message || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑒𝑟𝑟𝑜𝑟"));
+            console.error("Image generation error:", err);
+            await message.reply(getText('error', err.message || getText('imageError')));
           } finally {
             delete openAIUsing[senderID];
           }
@@ -105,7 +109,16 @@ module.exports = {
 
             const prompt = args.join(' ');
             const response = await this.askGpt(prompt);
+            
+            if (!response || !response.data || !response.data.choices || !response.data.choices[0] || !response.data.choices[0].message) {
+              throw new Error(getText('apiError'));
+            }
+
             const text = response.data.choices[0].message.content;
+
+            if (!text || text.trim() === '') {
+              throw new Error(getText('apiError'));
+            }
 
             openAIHistory[senderID].push({
               role: 'user',
@@ -119,27 +132,58 @@ module.exports = {
 
             await message.reply(text);
           } catch (err) {
-            await message.reply(getText('error', err.message || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑒𝑟𝑟𝑜𝑟"));
+            console.error("GPT chat error:", err);
+            await message.reply(getText('error', err.message || getText('apiError')));
           } finally {
             delete openAIUsing[senderID];
           }
         }
       }
     } catch (error) {
-      console.error("GPT Error:", error);
+      console.error("GPT Main Error:", error);
       await message.reply(getText('error', error.message || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑒𝑟𝑟𝑜𝑟"));
     }
   },
 
   askGpt: async function (prompt) {
     try {
-      const response = await axios.get(`https://gemini-api.replit.app/gemini?prompt=${encodeURIComponent(prompt)}`);
-      return { data: { choices: [{ message: { content: response.data.answer } }] } };
+      const response = await axios.get(`https://gemini-api.replit.app/gemini?prompt=${encodeURIComponent(prompt)}`, {
+        timeout: 30000
+      });
+      
+      if (response.data && response.data.answer) {
+        return { 
+          data: { 
+            choices: [{ 
+              message: { 
+                content: response.data.answer 
+              } 
+            }] 
+          } 
+        };
+      }
+      throw new Error("Invalid response from Gemini API");
     } catch (error) {
+      console.error("Gemini API error:", error);
       try {
-        const response = await axios.get(`https://api.kenaisq.rocks/api/gpt4?q=${encodeURIComponent(prompt)}`);
-        return { data: { choices: [{ message: { content: response.data.response } }] } };
+        const response = await axios.get(`https://api.kenaisq.rocks/api/gpt4?q=${encodeURIComponent(prompt)}`, {
+          timeout: 30000
+        });
+        
+        if (response.data && response.data.response) {
+          return { 
+            data: { 
+              choices: [{ 
+                message: { 
+                  content: response.data.response 
+                } 
+              }] 
+            } 
+          };
+        }
+        throw new Error("Invalid response from GPT4 API");
       } catch (error2) {
+        console.error("GPT4 API error:", error2);
         throw new Error("𝑆𝑒𝑟𝑣𝑖𝑐𝑒𝑠 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒");
       }
     }
@@ -148,23 +192,35 @@ module.exports = {
   generateFreeImage: async function (prompt, unsplashAccessKey) {
     try {
       const response = await axios.get(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}`, {
-        responseType: 'stream'
+        responseType: 'stream',
+        timeout: 30000
       });
-      response.data.path = `${Date.now()}.png`;
-      return [response.data];
+      
+      if (response.status === 200) {
+        response.data.path = `${Date.now()}.png`;
+        return [response.data];
+      }
+      throw new Error("Pollinations API failed");
     } catch (error) {
+      console.error("Pollinations API error:", error);
       try {
-        const unsplashResponse = await axios.get(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(prompt)}&per_page=1&client_id=${unsplashAccessKey}`);
+        const unsplashResponse = await axios.get(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(prompt)}&per_page=1&client_id=${unsplashAccessKey}`, {
+          timeout: 30000
+        });
         
         if (unsplashResponse.data.results && unsplashResponse.data.results.length > 0) {
           const imageUrl = unsplashResponse.data.results[0].urls.regular;
-          const image = await axios.get(imageUrl, { responseType: 'stream' });
+          const image = await axios.get(imageUrl, { 
+            responseType: 'stream',
+            timeout: 30000
+          });
           image.data.path = `${Date.now()}.jpg`;
           return [image.data];
         } else {
           throw new Error("𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑢𝑛𝑑");
         }
       } catch (unsplashError) {
+        console.error("Unsplash API error:", unsplashError);
         throw new Error("𝐼𝑚𝑎𝑔𝑒 𝑠𝑒𝑟𝑣𝑖𝑐𝑒𝑠 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒");
       }
     }
