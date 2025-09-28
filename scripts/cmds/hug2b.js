@@ -6,20 +6,20 @@ const jimp = require("jimp");
 module.exports = {
   config: {
     name: "hug2b",
-    aliases: ["hugv2", "virtualhug"],
+    aliases: [],
     version: "3.1.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "image",
     shortDescription: {
-      en: "𝐺𝑖𝑣𝑒 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑎 ℎ𝑢𝑔"
+      en: "Give someone a hug"
     },
     longDescription: {
-      en: "𝑆𝑒𝑛𝑑 𝑎 𝑐𝑢𝑡𝑒 ℎ𝑢𝑔 𝑖𝑚𝑎𝑔𝑒 𝑡𝑜 𝑠𝑜𝑚𝑒𝑜𝑛𝑒"
+      en: "Send a cute hug image to someone"
     },
     guide: {
-      en: "{p}hug2b [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+      en: "{p}hug2b [@mention]"
     },
     dependencies: {
       "axios": "",
@@ -45,18 +45,18 @@ module.exports = {
         });
         await fs.writeFile(filePath, Buffer.from(imageData.data));
       } catch (error) {
-        console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑢𝑔 𝑖𝑚𝑎𝑔𝑒:", error);
+        console.error("Failed to download hug image:", error);
       }
     }
   },
 
   onStart: async function({ message, event, args }) {
     try {
-      const { threadID, messageID, senderID } = event;
+      const { senderID } = event;
       const mention = Object.keys(event.mentions);
       
       if (!mention[0]) {
-        return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 ℎ𝑢𝑔! 🥺");
+        return message.reply("❌ Please mention someone to hug! 🥺");
       }
 
       async function circle(imageBuffer) {
@@ -109,7 +109,7 @@ module.exports = {
       const imagePath = await makeImage(one, two);
       
       await message.reply({ 
-        body: `💖 𝑁𝑖𝑐𝑒 𝐻𝑢𝑔! ${event.mentions[two]} 🥰`,
+        body: `💖 Nice Hug! ${event.mentions[two]} 🥰`,
         mentions: [{
           tag: event.mentions[two],
           id: two
@@ -121,8 +121,8 @@ module.exports = {
       await fs.unlink(imagePath);
       
     } catch (error) {
-      console.error("𝐻𝑢𝑔 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-      await message.reply("❌ 𝑂𝑜𝑝𝑠! 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟! 😿");
+      console.error("Hug command error:", error);
+      await message.reply("❌ Oops! Something went wrong. Please try again later! 😿");
     }
   }
 };
