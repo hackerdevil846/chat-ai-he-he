@@ -5,7 +5,7 @@ module.exports = {
   config: {
     name: "girl2",
     aliases: ["beautygirl", "prettygirl"],
-    version: "1.0.0",
+    version: "1.0.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
     category: "image",
@@ -18,11 +18,7 @@ module.exports = {
     guide: {
       en: "{p}girl2"
     },
-    countDown: 5,
-    dependencies: {
-      "axios": "",
-      "fs-extra": ""
-    }
+    countDown: 5
   },
 
   langs: {
@@ -34,7 +30,7 @@ module.exports = {
 
   onStart: async function ({ api, event, args, message, usersData, getText }) {
     try {
-      const { threadID, senderID } = event;
+      const { threadID, senderID, messageID } = event;
 
       // Premium collection of beautiful girl images
       const imageLinks = [
@@ -46644,9 +46640,10 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
 "https://i.imgur.com/xNOKINt.jpg",
 "https://i.imgur.com/5Sy0mk1.jpg",
   ];
+
       // Get user balance
       const userData = await usersData.get(senderID);
-      const money = userData.money;
+      const money = userData.money || 0;
 
       // Check balance
       if (money < 200) {
@@ -46654,15 +46651,32 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
       }
 
       // Deduct money
-      await usersData.set(senderID, { money: money - 200 });
+      await usersData.set(senderID, { 
+        money: money - 200,
+        data: userData.data 
+      });
 
       // Pick random image
       const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
-      const imagePath = __dirname + "/cache/girl2.jpg";
+      const timestamp = Date.now();
+      const imagePath = __dirname + "/cache/girl2_" + timestamp + ".jpg";
 
-      // Download image
-      const response = await axios.get(randomImage, { responseType: "arraybuffer" });
-      await fs.writeFileSync(imagePath, Buffer.from(response.data, "utf-8"));
+      // Ensure cache directory exists
+      const cacheDir = __dirname + "/cache";
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+
+      // Download image with proper error handling
+      const response = await axios({
+        method: "GET",
+        url: randomImage,
+        responseType: "arraybuffer",
+        timeout: 30000
+      });
+
+      // Write file with binary encoding
+      await fs.writeFileSync(imagePath, Buffer.from(response.data, "binary"));
 
       // Send message with attachment
       await message.reply({
@@ -46671,11 +46685,25 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
       });
 
       // Clean up
-      fs.unlinkSync(imagePath);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
 
     } catch (error) {
       console.error("𝐺𝑖𝑟𝑙2 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      
+      // Refund money if error occurred
+      try {
+        const userData = await usersData.get(event.senderID);
+        await usersData.set(event.senderID, { 
+          money: (userData.money || 0) + 200,
+          data: userData.data 
+        });
+      } catch (refundError) {
+        console.error("𝑅𝑒𝑓𝑢𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", refundError);
+      }
+      
+      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 200$ ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑟𝑒𝑓𝑢𝑛𝑑𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
   }
 };
