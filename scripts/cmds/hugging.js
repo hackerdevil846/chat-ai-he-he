@@ -1,5 +1,6 @@
 const axios = require("axios");
 const fs = require("fs-extra");
+const path = require("path");
 
 module.exports = {
   config: {
@@ -27,21 +28,13 @@ module.exports = {
 
   onStart: async function({ message, event, args, usersData }) {
     try {
-      // Check dependencies
-      if (!axios || !fs.existsSync) {
-        throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
-      }
-
-      if (!args[0]) {
+      // Check if someone is tagged
+      if (!args[0] || !event.mentions || Object.keys(event.mentions).length === 0) {
         return message.reply("𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 ℎ𝑢𝑔 🤗");
       }
 
       // Get the mentioned user
       const mention = Object.keys(event.mentions)[0];
-      if (!mention) {
-        return message.reply("𝑌𝑜𝑢 𝑛𝑒𝑒𝑑 𝑡𝑜 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 ℎ𝑢𝑔 🎯");
-      }
-
       const tag = event.mentions[mention].replace("@", "");
       
       // Get hug image from API
@@ -52,10 +45,19 @@ module.exports = {
       const userName = await getUserName(usersData, mention);
       const senderName = await getUserName(usersData, event.senderID);
       
+      // Create cache directory if it doesn't exist
+      const cacheDir = path.join(__dirname, "cache");
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      
       // Download image
-      const imagePath = __dirname + `/cache/hug_${event.senderID}_${mention}.jpg`;
-      const imageResponse = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-      await fs.writeFileSync(imagePath, Buffer.from(imageResponse.data, 'binary'));
+      const imagePath = path.join(cacheDir, `hug_${event.senderID}_${Date.now()}.jpg`);
+      const imageResponse = await axios.get(imageUrl, { 
+        responseType: 'arraybuffer' 
+      });
+      
+      await fs.writeFile(imagePath, imageResponse.data);
       
       // Send message with attachment
       await message.reply({
@@ -74,7 +76,7 @@ module.exports = {
       });
       
       // Delete the image after sending
-      await fs.unlinkSync(imagePath);
+      await fs.unlink(imagePath);
       
     } catch (error) {
       console.error("𝐻𝑢𝑔𝑔𝑖𝑛𝑔 𝐸𝑟𝑟𝑜𝑟:", error);
