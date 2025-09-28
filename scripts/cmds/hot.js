@@ -15,81 +15,103 @@ const videoLibrary = {
     "https://drive.google.com/uc?export=download&id=158UG3kV3JEQPbb4zG5KDVJ59G-gIokbm",
     "https://drive.google.com/uc?export=download&id=15ExhciaMohg4UsCsJBr0FdNZXy3OAtkZ",
     "https://drive.google.com/uc?export=download&id=15QBo9GKUvUqWfH5jTcai35FFiS3Duge_"
-  ],
-  fileExtensions: ['.mp4']
+  ]
 };
 
 module.exports = {
   config: {
     name: "hot",
     aliases: ["sexyvid", "spicy"],
-    version: "1.0.1",
+    version: "1.0.2",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
     category: "media",
     shortDescription: {
-      en: "🔥 𝐺𝑒𝑡 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 ℎ𝑜𝑡 𝑣𝑖𝑑𝑒𝑜"
+      en: "🔥 Get a random hot video"
     },
     longDescription: {
-      en: "𝑆𝑒𝑛𝑑𝑠 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 ℎ𝑜𝑡 𝑣𝑖𝑑𝑒𝑜 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑐𝑢𝑟𝑎𝑡𝑒𝑑 𝑙𝑖𝑏𝑟𝑎𝑟𝑦"
+      en: "Sends a random hot video from the curated library"
     },
     guide: {
       en: "{p}hot"
     },
-    countDown: 5,
-    dependencies: {
-      "axios": "",
-      "fs-extra": ""
-    }
+    countDown: 5
   },
 
   onLoad: async function() {
     try {
+      // Ensure cache directory exists
       await fs.ensureDir(videoLibrary.cacheDir);
-      const files = await fs.readdir(videoLibrary.cacheDir);
-      if (files.length > 0) {
-        await this.cleanupCache();
-      }
-      console.log("✨ 𝐻𝑜𝑡 𝑣𝑖𝑑𝑒𝑜 𝑐𝑎𝑐ℎ𝑒 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦");
+      console.log("✅ Hot video cache initialized successfully");
     } catch (error) {
-      console.error("❌ 𝐻𝑜𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+      console.error("❌ Hot command initialization error:", error);
     }
   },
 
   onStart: async function({ message, event }) {
     try {
-      await message.reply("⏳ 𝐹𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑎 ℎ𝑜𝑡 𝑣𝑖𝑑𝑒𝑜 𝑓𝑜𝑟 𝑦𝑜𝑢...");
+      await message.reply("⏳ Fetching a hot video for you...");
 
+      // Get available cached videos
       const availableVideos = await this.getAvailableVideos();
       let videoPath;
 
       if (availableVideos.length > 0) {
+        // Use cached video
         const randomIndex = Math.floor(Math.random() * availableVideos.length);
         videoPath = path.join(videoLibrary.cacheDir, availableVideos[randomIndex]);
+        console.log(`✅ Using cached video: ${availableVideos[randomIndex]}`);
       } else {
+        // Download new video
         videoPath = await this.downloadNewVideo();
       }
 
+      // Check if video file exists and has content
+      if (!fs.existsSync(videoPath)) {
+        throw new Error("Video file not found");
+      }
+
+      const stats = fs.statSync(videoPath);
+      if (stats.size === 0) {
+        throw new Error("Video file is empty");
+      }
+
+      // Send the video
       await message.reply({
-        body: "🔥 𝐻𝑒𝑟𝑒'𝑠 𝑎 ℎ𝑜𝑡 𝑣𝑖𝑑𝑒𝑜 𝑓𝑜𝑟 𝑦𝑜𝑢!",
+        body: "🔥 Here's a hot video for you!",
         attachment: fs.createReadStream(videoPath)
       });
 
     } catch (error) {
-      console.error("❌ 𝐻𝑜𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-      await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑎 ℎ𝑜𝑡 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("❌ Hot command error:", error);
+      
+      let errorMessage = "❌ Failed to get a hot video. Please try again later.";
+      
+      if (error.message.includes("timeout")) {
+        errorMessage = "⏰ Download timeout. Please try again.";
+      } else if (error.message.includes("ENOTFOUND")) {
+        errorMessage = "🌐 Network error. Please check your connection.";
+      } else if (error.message.includes("404")) {
+        errorMessage = "❌ Video not found. Please try another video.";
+      }
+      
+      await message.reply(errorMessage);
     }
   },
 
   getAvailableVideos: async function() {
     try {
+      if (!fs.existsSync(videoLibrary.cacheDir)) {
+        return [];
+      }
+      
       const files = await fs.readdir(videoLibrary.cacheDir);
       return files.filter(file => {
         const ext = path.extname(file).toLowerCase();
-        return videoLibrary.fileExtensions.includes(ext);
+        return ['.mp4', '.avi', '.mov', '.mkv'].includes(ext);
       });
     } catch (error) {
-      console.error("❌ 𝐸𝑟𝑟𝑜𝑟 𝑟𝑒𝑎𝑑𝑖𝑛𝑔 𝑣𝑖𝑑𝑒𝑜 𝑐𝑎𝑐ℎ𝑒:", error);
+      console.error("❌ Error reading video cache:", error);
       return [];
     }
   },
@@ -99,40 +121,68 @@ module.exports = {
       Math.floor(Math.random() * videoLibrary.videoLinks.length)
     ];
 
-    const fileName = `hot_${Date.now()}.mp4`;
+    const fileName = `hot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.mp4`;
     const filePath = path.join(videoLibrary.cacheDir, fileName);
 
     try {
+      console.log(`📥 Downloading video from: ${randomLink}`);
+
       const response = await axios({
         method: 'GET',
         url: randomLink,
         responseType: 'stream',
-        timeout: 60000
+        timeout: 60000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': '*/*'
+        }
       });
+
+      // Check response status
+      if (response.status !== 200) {
+        throw new Error(`HTTP ${response.status}: Failed to download video`);
+      }
 
       const writer = fs.createWriteStream(filePath);
       response.data.pipe(writer);
 
       await new Promise((resolve, reject) => {
         writer.on('finish', resolve);
-        writer.on('error', reject);
+        writer.on('error', (error) => {
+          reject(new Error(`File write error: ${error.message}`));
+        });
       });
 
+      // Verify the downloaded file
+      if (!fs.existsSync(filePath)) {
+        throw new Error("Downloaded file not found");
+      }
+
+      const stats = fs.statSync(filePath);
+      if (stats.size === 0) {
+        throw new Error("Downloaded file is empty");
+      }
+
+      console.log(`✅ Video downloaded successfully: ${fileName} (${stats.size} bytes)`);
+
+      // Cleanup old cache files
       await this.cleanupCache();
 
       return filePath;
-    } catch (error) {
-      console.error("❌ 𝑉𝑖𝑑𝑒𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑓𝑎𝑖𝑙𝑒𝑑:", error);
 
-      if (await fs.pathExists(filePath)) {
-        try {
+    } catch (error) {
+      console.error("❌ Video download failed:", error);
+
+      // Cleanup failed download
+      try {
+        if (fs.existsSync(filePath)) {
           await fs.unlink(filePath);
-        } catch (cleanupErr) {
-          console.error("❌ 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupErr);
         }
+      } catch (cleanupErr) {
+        console.error("❌ Cleanup error:", cleanupErr);
       }
 
-      throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑣𝑖𝑑𝑒𝑜");
+      throw new Error(`Failed to download video: ${error.message}`);
     }
   },
 
@@ -141,24 +191,31 @@ module.exports = {
       const files = await this.getAvailableVideos();
       if (files.length <= videoLibrary.maxCacheSize) return;
 
-      const fileStats = await Promise.all(
-        files.map(file => fs.stat(path.join(videoLibrary.cacheDir, file)))
-      );
+      // Get file stats for all files
+      const fileStats = [];
+      for (const file of files) {
+        const filePath = path.join(videoLibrary.cacheDir, file);
+        const stats = await fs.stat(filePath);
+        fileStats.push({ file, mtime: stats.mtimeMs });
+      }
 
-      const sortedFiles = files
-        .map((file, i) => ({ file, mtime: fileStats[i].mtimeMs }))
-        .sort((a, b) => a.mtime - b.mtime);
+      // Sort by modification time (oldest first)
+      fileStats.sort((a, b) => a.mtime - b.mtime);
 
-      const deleteCount = sortedFiles.length - videoLibrary.maxCacheSize;
-      const filesToDelete = sortedFiles.slice(0, deleteCount);
+      const deleteCount = fileStats.length - videoLibrary.maxCacheSize;
+      const filesToDelete = fileStats.slice(0, deleteCount);
 
-      await Promise.all(
-        filesToDelete.map(item => fs.unlink(path.join(videoLibrary.cacheDir, item.file)))
-      );
+      // Delete oldest files
+      for (const item of filesToDelete) {
+        const filePath = path.join(videoLibrary.cacheDir, item.file);
+        await fs.unlink(filePath);
+        console.log(`🗑️ Deleted old video: ${item.file}`);
+      }
 
-      console.log(`🗑️ 𝐶𝑙𝑒𝑎𝑛𝑒𝑑 𝑢𝑝 ${deleteCount} 𝑜𝑙𝑑 𝑣𝑖𝑑𝑒𝑜(𝑠) 𝑓𝑟𝑜𝑚 𝑐𝑎𝑐ℎ𝑒`);
+      console.log(`✅ Cleaned up ${deleteCount} old video(s) from cache`);
+
     } catch (error) {
-      console.error("❌ 𝐶𝑎𝑐ℎ𝑒 𝑐𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", error);
+      console.error("❌ Cache cleanup error:", error);
     }
   }
 };
