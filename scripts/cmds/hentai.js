@@ -1,32 +1,40 @@
-module.exports.config = {
-    name: "hentai",
-    aliases: ["hvdo", "adultvideo"],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 60,
-    role: 0,
-    shortDescription: {
-        en: "𝐺𝑒𝑡 ℎ𝑒𝑛𝑡𝑎𝑖 𝑣𝑖𝑑𝑒𝑜 🎬"
-    },
-    longDescription: {
-        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 ℎ𝑒𝑛𝑡𝑎𝑖 𝑣𝑖𝑑𝑒𝑜 𝑓𝑟𝑜𝑚 𝑐𝑢𝑟𝑎𝑡𝑒𝑑 𝑐𝑜𝑙𝑙𝑒𝑐𝑡𝑖𝑜𝑛 🌙"
-    },
-    category: "18+",
-    guide: {
-        en: "{p}hentai"
-    },
-    dependencies: {
-        "axios": ""
-    }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.onStart = async function ({ message, event }) {
-    try {
-        const loadingMessage = await message.reply({
-            body: "🔞 | 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑑𝑢𝑙𝑡 𝑣𝑖𝑑𝑒𝑜...\n⏳ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 𝑢𝑝 𝑡𝑜 5 𝑚𝑖𝑛𝑢𝑡𝑒𝑠"
-        });
+module.exports = {
+    config: {
+        name: "hentai",
+        aliases: [],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 60,
+        role: 0,
+        category: "18+",
+        shortDescription: {
+            en: "Get hentai video"
+        },
+        longDescription: {
+            en: "Sends random hentai video from curated collection"
+        },
+        guide: {
+            en: "{p}hentai"
+        }
+    },
 
-        const videoLinks = [
+    onStart: async function ({ message, event }) {
+        try {
+            // Create cache directory
+            const cacheDir = path.join(__dirname, 'cache');
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
+
+            const loadingMessage = await message.reply({
+                body: "📥 Loading random adult video...\n⏳ Please wait up to 1 minute"
+            });
+
+            const videoLinks = [
 				"https://drive.google.com/uc?export=download&id=1ywjcqK_AkWyxnRXjoB0JKLdChZsR69cK",
 				"https://drive.google.com/uc?export=download&id=1xyC3bJWlmZVMoWJHYRLdX_dNibPVBDIV",
 				"https://drive.google.com/uc?export=download&id=1whpsUv4Xzt3bp-QSlx03cLdwW2UsnEt2",
@@ -147,35 +155,127 @@ module.exports.onStart = async function ({ message, event }) {
 				"https://drive.google.com/uc?export=download&id=1-7rYID9JMd38eg5NplPVFbD7jTE8NDyf",
 ];
 
-        if (!global.hentaiSentVideos) {
-            global.hentaiSentVideos = [];
-        }
-
-        const availableVideos = videoLinks.filter(video => !global.hentaiSentVideos.includes(video));
-        
-        if (availableVideos.length === 0) {
-            global.hentaiSentVideos = [];
-        }
-
-        const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
-        global.hentaiSentVideos.push(randomVideo);
-
-        try {
-            await message.reply({
-                body: "🎬 | 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑎𝑑𝑢𝑙𝑡 𝑣𝑖𝑑𝑒𝑜\n⚠️ | 𝑀𝑎𝑘𝑒 𝑠𝑢𝑟𝑒 𝑡𝑜 𝑤𝑎𝑡𝑐ℎ 𝑓𝑢𝑙𝑙 𝑣𝑖𝑑𝑒𝑜",
-                attachment: await global.utils.getStreamFromURL(randomVideo)
-            });
-        } catch (error) {
-            console.error("𝑉𝑖𝑑𝑒𝑜 𝑒𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ | 𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑣𝑖𝑑𝑒𝑜. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-        } finally {
-            if (loadingMessage && loadingMessage.messageID) {
-                await message.unsend(loadingMessage.messageID);
+            // Initialize sent videos tracking
+            if (!global.hentaiSentVideos) {
+                global.hentaiSentVideos = [];
             }
-        }
 
-    } catch (error) {
-        console.error("𝑀𝑎𝑖𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+            // Filter available videos (not sent recently)
+            let availableVideos = videoLinks.filter(video => !global.hentaiSentVideos.includes(video));
+            
+            // Reset if all videos have been sent
+            if (availableVideos.length === 0) {
+                global.hentaiSentVideos = [];
+                availableVideos = videoLinks;
+            }
+
+            // Select random video
+            const randomVideo = availableVideos[Math.floor(Math.random() * availableVideos.length)];
+            global.hentaiSentVideos.push(randomVideo);
+
+            // Keep only last 5 sent videos in memory
+            if (global.hentaiSentVideos.length > 5) {
+                global.hentaiSentVideos.shift();
+            }
+
+            const videoPath = path.join(cacheDir, `hentai_${Date.now()}.mp4`);
+
+            try {
+                // Download video
+                const response = await axios({
+                    method: 'GET',
+                    url: randomVideo,
+                    responseType: 'stream',
+                    timeout: 45000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Accept': 'video/mp4,video/*'
+                    }
+                });
+
+                const writer = fs.createWriteStream(videoPath);
+                response.data.pipe(writer);
+
+                await new Promise((resolve, reject) => {
+                    writer.on('finish', resolve);
+                    writer.on('error', reject);
+                });
+
+                // Verify file was downloaded
+                if (!fs.existsSync(videoPath)) {
+                    throw new Error("Download failed - file not created");
+                }
+
+                const stats = fs.statSync(videoPath);
+                if (stats.size === 0) {
+                    throw new Error("Download failed - empty file");
+                }
+
+                // Check if file is too small (likely an error page)
+                if (stats.size < 100000) { // Less than 100KB is probably not a video
+                    throw new Error("Download failed - invalid video file");
+                }
+
+                // Send video
+                await message.reply({
+                    body: "🎬 Here's your adult video\n🔞 Make sure to watch full video\n💾 Video will be deleted after sending",
+                    attachment: fs.createReadStream(videoPath)
+                });
+
+            } catch (videoError) {
+                console.error("Video download/send error:", videoError);
+                
+                // Try alternative method using global utils
+                try {
+                    await message.reply({
+                        body: "🎬 Here's your adult video\n🔞 Make sure to watch full video",
+                        attachment: await global.utils.getStreamFromURL(randomVideo)
+                    });
+                } catch (utilsError) {
+                    throw new Error("Failed to load video from all sources");
+                }
+            }
+
+            // Clean up loading message
+            try {
+                if (loadingMessage && loadingMessage.messageID) {
+                    await message.unsend(loadingMessage.messageID);
+                }
+            } catch (unsendError) {
+                // Ignore unsend errors
+            }
+
+            // Clean up downloaded file
+            try {
+                if (fs.existsSync(videoPath)) {
+                    setTimeout(() => {
+                        try {
+                            fs.unlinkSync(videoPath);
+                        } catch (cleanupError) {
+                            console.error("File cleanup error:", cleanupError);
+                        }
+                    }, 10000);
+                }
+            } catch (cleanupError) {
+                console.error("Cleanup error:", cleanupError);
+            }
+
+        } catch (error) {
+            console.error("Hentai command main error:", error);
+            
+            let errorMessage = "❌ An error occurred while processing your request.";
+            
+            if (error.message.includes("timeout")) {
+                errorMessage = "⏰ Download timeout. Video might be too large. Please try again.";
+            } else if (error.message.includes("ENOTFOUND")) {
+                errorMessage = "🌐 Network error. Please check your connection and try again.";
+            } else if (error.message.includes("404")) {
+                errorMessage = "🔍 Video not found. The content may have been removed.";
+            } else if (error.message.includes("Failed to load video")) {
+                errorMessage = "❌ All video sources failed. Please try again later.";
+            }
+            
+            await message.reply(errorMessage);
+        }
     }
 };
