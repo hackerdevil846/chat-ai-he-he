@@ -5,8 +5,8 @@ const path = require('path');
 module.exports = {
   config: {
     name: "hd",
-    aliases: ["imageenhance", "qualityboost"],
-    version: "3.5",
+    aliases: [],
+    version: "3.6",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
     role: 0,
@@ -19,11 +19,6 @@ module.exports = {
     },
     guide: {
       en: "{p}hd [𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑖𝑚𝑎𝑔𝑒]"
-    },
-    dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "path": ""
     }
   },
 
@@ -35,7 +30,7 @@ module.exports = {
       
       // Create cache directory if needed
       if (!fs.existsSync(cacheDir)) {
-        await fs.mkdirp(cacheDir);
+        fs.mkdirSync(cacheDir, { recursive: true });
       }
 
       // Validate message reply
@@ -77,13 +72,23 @@ module.exports = {
       });
 
       // Add reaction to indicate processing
-      api.setMessageReaction("⏳", messageID, () => {}, true);
+      try {
+        api.setMessageReaction("⏳", event.messageID, () => {}, true);
+      } catch (reactionError) {
+        console.error("Reaction error:", reactionError);
+      }
       
       try {
-        // Enhance image using API
+        // Enhance image using API - fixed URL encoding
+        const encodedUrl = encodeURIComponent(photoUrl);
         const enhanceResponse = await axios.get(
-          `https://code-merge-api-hazeyy01.replit.app/api/try/remini?url=${encodeURIComponent(photoUrl)}`,
-          { timeout: 60000 }
+          `https://code-merge-api-hazeyy01.replit.app/api/try/remini?url=${encodedUrl}`,
+          { 
+            timeout: 60000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          }
         );
         
         if (!enhanceResponse.data || !enhanceResponse.data.image_data) {
@@ -96,11 +101,30 @@ module.exports = {
           timeout: 60000
         });
 
+        // Check if image data is valid
+        if (!imageResponse.data || imageResponse.data.length === 0) {
+          throw new Error("𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 𝑖𝑚𝑎𝑔𝑒 𝑖𝑠 𝑒𝑚𝑝𝑡𝑦");
+        }
+
         // Save the image
         await fs.writeFile(imagePath, Buffer.from(imageResponse.data, 'binary'));
         
+        // Verify file was saved
+        if (!fs.existsSync(imagePath)) {
+          throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑒𝑛ℎ𝑎𝑛𝑐𝑒𝑑 𝑖𝑚𝑎𝑔𝑒");
+        }
+
+        const fileStats = fs.statSync(imagePath);
+        if (fileStats.size === 0) {
+          throw new Error("𝑆𝑎𝑣𝑒𝑑 𝑖𝑚𝑎𝑔𝑒 𝑖𝑠 𝑒𝑚𝑝𝑡𝑦");
+        }
+        
         // Update reaction to completed
-        api.setMessageReaction("✅", messageID, () => {}, true);
+        try {
+          api.setMessageReaction("✅", event.messageID, () => {}, true);
+        } catch (reactionError) {
+          console.error("Reaction error:", reactionError);
+        }
         
         // Send the enhanced image
         await message.reply({
@@ -112,9 +136,20 @@ module.exports = {
           attachment: fs.createReadStream(imagePath)
         });
 
+        // Clean up processing message
+        try {
+          if (processingMsg && processingMsg.messageID) {
+            await api.unsendMessage(processingMsg.messageID);
+          }
+        } catch (unsendError) {
+          console.error("Unsend error:", unsendError);
+        }
+
         // Clean up after sending
         try {
-          fs.unlinkSync(imagePath);
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+          }
         } catch (cleanupErr) {
           console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupErr);
         }
@@ -123,7 +158,11 @@ module.exports = {
         console.error("𝐻𝐷 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
         
         // Update reaction to error
-        api.setMessageReaction("❌", messageID, () => {}, true);
+        try {
+          api.setMessageReaction("❌", event.messageID, () => {}, true);
+        } catch (reactionError) {
+          console.error("Reaction error:", reactionError);
+        }
         
         let errorMessage = "❌  𝐸𝑁𝐻𝐴𝑁𝐶𝐸𝑀𝐸𝑁𝑇 𝐹𝐴𝐼𝐿𝐸𝐷\n" +
           "━━━━━━━━━━━━━━━━━━\n";
@@ -134,11 +173,22 @@ module.exports = {
           errorMessage += "⏰ 𝑅𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑑 𝑜𝑢𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.\n";
         } else if (error.message.includes('image_data')) {
           errorMessage += "🔌 𝐸𝑛ℎ𝑎𝑛𝑐𝑒𝑚𝑒𝑛𝑡 𝐴𝑃𝐼 𝑖𝑠 𝑡𝑒𝑚𝑝𝑜𝑟𝑎𝑟𝑖𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒\n";
+        } else if (error.message.includes('ENOTFOUND')) {
+          errorMessage += "🌐 𝑁𝑒𝑡𝑤𝑜𝑟𝑘 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑐𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛.\n";
         } else {
           errorMessage += `📛 𝐸𝑟𝑟𝑜𝑟: ${error.message}\n`;
         }
         
         errorMessage += "\n𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑤𝑖𝑡ℎ 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑖𝑚𝑎𝑔𝑒.";
+        
+        // Clean up processing message
+        try {
+          if (processingMsg && processingMsg.messageID) {
+            await api.unsendMessage(processingMsg.messageID);
+          }
+        } catch (unsendError) {
+          console.error("Unsend error:", unsendError);
+        }
         
         // Clean up if file exists
         if (fs.existsSync(imagePath)) {
