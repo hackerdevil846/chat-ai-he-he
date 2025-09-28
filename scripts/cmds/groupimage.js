@@ -1,94 +1,155 @@
 const fs = require("fs-extra");
 const axios = require("axios");
+const path = require("path");
 
-module.exports.config = {
-    name: "groupimage",
-    aliases: ["gavatar", "groupavatar"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 1,
-    category: "group",
-    shortDescription: {
-        en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑖𝑚𝑎𝑔𝑒 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒"
-    },
-    longDescription: {
-        en: "𝐶ℎ𝑎𝑛𝑔𝑒𝑠 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝'𝑠 𝑎𝑣𝑎𝑡𝑎𝑟 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
-    },
-    guide: {
-        en: "{p}groupimage [𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑖𝑚𝑎𝑔𝑒]"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.languages = {
-    "en": {
-        "noReply": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑡𝑜 𝑐ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑎𝑣𝑎𝑡𝑎𝑟",
-        "noAttachment": "❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒 𝑎𝑡𝑡𝑎𝑐ℎ𝑚𝑒𝑛𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑡ℎ𝑒 𝑟𝑒𝑝𝑙𝑦",
-        "multipleAttachments": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑜𝑛𝑙𝑦 𝑜𝑛𝑒 𝑖𝑚𝑎𝑔𝑒",
-        "success": "✅ 𝐺𝑟𝑜𝑢𝑝 𝑖𝑚𝑎𝑔𝑒 𝑐ℎ𝑎𝑛𝑔𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦!",
-        "failure": "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛"
-    }
-};
-
-module.exports.onStart = async function({ message, event, getText }) {
-    try {
-        // Check dependencies
-        if (!fs.existsSync) throw new Error("𝑓𝑠-𝑒𝑥𝑡𝑟𝑎 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-        if (!axios) throw new Error("𝑎𝑥𝑖𝑜𝑠 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-
-        const languages = this.languages.en;
-        
-        if (event.type !== "message_reply") {
-            return message.reply(languages.noReply);
+module.exports = {
+    config: {
+        name: "groupimage",
+        aliases: ["gavatar", "groupavatar"],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 1,
+        category: "group",
+        shortDescription: {
+            en: "Change group image by replying to an image"
+        },
+        longDescription: {
+            en: "Changes the group's avatar by replying to an image message"
+        },
+        guide: {
+            en: "{p}groupimage [reply to image]"
         }
-        
-        if (!event.messageReply.attachments || event.messageReply.attachments.length === 0) {
-            return message.reply(languages.noAttachment);
-        }
-        
-        if (event.messageReply.attachments.length > 1) {
-            return message.reply(languages.multipleAttachments);
-        }
-        
-        const imageUrl = event.messageReply.attachments[0].url;
-        const pathImg = __dirname + '/cache/group_image_' + Date.now() + '.png';
-        
-        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-        await fs.writeFileSync(pathImg, Buffer.from(response.data, 'utf-8'));
-        
-        await message.reply({
-            attachment: fs.createReadStream(pathImg),
-            body: "⏳ 𝑈𝑝𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝 𝑖𝑚𝑎𝑔𝑒..."
-        });
+    },
 
-        await message.unsend(event.messageID);
-        
-        await message.changeGroupImage(
-            fs.createReadStream(pathImg), 
-            event.threadID
-        );
-        
-        fs.unlinkSync(pathImg);
-        
-        return message.reply(languages.success);
-        
-    } catch (error) {
-        console.error("𝐺𝑟𝑜𝑢𝑝 𝐼𝑚𝑎𝑔𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
-        
-        // Clean up temporary files
-        const files = fs.readdirSync(__dirname + '/cache/').filter(file => file.startsWith('group_image_'));
-        for (const file of files) {
+    onStart: async function({ message, event, api }) {
+        try {
+            // Check if it's a group chat
+            if (event.isGroup === false) {
+                return message.reply("❌ This command can only be used in group chats.");
+            }
+
+            // Check if user replied to a message
+            if (event.type !== "message_reply") {
+                return message.reply("❌ Please reply to an image message to change the group avatar.");
+            }
+            
+            // Check if replied message has attachments
+            if (!event.messageReply.attachments || event.messageReply.attachments.length === 0) {
+                return message.reply("❌ No image attachment found in the replied message.");
+            }
+            
+            // Get the first attachment
+            const attachment = event.messageReply.attachments[0];
+            
+            // Check if it's an image
+            if (attachment.type !== "photo" && !attachment.url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                return message.reply("❌ Please reply to an image file (jpg, png, gif, webp).");
+            }
+            
+            const imageUrl = attachment.url;
+            
+            // Create cache directory if it doesn't exist
+            const cacheDir = path.join(__dirname, 'cache');
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
+            
+            const pathImg = path.join(cacheDir, 'group_image_' + Date.now() + '.png');
+            
+            // Show processing message
+            const processingMsg = await message.reply("🔄 Downloading and processing image...");
+            
             try {
-                fs.unlinkSync(__dirname + '/cache/' + file);
-            } catch (e) {
-                console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝐸𝑟𝑟𝑜𝑟:", e);
+                // Download the image with timeout
+                const response = await axios({
+                    method: 'GET',
+                    url: imageUrl,
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
+
+                // Validate response
+                if (!response.data || response.data.length === 0) {
+                    throw new Error("Empty response from image URL");
+                }
+
+                // Check file size (Facebook has limits)
+                if (response.data.length > 5 * 1024 * 1024) { // 5MB limit
+                    throw new Error("Image is too large (max 5MB)");
+                }
+
+                // Save image to cache
+                await fs.writeFileSync(pathImg, Buffer.from(response.data, 'binary'));
+
+                // Verify file was saved
+                if (!fs.existsSync(pathImg)) {
+                    throw new Error("Failed to save image file");
+                }
+
+                const stats = fs.statSync(pathImg);
+                if (stats.size === 0) {
+                    throw new Error("Saved file is empty");
+                }
+
+                // Change group image
+                await api.changeGroupImage(
+                    fs.createReadStream(pathImg), 
+                    event.threadID
+                );
+                
+                // Clean up processing message
+                try {
+                    if (processingMsg && processingMsg.messageID) {
+                        await api.unsendMessage(processingMsg.messageID);
+                    }
+                } catch (unsendError) {
+                    // Ignore unsend errors
+                }
+                
+                // Send success message
+                await message.reply("✅ Group image changed successfully!");
+                
+            } catch (apiError) {
+                console.error("API Error:", apiError);
+                throw new Error("Failed to change group image. The image might be too large or invalid.");
+            }
+            
+        } catch (error) {
+            console.error("Group Image Command Error:", error);
+            
+            let errorMessage = "❌ Failed to change group image. Please try again.";
+            
+            if (error.message.includes("timeout")) {
+                errorMessage = "⏰ Download timeout. Please try again with a smaller image.";
+            } else if (error.message.includes("too large")) {
+                errorMessage = "📁 Image is too large. Please use an image under 5MB.";
+            } else if (error.message.includes("permission")) {
+                errorMessage = "🔒 Bot doesn't have permission to change group image.";
+            } else if (error.message.includes("ENOTFOUND")) {
+                errorMessage = "🌐 Network error. Please check your connection.";
+            }
+            
+            await message.reply(errorMessage);
+        } finally {
+            // Clean up temporary files
+            try {
+                const cacheDir = path.join(__dirname, 'cache');
+                if (fs.existsSync(cacheDir)) {
+                    const files = fs.readdirSync(cacheDir).filter(file => file.startsWith('group_image_'));
+                    for (const file of files) {
+                        const filePath = path.join(cacheDir, file);
+                        if (fs.existsSync(filePath)) {
+                            fs.unlinkSync(filePath);
+                        }
+                    }
+                }
+            } catch (cleanupError) {
+                console.error("Cleanup Error:", cleanupError);
             }
         }
-        
-        return message.reply(this.languages.en.failure);
     }
 };
