@@ -1,67 +1,99 @@
 const fs = require("fs-extra");
 const path = require("path");
-const https = require("https");
 const axios = require("axios");
 
-module.exports.config = {
-    name: "ham",
-    aliases: ["bacon", "meat"],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-        en: "𝑅𝑎𝑛𝑑𝑜𝑚 ℎ𝑎𝑚 𝑖𝑚𝑎𝑔𝑒"
-    },
-    longDescription: {
-        en: "𝑆𝑒𝑛𝑑𝑠 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 ℎ𝑎𝑚 𝑝𝑙𝑎𝑐𝑒ℎ𝑜𝑙𝑑𝑒𝑟 𝑖𝑚𝑎𝑔𝑒"
-    },
-    category: "𝑓𝑢𝑛",
-    guide: {
-        en: "{p}ham"
-    },
-    dependencies: {
-        "fs-extra": "",
-        "axios": ""
-    }
-};
-
-module.exports.onStart = async function({ message }) {
-    try {
-        const imgUrl = "https://baconmockup.com/600/400";
-        const filePath = path.join(__dirname, "cache", "ham.jpg");
-        
-        // Ensure cache directory exists
-        if (!fs.existsSync(path.dirname(filePath))) {
-            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+module.exports = {
+    config: {
+        name: "ham",
+        aliases: ["bacon", "meat"],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "fun",
+        shortDescription: {
+            en: "Random ham image"
+        },
+        longDescription: {
+            en: "Sends a random ham placeholder image"
+        },
+        guide: {
+            en: "{p}ham"
         }
+    },
 
-        // Download image using axios for better error handling
-        const response = await axios({
-            method: 'GET',
-            url: imgUrl,
-            responseType: 'stream'
-        });
+    onStart: async function({ message }) {
+        try {
+            const imgUrl = "https://baconmockup.com/600/400";
+            const cacheDir = path.join(__dirname, "cache");
+            const filePath = path.join(cacheDir, `ham_${Date.now()}.jpg`);
+            
+            // Ensure cache directory exists
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
 
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
+            // Download image with proper error handling
+            const response = await axios({
+                method: 'GET',
+                url: imgUrl,
+                responseType: 'stream',
+                timeout: 30000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            });
 
-        writer.on('finish', async () => {
+            // Create write stream and handle download
+            const writer = fs.createWriteStream(filePath);
+            response.data.pipe(writer);
+
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            // Verify file was created and has content
+            if (!fs.existsSync(filePath)) {
+                throw new Error('Downloaded file not found');
+            }
+
+            const stats = fs.statSync(filePath);
+            if (stats.size === 0) {
+                throw new Error('Downloaded file is empty');
+            }
+
+            // Send the image
             await message.reply({
-                body: "🍖 𝐻𝑎𝑚 𝑃𝑙𝑎𝑐𝑒ℎ𝑜𝑙𝑑𝑒𝑟 𝐼𝑚𝑎𝑔𝑒",
+                body: "🍖 Random Ham Image",
                 attachment: fs.createReadStream(filePath)
             });
-            
+
             // Clean up file after sending
-            fs.unlinkSync(filePath);
-        });
+            try {
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+            } catch (cleanupError) {
+                console.error('File cleanup error:', cleanupError);
+            }
 
-        writer.on('error', async () => {
-            await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑎𝑚 𝑖𝑚𝑎𝑔𝑒.");
-        });
-
-    } catch (error) {
-        console.error("𝐻𝑎𝑚 𝐸𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 ℎ𝑎𝑚 𝑖𝑚𝑎𝑔𝑒.");
+        } catch (error) {
+            console.error("Ham Command Error:", error);
+            
+            let errorMessage = "❌ Failed to get ham image. Please try again later.";
+            
+            if (error.message.includes('timeout')) {
+                errorMessage = "⏰ Download timeout. Please try again.";
+            } else if (error.message.includes('ENOTFOUND')) {
+                errorMessage = "🌐 Network error. Please check your connection.";
+            } else if (error.message.includes('404')) {
+                errorMessage = "🔍 Image service unavailable. Try again later.";
+            } else if (error.message.includes('Downloaded file')) {
+                errorMessage = "❌ Failed to download image properly.";
+            }
+            
+            await message.reply(errorMessage);
+        }
     }
 };
