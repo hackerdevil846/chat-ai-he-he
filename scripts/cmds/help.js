@@ -15,8 +15,8 @@ const data = [
 module.exports = {
   config: {
     name: "help",
-    aliases: ["h"], // CHANGED: removed "commands" alias
-    version: "1.3",
+    aliases: ["h"],
+    version: "1.4",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
@@ -29,9 +29,6 @@ module.exports = {
     },
     guide: {
       en: "{p}help\n{p}help [𝑝𝑎𝑔𝑒]\n{p}help -[𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦]\n{p}help [𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 𝑛𝑎𝑚𝑒]"
-    },
-    dependencies: {
-      "axios": ""
     }
   },
 
@@ -44,7 +41,7 @@ module.exports = {
       const cmd = parts[0];
       const args = parts.slice(1);
 
-      if (cmd !== "help" && cmd !== "menu") return;
+      if (cmd !== "help" && cmd !== "menu" && cmd !== "h") return;
       
       // Check if user is admin or has permission
       let userRole = 0;
@@ -60,6 +57,11 @@ module.exports = {
 
   onStart: async function ({ message, args, event, role = 0 }) {
     try {
+      // Validate global commands exists
+      if (!commands || typeof commands !== 'object') {
+        return message.reply("❌ 𝑆ℎ𝑎𝑑𝑜𝑤 𝑎𝑟𝑐ℎ𝑖𝑣𝑒𝑠 𝑎𝑟𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒.");
+      }
+
       const top = "╭──═━┈ { 🗡️  𝑻𝑯𝑬 𝑬𝑴𝑰𝑵𝑬𝑵𝑪𝑬 𝑰𝑵 𝑺𝑯𝑨𝑫𝑶𝑾  🗡️} ┈━═──╮";
       const mid = "┃";
       const sep = "┠──────────────────────────────";
@@ -69,11 +71,16 @@ module.exports = {
 
       const categories = {};
       for (const [name, cmd] of commands.entries()) {
-        if (cmd.config?.role <= role) {
+        if (cmd.config && cmd.config.role <= role) {
           const cat = (cmd.config.category || "Uncategorized").trim().toUpperCase();
           if (!categories[cat]) categories[cat] = [];
           categories[cat].push(name);
         }
+      }
+
+      // If no commands found
+      if (Object.keys(categories).length === 0) {
+        return message.reply("❌ 𝑁𝑜 𝑠ℎ𝑎𝑑𝑜𝑤 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑟𝑎𝑛𝑘.");
       }
 
       if (!arg || /^\d+$/.test(arg)) {
@@ -97,19 +104,29 @@ module.exports = {
         selectedCats.forEach((cat) => {
           const cmds = categories[cat];
           body += `${mid} 🏛️  ${cat} [${cmds.length}]\n`;
-          cmds.forEach((n) => {
+          // Limit commands per category for better display
+          cmds.slice(0, 15).forEach((n) => {
             body += `${mid} ✦ ${n}\n`;
           });
+          if (cmds.length > 15) {
+            body += `${mid} ... 𝑎𝑛𝑑 ${cmds.length - 15} 𝑚𝑜𝑟𝑒\n`;
+          }
           body += `${sep}\n`;
         });
 
         body += `${mid} 💀 "𝑰 𝒂𝒎 𝒂𝒕𝒐𝒎𝒊𝒄..."\n`;
         body += `${bottom}`;
 
-        return message.reply({ 
-          body, 
-          attachment: await global.utils.getStreamFromURL(randomImage) 
-        });
+        try {
+          const imageStream = await global.utils.getStreamFromURL(randomImage);
+          return message.reply({ 
+            body, 
+            attachment: imageStream 
+          });
+        } catch (imageError) {
+          // If image fails, send text only
+          return message.reply(body);
+        }
       }
 
       if (arg.startsWith("-")) {
@@ -117,9 +134,11 @@ module.exports = {
         const cmdsInCat = [];
 
         for (const [name, cmd] of commands.entries()) {
-          const cat = (cmd.config.category || "Uncategorized").trim().toUpperCase();
-          if (cat === catName && cmd.config.role <= role) {
-            cmdsInCat.push(`${mid} ✦ ${name}`);
+          if (cmd.config) {
+            const cat = (cmd.config.category || "Uncategorized").trim().toUpperCase();
+            if (cat === catName && cmd.config.role <= role) {
+              cmdsInCat.push(`${mid} ✦ ${name}`);
+            }
           }
         }
 
@@ -135,8 +154,9 @@ module.exports = {
         );
       }
 
-      const cmdObj = commands.get(arg) || commands.get(global.GoatBot.aliases.get(arg));
-      if (!cmdObj || cmdObj.config.role > role) {
+      const cmdObj = commands.get(arg) || (global.GoatBot.aliases && global.GoatBot.aliases.get(arg) ? commands.get(global.GoatBot.aliases.get(arg)) : null);
+      
+      if (!cmdObj || !cmdObj.config || cmdObj.config.role > role) {
         return message.reply(`❌ 𝑆ℎ𝑎𝑑𝑜𝑤 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 "${arg}" 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑜𝑟 𝑦𝑜𝑢 𝑙𝑎𝑐𝑘 𝑡ℎ𝑒 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑎𝑟𝑘𝑛𝑒𝑠𝑠.`);
       }
 
@@ -145,14 +165,22 @@ module.exports = {
       const longDesc = cfg.longDescription?.en || "𝑇ℎ𝑒 𝑡𝑟𝑢𝑒 𝑛𝑎𝑡𝑢𝑟𝑒 𝑜𝑓 𝑡ℎ𝑖𝑠 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 𝑟𝑒𝑚𝑎𝑖𝑛𝑠 ℎ𝑖𝑑𝑑𝑒𝑛 𝑖𝑛 𝑠ℎ𝑎𝑑𝑜𝑤𝑠.";
       const usage = cfg.guide?.en || "𝑁𝑜 𝑖𝑛𝑐𝑎𝑛𝑡𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑟𝑚𝑢𝑙𝑎 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒.";
 
+      // Format long description to fit in box
+      const formattedLongDesc = longDesc.replace(/\n/g, `\n${mid} `);
+      
+      // Format usage properly
+      const formattedUsage = usage
+        .replace(/{p}/g, global.GoatBot.config.prefix || "-")
+        .replace(/{n}/g, cfg.name);
+
       const details =
         `${top}\n` +
         `${mid} 🔮 𝑺𝑯𝑨𝑫𝑶𝑾 𝑻𝑬𝑪𝑯𝑵𝑰𝑸𝑼𝑬 𝑫𝑬𝑻𝑨𝑰𝑳𝑺\n${sep}\n` +
         `${mid} 🏛️  𝑨𝒓𝒄𝒉𝒊𝒗𝒆: ${cfg.category || "Uncategorized"}\n` +
         `${mid} 📜 𝑻𝒆𝒄𝒉𝒏𝒊𝒒𝒖𝒆: ${cfg.name}\n` +
         `${mid} ⚡ 𝑺𝒉𝒐𝒓𝒕: ${shortDesc}\n` +
-        `${mid} 📖 𝑫𝒆𝒆𝒑 𝑲𝒏𝒐𝒘𝒍𝒆𝒅𝒈𝒆:\n${mid} ${longDesc.replace(/\n/g, `\n${mid} `)}\n` +
-        `${mid} 🧪 𝑰𝒏𝒄𝒂𝒏𝒕𝒂𝒕𝒊𝒐𝒏: ${usage.replace(/{p}/g, "-").replace(/{n}/g, cfg.name)}\n` +
+        `${mid} 📖 𝑫𝒆𝒆𝒑 𝑲𝒏𝒐𝒘𝒍𝒆𝒅𝒈𝒆:\n${mid} ${formattedLongDesc}\n` +
+        `${mid} 🧪 𝑰𝒏𝒄𝒂𝒏𝒕𝒂𝒕𝒊𝒐𝒏: ${formattedUsage}\n` +
         `${mid} 👤 𝑺𝒉𝒂𝒅𝒐𝒘 𝑾𝒆𝒊𝒍𝒅𝒆𝒓: ${cfg.author || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝐸𝑚𝑖𝑛𝑒𝑛𝑐𝑒"}\n` +
         `${sep}\n` +
         `${mid} 🌑 "𝐼 𝑎𝑚 𝑎𝑡𝑜𝑚𝑖𝑐..."\n` +
