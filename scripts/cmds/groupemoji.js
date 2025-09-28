@@ -1,35 +1,85 @@
-module.exports.config = {
-    name: "groupemoji",
-    aliases: ["setemoji", "changeemoji"],
-    version: "1.0.0", 
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 1,
-    category: "𝑔𝑟𝑜𝑢𝑝",
-    shortDescription: {
-        en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑒𝑚𝑜𝑗𝑖"
-    },
-    longDescription: {
-        en: "𝐶ℎ𝑎𝑛𝑔𝑒 𝑡ℎ𝑒 𝑒𝑚𝑜𝑗𝑖 𝑜𝑓 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑔𝑟𝑜𝑢𝑝"
-    },
-    guide: {
-        en: "{p}groupemoji [𝑒𝑚𝑜𝑗𝑖]"
-    }
-};
-
-module.exports.onStart = async function({ message, args }) {
-    try {
-        const emoji = args.join(" ");
-        
-        if (!emoji) {
-            return message.reply("❓ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎𝑛 𝑒𝑚𝑜𝑗𝑖 𝑡𝑜 𝑠𝑒𝑡 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝!");
+module.exports = {
+    config: {
+        name: "groupemoji",
+        aliases: ["setemoji", "changeemoji"],
+        version: "1.0.1", 
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 1,
+        category: "group",
+        shortDescription: {
+            en: "Change group emoji"
+        },
+        longDescription: {
+            en: "Change the emoji of the current group chat"
+        },
+        guide: {
+            en: "{p}groupemoji [emoji]"
         }
-        
-        await message.changeThreadEmoji(emoji);
-        return message.reply(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑐ℎ𝑎𝑛𝑔𝑒𝑑 𝑔𝑟𝑜𝑢𝑝 𝑒𝑚𝑜𝑗𝑖 𝑡𝑜: ${emoji}`);
-        
-    } catch (error) {
-        console.error(error);
-        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐ℎ𝑎𝑛𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑒𝑚𝑜𝑗𝑖. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+    },
+
+    onStart: async function({ message, args, event, api }) {
+        try {
+            const emoji = args.join(" ").trim();
+            
+            // Check if user provided an emoji
+            if (!emoji) {
+                return message.reply("❌ Please provide an emoji!\n\n💡 Example: groupemoji 😎\n💡 Example: groupemoji 🎉");
+            }
+
+            // Validate emoji format (basic check)
+            const emojiRegex = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu;
+            const validEmojis = emoji.match(emojiRegex);
+            
+            if (!validEmojis || validEmojis.length === 0) {
+                return message.reply("❌ Please provide a valid emoji!\n\n💡 Examples: 😊, 🎯, ❤️, 🌟, 🔥");
+            }
+
+            // Check if it's a group chat
+            if (event.isGroup === false) {
+                return message.reply("❌ This command can only be used in group chats!");
+            }
+
+            // Check user permissions (role 1 = admin)
+            const threadInfo = await api.getThreadInfo(event.threadID);
+            const participantInfo = threadInfo.participants.find(p => p.id === event.senderID);
+            
+            if (!participantInfo) {
+                return message.reply("❌ Cannot verify your permissions in this group.");
+            }
+
+            // Try to change the emoji
+            try {
+                await api.changeThreadEmoji(emoji, event.threadID);
+                
+                return message.reply(`✅ Successfully changed group emoji to: ${emoji}\n\n🔄 The change should appear shortly.`);
+                
+            } catch (changeError) {
+                console.error("Emoji change error:", changeError);
+                
+                if (changeError.message.includes("permission") || changeError.message.includes("not admin")) {
+                    return message.reply("❌ You need to be an admin to change the group emoji!");
+                } else if (changeError.message.includes("invalid") || changeError.message.includes("emoji")) {
+                    return message.reply("❌ Invalid emoji provided. Please try a different emoji.");
+                } else {
+                    throw changeError; // Re-throw to be caught by outer catch
+                }
+            }
+            
+        } catch (error) {
+            console.error("Group Emoji Command Error:", error);
+            
+            let errorMessage = "❌ Failed to change group emoji. Please try again later.";
+            
+            if (error.message.includes("threadID")) {
+                errorMessage = "❌ Invalid group chat. Please try in a different group.";
+            } else if (error.message.includes("network") || error.message.includes("ECONN")) {
+                errorMessage = "🌐 Network error. Please check your connection and try again.";
+            } else if (error.message.includes("timeout")) {
+                errorMessage = "⏰ Request timeout. Please try again.";
+            }
+            
+            return message.reply(errorMessage);
+        }
     }
 };
