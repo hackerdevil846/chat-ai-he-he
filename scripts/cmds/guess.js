@@ -3,199 +3,239 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const cacheDir = path.join(__dirname, 'cache');
-const IMAGE_NAME = 'character.jpg';
 
-module.exports.config = {
-    name: "guess",
-    aliases: ["animeguess", "character"],
-    version: "1.2",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "game",
-    shortDescription: {
-        en: "𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟"
+module.exports = {
+    config: {
+        name: "guess",
+        aliases: ["animeguess", "character"],
+        version: "1.3",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "game",
+        shortDescription: {
+            en: "Guess the anime character"
+        },
+        longDescription: {
+            en: "Guess the name of the anime character based on traits and tags with random images."
+        },
+        guide: {
+            en: "{p}guess"
+        }
     },
-    longDescription: {
-        en: "𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 𝑛𝑎𝑚𝑒 𝑜𝑓 𝑡ℎ𝑒 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑏𝑎𝑠𝑒𝑑 𝑜𝑛 𝑡𝑟𝑎𝑖𝑡𝑠 𝑎𝑛𝑑 𝑡𝑎𝑔𝑠 𝑤𝑖𝑡ℎ 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑚𝑎𝑔𝑒𝑠."
+
+    onLoad: async function () {
+        try {
+            await fs.ensureDir(cacheDir);
+            if (!global.client) global.client = {};
+            if (!global.client.onReply) {
+                global.client.onReply = new Map();
+            }
+        } catch (err) {
+            console.error('[guess] onLoad error:', err);
+        }
     },
-    guide: {
-        en: "{p}guess"
+
+    onStart: async function({ message, event, usersData }) {
+        try {
+            const resp = await axios.get('https://global-prime-mahis-apis.vercel.app', {
+                timeout: 30000
+            });
+            
+            if (!resp || !resp.data) {
+                throw new Error('Invalid API response from character server');
+            }
+
+            const characters = resp.data.data;
+            const charactersArray = Array.isArray(characters) ? characters : [characters];
+            
+            if (!charactersArray.length) {
+                throw new Error('No character data available');
+            }
+
+            const randomIndex = Math.floor(Math.random() * charactersArray.length);
+            const pick = charactersArray[randomIndex];
+
+            const image = pick.image || pick.img || pick.url;
+            const traits = pick.traits || pick.description || pick.trait || "No traits available";
+            const tags = pick.tags || pick.tag || "No tags available";
+            const fullName = pick.fullName || pick.full_name || pick.name || "Unknown Character";
+            const firstName = pick.firstName || pick.first_name || (typeof fullName === 'string' ? fullName.split(" ")[0] : "Unknown");
+
+            if (!image) {
+                throw new Error('No image URL for selected character');
+            }
+
+            await fs.ensureDir(cacheDir);
+            const timestamp = Date.now();
+            const imagePath = path.join(cacheDir, `character_${timestamp}.jpg`);
+            
+            // Download character image
+            const imageRes = await axios.get(image, { 
+                responseType: 'arraybuffer',
+                timeout: 30000 
+            });
+            
+            await fs.writeFile(imagePath, imageRes.data);
+
+            // Verify image was downloaded
+            if (!fs.existsSync(imagePath)) {
+                throw new Error('Failed to save character image');
+            }
+
+            const stats = fs.statSync(imagePath);
+            if (stats.size === 0) {
+                throw new Error('Downloaded image is empty');
+            }
+
+            const body = `🎮 𝗚𝘂𝗲𝘀𝘀 𝗧𝗵𝗲 𝗔𝗻𝗶𝗺𝗲 𝗖𝗵𝗮𝗿𝗮𝗰𝘁𝗲𝗿
+━━━━━━━━━━━━━━━━━━
+✨ 𝗧𝗿𝗮𝗶𝘁𝘀: ${traits}
+🏷️ 𝗧𝗮𝗴𝘀: ${tags}
+
+⏰ 𝗬𝗼𝘂 𝗵𝗮𝘃𝗲 𝟯𝟬 𝘀𝗲𝗰𝗼𝗻𝗱𝘀 𝘁𝗼 𝗮𝗻𝘀𝘄𝗲𝗿!`;
+
+            await message.reply({
+                body,
+                attachment: fs.createReadStream(imagePath)
+            }, async (err, info) => {
+                if (err) {
+                    console.error('[guess] sendMessage error:', err);
+                    await message.reply("❌ Error starting the game. Please try again.");
+                    await fs.unlink(imagePath).catch(() => {});
+                    return;
+                }
+
+                if (!global.client.onReply) {
+                    global.client.onReply = new Map();
+                }
+
+                // Store correct answers (both full name and first name)
+                const correctAnswers = [];
+                if (fullName && fullName.trim()) correctAnswers.push(fullName.trim().toLowerCase());
+                if (firstName && firstName.trim()) correctAnswers.push(firstName.trim().toLowerCase());
+
+                global.client.onReply.set(info.messageID, {
+                    commandName: this.config.name,
+                    messageID: info.messageID,
+                    correctAnswer: correctAnswers,
+                    senderID: event.senderID,
+                    imagePath: imagePath,
+                    _created: Date.now()
+                });
+
+                // Auto cleanup after 30 seconds
+                setTimeout(async () => {
+                    try {
+                        const currentReply = global.client.onReply.get(info.messageID);
+                        if (currentReply) {
+                            await message.unsend(info.messageID).catch(() => {});
+                            global.client.onReply.delete(info.messageID);
+                            
+                            // Show correct answer if time expires
+                            await message.reply(`⏰ Time's up! The correct answer was: ${correctAnswers.join(" or ")}`);
+                            
+                            // Clean up image file
+                            if (fs.existsSync(imagePath)) {
+                                await fs.unlink(imagePath).catch(() => {});
+                            }
+                        }
+                    } catch (e) {
+                        console.error('[guess] timeout cleanup error:', e);
+                    }
+                }, 30000); // 30 seconds
+            });
+
+        } catch (err) {
+            console.error('[guess] onStart error:', err);
+            let errorMsg = "❌ An error occurred while starting the game.";
+            
+            if (err.message.includes('timeout')) {
+                errorMsg = "⏰ Game server timeout. Please try again.";
+            } else if (err.message.includes('ENOTFOUND')) {
+                errorMsg = "🌐 Cannot connect to game server. Check your internet.";
+            }
+            
+            await message.reply(errorMsg);
+        }
     },
-    dependencies: {
-        "axios": "",
-        "fs-extra": "",
-        "moment-timezone": ""
-    }
-};
 
-module.exports.languages = {
-    "en": {
-        "startGame": "🎮 | 𝐺𝑢𝑒𝑠𝑠 𝑇ℎ𝑒 𝐴𝑛𝑖𝑚𝑒 𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟\n━━━━━━━━━━━━━━\n✨ 𝑇𝑟𝑎𝑖𝑡𝑠: %1\n🏷️ 𝑇𝑎𝑔𝑠: %2\n\n⏰ 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 15 𝑠𝑒𝑐𝑜𝑛𝑑𝑠 𝑡𝑜 𝑎𝑛𝑠𝑤𝑒𝑟!",
-        "correct": "✅ | 𝐶𝑜𝑟𝑟𝑒𝑐𝑡 𝐴𝑛𝑠𝑤𝑒𝑟!\n\n💰 | 𝑌𝑜𝑢𝑟 𝑊𝑎𝑙𝑙𝑒𝑡:\n━━━━━━━━━━━━━━\n💵 𝐵𝑎𝑙𝑎𝑛𝑐𝑒: %1$\n🎁 𝑅𝑒𝑤𝑎𝑟𝑑: +%2$\n━━━━━━━━━━━━━━",
-        "wrong": "❌ | 𝑊𝑟𝑜𝑛𝑔! 𝑇ℎ𝑒 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑎𝑛𝑠𝑤𝑒𝑟 𝑤𝑎𝑠: %1",
-        "error": "❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑠𝑡𝑎𝑟𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑔𝑎𝑚𝑒."
-    }
-};
+    onReply: async function({ event, message, handleReply, usersData }) {
+        try {
+            if (!handleReply) {
+                const repliedTo = event.messageReply ? event.messageReply.messageID : event.messageID;
+                handleReply = global.client.onReply.get(repliedTo);
+            }
 
-module.exports.onLoad = async function () {
-    try {
-        await fs.ensureDir(cacheDir);
-        if (!global.client) global.client = {};
-        if (!global.client.onReply || typeof global.client.onReply.set !== 'function') {
-            global.client.onReply = new Map();
-        }
-    } catch (err) {
-        console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑜𝑛𝐿𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:', err);
-    }
-};
+            if (!handleReply) return;
 
-async function getMoneyForUser(userID, context = {}) {
-    try {
-        if (context.usersData && typeof context.usersData.get === 'function') {
-            const money = await context.usersData.get(userID, "money");
-            return Number(money) || 0;
-        }
-        if (context.Currencies && typeof context.Currencies.getData === 'function') {
-            const d = await context.Currencies.getData(userID) || {};
-            return Number(d.money) || 0;
-        }
-        if (context.Users && typeof context.Users.getData === 'function') {
-            const d = await context.Users.getData(userID) || {};
-            return Number(d.money) || 0;
-        }
-    } catch (e) {
-        console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑔𝑒𝑡𝑀𝑜𝑛𝑒𝑦𝐹𝑜𝑟𝑈𝑠𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:', e);
-    }
-    return 0;
-}
+            if (event.senderID !== handleReply.senderID) {
+                return message.reply("❌ This game is not for you! Start your own game with `guess` command.");
+            }
 
-async function setMoneyForUser(userID, amount, context = {}) {
-    try {
-        if (context.usersData && typeof context.usersData.set === 'function') {
-            await context.usersData.set(userID, { money: amount });
-            return;
-        }
-        if (context.Currencies && typeof context.Currencies.setData === 'function') {
-            await context.Currencies.setData(userID, { money: amount });
-            return;
-        }
-        if (context.Users && typeof context.Users.setData === 'function') {
-            const d = (await context.Users.getData(userID)) || {};
-            d.money = amount;
-            await context.Users.setData(userID, d);
-            return;
-        }
-    } catch (e) {
-        console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑠𝑒𝑡𝑀𝑜𝑛𝑒𝑦𝐹𝑜𝑟𝑈𝑠𝑒𝑟 𝑒𝑟𝑟𝑜𝑟:', e);
-    }
-}
+            const userAnswer = (event.body || "").trim().toLowerCase();
+            const correctAnswers = handleReply.correctAnswer || [];
 
-module.exports.onStart = async function({ message, event, args, usersData, Currencies, Users }) {
-    try {
-        const resp = await axios.get('https://global-prime-mahis-apis.vercel.app');
-        if (!resp || !resp.data) throw new Error('𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝐴𝑃𝐼 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒');
-
-        const characters = resp.data.data;
-        const charactersArray = Array.isArray(characters) ? characters : [characters];
-        if (!charactersArray.length) throw new Error('𝑁𝑜 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑑𝑎𝑡𝑎 𝑟𝑒𝑡𝑢𝑟𝑛𝑒𝑑 𝑓𝑟𝑜𝑚 𝐴𝑃𝐼');
-
-        const randomIndex = Math.floor(Math.random() * charactersArray.length);
-        const pick = charactersArray[randomIndex];
-
-        const image = pick.image || pick.img || pick.url;
-        const traits = pick.traits || pick.description || pick.trait || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛";
-        const tags = pick.tags || pick.tag || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛";
-        const fullName = pick.fullName || pick.full_name || pick.name || "";
-        const firstName = pick.firstName || pick.first_name || (typeof fullName === 'string' ? fullName.split(" ")[0] : "");
-
-        if (!image) throw new Error('𝑁𝑜 𝑖𝑚𝑎𝑔𝑒 𝑈𝑅𝐿 𝑓𝑜𝑟 𝑠𝑒𝑙𝑒𝑐𝑡𝑒𝑑 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟');
-
-        await fs.ensureDir(cacheDir);
-        const imagePath = path.join(cacheDir, IMAGE_NAME);
-        const imageRes = await axios.get(image, { responseType: 'arraybuffer' });
-        await fs.writeFile(imagePath, imageRes.data);
-
-        const body = this.languages.en.startGame.replace('%1', traits).replace('%2', tags);
-
-        await message.reply({
-            body,
-            attachment: fs.createReadStream(imagePath)
-        }, async (err, info) => {
-            if (err) {
-                console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑠𝑒𝑛𝑑𝑀𝑒𝑠𝑠𝑎𝑔𝑒 𝑒𝑟𝑟𝑜𝑟:', err);
-                await message.reply(this.languages.en.error);
-                await fs.unlink(imagePath).catch(() => {});
+            if (correctAnswers.length === 0) {
+                await message.reply("❌ Error processing answer.");
                 return;
             }
 
-            if (!global.client.onReply) global.client.onReply = new Map();
+            // Check if answer is correct
+            const isCorrect = correctAnswers.some(correctAnswer => 
+                userAnswer === correctAnswer.toLowerCase()
+            );
 
-            global.client.onReply.set(info.messageID, {
-                commandName: this.config.name,
-                messageID: info.messageID,
-                correctAnswer: [String(fullName || "").trim(), String(firstName || "").trim()].filter(Boolean),
-                senderID: event.senderID,
-                _created: Date.now()
-            });
-
-            setTimeout(async () => {
+            if (isCorrect) {
+                const reward = 1000;
+                let currentMoney = 0;
+                
+                // Get current money
                 try {
-                    await message.unsend(info.messageID).catch(() => {});
-                } catch (e) {}
+                    if (usersData && typeof usersData.get === 'function') {
+                        const userData = await usersData.get(event.senderID);
+                        currentMoney = Number(userData.money) || 0;
+                    }
+                } catch (e) {
+                    console.error('[guess] get money error:', e);
+                }
+
+                const newBalance = currentMoney + reward;
+                
+                // Set new money
                 try {
-                    global.client.onReply.delete(info.messageID);
-                } catch (e) {}
-                await fs.unlink(imagePath).catch(() => {});
-            }, 15000);
-        });
+                    if (usersData && typeof usersData.set === 'function') {
+                        await usersData.set(event.senderID, { money: newBalance });
+                    }
+                } catch (e) {
+                    console.error('[guess] set money error:', e);
+                }
 
-    } catch (err) {
-        console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑜𝑛𝑆𝑡𝑎𝑟𝑡 𝑒𝑟𝑟𝑜𝑟:', err);
-        await message.reply(this.languages.en.error);
-    }
-};
-
-module.exports.onReply = async function({ event, message, handleReply, usersData, Currencies, Users }) {
-    try {
-        if (!handleReply) {
-            const repliedTo = event.messageReply ? event.messageReply.messageID : event.messageID;
-            if (global.client && global.client.onReply) {
-                handleReply = global.client.onReply.get(repliedTo) || null;
+                const successMsg = `✅ 𝗖𝗼𝗿𝗿𝗲𝗰𝘁 𝗔𝗻𝘀𝘄𝗲𝗿!\n\n💰 𝗬𝗼𝘂𝗿 𝗪𝗮𝗹𝗹𝗲𝘁:\n━━━━━━━━━━━━━━━━━━\n💵 𝗕𝗮𝗹𝗮𝗻𝗰𝗲: $${newBalance}\n🎁 𝗥𝗲𝘄𝗮𝗿𝗱: +$${reward}\n━━━━━━━━━━━━━━━━━━`;
+                await message.reply(successMsg);
+            } else {
+                const wrongMsg = `❌ 𝗪𝗿𝗼𝗻𝗴! 𝗧𝗵𝗲 𝗰𝗼𝗿𝗿𝗲𝗰𝘁 𝗮𝗻𝘀𝘄𝗲𝗿 𝘄𝗮𝘀: ${correctAnswers.join(" or ")}`;
+                await message.reply(wrongMsg);
             }
+
+            // Cleanup
+            try {
+                await message.unsend(handleReply.messageID).catch(() => {});
+            } catch (e) {}
+
+            try {
+                global.client.onReply.delete(handleReply.messageID);
+            } catch (e) {}
+
+            try {
+                if (handleReply.imagePath && fs.existsSync(handleReply.imagePath)) {
+                    await fs.unlink(handleReply.imagePath).catch(() => {});
+                }
+            } catch (e) {}
+
+        } catch (err) {
+            console.error('[guess] onReply error:', err);
+            await message.reply("❌ Error processing your answer.");
         }
-
-        if (!handleReply) return;
-
-        if (event.senderID !== handleReply.senderID) return;
-
-        const userAnswer = (event.body || "").trim().toLowerCase();
-        const correctAnswers = (handleReply.correctAnswer || []).map(a => String(a).toLowerCase());
-
-        if (correctAnswers.length === 0) {
-            await message.reply(this.languages.en.error);
-            return;
-        }
-
-        if (correctAnswers.includes(userAnswer)) {
-            const reward = 1000;
-            const currentMoney = await getMoneyForUser(event.senderID, { usersData, Users, Currencies });
-            const newBalance = Number(currentMoney) + Number(reward);
-            await setMoneyForUser(event.senderID, newBalance, { usersData, Users, Currencies });
-
-            const successMsg = this.languages.en.correct.replace('%1', newBalance).replace('%2', reward);
-            await message.reply(successMsg);
-        } else {
-            const wrongMsg = this.languages.en.wrong.replace('%1', (handleReply.correctAnswer || []).join(" 𝑜𝑟 "));
-            await message.reply(wrongMsg);
-        }
-
-        try { await message.unsend(handleReply.messageID).catch(() => {}); } catch (e) {}
-        try { await message.unsend(event.messageID).catch(() => {}); } catch (e) {}
-
-        try { global.client.onReply.delete(handleReply.messageID); } catch (e) {}
-
-    } catch (err) {
-        console.error('[𝑔𝑢𝑒𝑠𝑠] 𝑜𝑛𝑅𝑒𝑝𝑙𝑦 𝑒𝑟𝑟𝑜𝑟:', err);
     }
 };
