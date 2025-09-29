@@ -1,29 +1,38 @@
 const axios = require("axios");
 
-module.exports.config = {
-    name: "anime",
-    aliases: ["animerec", "recommendanime"],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-        en: "𝐴𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛"
+module.exports = {
+    config: {
+        name: "anime",
+        aliases: [],
+        version: "1.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "𝑒𝑛𝑡𝑒𝑟𝑡𝑎𝑖𝑛𝑚𝑒𝑛𝑡",
+        shortDescription: {
+            en: "𝐴𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛"
+        },
+        longDescription: {
+            en: "𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑 𝑎𝑛 𝑎𝑛𝑖𝑚𝑒 𝑏𝑎𝑠𝑒𝑑 𝑜𝑛 𝑎 𝑔𝑒𝑛𝑟𝑒"
+        },
+        guide: {
+            en: "{p}anime [𝑔𝑒𝑛𝑟𝑒]\n𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑔𝑒𝑛𝑟𝑒𝑠: 𝑠ℎ𝑜𝑛𝑒𝑛, 𝑠𝑒𝑖𝑛𝑒𝑛, 𝑖𝑠𝑒𝑘𝑎𝑖, 𝑠𝑐𝑖𝑓𝑖"
+        },
+        dependencies: {
+            "axios": ""
+        }
     },
-    longDescription: {
-        en: "𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑 𝑎𝑛 𝑎𝑛𝑖𝑚𝑒 𝑏𝑎𝑠𝑒𝑑 𝑜𝑛 𝑎 𝑔𝑒𝑛𝑟𝑒"
-    },
-    category: "𝑒𝑛𝑡𝑒𝑟𝑡𝑎𝑖𝑛𝑚𝑒𝑛𝑡",
-    guide: {
-        en: "{p}anime [𝑔𝑒𝑛𝑟𝑒]\n𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑔𝑒𝑛𝑟𝑒𝑠: 𝑠ℎ𝑜𝑛𝑒𝑛, 𝑠𝑒𝑖𝑛𝑒𝑛, 𝑖𝑠𝑒𝑘𝑎𝑖, 𝑠𝑐𝑖𝑓𝑖"
-    },
-    dependencies: {
-        "axios": ""
-    }
-};
 
-module.exports.onStart = async function ({ message, args, api, event }) {
-    const animeRecommendations = {
+    onStart: async function ({ message, args, event }) {
+        try {
+            // Dependency check
+            try {
+                require("axios");
+            } catch (e) {
+                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠.");
+            }
+
+            const animeRecommendations = {
         shonen: [
             { animeName: "𝑁𝑎𝑟𝑢𝑡𝑜", imageUrl: "https://drive.google.com/uc?export=download&id=1OP2zmycLmFihRISVLzFwrw__LRBsF9GN" },
             { animeName: "𝑂𝑛𝑒 𝑃𝑖𝑒𝑐𝑒", imageUrl: "https://drive.google.com/uc?export=download&id=1QaK3EfNmbwAgpJm4czY8n8QRau9MXoaR" },
@@ -203,42 +212,122 @@ module.exports.onStart = async function ({ message, args, api, event }) {
         ]
     };
 
-    if (args.length === 0) {
-        const genreList = Object.keys(animeRecommendations).join(', ');
-        return message.reply(`❌ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑠𝑝𝑒𝑐𝑖𝑓𝑦 𝑎 𝑔𝑒𝑛𝑟𝑒!\n𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑔𝑒𝑛𝑟𝑒𝑠: ${genreList}\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: 𝑎𝑛𝑖𝑚𝑒 𝑠ℎ𝑜𝑛𝑒𝑛`);
-    }
 
-    const genre = args[0].toLowerCase();
+            // Fallback images using your Google Drive links
+            const fallbackImages = [
+                "https://drive.google.com/uc?export=download&id=1OP2zmycLmFihRISVLzFwrw__LRBsF9GN",
+                "https://drive.google.com/uc?export=download&id=1QaK3EfNmbwAgpJm4czY8n8QRau9MXoaR",
+                "https://drive.google.com/uc?export=download&id=1q-8lFZD5uPmhRySvT75Bgsr2lp9UQ4Mi",
+                "https://drive.google.com/uc?export=download&id=1bds-i6swtqi2k4YCoglPKTV7kL7f-SF7",
+                "https://drive.google.com/uc?export=download&id=1uOcTZ8r1zDGmqF9Nyg1vupuWHKEg1eVf"
+            ];
 
-    if (!animeRecommendations[genre]) {
-        const genreList = Object.keys(animeRecommendations).join(', ');
-        return message.reply(`❌ | 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑔𝑒𝑛𝑟𝑒! 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑔𝑒𝑛𝑟𝑒𝑠: ${genreList}`);
-    }
+            if (args.length === 0) {
+                const genreList = Object.keys(animeRecommendations).join(', ');
+                return message.reply(`🎌 𝐴𝑛𝑖𝑚𝑒 𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛\n\n❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑠𝑝𝑒𝑐𝑖𝑓𝑦 𝑎 𝑔𝑒𝑛𝑟𝑒!\n\n📚 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝐺𝑒𝑛𝑟𝑒𝑠:\n• ${Object.keys(animeRecommendations).join('\n• ')}\n\n💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}anime 𝑠ℎ𝑜𝑛𝑒𝑛`);
+            }
 
-    const loadingMsg = await message.reply("⏳ | 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑎𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛...");
+            const genre = args[0].toLowerCase().trim();
 
-    try {
-        const recommendations = animeRecommendations[genre];
-        const randomIndex = Math.floor(Math.random() * recommendations.length);
-        const recommendation = recommendations[randomIndex];
-        
-        let imageUrl = recommendation.imageUrl;
-        if (imageUrl.includes('drive.google.com/file/d/')) {
-            const fileId = imageUrl.match(/\/d\/([^\/]+)/)[1];
-            imageUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            if (!animeRecommendations[genre]) {
+                const genreList = Object.keys(animeRecommendations).join(', ');
+                return message.reply(`❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑔𝑒𝑛𝑟𝑒!\n\n📚 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝐺𝑒𝑛𝑟𝑒𝑠:\n• ${Object.keys(animeRecommendations).join('\n• ')}\n\n💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}anime 𝑠ℎ𝑜𝑛𝑒𝑛`);
+            }
+
+            const loadingMsg = await message.reply("⏳ 𝐿𝑜𝑎𝑑𝑖𝑛𝑔 𝑎𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛...");
+
+            try {
+                const recommendations = animeRecommendations[genre];
+                const randomIndex = Math.floor(Math.random() * recommendations.length);
+                const recommendation = recommendations[randomIndex];
+                
+                let imageUrl = recommendation.imageUrl;
+                let imageSuccess = false;
+                let imageStream = null;
+
+                console.log(`🎯 𝑆𝑒𝑙𝑒𝑐𝑡𝑒𝑑: ${recommendation.animeName}`);
+                console.log(`📥 𝐴𝑡𝑡𝑒𝑚𝑝𝑡𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒: ${imageUrl}`);
+
+                // Try to get image stream with timeout
+                try {
+                    imageStream = await global.utils.getStreamFromURL(imageUrl);
+                    if (imageStream) {
+                        imageSuccess = true;
+                        console.log(`✅ 𝐼𝑚𝑎𝑔𝑒 𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦`);
+                    }
+                } catch (streamError) {
+                    console.error(`❌ 𝑃𝑟𝑖𝑚𝑎𝑟𝑦 𝑖𝑚𝑎𝑔𝑒 𝑓𝑎𝑖𝑙𝑒𝑑:`, streamError.message);
+                }
+
+                // If primary image fails, try fallback images
+                if (!imageSuccess) {
+                    console.log(`🔄 𝑇𝑟𝑦𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑖𝑚𝑎𝑔𝑒𝑠...`);
+                    
+                    for (let i = 0; i < Math.min(3, fallbackImages.length); i++) {
+                        try {
+                            const fallbackUrl = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+                            console.log(`🔄 𝑇𝑟𝑦𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 ${i + 1}: ${fallbackUrl}`);
+                            
+                            imageStream = await global.utils.getStreamFromURL(fallbackUrl);
+                            if (imageStream) {
+                                imageSuccess = true;
+                                console.log(`✅ 𝐹𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑖𝑚𝑎𝑔𝑒 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙`);
+                                break;
+                            }
+                        } catch (fallbackError) {
+                            console.error(`❌ 𝐹𝑎𝑙𝑙𝑏𝑎𝑐𝑘 ${i + 1} 𝑓𝑎𝑖𝑙𝑒𝑑:`, fallbackError.message);
+                        }
+                    }
+                }
+
+                const messageBody = `🎌 𝐴𝑛𝑖𝑚𝑒 𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛\n\n✨ 𝐺𝑒𝑛𝑟𝑒: ${genre.toUpperCase()}\n🎬 𝑇𝑖𝑡𝑙𝑒: ${recommendation.animeName}\n\n💫 𝐸𝑛𝑗𝑜𝑦 𝑦𝑜𝑢𝑟 𝑎𝑛𝑖𝑚𝑒 𝑗𝑜𝑢𝑟𝑛𝑒𝑦!`;
+
+                if (imageSuccess && imageStream) {
+                    await message.reply({
+                        body: messageBody,
+                        attachment: imageStream
+                    });
+                } else {
+                    console.log(`⚠️ 𝑆𝑒𝑛𝑑𝑖𝑛𝑔 𝑡𝑒𝑥𝑡-𝑜𝑛𝑙𝑦 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛`);
+                    await message.reply({
+                        body: messageBody + `\n\n📸 𝐼𝑚𝑎𝑔𝑒 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒, 𝑏𝑢𝑡 ℎ𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛!`
+                    });
+                }
+
+                // Delete loading message
+                try {
+                    await message.unsend(loadingMsg.messageID);
+                } catch (unsendError) {
+                    console.warn("𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑢𝑛𝑠𝑒𝑛𝑑 𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑚𝑒𝑠𝑠𝑎𝑔𝑒:", unsendError.message);
+                }
+                
+            } catch (recommendationError) {
+                console.error("𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", recommendationError);
+                
+                // Send error message with genre info
+                await message.reply({
+                    body: `❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑎𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑟 "${genre}".\n\n📚 𝑇𝑟𝑦 𝑡ℎ𝑒𝑠𝑒 𝑔𝑒𝑛𝑟𝑒𝑠:\n• ${Object.keys(animeRecommendations).join('\n• ')}`
+                });
+                
+                try {
+                    await message.unsend(loadingMsg.messageID);
+                } catch (unsendError) {
+                    console.warn("𝐶𝑜𝑢𝑙𝑑 𝑛𝑜𝑡 𝑢𝑛𝑠𝑒𝑛𝑑 𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑚𝑒𝑠𝑠𝑎𝑔𝑒:", unsendError.message);
+                }
+            }
+
+        } catch (error) {
+            console.error("💥 𝐴𝑛𝑖𝑚𝑒 𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
+            
+            let errorMessage = "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑎𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ 𝑁𝑒𝑡𝑤𝑜𝑟𝑘 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑖𝑛𝑡𝑒𝑟𝑛𝑒𝑡 𝑐𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛.";
+            } else if (error.message.includes('getStreamFromURL')) {
+                errorMessage = "❌ 𝐼𝑚𝑎𝑔𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        const imageStream = await global.utils.getStreamFromURL(imageUrl);
-        
-        await message.reply({
-            body: `✨ 𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑒𝑑 ${genre} 𝑎𝑛𝑖𝑚𝑒:\n\n「 ${recommendation.animeName} 」`,
-            attachment: imageStream
-        });
-
-        await api.unsendMessage(loadingMsg.messageID);
-    } catch (error) {
-        console.error("𝐴𝑛𝑖𝑚𝑒 𝑅𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑎𝑛𝑖𝑚𝑒 𝑟𝑒𝑐𝑜𝑚𝑚𝑒𝑛𝑑𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-        await api.unsendMessage(loadingMsg.messageID);
     }
 };
