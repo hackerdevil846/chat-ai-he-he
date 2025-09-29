@@ -5,7 +5,7 @@ const axios = require("axios");
 module.exports = {
     config: {
         name: "rank",
-        aliases: ["level", "ranking"],
+        aliases: [],
         version: "2.0.1",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
