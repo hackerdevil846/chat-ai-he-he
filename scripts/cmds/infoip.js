@@ -1,59 +1,100 @@
 const axios = require("axios");
 
-module.exports.config = {
-    name: "infoip",
-    aliases: ["ipinfo", "iplookup"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
-    shortDescription: {
-        en: "𝐺𝑒𝑡 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑏𝑜𝑢𝑡 𝑎𝑛𝑦 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠"
-    },
-    longDescription: {
-        en: "𝐹𝑒𝑡𝑐ℎ𝑒𝑠 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑔𝑒𝑜𝑙𝑜𝑐𝑎𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑛𝑒𝑡𝑤𝑜𝑟𝑘 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑟 𝑎𝑛𝑦 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠"
-    },
-    guide: {
-        en: "{p}infoip [𝑖𝑝-𝑎𝑑𝑑𝑟𝑒𝑠𝑠]"
-    },
-    dependencies: {
-        "axios": ""
-    }
-};
-
-module.exports.onStart = async function({ message, args }) {
-    try {
-        if (!args[0]) {
-            return message.reply("❓ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎𝑛 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠 𝑡𝑜 𝑐ℎ𝑒𝑐𝑘!\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: /𝑖𝑛𝑓𝑜𝑖𝑝 8.8.8.8");
+module.exports = {
+    config: {
+        name: "infoip",
+        aliases: ["ipinfo", "iplookup"],
+        version: "1.0.0",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "utility",
+        shortDescription: {
+            en: "Get detailed information about any IP address"
+        },
+        longDescription: {
+            en: "Fetches detailed geolocation and network information for any IP address"
+        },
+        guide: {
+            en: "{p}infoip [ip-address]"
+        },
+        dependencies: {
+            "axios": ""
         }
+    },
 
-        const ipAddress = args.join(" ");
-        const res = await axios.get(`http://ip-api.com/json/${ipAddress}`);
-        const data = res.data;
+    onStart: async function({ message, args }) {
+        try {
+            if (!args[0]) {
+                return message.reply("❓ | Please provide an IP address to check!\nExample: /infoip 8.8.8.8");
+            }
 
-        if (data.status === 'fail') {
-            return message.reply(`❌ | 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝐼𝑃 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛: ${data.message}`);
+            const ipAddress = args[0].trim();
+            
+            // Basic IP validation
+            const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+            if (!ipRegex.test(ipAddress)) {
+                return message.reply("❌ | Invalid IP address format. Please use format like: 8.8.8.8");
+            }
+
+            // Validate each octet
+            const octets = ipAddress.split('.');
+            const isValid = octets.every(octet => {
+                const num = parseInt(octet, 10);
+                return num >= 0 && num <= 255;
+            });
+
+            if (!isValid) {
+                return message.reply("❌ | Invalid IP address. Each octet must be between 0 and 255.");
+            }
+
+            const res = await axios.get(`http://ip-api.com/json/${ipAddress}`, {
+                timeout: 10000 // 10 second timeout
+            });
+            
+            const data = res.data;
+
+            if (data.status === 'fail') {
+                return message.reply(`❌ | Failed to get IP information: ${data.message || 'Invalid IP or network error'}`);
+            }
+
+            const infoMessage = `
+🌐 | IP INFORMATION
+━━━━━━━━━━━━━━━━
+🔹 IP Address: ${data.query}
+🏳️ Country: ${data.country || 'N/A'}
+🏙️ City: ${data.city || 'N/A'}
+📍 Region: ${data.regionName || 'N/A'}
+📡 Latitude: ${data.lat || 'N/A'}
+📡 Longitude: ${data.lon || 'N/A'}
+🌐 ISP: ${data.isp || 'N/A'}
+🕒 Timezone: ${data.timezone || 'N/A'}
+🏢 Organization: ${data.org || 'N/A'}
+🇺🇸 Country Code: ${data.countryCode || 'N/A'}
+📫 ZIP: ${data.zip || 'N/A'}
+
+━━━━━━━━━━━━━━━━
+📍 | Location Accuracy: Approximate
+⚠️ | Note: IP location may not always be precise`;
+
+            await message.reply(infoMessage);
+
+        } catch (error) {
+            console.error("IP Info Error:", error);
+            
+            let errorMessage = "❌ | An error occurred while fetching IP information.";
+            
+            if (error.code === 'ECONNREFUSED' || error.code === 'ENETUNREACH') {
+                errorMessage = "🌐 | Network error: Cannot connect to IP service. Please check your internet connection.";
+            } else if (error.code === 'ETIMEDOUT') {
+                errorMessage = "⏰ | Request timeout: IP service is taking too long to respond.";
+            } else if (error.response) {
+                errorMessage = `❌ | API Error: ${error.response.status} - ${error.response.statusText}`;
+            } else if (error.request) {
+                errorMessage = "🌐 | Network error: No response received from IP service.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        const infoMessage = `
-🌐 | 𝐼𝑃 𝐼𝑁𝐹𝑂𝑅𝑀𝐴𝑇𝐼𝑂𝑁
-━━━━━━━━━━━━━━━━
-🔹 𝐼𝑃 𝐴𝑑𝑑𝑟𝑒𝑠𝑠: ${data.query}
-🏳️ 𝐶𝑜𝑢𝑛𝑡𝑟𝑦: ${data.country}
-🏙️ 𝐶𝑖𝑡𝑦: ${data.city}
-📍 𝑅𝑒𝑔𝑖𝑜𝑛: ${data.regionName}
-📡 𝐿𝑎𝑡𝑖𝑡𝑢𝑑𝑒: ${data.lat}
-📡 𝐿𝑜𝑛𝑔𝑖𝑡𝑢𝑑𝑒: ${data.lon}
-
-━━━━━━━━━━━━━━━━
-📍 | 𝐿𝑜𝑐𝑎𝑡𝑖𝑜𝑛 𝐴𝑐𝑐𝑢𝑟𝑎𝑐𝑦: 𝐴𝑝𝑝𝑟𝑜𝑥𝑖𝑚𝑎𝑡𝑒
-⚠️ | 𝑁𝑜𝑡𝑒: 𝐼𝑃 𝑙𝑜𝑐𝑎𝑡𝑖𝑜𝑛 𝑚𝑎𝑦 𝑛𝑜𝑡 𝑎𝑙𝑤𝑎𝑦𝑠 𝑏𝑒 𝑝𝑟𝑒𝑐𝑖𝑠𝑒`;
-
-        await message.reply(infoMessage);
-
-    } catch (error) {
-        console.error("𝐼𝑃 𝐼𝑛𝑓𝑜 𝐸𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝐼𝑃 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑡ℎ𝑒 𝐼𝑃 𝑎𝑑𝑑𝑟𝑒𝑠𝑠 𝑓𝑜𝑟𝑚𝑎𝑡 𝑜𝑟 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
 };
