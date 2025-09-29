@@ -9,7 +9,7 @@ module.exports = {
   config: {
     name: "infobox",
     aliases: ["boxinfo", "groupinfov2"],
-    version: "2.0.0",
+    version: "2.1.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 10,
     role: 0,
@@ -24,10 +24,9 @@ module.exports = {
       en: "{p}infobox"
     },
     dependencies: {
-      "canvas": "",
+      "jimp": "",
       "axios": "",
       "fs-extra": "",
-      "jimp": "",
       "moment-timezone": ""
     }
   },
@@ -50,7 +49,7 @@ module.exports = {
 
   onStart: async function ({ api, event, message, getText }) {
     try {
-      const { loadImage, createCanvas, registerFont } = require("canvas");
+      const jimp = require("jimp");
       const fs = require("fs-extra");
       const axios = require("axios");
       const path = require("path");
@@ -69,6 +68,7 @@ module.exports = {
       let pathAvata = __dirname + `/cache/${senderID}_${threadID}_adminavt.png`;
       let pathAvata2 = __dirname + `/cache/${senderID}_${threadID}_memavt1.png`;
       let pathAvata3 = __dirname + `/cache/${senderID}_${threadID}_memavt2.png`;
+      let pathBg = __dirname + `/cache/${senderID}_${threadID}_background.png`;
 
       // Get thread information
       var threadInfo = await api.getThreadInfo(threadID);
@@ -109,7 +109,7 @@ module.exports = {
       if (avatarData[1].value) fs.writeFileSync(pathAvata, Buffer.from(avatarData[1].value.data));
       fs.writeFileSync(pathAvata2, Buffer.from(avatarData[2].value.data));
       fs.writeFileSync(pathAvata3, Buffer.from(avatarData[3].value.data));
-      fs.writeFileSync(pathImg, Buffer.from(avatarData[4].value.data));
+      fs.writeFileSync(pathBg, Buffer.from(avatarData[4].value.data));
 
       // Download font if missing
       if (!fs.existsSync(__dirname + fonts)) {
@@ -129,56 +129,54 @@ module.exports = {
         this.circle(pathAvata3)
       ]);
 
-      // Load images
-      let imageLoaders = [
-        loadImage(pathImg),
-        loadImage(avatar),
-        avataruser ? loadImage(avataruser) : Promise.resolve(null),
-        loadImage(avataruser2),
-        loadImage(avataruser3)
-      ];
+      // Load background image
+      let background = await jimp.read(pathBg);
       
-      let [baseImage, baseAva, baseAvata, baseAvata2, baseAvata3] = await Promise.all(imageLoaders);
+      // Load and composite group avatar
+      let groupAvatar = await jimp.read(avatar);
+      groupAvatar.resize(285, 285);
+      background.composite(groupAvatar, 80, 73);
+      
+      // Load and composite member avatars
+      if (avataruser) {
+        let adminAvatar = await jimp.read(avataruser);
+        adminAvatar.resize(43, 43);
+        background.composite(adminAvatar, 450, 422);
+      }
+      
+      let memAvatar1 = await jimp.read(avataruser2);
+      memAvatar1.resize(43, 43);
+      background.composite(memAvatar1, avataruser ? 500 : 450, 422);
+      
+      let memAvatar2 = await jimp.read(avataruser3);
+      memAvatar2.resize(43, 43);
+      background.composite(memAvatar2, avataruser ? 550 : 500, 422);
 
-      // Create canvas
-      let canvas = createCanvas(baseImage.width, baseImage.height);
-      let ctx = canvas.getContext("2d");
-      
-      // Draw background
-      ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      
-      // Draw group avatar
-      ctx.drawImage(baseAva, 80, 73, 285, 285);
-      
-      // Draw member avatars
-      if (baseAvata) ctx.drawImage(baseAvata, 450, 422, 43, 43);
-      ctx.drawImage(baseAvata2, baseAvata ? 500 : 450, 422, 43, 43);
-      ctx.drawImage(baseAvata3, baseAvata ? 550 : 500, 422, 43, 43);
-
-      // Register and use custom font
+      // Load font
+      let customFont;
       try {
-        registerFont(__dirname + fonts, { family: "Lobster" });
-      } catch (e) {
-        console.log("𝑈𝑠𝑖𝑛𝑔 𝑑𝑒𝑓𝑎𝑢𝑙𝑡 𝑓𝑜𝑛𝑡 𝑑𝑢𝑒 𝑡𝑜 𝑟𝑒𝑔𝑖𝑠𝑡𝑟𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", e);
+        if (fs.existsSync(__dirname + fonts)) {
+          customFont = await jimp.loadFont(__dirname + fonts);
+        }
+      } catch (fontError) {
+        console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 𝑓𝑜𝑛𝑡:", fontError);
       }
 
-      // Draw group name
-      ctx.font = `700 ${fontsName}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
-      ctx.fillStyle = colorName;
-      // Ensure text doesn't overflow
+      // Draw group name (truncate if too long)
       let displayName = threadName;
-      if (ctx.measureText(displayName).width > 300) {
-        while (ctx.measureText(displayName + "...").width > 300 && displayName.length > 10) {
-          displayName = displayName.substring(0, displayName.length - 1);
-        }
-        displayName += "...";
+      if (displayName.length > 20) {
+        displayName = displayName.substring(0, 20) + "...";
       }
-      ctx.fillText(displayName, 435, 125);
+      
+      if (customFont) {
+        background.print(customFont, 435, 80, displayName);
+      } else {
+        // Use default font if custom font fails
+        const defaultFont = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
+        background.print(defaultFont, 435, 80, displayName);
+      }
 
       // Draw group info
-      ctx.font = `${fontsInfo}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
-      ctx.fillStyle = "#00FF00";
-      
       const infoData = [
         { emoji: "👥", text: `𝑀𝑒𝑚𝑏𝑒𝑟𝑠: ${threadMem}` },
         { emoji: "🛡️", text: `𝐴𝑑𝑚𝑖𝑛𝑠: ${qtv}` },
@@ -187,19 +185,28 @@ module.exports = {
         { emoji: "💬", text: `𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠: ${sl}` }
       ];
 
+      let infoFont;
+      try {
+        if (fs.existsSync(__dirname + fonts)) {
+          infoFont = await jimp.loadFont(jimp.FONT_SANS_16_BLACK);
+        } else {
+          infoFont = await jimp.loadFont(jimp.FONT_SANS_16_BLACK);
+        }
+      } catch (e) {
+        infoFont = await jimp.loadFont(jimp.FONT_SANS_16_BLACK);
+      }
+
       infoData.forEach((item, i) => {
-        ctx.fillText(`${item.emoji} ${item.text}`, 439, 199 + i * 44);
+        background.print(infoFont, 439, 155 + i * 44, `${item.emoji} ${item.text}`);
       });
 
-      // Draw footer
-      ctx.font = `${fontsOthers}px ${fs.existsSync(__dirname + fonts) ? "Lobster" : "Arial"}`;
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillText(`🔖 𝐺𝑟𝑜𝑢𝑝 𝐼𝐷: ${threadInfo.threadID}`, 18, 470);
-      ctx.fillText(`✨ 𝐴𝑛𝑑 ${threadMem - 3} 𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑏𝑒𝑟𝑠...`, 607, 453);
+      // Draw footer info
+      const footerFont = await jimp.loadFont(jimp.FONT_SANS_12_BLACK);
+      background.print(footerFont, 18, 470, `🔖 𝐺𝑟𝑜𝑢𝑝 𝐼𝐷: ${threadInfo.threadID}`);
+      background.print(footerFont, 607, 453, `✨ 𝐴𝑛𝑑 ${threadMem - 3} 𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑏𝑒𝑟𝑠...`);
 
-      // Save and send
-      const imageBuffer = canvas.toBuffer();
-      fs.writeFileSync(pathImg, imageBuffer);
+      // Save final image
+      await background.writeAsync(pathImg);
 
       // Create info text
       const infoText = `📊 ${threadName} 𝐺𝑟𝑜𝑢𝑝 𝐼𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛!\n` +
@@ -214,7 +221,7 @@ module.exports = {
       });
 
       // Cleanup temporary files
-      const filesToDelete = [pathAva, pathAvata, pathAvata2, pathAvata3, pathImg];
+      const filesToDelete = [pathAva, pathAvata, pathAvata2, pathAvata3, pathImg, pathBg];
       filesToDelete.forEach(file => {
         if (fs.existsSync(file)) {
           try {
