@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "setallbox",
-        aliases: ["groupconfig", "gconfig"],
+        aliases: [],
         version: "1.1.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 5,
