@@ -7,7 +7,7 @@ module.exports = {
   config: {
     name: "info",
     aliases: ["botdetails", "aboutbot"],
-    version: "1.2.0",
+    version: "1.2.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
@@ -42,20 +42,38 @@ module.exports = {
 
       // Prepare cache folder & video path
       const cacheDir = path.join(__dirname, "cache");
-      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
-      const videoPath = path.join(cacheDir, "info_video.mp4");
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      const videoPath = path.join(cacheDir, `info_video_${Date.now()}.mp4`);
 
       // Download video from provided URL
+      let videoDownloaded = false;
       try {
         const response = await axios({
           method: "GET",
           url: "https://files.catbox.moe/op5iay.mp4",
-          responseType: "arraybuffer"
+          responseType: "arraybuffer",
+          timeout: 30000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
         });
         
-        await fs.writeFile(videoPath, response.data);
+        // Check if response is valid
+        if (response.data && response.data.length > 1000) {
+          await fs.writeFile(videoPath, Buffer.from(response.data, 'binary'));
+          
+          // Verify file was written
+          if (fs.existsSync(videoPath)) {
+            const stats = fs.statSync(videoPath);
+            if (stats.size > 1000) {
+              videoDownloaded = true;
+            }
+          }
+        }
       } catch (downloadError) {
-        console.error("Video download error:", downloadError);
+        console.error("Video download error:", downloadError.message);
         // Continue without video if download fails
       }
 
@@ -86,7 +104,7 @@ module.exports = {
 ╰────────────────────────────────────╯`;
 
       // Send message with or without video attachment
-      if (fs.existsSync(videoPath)) {
+      if (videoDownloaded) {
         await message.reply({
           body: infoBody,
           attachment: fs.createReadStream(videoPath)
@@ -94,7 +112,13 @@ module.exports = {
         
         // Delete cached video after sending
         setTimeout(() => {
-          fs.unlink(videoPath).catch(() => {});
+          try {
+            if (fs.existsSync(videoPath)) {
+              fs.unlinkSync(videoPath);
+            }
+          } catch (cleanupError) {
+            console.error("Cleanup error:", cleanupError.message);
+          }
         }, 5000);
       } else {
         await message.reply(infoBody);
@@ -102,7 +126,16 @@ module.exports = {
 
     } catch (error) {
       console.error("Info Command Error:", error);
-      await message.reply(`❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛: ${error.message}`);
+      
+      let errorMessage = "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.";
+      
+      if (error.message.includes("timeout")) {
+        errorMessage = "❌ 𝑅𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑜𝑢𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.";
+      } else if (error.message.includes("ENOTFOUND")) {
+        errorMessage = "❌ 𝑁𝑒𝑡𝑤𝑜𝑟𝑘 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑐𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛.";
+      }
+      
+      await message.reply(errorMessage);
     }
   }
 };
