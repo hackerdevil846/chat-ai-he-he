@@ -1,47 +1,87 @@
-module.exports.config = {
-    name: "idst",
-    aliases: ["stickerid", "stid"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "sticker",
-    shortDescription: {
-        en: "𝐺𝑒𝑡 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝐼𝐷 𝑜𝑟 𝑠𝑒𝑛𝑑 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝑏𝑦 𝐼𝐷"
+module.exports = {
+    config: {
+        name: "idst",
+        aliases: [],
+        version: "1.0.1",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "sticker",
+        shortDescription: {
+            en: "Get sticker ID or send sticker by ID"
+        },
+        longDescription: {
+            en: "Get sticker ID from reply or send sticker using ID"
+        },
+        guide: {
+            en: "{p}idst [reply|stickerID]"
+        }
     },
-    longDescription: {
-        en: "𝐺𝑒𝑡 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝐼𝐷 𝑓𝑟𝑜𝑚 𝑟𝑒𝑝𝑙𝑦 𝑜𝑟 𝑠𝑒𝑛𝑑 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝑢𝑠𝑖𝑛𝑔 𝐼𝐷"
-    },
-    guide: {
-        en: "{p}idst [𝑟𝑒𝑝𝑙𝑦|𝑠𝑡𝑖𝑐𝑘𝑒𝑟𝐼𝐷]"
-    },
-    dependencies: {}
-};
 
-module.exports.onStart = async function({ message, event, args }) {
-    try {
-        if (event.type === "message_reply") {
-            if (event.messageReply.attachments && event.messageReply.attachments[0]?.type === "sticker") {
-                const stickerInfo = event.messageReply.attachments[0];
-                return message.reply({
-                    body: `🎟️ 𝑆𝑡𝑖𝑐𝑘𝑒𝑟 𝐼𝐷: ${stickerInfo.ID}\n📝 𝐶𝑎𝑝𝑡𝑖𝑜𝑛: ${stickerInfo.description || '𝑁𝑜 𝑐𝑎𝑝𝑡𝑖𝑜𝑛 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒'}`,
-                    mentions: []
-                });
+    onStart: async function({ message, event, args }) {
+        try {
+            // Handle sticker reply to get ID
+            if (event.type === "message_reply") {
+                if (event.messageReply && event.messageReply.attachments && event.messageReply.attachments.length > 0) {
+                    const stickerAttachment = event.messageReply.attachments[0];
+                    
+                    if (stickerAttachment.type === "sticker") {
+                        const stickerID = stickerAttachment.ID;
+                        const stickerURL = stickerAttachment.url;
+                        const description = stickerAttachment.description || "No description";
+                        
+                        return message.reply({
+                            body: `🎟️ 𝐒𝐓𝐈𝐂𝐊𝐄𝐑 𝐈𝐍𝐅𝐎\n━━━━━━━━━━━━━━\n🆔 𝐈𝐃: ${stickerID}\n📝 𝐃𝐞𝐬𝐜𝐫𝐢𝐩𝐭𝐢𝐨𝐧: ${description}\n🔗 𝐔𝐑𝐋: ${stickerURL}\n━━━━━━━━━━━━━━\n💡 Use: idst ${stickerID} to send this sticker`
+                        });
+                    } else {
+                        return message.reply("❌ The replied message does not contain a sticker. Please reply to a sticker message.");
+                    }
+                } else {
+                    return message.reply("❌ Please reply to a message that contains a sticker.");
+                }
             }
-            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒");
-        }
 
-        if (args[0]) {
+            // Handle sending sticker by ID
+            if (args[0]) {
+                const stickerID = args[0].trim();
+                
+                // Validate sticker ID format
+                if (!stickerID || stickerID.length < 5) {
+                    return message.reply("❌ Invalid sticker ID format. Sticker ID should be a valid numeric ID.");
+                }
+
+                try {
+                    await message.reply({
+                        body: "✨ 𝐇𝐞𝐫𝐞'𝐬 𝐲𝐨𝐮𝐫 𝐬𝐭𝐢𝐜𝐤𝐞𝐫:",
+                        sticker: stickerID
+                    });
+                } catch (sendError) {
+                    console.error("Sticker send error:", sendError);
+                    
+                    if (sendError.message.includes("sticker")) {
+                        return message.reply(`❌ Invalid sticker ID or sticker not found: ${stickerID}\n💡 Make sure the sticker ID is correct and exists.`);
+                    } else {
+                        return message.reply("❌ Failed to send sticker. The sticker ID might be invalid or the sticker doesn't exist.");
+                    }
+                }
+                return;
+            }
+
+            // Show help if no valid arguments
             return message.reply({
-                body: "✨ 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑠𝑡𝑖𝑐𝑘𝑒𝑟:",
-                sticker: args[0]
+                body: `🎟️ 𝐒𝐓𝐈𝐂𝐊𝐄𝐑 𝐈𝐃 𝐂𝐎𝐌𝐌𝐀𝐍𝐃\n━━━━━━━━━━━━━━\n💡 𝐔𝐬𝐚𝐠𝐞:\n• Reply to a sticker to get its ID\n• Provide sticker ID to send it\n━━━━━━━━━━━━━━\n📖 𝐄𝐱𝐚𝐦𝐩𝐥𝐞𝐬:\n• Reply to sticker + "idst"\n• "idst 123456789"\n━━━━━━━━━━━━━━\n🎯 Get sticker IDs by replying to them!`
             });
+
+        } catch (error) {
+            console.error("Sticker ID Command Error:", error);
+            
+            let errorMessage = "❌ An error occurred while processing the sticker command.";
+            
+            if (error.message.includes("sticker")) {
+                errorMessage = "❌ Sticker operation failed. Please check the sticker ID and try again.";
+            }
+            
+            return message.reply(errorMessage);
         }
-
-        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑎𝑔𝑒!\n💡 𝑈𝑠𝑎𝑔𝑒:\n• 𝑅𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝑡𝑜 𝑔𝑒𝑡 𝐼𝐷\n• 𝑃𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑠𝑡𝑖𝑐𝑘𝑒𝑟 𝐼𝐷 𝑡𝑜 𝑠𝑒𝑛𝑑");
-
-    } catch (error) {
-        console.error("𝑆𝑡𝑖𝑐𝑘𝑒𝑟 𝐼𝐷 𝐸𝑟𝑟𝑜𝑟:", error);
-        return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑");
     }
 };
