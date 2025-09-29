@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "inappropriatefilter",
     aliases: [],
-    version: "1.1",
+    version: "1.2",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 1,
@@ -60,46 +60,46 @@ module.exports = {
       if (!event.body) return;
 
       const imageLinks = [
-    "https://i.imgur.com/B6G3NlF.jpeg",
-    "https://i.imgur.com/T7RtKlp.gif",
-    "https://i.imgur.com/BmGxEFs.gif",
-    "https://i.imgur.com/MEdpECT.jpeg",
-    "https://i.imgur.com/KU8N4Ca.jpeg",
-    "https://i.imgur.com/roBS6oX.gif",
-    "https://i.imgur.com/SkfGapy.jpeg",
-    "https://i.imgur.com/GGQv16z.jpeg",
-    "https://i.imgur.com/VAf5Eue.gif",
-    "https://i.imgur.com/ZZpapGi.jpeg",
-    "https://i.imgur.com/4LvXywY.jpeg",
-    "https://i.imgur.com/NZ5iyCh.jpeg",
-    "https://i.imgur.com/BkrKZ8b.jpeg",
-    "https://i.imgur.com/Yf1LRak.jpeg",
-    "https://i.imgur.com/1fsJf6B.jpeg",
-    "https://i.imgur.com/MR2h7jw.jpeg",
-    "https://i.imgur.com/K9fFzgm.jpeg",
-    "https://i.imgur.com/Se05IOn.jpeg",
-    "https://i.imgur.com/h1Yhryc.jpeg",
-    "https://i.imgur.com/sUgF4oQ.jpeg",
-    "https://i.imgur.com/8oHuIf8.jpeg",
-    "https://i.imgur.com/fiH5dUv.jpeg",
-    "https://i.imgur.com/FSKnHZt.jpeg",
-    "https://i.imgur.com/80YYI12.jpeg",
-    "https://i.imgur.com/ibd1j8n.jpeg",
-    "https://i.imgur.com/J8vbW7x.jpeg",
-    "https://i.imgur.com/fOmuOKl.jpeg",
-    "https://i.imgur.com/qDwypw6.jpeg",
-    "https://i.imgur.com/9dVyEEe.gif",
-    "https://i.imgur.com/d3yM7FX.jpeg",
-    "https://i.imgur.com/JToFUJo.jpeg",
-    "https://i.imgur.com/aJ5sbvo.jpeg",
-    "https://i.imgur.com/09qesDj.gif",
-    "https://i.imgur.com/HES8mee.jpeg",
-    "https://i.imgur.com/ovETysm.jpeg",
-    "https://i.imgur.com/mpCMAYQ.jpeg",
-    "https://i.imgur.com/iQV82Jq.jpeg",
-    "https://i.imgur.com/qkM2t0l.jpeg",
-    "https://i.imgur.com/VAf5Eue.gif"
-];
+        "https://i.imgur.com/B6G3NlF.jpeg",
+        "https://i.imgur.com/T7RtKlp.gif",
+        "https://i.imgur.com/BmGxEFs.gif",
+        "https://i.imgur.com/MEdpECT.jpeg",
+        "https://i.imgur.com/KU8N4Ca.jpeg",
+        "https://i.imgur.com/roBS6oX.gif",
+        "https://i.imgur.com/SkfGapy.jpeg",
+        "https://i.imgur.com/GGQv16z.jpeg",
+        "https://i.imgur.com/VAf5Eue.gif",
+        "https://i.imgur.com/ZZpapGi.jpeg",
+        "https://i.imgur.com/4LvXywY.jpeg",
+        "https://i.imgur.com/NZ5iyCh.jpeg",
+        "https://i.imgur.com/BkrKZ8b.jpeg",
+        "https://i.imgur.com/Yf1LRak.jpeg",
+        "https://i.imgur.com/1fsJf6B.jpeg",
+        "https://i.imgur.com/MR2h7jw.jpeg",
+        "https://i.imgur.com/K9fFzgm.jpeg",
+        "https://i.imgur.com/Se05IOn.jpeg",
+        "https://i.imgur.com/h1Yhryc.jpeg",
+        "https://i.imgur.com/sUgF4oQ.jpeg",
+        "https://i.imgur.com/8oHuIf8.jpeg",
+        "https://i.imgur.com/fiH5dUv.jpeg",
+        "https://i.imgur.com/FSKnHZt.jpeg",
+        "https://i.imgur.com/80YYI12.jpeg",
+        "https://i.imgur.com/ibd1j8n.jpeg",
+        "https://i.imgur.com/J8vbW7x.jpeg",
+        "https://i.imgur.com/fOmuOKl.jpeg",
+        "https://i.imgur.com/qDwypw6.jpeg",
+        "https://i.imgur.com/9dVyEEe.gif",
+        "https://i.imgur.com/d3yM7FX.jpeg",
+        "https://i.imgur.com/JToFUJo.jpeg",
+        "https://i.imgur.com/aJ5sbvo.jpeg",
+        "https://i.imgur.com/09qesDj.gif",
+        "https://i.imgur.com/HES8mee.jpeg",
+        "https://i.imgur.com/ovETysm.jpeg",
+        "https://i.imgur.com/mpCMAYQ.jpeg",
+        "https://i.imgur.com/iQV82Jq.jpeg",
+        "https://i.imgur.com/qkM2t0l.jpeg",
+        "https://i.imgur.com/VAf5Eue.gif"
+      ];
 
       const warningMessages = [
         "𝐵𝑜𝑛𝑑ℎ𝑢😭 𝑏ℎ𝑎𝑙𝑜 ℎ𝑜𝑦𝑒 𝑗𝑎!😞",
@@ -133,53 +133,64 @@ module.exports = {
         "কাম", "ঝার", "হস্তমৈথুন", "সেক্স", "চুষ"
       ];
 
-      const normalize = str => str.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+      // Normalize text for matching
+      const normalize = (str) => str.toLowerCase().replace(/[^\w\s\u0980-\u09FF]/g, '');
       const text = normalize(event.body);
 
-      const matched = badWords.some(word =>
-        text.includes(word.replace(/[^a-zA-Zঅ-ৣ]/g, ""))
-      );
+      // Check for bad words
+      const matched = badWords.some(word => {
+        const normalizedWord = normalize(word);
+        return text.includes(normalizedWord);
+      });
 
       if (!matched) return;
 
-      const cacheFolder = path.join(__dirname, "cache/inappropriatefilter");
+      // Create cache directory
+      const cacheFolder = path.join(__dirname, "cache", "inappropriatefilter");
       if (!fs.existsSync(cacheFolder)) {
         fs.mkdirSync(cacheFolder, { recursive: true });
       }
 
+      // Download and cache images
       const downloadedImages = [];
-      let lastSent = null;
-
+      
       for (let url of imageLinks) {
-        const fileName = path.basename(url);
-        const fullPath = path.join(cacheFolder, fileName);
-        
-        if (!fs.existsSync(fullPath)) {
-          try {
-            const response = await axios.get(url, { responseType: "arraybuffer" });
-            await fs.writeFileSync(fullPath, Buffer.from(response.data));
-          } catch (error) {
-            console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${url}:`, error);
-            continue;
+        try {
+          const fileName = path.basename(url);
+          const fullPath = path.join(cacheFolder, fileName);
+          
+          if (!fs.existsSync(fullPath)) {
+            const response = await axios({
+              method: 'GET',
+              url: url,
+              responseType: 'arraybuffer',
+              timeout: 30000
+            });
+            await fs.writeFile(fullPath, Buffer.from(response.data));
           }
-        }
-        
-        if (!downloadedImages.includes(fullPath)) {
-          downloadedImages.push(fullPath);
+          
+          if (fs.existsSync(fullPath)) {
+            downloadedImages.push(fullPath);
+          }
+        } catch (error) {
+          console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${url}:`, error.message);
+          continue;
         }
       }
 
-      const available = downloadedImages.filter(img => img !== lastSent && fs.existsSync(img));
-      if (available.length === 0) return;
+      if (downloadedImages.length === 0) {
+        console.error("𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑓𝑜𝑟 𝑤𝑎𝑟𝑛𝑖𝑛𝑔");
+        return;
+      }
 
-      const selected = available[Math.floor(Math.random() * available.length)];
-      lastSent = selected;
+      // Select random warning and image
+      const randomImage = downloadedImages[Math.floor(Math.random() * downloadedImages.length)];
+      const randomWarning = warningMessages[Math.floor(Math.random() * warningMessages.length)];
 
-      const warning = warningMessages[Math.floor(Math.random() * warningMessages.length)];
-
+      // Send warning message with image
       await message.reply({
-        body: warning,
-        attachment: fs.createReadStream(selected)
+        body: randomWarning,
+        attachment: fs.createReadStream(randomImage)
       });
 
     } catch (error) {
