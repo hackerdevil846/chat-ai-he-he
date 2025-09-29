@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 module.exports = {
     config: {
         name: "admin2",
-        aliases: ["adminpanel", "sysinfo"],
+        aliases: [],
         version: "1.0.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 0,
@@ -24,83 +24,143 @@ module.exports = {
         }
     },
 
-    onStart: async function({ message, usersData, threadsData, api }) {
+    onStart: async function({ message, usersData, threadsData }) {
         try {
-            // Dependency check
+            // 🛡️ Dependency check
             try {
                 require("moment-timezone");
             } catch (e) {
                 return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑚𝑜𝑚𝑒𝑛𝑡-𝑡𝑖𝑚𝑒𝑧𝑜𝑛𝑒");
             }
 
-            // Utility Functions
+            // 🛡️ Utility Functions with error handling
             const formatBytes = (bytes) => {
-                if (bytes === 0) return '0 𝐵';
-                const k = 1024;
-                const sizes = ['𝐵', '𝐾𝐵', '𝑀𝐵', '𝐺𝐵', '𝑇𝐵'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                try {
+                    if (bytes === 0 || !bytes) return '0 𝐵';
+                    if (typeof bytes !== 'number' || bytes < 0) return '𝐼𝑛𝑣𝑎𝑙𝑖𝑑';
+                    
+                    const k = 1024;
+                    const sizes = ['𝐵', '𝐾𝐵', '𝑀𝐵', '𝐺𝐵', '𝑇𝐵'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                } catch (error) {
+                    return '𝐸𝑟𝑟𝑜𝑟';
+                }
             };
 
             const getCPUInfo = () => {
-                const cpus = os.cpus();
-                if (!cpus || cpus.length === 0) return '𝑁/𝐴';
-                const cpu = cpus[0];
-                return `${cpu.model} | ${cpus.length} 𝑐𝑜𝑟𝑒𝑠`;
+                try {
+                    const cpus = os.cpus();
+                    if (!cpus || cpus.length === 0) return '𝑁/𝐴';
+                    const cpu = cpus[0];
+                    return `${cpu.model.split('@')[0].trim()} | ${cpus.length} 𝑐𝑜𝑟𝑒𝑠`;
+                } catch (error) {
+                    return '𝑁/𝐴';
+                }
             };
 
             const getOSInfo = () => {
-                return `${os.platform()} ${os.release()} | ${os.arch()}`;
+                try {
+                    return `${os.platform()} ${os.release()} | ${os.arch()}`;
+                } catch (error) {
+                    return '𝑁/𝐴';
+                }
             };
 
             const getUptime = () => {
-                const uptime = process.uptime();
-                const days = Math.floor(uptime / 86400);
-                const hours = Math.floor((uptime % 86400) / 3600);
-                const minutes = Math.floor((uptime % 3600) / 60);
-                const seconds = Math.floor(uptime % 60);
-                return `${days}𝑑 ${hours}ℎ ${minutes}𝑚 ${seconds}𝑠`;
+                try {
+                    const uptime = process.uptime();
+                    const days = Math.floor(uptime / 86400);
+                    const hours = Math.floor((uptime % 86400) / 3600);
+                    const minutes = Math.floor((uptime % 3600) / 60);
+                    const seconds = Math.floor(uptime % 60);
+                    
+                    if (days > 0) return `${days}𝑑 ${hours}ℎ ${minutes}𝑚 ${seconds}𝑠`;
+                    if (hours > 0) return `${hours}ℎ ${minutes}𝑚 ${seconds}𝑠`;
+                    if (minutes > 0) return `${minutes}𝑚 ${seconds}𝑠`;
+                    return `${seconds}𝑠`;
+                } catch (error) {
+                    return '𝑁/𝐴';
+                }
             };
 
-            // Get real time and date
-            const now = moment().tz('Asia/Dhaka');
-            const formattedTime = now.format('HH:mm:ss');
-            const formattedDate = now.format('YYYY-MM-DD');
-            const dayName = now.format('dddd');
+            // 🛡️ Get real time and date with error handling
+            let formattedTime = '𝑁/𝐴';
+            let formattedDate = '𝑁/𝐴';
+            let dayName = '𝑁/𝐴';
+            
+            try {
+                const now = moment().tz('Asia/Dhaka');
+                formattedTime = now.format('HH:mm:ss');
+                formattedDate = now.format('YYYY-MM-DD');
+                dayName = now.format('dddd');
+            } catch (timeError) {
+                console.error('𝑇𝑖𝑚𝑒 𝑒𝑟𝑟𝑜𝑟:', timeError);
+                // Use fallback time
+                const fallbackDate = new Date();
+                formattedTime = fallbackDate.toLocaleTimeString();
+                formattedDate = fallbackDate.toLocaleDateString();
+                dayName = fallbackDate.toLocaleDateString('en', { weekday: 'long' });
+            }
 
-            // Get real system information
-            const totalMem = formatBytes(os.totalmem());
-            const freeMem = formatBytes(os.freemem());
-            const usedMem = formatBytes(os.totalmem() - os.freemem());
-            const memoryUsage = formatBytes(process.memoryUsage().rss);
+            // 🛡️ Get real system information with error handling
+            let totalMem = '𝑁/𝐴';
+            let freeMem = '𝑁/𝐴';
+            let usedMem = '𝑁/𝐴';
+            let memoryUsage = '𝑁/𝐴';
+            
+            try {
+                totalMem = formatBytes(os.totalmem());
+                freeMem = formatBytes(os.freemem());
+                usedMem = formatBytes(os.totalmem() - os.freemem());
+                memoryUsage = formatBytes(process.memoryUsage().rss);
+            } catch (memError) {
+                console.error('𝑀𝑒𝑚𝑜𝑟𝑦 𝑒𝑟𝑟𝑜𝑟:', memError);
+            }
 
-            // Get real bot statistics
+            // 🛡️ Get real bot statistics with comprehensive error handling
             let threadCount = '𝑁/𝐴';
             let userCount = '𝑁/𝐴';
             
             try {
-                // Try to get real thread count
-                const allThreads = await threadsData.getAll();
-                threadCount = Array.isArray(allThreads) ? allThreads.length : '𝑁/𝐴';
-            } catch (e) {
-                threadCount = '𝑁/𝐴';
+                if (threadsData && typeof threadsData.getAll === 'function') {
+                    const allThreads = await threadsData.getAll();
+                    threadCount = Array.isArray(allThreads) ? allThreads.length.toString() : '𝑁/𝐴';
+                }
+            } catch (threadError) {
+                console.error('𝑇ℎ𝑟𝑒𝑎𝑑 𝑐𝑜𝑢𝑛𝑡 𝑒𝑟𝑟𝑜𝑟:', threadError);
             }
 
             try {
-                // Try to get real user count
-                const allUsers = await usersData.getAll();
-                userCount = Array.isArray(allUsers) ? allUsers.length : '𝑁/𝐴';
-            } catch (e) {
-                userCount = '𝑁/𝐴';
+                if (usersData && typeof usersData.getAll === 'function') {
+                    const allUsers = await usersData.getAll();
+                    userCount = Array.isArray(allUsers) ? allUsers.length.toString() : '𝑁/𝐴';
+                }
+            } catch (userError) {
+                console.error('𝑈𝑠𝑒𝑟 𝑐𝑜𝑢𝑛𝑡 𝑒𝑟𝑟𝑜𝑟:', userError);
             }
 
-            // Get command count from global client
-            const commandCount = global.client && global.client.commands ? 
-                global.client.commands.size : '𝑁/𝐴';
+            // 🛡️ Get command count safely
+            let commandCount = '𝑁/𝐴';
+            try {
+                if (global.client && global.client.commands && typeof global.client.commands.size === 'number') {
+                    commandCount = global.client.commands.size.toString();
+                } else if (global.goat && global.goat.commands) {
+                    commandCount = Object.keys(global.goat.commands).length.toString();
+                }
+            } catch (cmdError) {
+                console.error('𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑐𝑜𝑢𝑛𝑡 𝑒𝑟𝑟𝑜𝑟:', cmdError);
+            }
 
-            // Get Node.js version
-            const nodeVersion = process.version;
+            // 🛡️ Get Node.js version safely
+            let nodeVersion = '𝑁/𝐴';
+            try {
+                nodeVersion = process.version || '𝑁/𝐴';
+            } catch (nodeError) {
+                console.error('𝑁𝑜𝑑𝑒 𝑣𝑒𝑟𝑠𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:', nodeError);
+            }
 
+            // 🛡️ Build response with guaranteed formatting
             const response = `
 🦋✨ 𝑨𝒅𝒎𝒊𝒏 𝑺𝒚𝒔𝒕𝒆𝒎 𝑰𝒏𝒇𝒐𝒓𝒎𝒂𝒕𝒊𝒐𝒏 ✨🦋
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -125,11 +185,30 @@ module.exports = {
 💫 𝑺𝒚𝒔𝒕𝒆𝒎 𝑯𝒆𝒂𝒍𝒕𝒉: ✅ 𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑎𝑙
 🦋━━━━━━━━━━━━━━━━━━━━🦋`;
 
+            // 🛡️ Send response with final error handling
             await message.reply(response);
 
         } catch (error) {
-            console.error('𝐴𝑑𝑚𝑖𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:', error);
-            await message.reply('❌ 𝐸𝑟𝑟𝑜𝑟 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑠𝑦𝑠𝑡𝑒𝑚 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.');
+            console.error('💥 𝐴𝑑𝑚𝑖𝑛2 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑓𝑎𝑡𝑎𝑙 𝑒𝑟𝑟𝑜𝑟:', error);
+            
+            // 🛡️ Final fallback response
+            const fallbackResponse = `
+🦋✨ 𝑨𝒅𝒎𝒊𝒏 𝑺𝒚𝒔𝒕𝒆𝒎 𝑰𝒏𝒇𝒐 ✨🦋
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 𝐷𝑎𝑡𝑒: ${new Date().toLocaleDateString()}
+🕰️ 𝑇𝑖𝑚𝑒: ${new Date().toLocaleTimeString()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💻 𝐵𝑎𝑠𝑖𝑐 𝑆𝑦𝑠𝑡𝑒𝑚 𝐼𝑛𝑓𝑜:
+• 𝑆𝑡𝑎𝑡𝑢𝑠: ✅ 𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛𝑎𝑙
+• 𝑁𝑜𝑑𝑒.𝑗𝑠: ${process.version || '𝑁/𝐴'}
+• 𝑈𝑝𝑡𝑖𝑚𝑒: ${getUptime()}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 𝐵𝑜𝑡 𝑆𝑡𝑎𝑡𝑢𝑠: ✅ 𝑅𝑢𝑛𝑛𝑖𝑛𝑔
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+💫 𝑁𝑜𝑡𝑒: 𝐵𝑎𝑠𝑖𝑐 𝑖𝑛𝑓𝑜 𝑑𝑖𝑠𝑝𝑙𝑎𝑦𝑒𝑑
+🦋━━━━━━━━━━━━━━━━━━━━🦋`;
+            
+            await message.reply(fallbackResponse);
         }
     }
 };
