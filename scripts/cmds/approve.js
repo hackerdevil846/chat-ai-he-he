@@ -1,133 +1,206 @@
 const fs = require("fs-extra");
 const path = require("path");
 
-module.exports.config = {
-    name: "approve",
-    aliases: ["app", "approval"],
-    version: "1.0.2",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 2,
-    category: "admin",
-    shortDescription: {
-        en: "𝑀𝑎𝑛𝑎𝑔𝑒 𝑔𝑟𝑜𝑢𝑝 𝑎𝑝𝑝𝑟𝑜𝑣𝑎𝑙𝑠 𝑓𝑜𝑟 𝑏𝑜𝑡"
+module.exports = {
+    config: {
+        name: "approve",
+        aliases: [],
+        version: "1.0.2",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 2,
+        category: "admin",
+        shortDescription: {
+            en: "𝖬𝖺𝗇𝖺𝗀𝖾 𝗀𝗋𝗈𝗎𝗉 𝖺𝗉𝗉𝗋𝗈𝗏𝖺𝗅𝗌 𝖿𝗈𝗋 𝖻𝗈𝗍"
+        },
+        longDescription: {
+            en: "𝖠𝗉𝗉𝗋𝗈𝗏𝖾 𝗈𝗋 𝗆𝖺𝗇𝖺𝗀𝖾 𝗀𝗋𝗈𝗎𝗉𝗌 𝖿𝗈𝗋 𝖻𝗈𝗍 𝗎𝗌𝖺𝗀𝖾"
+        },
+        guide: {
+            en: "{p}approve [𝗅𝗂𝗌𝗍/𝗉𝖾𝗇𝖽𝗂𝗇𝗀/𝖽𝖾𝗅/𝗁𝖾𝗅𝗉]"
+        },
+        dependencies: {
+            "fs-extra": ""
+        }
     },
-    longDescription: {
-        en: "𝐴𝑝𝑝𝑟𝑜𝑣𝑒 𝑜𝑟 𝑚𝑎𝑛𝑎𝑔𝑒 𝑔𝑟𝑜𝑢𝑝𝑠 𝑓𝑜𝑟 𝑏𝑜𝑡 𝑢𝑠𝑎𝑔𝑒"
-    },
-    guide: {
-        en: "{p}approve [𝑙𝑖𝑠𝑡/𝑝𝑒𝑛𝑑𝑖𝑛𝑔/𝑑𝑒𝑙/ℎ𝑒𝑙𝑝]"
-    },
-    dependencies: {
-        "fs-extra": ""
-    }
-};
 
-module.exports.onStart = async function({ message, event, args }) {
-    try {
-        const dataPath = path.join(__dirname, "approvedThreads.json");
-        const dataPending = path.join(__dirname, "pendingThreads.json");
-
-        // Ensure data files exist
-        if (!fs.existsSync(dataPath)) fs.writeFileSync(dataPath, JSON.stringify([]));
-        if (!fs.existsSync(dataPending)) fs.writeFileSync(dataPending, JSON.stringify([]));
-
-        let approved = JSON.parse(fs.readFileSync(dataPath));
-        let pending = JSON.parse(fs.readFileSync(dataPending));
-        
-        const { threadID } = event;
-        let targetID = args[0] ? args[0] : threadID;
-
-        // Helper function for Mathematical Bold Italic
-        const toBI = (text) => {
-            const map = {
-                'a': '𝒂','b': '𝒃','c': '𝒄','d': '𝒅','e': '𝒆','f': '𝒇','g': '𝒈','h': '𝒉','i': '𝒊','j': '𝒋',
-                'k': '𝒌','l': '𝒍','m': '𝒎','n': '𝒏','o': '𝒐','p': '𝒑','q': '𝒒','r': '𝒓','s': '𝒔','t': '𝒕',
-                'u': '𝒖','v': '𝒗','w': '𝒘','x': '𝒙','y': '𝒚','z': '𝒛',
-                'A': '𝑨','B': '𝑩','C': '𝑪','D': '𝑫','E': '𝑬','F': '𝑭','G': '𝑮','H': '𝑯','I': '𝑰','J': '𝑱',
-                'K': '𝑲','L': '𝑳','M': '𝑴','N': '𝑵','O': '𝑶','P': '𝑷','Q': '𝑸','R': '𝑹','S': '𝑺','T': '𝑻',
-                'U': '𝑼','V': '𝑽','W': '𝑾','X': '𝑿','Y': '𝒀','Z': '𝒁',
-                '0': '𝟎','1': '𝟏','2': '𝟐','3': '𝟑','4': '𝟒','5': '𝟓','6': '𝟔','7': '𝟕','8': '𝟖','9': '𝟗'
-            };
-            return text.split('').map(char => map[char] || char).join('');
-        };
-
-        // HELP COMMAND
-        if (args[0] === "help" || args[0] === "h") {
-            const helpMessage = `🎭 ${toBI("APPROVE COMMANDS")} 🎭
-
-${toBI(global.config.PREFIX + this.config.name)} ${toBI('𝑙𝑖𝑠𝑡')} - 𝑣𝑖𝑒𝑤 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑 𝑔𝑟𝑜𝑢𝑝𝑠
-${toBI(global.config.PREFIX + this.config.name)} ${toBI('𝑝𝑒𝑛𝑑𝑖𝑛𝑔')} - 𝑣𝑖𝑒𝑤 𝑝𝑒𝑛𝑑𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝𝑠
-${toBI(global.config.PREFIX + this.config.name)} ${toBI('𝑑𝑒𝑙')} [𝑖𝑑] - 𝑟𝑒𝑚𝑜𝑣𝑒 𝑓𝑟𝑜𝑚 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑
-${toBI(global.config.PREFIX + this.config.name)} [𝑖𝑑] - 𝑎𝑝𝑝𝑟𝑜𝑣𝑒 𝑎 𝑔𝑟𝑜𝑢𝑝
-
-${toBI("𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑏𝑦:")} ${toBI(this.config.author)}`;
-            return message.reply(helpMessage);
-        }
-
-        // LIST APPROVED GROUPS
-        if (args[0] === "list" || args[0] === "l") {
-            if (approved.length === 0) {
-                return message.reply("❌ 𝑁𝑜 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑 𝑔𝑟𝑜𝑢𝑝𝑠 𝑓𝑜𝑢𝑛𝑑");
+    onStart: async function({ message, event, args }) {
+        try {
+            // Dependency check
+            let fsAvailable = true;
+            try {
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
             }
 
-            let msg = `${toBI("APPROVED GROUPS")} [${approved.length}]:\n\n`;
-            approved.forEach((id, index) => {
-                msg += `〘${index + 1}〙 » ${id}\n`;
-            });
-            
-            return message.reply(msg);
-        }
-
-        // LIST PENDING GROUPS
-        if (args[0] === "pending" || args[0] === "p") {
-            if (pending.length === 0) {
-                return message.reply("❌ 𝑁𝑜 𝑝𝑒𝑛𝑑𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝𝑠 𝑓𝑜𝑢𝑛𝑑");
+            if (!fsAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
             }
 
-            let msg = `${toBI("PENDING GROUPS")} [${pending.length}]:\n\n`;
-            pending.forEach((id, index) => {
-                msg += `〘${index + 1}〙 » ${id}\n`;
-            });
-            
-            return message.reply(msg);
-        }
+            const dataPath = path.join(__dirname, "approvedThreads.json");
+            const dataPending = path.join(__dirname, "pendingThreads.json");
 
-        // DELETE FROM APPROVED
-        if (args[0] === "del" || args[0] === "d") {
-            const idToRemove = args[1] || threadID;
-            
-            if (!approved.includes(idToRemove)) {
-                return message.reply("❌ 𝐺𝑟𝑜𝑢𝑝 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑 𝑙𝑖𝑠𝑡");
+            // Ensure data files exist with proper initialization
+            try {
+                if (!fs.existsSync(dataPath)) {
+                    fs.writeFileSync(dataPath, JSON.stringify([]));
+                    console.log("✅ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽𝖳𝗁𝗋𝖾𝖺𝖽𝗌.𝗃𝗌𝗈𝗇");
+                }
+                if (!fs.existsSync(dataPending)) {
+                    fs.writeFileSync(dataPending, JSON.stringify([]));
+                    console.log("✅ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝗉𝖾𝗇𝖽𝗂𝗇𝗀𝖳𝗁𝗋𝖾𝖺𝖽𝗌.𝗃𝗌𝗈𝗇");
+                }
+            } catch (fileError) {
+                console.error("💥 𝖥𝗂𝗅𝖾 𝖼𝗋𝖾𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:", fileError);
+                return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖽𝖺𝗍𝖺 𝖿𝗂𝗅𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.");
             }
 
-            approved = approved.filter(id => id !== idToRemove);
-            fs.writeFileSync(dataPath, JSON.stringify(approved, null, 2));
+            let approved = [];
+            let pending = [];
             
-            return message.reply(`✅ 𝐺𝑟𝑜𝑢𝑝 ${idToRemove} 𝑟𝑒𝑚𝑜𝑣𝑒𝑑 𝑓𝑟𝑜𝑚 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑 𝑙𝑖𝑠𝑡`);
-        }
-
-        // APPROVE A GROUP
-        if (!isNaN(targetID)) {
-            if (approved.includes(targetID)) {
-                return message.reply("✅ 𝐺𝑟𝑜𝑢𝑝 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑");
+            // Load data with error handling
+            try {
+                const approvedData = fs.readFileSync(dataPath, "utf8");
+                const pendingData = fs.readFileSync(dataPending, "utf8");
+                
+                approved = JSON.parse(approvedData);
+                pending = JSON.parse(pendingData);
+                
+                // Ensure arrays
+                if (!Array.isArray(approved)) approved = [];
+                if (!Array.isArray(pending)) pending = [];
+                
+            } catch (parseError) {
+                console.error("💥 𝖣𝖺𝗍𝖺 𝗉𝖺𝗋𝗌𝖾 𝖾𝗋𝗋𝗈𝗋:", parseError);
+                // Reset corrupted files
+                approved = [];
+                pending = [];
+                fs.writeFileSync(dataPath, JSON.stringify(approved, null, 2));
+                fs.writeFileSync(dataPending, JSON.stringify(pending, null, 2));
+                console.log("✅ 𝖱𝖾𝗌𝖾𝗍 𝖼𝗈𝗋𝗋𝗎𝗉𝗍𝖾𝖽 𝖽𝖺𝗍𝖺 𝖿𝗂𝗅𝖾𝗌");
             }
 
-            approved.push(targetID);
-            // Remove from pending if it was there
-            pending = pending.filter(id => id !== targetID);
+            const { threadID } = event;
+            let targetID = args[0] ? args[0].trim() : threadID;
+
+            // HELP COMMAND
+            if (args[0] === "help" || args[0] === "h") {
+                const helpMessage = `𝖠𝖯𝖯𝖱𝖮𝖵𝖤 𝖢𝖮𝖬𝖬𝖠𝖭𝖣𝖲
+
+${global.config.PREFIX + this.config.name} 𝗅𝗂𝗌𝗍 - 𝗏𝗂𝖾𝗐 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗀𝗋𝗈𝗎𝗉𝗌
+${global.config.PREFIX + this.config.name} 𝗉𝖾𝗇𝖽𝗂𝗇𝗀 - 𝗏𝗂𝖾𝗐 𝗉𝖾𝗇𝖽𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉𝗌
+${global.config.PREFIX + this.config.name} 𝖽𝖾𝗅 [𝗂𝖽] - 𝗋𝖾𝗆𝗈𝗏𝖾 𝖿𝗋𝗈𝗆 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽
+${global.config.PREFIX + this.config.name} [𝗂𝖽] - 𝖺𝗉𝗉𝗋𝗈𝗏𝖾 𝖺 𝗀𝗋𝗈𝗎𝗉
+
+𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖻𝗒: ${this.config.author}`;
+                return message.reply(helpMessage);
+            }
+
+            // LIST APPROVED GROUPS
+            if (args[0] === "list" || args[0] === "l") {
+                if (approved.length === 0) {
+                    return message.reply("❌ 𝖭𝗈 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗀𝗋𝗈𝗎𝗉𝗌 𝖿𝗈𝗎𝗇𝖽");
+                }
+
+                let msg = `𝖠𝖯𝖯𝖱𝖮𝖵𝖤𝖣 𝖦𝖱𝖮𝖴𝖯𝖲 [${approved.length}]:\n\n`;
+                approved.forEach((id, index) => {
+                    msg += `〘${index + 1}〙 » ${id}\n`;
+                });
+                
+                return message.reply(msg);
+            }
+
+            // LIST PENDING GROUPS
+            if (args[0] === "pending" || args[0] === "p") {
+                if (pending.length === 0) {
+                    return message.reply("❌ 𝖭𝗈 𝗉𝖾𝗇𝖽𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉𝗌 𝖿𝗈𝗎𝗇𝖽");
+                }
+
+                let msg = `𝖯𝖤𝖭𝖣𝖨𝖭𝖦 𝖦𝖱𝖮𝖴𝖯𝖲 [${pending.length}]:\n\n`;
+                pending.forEach((id, index) => {
+                    msg += `〘${index + 1}〙 » ${id}\n`;
+                });
+                
+                return message.reply(msg);
+            }
+
+            // DELETE FROM APPROVED
+            if (args[0] === "del" || args[0] === "d") {
+                const idToRemove = args[1] ? args[1].trim() : threadID;
+                
+                // Validate ID format
+                if (!idToRemove || isNaN(idToRemove)) {
+                    return message.reply("❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖦𝗋𝗈𝗎𝗉 𝖨𝖣. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗏𝖺𝗅𝗂𝖽 𝗇𝗎𝗆𝖾𝗋𝗂𝖼 𝖨𝖣.");
+                }
+
+                if (!approved.includes(idToRemove)) {
+                    return message.reply("❌ 𝖦𝗋𝗈𝗎𝗉 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗅𝗂𝗌𝗍");
+                }
+
+                approved = approved.filter(id => id !== idToRemove);
+                
+                try {
+                    fs.writeFileSync(dataPath, JSON.stringify(approved, null, 2));
+                    console.log(`✅ 𝖱𝖾𝗆𝗈𝗏𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 ${idToRemove} 𝖿𝗋𝗈𝗆 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗅𝗂𝗌𝗍`);
+                } catch (writeError) {
+                    console.error("💥 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝖽𝖺𝗍𝖺:", writeError);
+                    return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝖼𝗁𝖺𝗇𝗀𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
+                }
+                
+                return message.reply(`✅ 𝖦𝗋𝗈𝗎𝗉 ${idToRemove} 𝗋𝖾𝗆𝗈𝗏𝖾𝖽 𝖿𝗋𝗈𝗆 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗅𝗂𝗌𝗍`);
+            }
+
+            // APPROVE A GROUP
+            if (!isNaN(targetID)) {
+                // Validate target ID
+                if (!targetID || targetID.trim() === "") {
+                    return message.reply("❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖦𝗋𝗈𝗎𝗉 𝖨𝖣. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗏𝖺𝗅𝗂𝖽 𝖨𝖣.");
+                }
+
+                if (approved.includes(targetID)) {
+                    return message.reply("✅ 𝖦𝗋𝗈𝗎𝗉 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽");
+                }
+
+                // Add to approved
+                approved.push(targetID);
+                
+                // Remove from pending if it was there
+                if (pending.includes(targetID)) {
+                    pending = pending.filter(id => id !== targetID);
+                    try {
+                        fs.writeFileSync(dataPending, JSON.stringify(pending, null, 2));
+                    } catch (pendingError) {
+                        console.error("💥 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗎𝗉𝖽𝖺𝗍𝖾 𝗉𝖾𝗇𝖽𝗂𝗇𝗀 𝗅𝗂𝗌𝗍:", pendingError);
+                    }
+                }
+                
+                try {
+                    fs.writeFileSync(dataPath, JSON.stringify(approved, null, 2));
+                    console.log(`✅ 𝖠𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 ${targetID}`);
+                } catch (writeError) {
+                    console.error("💥 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗅𝗂𝗌𝗍:", writeError);
+                    return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝖺𝗉𝗉𝗋𝗈𝗏𝖺𝗅. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
+                }
+                
+                return message.reply(`✅ 𝖦𝗋𝗈𝗎𝗉 ${targetID} 𝖺𝗉𝗉𝗋𝗈𝗏𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒`);
+            }
+
+            // DEFAULT: SHOW HELP
+            return message.reply(`❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖼𝗈𝗆𝗆𝖺𝗇𝖽. 𝖴𝗌𝖾 ${global.config.PREFIX}approve 𝗁𝖾𝗅𝗉 𝖿𝗈𝗋 𝗂𝗇𝗌𝗍𝗋𝗎𝖼𝗍𝗂𝗈𝗇𝗌`);
+
+        } catch (error) {
+            console.error("💥 𝖠𝗉𝗉𝗋𝗈𝗏𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
             
-            fs.writeFileSync(dataPath, JSON.stringify(approved, null, 2));
-            fs.writeFileSync(dataPending, JSON.stringify(pending, null, 2));
+            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
             
-            return message.reply(`✅ 𝐺𝑟𝑜𝑢𝑝 ${targetID} 𝑎𝑝𝑝𝑟𝑜𝑣𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦`);
+            if (error.message.includes('permission') || error.code === 'EACCES') {
+                errorMessage = "❌ 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝖿𝗂𝗅𝖾 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.";
+            } else if (error.message.includes('JSON')) {
+                errorMessage = "❌ 𝖣𝖺𝗍𝖺 𝖼𝗈𝗋𝗋𝗎𝗉𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋. 𝖣𝖺𝗍𝖺 𝖿𝗂𝗅𝖾𝗌 𝗁𝖺𝗏𝖾 𝖻𝖾𝖾𝗇 𝗋𝖾𝗌𝖾𝗍.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        // DEFAULT: SHOW HELP
-        return message.reply(`❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑. 𝑈𝑠𝑒 ${global.config.PREFIX}approve ℎ𝑒𝑙𝑝 𝑓𝑜𝑟 𝑖𝑛𝑠𝑡𝑟𝑢𝑐𝑡𝑖𝑜𝑛𝑠`);
-
-    } catch (error) {
-        console.error("𝐴𝑝𝑝𝑟𝑜𝑣𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-        return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
 };
