@@ -9,63 +9,141 @@ module.exports = {
     role: 0,
     category: "fun",
     shortDescription: {
-      en: "🍺 𝐵𝑒𝑒𝑟 𝑝𝑖𝑡𝑒 𝑒𝑟 𝑗𝑜𝑛𝑛𝑜 𝑏ℎ𝑎𝑙𝑜𝑏𝑎𝑠ℎ𝑎"
+      en: "🍺 𝖡𝖾𝖾𝗋 𝗉𝗂𝗍𝖾 𝖾𝗋 𝗃𝗈𝗇𝗇𝗈 𝖻𝗁𝖺𝗅𝗈𝖻𝖺𝗌𝗁𝖺"
     },
     longDescription: {
-      en: "𝐴𝑢𝑡𝑜-𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑡𝑜 𝑑𝑟𝑖𝑛𝑘-𝑟𝑒𝑙𝑎𝑡𝑒𝑑 𝑘𝑒𝑦𝑤𝑜𝑟𝑑𝑠"
+      en: "𝖠𝗎𝗍𝗈-𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗍𝗈 𝖽𝗋𝗂𝗇𝗄-𝗋𝖾𝗅𝖺𝗍𝖾𝖽 𝗄𝖾𝗒𝗐𝗈𝗋𝖽𝗌"
     },
     guide: {
-      en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 𝑑𝑟𝑖𝑛𝑘-𝑟𝑒𝑙𝑎𝑡𝑒𝑑 𝑤𝑜𝑟𝑑𝑠"
+      en: "𝖩𝗎𝗌𝗍 𝗍𝗒𝗉𝖾 𝖽𝗋𝗂𝗇𝗄-𝗋𝖾𝗅𝖺𝗍𝖾𝖽 𝗐𝗈𝗋𝖽𝗌"
     },
-    countDown: 3
+    countDown: 3,
+    dependencies: {
+      "fs-extra": ""
+    }
   },
 
   onStart: async function ({ message }) {
     try {
+      // Dependency check
+      let dependenciesAvailable = true;
+      try {
+        require("fs-extra");
+      } catch (e) {
+        dependenciesAvailable = false;
+      }
+
+      if (!dependenciesAvailable) {
+        return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+      }
+
+      const videoPath = __dirname + '/noprefix/daru.mp4';
+      let hasVideo = false;
+      
+      // Check if video file exists and is readable
+      try {
+        if (fs.existsSync(videoPath)) {
+          fs.accessSync(videoPath, fs.constants.R_OK);
+          hasVideo = true;
+        }
+      } catch (fileError) {
+        console.warn("❌ 𝖵𝗂𝖽𝖾𝗈 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖺𝖼𝖼𝖾𝗌𝗌𝗂𝖻𝗅𝖾:", fileError.message);
+        hasVideo = false;
+      }
+
       const msg = {
-        body: `🍻 𝐵𝑒𝑒𝑟 𝑘ℎ𝑖𝑡𝑒 𝑐𝑎𝑜? 𝐸𝑖 𝑛𝑒𝑜! 🥂\n` +
+        body: `🍻 𝖡𝖾𝖾𝗋 𝗄𝗁𝗂𝗍𝖾 𝖼𝖺𝗈? 𝖤𝗂 𝗇𝖾𝗈! 🥂\n` +
               `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
-              `𝑇𝑦𝑝𝑒 𝑎𝑛𝑦 𝑑𝑟𝑖𝑛𝑘-𝑟𝑒𝑙𝑎𝑡𝑒𝑑 𝑤𝑜𝑟𝑑 𝑡𝑜 𝑠𝑒𝑒 𝑚𝑎𝑔𝑖𝑐!\n` +
+              `𝖳𝗒𝗉𝖾 𝖺𝗇𝗒 𝖽𝗋𝗂𝗇𝗄-𝗋𝖾𝗅𝖺𝗍𝖾𝖽 𝗐𝗈𝗋𝖽 𝗍𝗈 𝗌𝖾𝖾 𝗆𝖺𝗀𝗂𝖼!\n` +
               `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
-              `💖 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`
+              `💖 𝖯𝗈𝗐𝖾𝗋𝖾𝖽 𝖻𝗒 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽`
       };
       
-      const videoPath = __dirname + '/noprefix/daru.mp4';
-      if (fs.existsSync(videoPath)) {
+      if (hasVideo) {
         msg.attachment = fs.createReadStream(videoPath);
+      } else {
+        msg.body += `\n\n📹 𝖵𝗂𝖽𝖾𝗈 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾, 𝖻𝗎𝗍 𝖾𝗇𝗃𝗈𝗒 𝗍𝗁𝖾 𝗆𝖾𝗌𝗌𝖺𝗀𝖾!`;
       }
       
       await message.reply(msg);
     } catch (error) {
-      console.error("𝐵𝑒𝑒𝑟 𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+      console.error("💥 𝖡𝖾𝖾𝗋 𝖲𝗍𝖺𝗋𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+      // Don't send error message to avoid spam
     }
   },
 
   onChat: async function ({ api, event, message }) {
     try {
+      // Dependency check
+      let dependenciesAvailable = true;
+      try {
+        require("fs-extra");
+      } catch (e) {
+        dependenciesAvailable = false;
+      }
+
+      if (!dependenciesAvailable) {
+        return;
+      }
+
       const { threadID, messageID, body } = event;
-      const triggers = ["beer", "daru", "drink", "sharab", "party", "alcohol", "whisky", "vodka", "rum", "🍻", "🍺", "🍷"];
       
-      if (body && triggers.some(trigger => body.toLowerCase().includes(trigger))) {
-        const msg = {
-          body: `🍻 𝐶ℎ𝑜𝑙𝑜 𝑚𝑖𝑙𝑎 𝑏𝑒𝑒𝑟 𝑘ℎ𝑎𝑖! 🥂\n` + 
-                `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
-                `🍷 𝐴𝑝𝑛𝑖 𝑎𝑔𝑎 𝑠𝑢𝑟𝑢 𝑘𝑜𝑟𝑒𝑛\n` +
-                `🍾 𝐴𝑚𝑖 𝑎𝑠𝑐ℎ𝑖 𝑡ℎ𝑖𝑘 𝑒𝑘ℎ𝑜𝑛𝑒\n` +
-                `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
-                `💖 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`
-        };
-        
-        const videoPath = __dirname + '/noprefix/daru.mp4';
+      // Validate input
+      if (!body) return;
+
+      const triggers = [
+        "beer", "daru", "drink", "sharab", "party", "alcohol", 
+        "whisky", "vodka", "rum", "🍻", "🍺", "🍷", "cheers",
+        "bottoms up", "let's drink", "booze", "liquor"
+      ];
+      
+      const messageText = body.toLowerCase().trim();
+      const shouldTrigger = triggers.some(trigger => messageText.includes(trigger));
+      
+      if (!shouldTrigger) return;
+
+      console.log(`🍺 𝖡𝖾𝖾𝗋 𝗍𝗋𝗂𝗀𝗀𝖾𝗋𝖾𝖽 𝖻𝗒: ${event.senderID}`);
+
+      const videoPath = __dirname + '/noprefix/daru.mp4';
+      let hasVideo = false;
+      
+      // Check if video file exists and is readable
+      try {
         if (fs.existsSync(videoPath)) {
-          msg.attachment = fs.createReadStream(videoPath);
+          fs.accessSync(videoPath, fs.constants.R_OK);
+          hasVideo = true;
         }
-        
-        await message.reply(msg);
+      } catch (fileError) {
+        console.warn("❌ 𝖵𝗂𝖽𝖾𝗈 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖺𝖼𝖼𝖾𝗌𝗌𝗂𝖻𝗅𝖾:", fileError.message);
+        hasVideo = false;
+      }
+
+      const msg = {
+        body: `🍻 𝖢𝗁𝗈𝗅𝗈 𝗆𝗂𝗅𝖺 𝖻𝖾𝖾𝗋 𝗄𝗁𝖺𝗂! 🥂\n` + 
+              `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
+              `🍷 𝖠𝗉𝗇𝗂 𝖺𝗀𝖺 𝗌𝗎𝗋𝗎 𝗄𝗈𝗋𝖾𝗇\n` +
+              `🍾 𝖠𝗆𝗂 𝖺𝗌𝖼𝗁𝗂 𝗍𝗁𝗂𝗄 𝖾𝗄𝗁𝗈𝗇𝖾\n` +
+              `▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂ ▂\n` +
+              `💖 𝖯𝗈𝗐𝖾𝗋𝖾𝖽 𝖻𝗒 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽`
+      };
+      
+      if (hasVideo) {
+        msg.attachment = fs.createReadStream(videoPath);
+      } else {
+        msg.body += `\n\n📹 𝖵𝗂𝖽𝖾𝗈 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾, 𝖻𝗎𝗍 𝖾𝗇𝗃𝗈𝗒 𝗍𝗁𝖾 𝗆𝖾𝗌𝗌𝖺𝗀𝖾!`;
+      }
+      
+      await message.reply(msg);
+      
+      // Add reaction with error handling
+      try {
         await api.setMessageReaction("🍻", messageID, () => {}, true);
+      } catch (reactionError) {
+        console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗋𝖾𝖺𝖼𝗍𝗂𝗈𝗇:", reactionError.message);
       }
     } catch (error) {
-      console.error("𝐵𝑒𝑒𝑟 𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+      console.error("💥 𝖡𝖾𝖾𝗋 𝖢𝗁𝖺𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+      // Don't send error message to avoid spam
     }
   }
 };
