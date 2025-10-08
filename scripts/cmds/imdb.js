@@ -1,153 +1,142 @@
 const axios = require("axios");
-const fs = require("fs-extra");
-const path = require("path");
 
 module.exports = {
-    config: {
-        name: "imdb",
-        aliases: [],
-        version: "1.0.7",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        countDown: 5,
-        role: 0,
-        category: "media",
-        shortDescription: {
-            en: "𝐺𝑒𝑡 𝑚𝑜𝑣𝑖𝑒/𝑠𝑒𝑟𝑖𝑒𝑠 𝑑𝑒𝑡𝑎𝑖𝑙𝑠 𝑓𝑟𝑜𝑚 𝐼𝑀𝐷𝐵"
-        },
-        longDescription: {
-            en: "𝐹𝑒𝑡𝑐ℎ 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑏𝑜𝑢𝑡 𝑚𝑜𝑣𝑖𝑒𝑠 𝑎𝑛𝑑 𝑠𝑒𝑟𝑖𝑒𝑠 𝑓𝑟𝑜𝑚 𝐼𝑀𝐷𝐵"
-        },
-        guide: {
-            en: "{p}imdb <𝑚𝑜𝑣𝑖𝑒/𝑠𝑒𝑟𝑖𝑒𝑠 𝑛𝑎𝑚𝑒>"
-        }
+  config: {
+    name: "imdb",
+    aliases: [],
+    version: "1.0.0",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    countDown: 10,
+    role: 0,
+    category: "search",
+    shortDescription: {
+      en: "🎬 𝖲𝖾𝖺𝗋𝖼𝗁 𝗆𝗈𝗏𝗂𝖾𝗌 𝖺𝗇𝖽 𝗌𝗁𝗈𝗐𝗌 𝗈𝗇 𝖨𝖬𝖣𝖻"
     },
-
-    onStart: async function({ message, event, args }) {
-        try {
-            if (!args.length) {
-                return message.reply("🎬 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑚𝑜𝑣𝑖𝑒/𝑠𝑒𝑟𝑖𝑒𝑠 𝑛𝑎𝑚𝑒!\n𝑈𝑠𝑎𝑔𝑒: 𝑖𝑚𝑑𝑏 <𝑚𝑜𝑣𝑖𝑒/𝑠𝑒𝑟𝑖𝑒𝑠 𝑛𝑎𝑚𝑒>");
-            }
-
-            const query = args.join(" ");
-            const apiKey = "8f50e26e";
-            const url = `https://www.omdbapi.com/?t=${encodeURIComponent(query)}&apikey=${apiKey}&plot=full`;
-
-            // Show processing message
-            const processingMsg = await message.reply("🔍 | 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝐼𝑀𝐷𝐵 𝑑𝑎𝑡𝑎𝑏𝑎𝑠𝑒...");
-
-            const response = await axios.get(url, {
-                timeout: 15000
-            });
-            
-            const data = response.data;
-
-            if (data.Response === "False") {
-                await message.unsend(processingMsg.messageID);
-                return message.reply(`❌ | 𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 "${query}"\n𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑡ℎ𝑒 𝑡𝑖𝑡𝑙𝑒 𝑎𝑛𝑑 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛!`);
-            }
-
-            // Helper function to handle N/A values
-            const handleNA = (value) => value === "N/A" ? "Not Available" : value;
-
-            const messageText = `
-🎬 𝗧𝗜𝗧𝗟𝗘: ${handleNA(data.Title)} (${handleNA(data.Year)})
-⭐ 𝗥𝗔𝗧𝗜𝗡𝗚: ${handleNA(data.imdbRating)}/10
-🎭 𝗚𝗘𝗡𝗥𝗘: ${handleNA(data.Genre)}
-📅 𝗥𝗘𝗟𝗘𝗔𝗦𝗘𝗗: ${handleNA(data.Released)}
-⏰ 𝗥𝗨𝗡𝗧𝗜𝗠𝗘: ${handleNA(data.Runtime)}
-🎙️ 𝗟𝗔𝗡𝗚𝗨𝗔𝗚𝗘: ${handleNA(data.Language)}
-🎬 𝗗𝗜𝗥𝗘𝗖𝗧𝗢𝗥: ${handleNA(data.Director)}
-📝 𝗪𝗥𝗜𝗧𝗘𝗥: ${handleNA(data.Writer)}
-👨‍👩‍👧‍👦 𝗖𝗔𝗦𝗧: ${handleNA(data.Actors)}
-🏆 𝗔𝗪𝗔𝗥𝗗𝗦: ${handleNA(data.Awards)}
-🌍 𝗖𝗢𝗨𝗡𝗧𝗥𝗬: ${handleNA(data.Country)}
-📺 𝗧𝗬𝗣𝗘: ${handleNA(data.Type)}
-
-📜 𝗣𝗟𝗢𝗧:
-${handleNA(data.Plot)}
-
-🔗 𝗜𝗠𝗗𝗕 𝗟𝗜𝗡𝗞: https://www.imdb.com/title/${data.imdbID}/
-            `.trim();
-
-            // Clean up processing message
-            await message.unsend(processingMsg.messageID);
-
-            // Send text info first
-            await message.reply(messageText);
-
-            // Send poster if available
-            if (data.Poster && data.Poster !== "N/A") {
-                const cacheDir = path.join(__dirname, "cache");
-                if (!fs.existsSync(cacheDir)) {
-                    fs.mkdirSync(cacheDir, { recursive: true });
-                }
-
-                const posterPath = path.join(cacheDir, `imdb_${data.imdbID}_${Date.now()}.jpg`);
-                
-                try {
-                    const imageResponse = await axios({
-                        url: data.Poster,
-                        method: 'GET',
-                        responseType: 'arraybuffer',
-                        timeout: 30000,
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                        }
-                    });
-
-                    // Check if response is valid
-                    if (!imageResponse.data || imageResponse.data.length === 0) {
-                        throw new Error("Empty image response");
-                    }
-
-                    await fs.writeFileSync(posterPath, Buffer.from(imageResponse.data));
-
-                    // Verify file was written
-                    if (!fs.existsSync(posterPath)) {
-                        throw new Error("Failed to save image");
-                    }
-
-                    const stats = fs.statSync(posterPath);
-                    if (stats.size === 0) {
-                        throw new Error("Empty image file");
-                    }
-
-                    await message.reply({
-                        body: "📸 𝗠𝗢𝗩𝗜𝗘 𝗣𝗢𝗦𝗧𝗘𝗥",
-                        attachment: fs.createReadStream(posterPath)
-                    });
-
-                    // Clean up after sending
-                    setTimeout(() => {
-                        try {
-                            if (fs.existsSync(posterPath)) {
-                                fs.unlinkSync(posterPath);
-                            }
-                        } catch (cleanupError) {
-                            console.error("Poster cleanup error:", cleanupError);
-                        }
-                    }, 5000);
-                    
-                } catch (imageError) {
-                    console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", imageError);
-                    // Don't send error message for image failure, just continue
-                }
-            }
-
-        } catch (error) {
-            console.error("𝐼𝑀𝐷𝐵 𝐸𝑟𝑟𝑜𝑟:", error);
-            
-            let errorMessage = "❌ | 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑡ℎ𝑒 𝑑𝑎𝑡𝑎. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟!";
-            
-            if (error.code === "ECONNABORTED") {
-                errorMessage = "⏰ | 𝑅𝑒𝑞𝑢𝑒𝑠𝑡 𝑡𝑖𝑚𝑒𝑑 𝑜𝑢𝑡. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.";
-            } else if (error.response) {
-                errorMessage = "🌐 | 𝐴𝑃𝐼 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.";
-            } else if (error.request) {
-                errorMessage = "🔗 | 𝑁𝑒𝑡𝑤𝑜𝑟𝑘 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑐𝑜𝑛𝑛𝑒𝑐𝑡𝑖𝑜𝑛.";
-            }
-            
-            await message.reply(errorMessage);
-        }
+    longDescription: {
+      en: "𝖦𝖾𝗍 𝖽𝖾𝗍𝖺𝗂𝗅𝖾𝖽 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇 𝖺𝖻𝗈𝗎𝗍 𝗆𝗈𝗏𝗂𝖾𝗌 𝖺𝗇𝖽 𝖳𝖵 𝗌𝗁𝗈𝗐𝗌 𝖿𝗋𝗈𝗆 𝖨𝖬𝖣𝖻"
+    },
+    guide: {
+      en: "{p}imdb [𝗆𝗈𝗏𝗂𝖾 𝗇𝖺𝗆𝖾]"
+    },
+    dependencies: {
+      "axios": ""
     }
+  },
+
+  onStart: async function({ message, event, args }) {
+    try {
+      // Dependency check
+      let axiosAvailable = true;
+      try {
+        require("axios");
+      } catch (e) {
+        axiosAvailable = false;
+      }
+
+      if (!axiosAvailable) {
+        return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+      }
+
+      if (!args[0]) {
+        return message.reply("🎬 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗆𝗈𝗏𝗂𝖾 𝗈𝗋 𝗌𝗁𝗈𝗐 𝗇𝖺𝗆𝖾 𝗍𝗈 𝗌𝖾𝖺𝗋𝖼𝗁.");
+      }
+
+      const movieName = args.join(" ").trim();
+      
+      if (movieName.length < 2) {
+        return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗏𝖺𝗅𝗂𝖽 𝗆𝗈𝗏𝗂𝖾 𝗇𝖺𝗆𝖾 (𝖺𝗍 𝗅𝖾𝖺𝗌𝗍 2 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌).");
+      }
+
+      const loadingMsg = await message.reply("🔍 𝖲𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝖨𝖬𝖣𝖻...");
+
+      try {
+        const response = await axios.get(`http://www.omdbapi.com/?apikey=742b2d09&t=${encodeURIComponent(movieName)}&plot=full`, {
+          timeout: 30000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        
+        const imdbData = response.data;
+
+        if (imdbData.Response === "False") {
+          await message.unsend(loadingMsg.messageID);
+          return message.reply("❌ 𝖬𝗈𝗏𝗂𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗍𝗁𝖾 𝗇𝖺𝗆𝖾 𝖺𝗇𝖽 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
+        }
+
+        // Format the movie information with your exact banner style
+        let imdbInfo = "⚍⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚍\n";
+        imdbInfo += " ``` 𝕀𝕄𝔻𝔹 𝕊𝔼𝔸ℝℂℍ```\n";
+        imdbInfo += "⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎⚎\n";
+        imdbInfo += "🎬 𝖳𝗂𝗍𝗅𝖾: " + (imdbData.Title || "𝖭/𝖠") + "\n";
+        imdbInfo += "📅 𝖸𝖾𝖺𝗋: " + (imdbData.Year || "𝖭/𝖠") + "\n";
+        imdbInfo += "⭐ 𝖱𝖺𝗍𝗂𝗇𝗀: " + (imdbData.Rated || "𝖭/𝖠") + "\n";
+        imdbInfo += "📆 𝖱𝖾𝗅𝖾𝖺𝗌𝖾: " + (imdbData.Released || "𝖭/𝖠") + "\n";
+        imdbInfo += "⏳ 𝖱𝗎𝗇𝗍𝗂𝗆𝖾: " + (imdbData.Runtime || "𝖭/𝖠") + "\n";
+        imdbInfo += "🌀 𝖦𝖾𝗇𝗋𝖾: " + (imdbData.Genre || "𝖭/𝖠") + "\n";
+        imdbInfo += "👨🏻‍💻 𝖣𝗂𝗋𝖾𝖼𝗍𝗈𝗋: " + (imdbData.Director || "𝖭/𝖠") + "\n";
+        imdbInfo += "✍ 𝖶𝗋𝗂𝗍𝖾𝗋𝗌: " + (imdbData.Writer || "𝖭/𝖠") + "\n";
+        imdbInfo += "👨 𝖠𝖼𝗍𝗈𝗋𝗌: " + (imdbData.Actors || "𝖭/𝖠") + "\n";
+        imdbInfo += "📃 𝖲𝗒𝗇𝗈𝗉𝗌𝗂𝗌: " + (imdbData.Plot || "𝖭/𝖠") + "\n";
+        imdbInfo += "🌐 𝖫𝖺𝗇𝗀𝗎𝖺𝗀𝖾: " + (imdbData.Language || "𝖭/𝖠") + "\n";
+        imdbInfo += "🌍 𝖢𝗈𝗎𝗇𝗍𝗋𝗒: " + (imdbData.Country || "𝖭/𝖠") + "\n";
+        imdbInfo += "🎖️ 𝖠𝗐𝖺𝗋𝖽𝗌: " + (imdbData.Awards || "𝖭/𝖠") + "\n";
+        imdbInfo += "📦 𝖡𝗈𝗑𝖮𝖿𝖿𝗂𝖼𝖾: " + (imdbData.BoxOffice || "𝖭/𝖠") + "\n";
+        imdbInfo += "🏙️ 𝖯𝗋𝗈𝖽𝗎𝖼𝗍𝗂𝗈𝗇: " + (imdbData.Production || "𝖭/𝖠") + "\n";
+        imdbInfo += "🌟 𝖨𝖬𝖣𝖻 𝖲𝖼𝗈𝗋𝖾: " + (imdbData.imdbRating || "𝖭/𝖠") + "\n";
+        imdbInfo += "❎ 𝖨𝖬𝖣𝖻 𝖵𝗈𝗍𝖾𝗌: " + (imdbData.imdbVotes || "𝖭/𝖠") + "\n\n";
+        imdbInfo += "🔍 𝖲𝖾𝖺𝗋𝖼𝗁: " + movieName;
+
+        let imageStream = null;
+        if (imdbData.Poster && imdbData.Poster !== "N/A") {
+          try {
+            imageStream = await global.utils.getStreamFromURL(imdbData.Poster);
+          } catch (imageError) {
+            console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝗉𝗈𝗌𝗍𝖾𝗋:", imageError.message);
+          }
+        }
+
+        // Unsend loading message
+        try {
+          await message.unsend(loadingMsg.messageID);
+        } catch (unsendError) {
+          console.warn("❌ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+        }
+
+        if (imageStream) {
+          await message.reply({
+            body: imdbInfo,
+            attachment: imageStream
+          });
+        } else {
+          await message.reply(imdbInfo);
+        }
+
+      } catch (apiError) {
+        await message.unsend(loadingMsg.messageID);
+        console.error("❌ 𝖨𝖬𝖣𝖻 𝖠𝖯𝖨 𝖤𝗋𝗋𝗈𝗋:", apiError);
+        
+        let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗌𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝖨𝖬𝖣𝖻. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+        
+        if (apiError.code === 'ECONNREFUSED') {
+          errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+        } else if (apiError.code === 'ETIMEDOUT') {
+          errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+        }
+        
+        await message.reply(errorMessage);
+      }
+
+    } catch (error) {
+      console.error("💥 𝖨𝖬𝖣𝖻 𝖲𝖾𝖺𝗋𝖼𝗁 𝖤𝗋𝗋𝗈𝗋:", error);
+      
+      let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗌𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝖨𝖬𝖣𝖻. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+      
+      if (error.message.includes('getStreamFromURL')) {
+        errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+      }
+      
+      await message.reply(errorMessage);
+    }
+  }
 };
