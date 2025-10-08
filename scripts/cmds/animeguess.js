@@ -2,124 +2,277 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
 
-module.exports.config = {
-    name: "animeguess",
-    aliases: ["guessanime", "animequiz"],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "𝑔𝑎𝑚𝑒",
-    shortDescription: {
-        en: "𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑓𝑜𝑟 𝑟𝑒𝑤𝑎𝑟𝑑𝑠"
-    },
-    longDescription: {
-        en: "𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑒 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑓𝑟𝑜𝑚 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒 𝑎𝑛𝑑 𝑤𝑖𝑛 𝑐𝑜𝑖𝑛𝑠! 𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 30 𝑠𝑒𝑐𝑜𝑛𝑑𝑠 𝑡𝑜 𝑎𝑛𝑠𝑤𝑒𝑟."
-    },
-    guide: {
-        en: "{p}animeguess"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ message, usersData, api }) {
-    try {
-        // Check dependencies
-        if (!axios || !fs.existsSync) {
-            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+module.exports = {
+    config: {
+        name: "animeguess",
+        aliases: [],
+        version: "1.0",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "game",
+        shortDescription: {
+            en: "Guess the anime character for rewards"
+        },
+        longDescription: {
+            en: "Guess the anime character from the image and win coins! You have 30 seconds to answer."
+        },
+        guide: {
+            en: "{p}animeguess"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
         }
+    },
 
-        // 𝐹𝑒𝑡𝑐ℎ 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟
-        const response = await axios.get('https://global-prime-mahis-apis.vercel.app');
-        const characters = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
-        const character = characters[Math.floor(Math.random() * characters.length)];
-
-        // 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟 𝑖𝑚𝑎𝑔𝑒
-        const imagePath = path.join(__dirname, 'cache', 'character.jpg');
-        const imageRes = await axios.get(character.image, { responseType: 'arraybuffer' });
-        await fs.ensureDir(path.dirname(imagePath));
-        await fs.writeFile(imagePath, imageRes.data);
-
-        // 𝑆𝑒𝑛𝑑 𝑔𝑎𝑚𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒
-        const gameMsg =
-            `𝐺𝑢𝑒𝑠𝑠 𝑡ℎ𝑖𝑠 𝑎𝑛𝑖𝑚𝑒 𝑐ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟!\n\n` +
-            `𝑇𝑟𝑎𝑖𝑡𝑠: ${character.traits || '𝑁/𝐴'}\n` +
-            `𝑇𝑎𝑔𝑠: ${character.tags || '𝑁/𝐴'}\n\n` +
-            `𝑌𝑜𝑢 ℎ𝑎𝑣𝑒 30 𝑠𝑒𝑐𝑜𝑛𝑑𝑠 𝑡𝑜 𝑎𝑛𝑠𝑤𝑒𝑟!`;
-
-        const sentMsg = await message.reply({
-            body: gameMsg,
-            attachment: fs.createReadStream(imagePath)
-        });
-
-        // 𝑆𝑒𝑡 𝑔𝑎𝑚𝑒 𝑠𝑡𝑎𝑡𝑒
-        global.client.handleReply.push({
-            name: this.config.name,
-            messageID: sentMsg.messageID,
-            author: sentMsg.senderID,
-            correctAnswer: [character.fullName, character.firstName].map(ans => ans.toLowerCase()),
-            imagePath: imagePath
-        });
-
-        // 𝑆𝑒𝑡 𝑡𝑖𝑚𝑒𝑜𝑢𝑡
-        setTimeout(async () => {
-            const replyIndex = global.client.handleReply.findIndex(reply => reply.messageID === sentMsg.messageID);
-            if (replyIndex !== -1) {
-                await message.reply(`⏰ 𝑇𝑖𝑚𝑒'𝑠 𝑢𝑝! 𝑇ℎ𝑒 𝑎𝑛𝑠𝑤𝑒𝑟 𝑤𝑎𝑠: ${character.fullName}`);
-                await this.cleanup(imagePath, sentMsg.messageID);
+    onStart: async function({ message, usersData, api, event }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                dependenciesAvailable = false;
             }
-        }, 30000);
 
-    } catch (err) {
-        console.error("𝐸𝑟𝑟𝑜𝑟:", err);
-        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
-    }
-};
+            if (!dependenciesAvailable) {
+                return message.reply("❌ Missing dependencies. Please install axios and fs-extra.");
+            }
 
-module.exports.onReply = async function({ event, message, handleReply, usersData }) {
-    try {
-        const userAnswer = event.body.trim().toLowerCase();
-        
-        if (handleReply.correctAnswer.includes(userAnswer)) {
-            const reward = 1000;
-            const userData = await usersData.get(event.senderID);
-            const currentMoney = userData.money || 0;
-            await usersData.set(event.senderID, { money: currentMoney + reward });
+            // Fetch a random anime character with enhanced error handling
+            let character;
+            try {
+                console.log("🔍 Fetching anime character data...");
+                const response = await axios.get('https://global-prime-mahis-apis.vercel.app', {
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
 
-            await message.reply(
-                `🎉 𝐶𝑜𝑟𝑟𝑒𝑐𝑡! 𝑌𝑜𝑢 𝑤𝑜𝑛 ${reward} 𝑐𝑜𝑖𝑛𝑠.\n` +
-                `𝐶ℎ𝑎𝑟𝑎𝑐𝑡𝑒𝑟: ${handleReply.correctAnswer[0]}\n` +
-                `𝑌𝑜𝑢𝑟 𝑛𝑒𝑤 𝑏𝑎𝑙𝑎𝑛𝑐𝑒: ${currentMoney + reward} 𝑐𝑜𝑖𝑛𝑠`
-            );
-        } else {
-            await message.reply(
-                `❌ 𝑊𝑟𝑜𝑛𝑔! 𝑇ℎ𝑒 𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑎𝑛𝑠𝑤𝑒𝑟 𝑤𝑎𝑠: ${handleReply.correctAnswer[0]}`
-            );
+                if (!response.data || !response.data.data) {
+                    throw new Error("Invalid API response structure");
+                }
+
+                const characters = Array.isArray(response.data.data) ? response.data.data : [response.data.data];
+                
+                if (characters.length === 0) {
+                    throw new Error("No characters found in API response");
+                }
+
+                character = characters[Math.floor(Math.random() * characters.length)];
+                
+                if (!character.image || !character.fullName) {
+                    throw new Error("Invalid character data structure");
+                }
+
+                console.log(`🎯 Selected character: ${character.fullName}`);
+
+            } catch (apiError) {
+                console.error("❌ API Error:", apiError.message);
+                return message.reply("❌ Failed to fetch anime character data. Please try again later.");
+            }
+
+            // Download character image with enhanced error handling
+            const imagePath = path.join(__dirname, 'cache', `character_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`);
+            
+            try {
+                console.log(`📥 Downloading character image: ${character.image}`);
+                await fs.ensureDir(path.dirname(imagePath));
+                
+                const imageRes = await axios.get(character.image, { 
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Referer': 'https://global-prime-mahis-apis.vercel.app/'
+                    },
+                    maxContentLength: 10 * 1024 * 1024 // 10MB limit
+                });
+
+                // Check if it's actually an image
+                const contentType = imageRes.headers['content-type'];
+                if (!contentType || !contentType.startsWith('image/')) {
+                    throw new Error("Invalid content type: " + contentType);
+                }
+
+                await fs.writeFile(imagePath, Buffer.from(imageRes.data));
+
+                // Verify file was written
+                const stats = await fs.stat(imagePath);
+                if (stats.size < 1000) { // At least 1KB
+                    throw new Error("Downloaded file is too small");
+                }
+
+                console.log(`✅ Image downloaded successfully (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
+
+            } catch (imageError) {
+                console.error("❌ Image download error:", imageError.message);
+                await this.cleanup(imagePath);
+                return message.reply("❌ Failed to download character image. Please try again.");
+            }
+
+            // Prepare correct answers
+            const correctAnswers = [character.fullName.toLowerCase()];
+            if (character.firstName) {
+                correctAnswers.push(character.firstName.toLowerCase());
+            }
+            if (character.lastName) {
+                correctAnswers.push(character.lastName.toLowerCase());
+            }
+            // Add common variations
+            correctAnswers.push(...correctAnswers.map(ans => ans.replace(/\s+/g, '')));
+
+            // Send game message with dark stylish font
+            const gameMsg = 
+                `🎮 𝗔𝗡𝗜𝗠𝗘 𝗚𝗨𝗘𝗦𝗦 𝗚𝗔𝗠𝗘 🎮\n\n` +
+                `👤 𝗖𝗵𝗮𝗿𝗮𝗰𝘁𝗲𝗿 𝗧𝗿𝗮𝗶𝘁𝘀: ${character.traits || 'Classic Anime Character'}\n` +
+                `🏷️  𝗧𝗮𝗴𝘀: ${character.tags || 'Anime, Character'}\n\n` +
+                `⏰ 𝗬𝗼𝘂 𝗵𝗮𝘃𝗲 𝟯𝟬 𝘀𝗲𝗰𝗼𝗻𝗱𝘀 𝘁𝗼 𝗮𝗻𝘀𝘄𝗲𝗿!\n` +
+                `💎 𝗥𝗲𝘄𝗮𝗿𝗱: 𝟭,𝟬𝟬𝟬 𝗰𝗼𝗶𝗻𝘀\n\n` +
+                `✨ 𝗚𝘂𝗲𝘀𝘀 𝘁𝗵𝗲 𝗮𝗻𝗶𝗺𝗲 𝗰𝗵𝗮𝗿𝗮𝗰𝘁𝗲𝗿 𝗻𝗮𝗺𝗲!`;
+
+            const sentMsg = await message.reply({
+                body: gameMsg,
+                attachment: fs.createReadStream(imagePath)
+            });
+
+            // Set game state with enhanced data
+            const gameData = {
+                name: this.config.name,
+                messageID: sentMsg.messageID,
+                author: event.senderID,
+                correctAnswer: correctAnswers,
+                imagePath: imagePath,
+                startTime: Date.now(),
+                characterName: character.fullName
+            };
+
+            if (!global.client.handleReply) {
+                global.client.handleReply = [];
+            }
+            global.client.handleReply.push(gameData);
+
+            console.log(`🎯 Game started for user ${event.senderID}, correct answer: ${character.fullName}`);
+
+            // Set timeout with better cleanup
+            const timeoutId = setTimeout(async () => {
+                const replyIndex = global.client.handleReply.findIndex(reply => reply.messageID === sentMsg.messageID);
+                if (replyIndex !== -1) {
+                    try {
+                        await message.reply(`⏰ 𝗧𝗶𝗺𝗲'𝘀 𝘂𝗽! 𝗧𝗵𝗲 𝗮𝗻𝘀𝘄𝗲𝗿 𝘄𝗮𝘀: ${character.fullName}\n\n💡 𝗕𝗲𝘁𝘁𝗲𝗿 𝗹𝘂𝗰𝗸 𝗻𝗲𝘅𝘁 𝘁𝗶𝗺𝗲!`);
+                        await this.cleanup(imagePath, sentMsg.messageID);
+                    } catch (timeoutError) {
+                        console.error("Timeout cleanup error:", timeoutError);
+                    }
+                }
+            }, 30000);
+
+            // Store timeout ID for cleanup
+            gameData.timeoutId = timeoutId;
+
+        } catch (err) {
+            console.error("💥 Main game error:", err);
+            await message.reply("❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱. 𝗣𝗹𝗲𝗮𝘀𝗲 𝘁𝗿𝘆 𝗮𝗴𝗮𝗶𝗻 𝗹𝗮𝘁𝗲𝗿.");
         }
-        
-        await this.cleanup(handleReply.imagePath, handleReply.messageID);
-        
-    } catch (err) {
-        console.error("𝐸𝑟𝑟𝑜𝑟:", err);
-        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑎𝑛𝑠𝑤𝑒𝑟.");
-    }
-};
+    },
 
-// 𝐻𝑒𝑙𝑝𝑒𝑟 𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛 𝑓𝑜𝑟 𝑐𝑙𝑒𝑎𝑛𝑢𝑝
-module.exports.cleanup = async function(imagePath, messageID) {
-    try {
-        if (await fs.pathExists(imagePath)) {
-            await fs.unlink(imagePath);
+    onReply: async function({ event, message, Reply, usersData }) {
+        try {
+            // Validate reply
+            if (event.senderID !== Reply.author) {
+                return; // Ignore replies from other users
+            }
+
+            const userAnswer = event.body.trim().toLowerCase();
+            console.log(`🎯 User answer: "${userAnswer}", Correct answers:`, Reply.correctAnswer);
+
+            let isCorrect = false;
+            
+            // Check if answer is correct (with fuzzy matching)
+            for (const correctAnswer of Reply.correctAnswer) {
+                if (userAnswer === correctAnswer || 
+                    userAnswer.includes(correctAnswer) || 
+                    correctAnswer.includes(userAnswer)) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                const reward = 1000;
+                let userData;
+                
+                try {
+                    userData = await usersData.get(event.senderID);
+                } catch (userError) {
+                    console.error("User data error:", userError);
+                    userData = { money: 0 };
+                }
+
+                const currentMoney = userData.money || 0;
+                const newBalance = currentMoney + reward;
+                
+                try {
+                    await usersData.set(event.senderID, { money: newBalance });
+                } catch (setError) {
+                    console.error("Set user data error:", setError);
+                }
+
+                const winMessage = 
+                    `🎉 𝗖𝗢𝗡𝗚𝗥𝗔𝗧𝗨𝗟𝗔𝗧𝗜𝗢𝗡𝗦! 🎉\n\n` +
+                    `✅ 𝗖𝗼𝗿𝗿𝗲𝗰𝘁 𝗮𝗻𝘀𝘄𝗲𝗿!\n` +
+                    `👤 𝗖𝗵𝗮𝗿𝗮𝗰𝘁𝗲𝗿: ${Reply.characterName}\n` +
+                    `💰 𝗥𝗲𝘄𝗮𝗿𝗱: ${reward} 𝗰𝗼𝗶𝗻𝘀\n` +
+                    `💎 𝗡𝗲𝘄 𝗯𝗮𝗹𝗮𝗻𝗰𝗲: ${newBalance} 𝗰𝗼𝗶𝗻𝘀\n\n` +
+                    `🎮 𝗣𝗹𝗮𝘆 𝗮𝗴𝗮𝗶𝗻 𝘄𝗶𝘁𝗵: ${global.config.PREFIX}animeguess`;
+
+                await message.reply(winMessage);
+                
+            } else {
+                const loseMessage = 
+                    `❌ 𝗪𝗥𝗢𝗡𝗚 𝗔𝗡𝗦𝗪𝗘𝗥!\n\n` +
+                    `👤 𝗧𝗵𝗲 𝗰𝗼𝗿𝗿𝗲𝗰𝘁 𝗮𝗻𝘀𝘄𝗲𝗿 𝘄𝗮𝘀: ${Reply.characterName}\n` +
+                    `💡 𝗕𝗲𝘁𝘁𝗲𝗿 𝗹𝘂𝗰𝗸 𝗻𝗲𝘅𝘁 𝘁𝗶𝗺𝗲!\n\n` +
+                    `🎮 𝗧𝗿𝘆 𝗮𝗴𝗮𝗶𝗻: ${global.config.PREFIX}animeguess`;
+
+                await message.reply(loseMessage);
+            }
+            
+            // Cleanup
+            await this.cleanup(Reply.imagePath, Reply.messageID);
+            
+        } catch (err) {
+            console.error("💥 Reply processing error:", err);
+            await message.reply("❌ 𝗔𝗻 𝗲𝗿𝗿𝗼𝗿 𝗼𝗰𝗰𝘂𝗿𝗿𝗲𝗱 𝘄𝗵𝗶𝗹𝗲 𝗽𝗿𝗼𝗰𝗲𝘀𝘀𝗶𝗻𝗴 𝘆𝗼𝘂𝗿 𝗮𝗻𝘀𝘄𝗲𝗿.");
         }
-        
-        const replyIndex = global.client.handleReply.findIndex(reply => reply.messageID === messageID);
-        if (replyIndex !== -1) {
-            global.client.handleReply.splice(replyIndex, 1);
+    },
+
+    // Enhanced cleanup function
+    cleanup: async function(imagePath, messageID) {
+        try {
+            // Clean up image file
+            if (imagePath && await fs.pathExists(imagePath)) {
+                await fs.unlink(imagePath);
+                console.log("🧹 Cleaned up image file");
+            }
+            
+            // Clean up game state
+            if (global.client.handleReply) {
+                const replyIndex = global.client.handleReply.findIndex(reply => reply.messageID === messageID);
+                if (replyIndex !== -1) {
+                    // Clear timeout if exists
+                    if (global.client.handleReply[replyIndex].timeoutId) {
+                        clearTimeout(global.client.handleReply[replyIndex].timeoutId);
+                    }
+                    global.client.handleReply.splice(replyIndex, 1);
+                    console.log("🧹 Cleaned up game state");
+                }
+            }
+        } catch (err) {
+            console.error("Cleanup error:", err);
         }
-    } catch (err) {
-        console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", err);
     }
 };
