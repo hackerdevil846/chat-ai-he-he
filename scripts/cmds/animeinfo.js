@@ -3,112 +3,203 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
 
-module.exports.config = {
-    name: "animeinfo",
-    aliases: ["mal", "anime"],
-    version: "3.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 20,
-    role: 0,
-    shortDescription: {
-        en: "𝐺𝑒𝑡 𝑎𝑛𝑖𝑚𝑒 𝑑𝑒𝑡𝑎𝑖𝑙𝑠 𝑓𝑟𝑜𝑚 𝑀𝑦𝐴𝑛𝑖𝑚𝑒𝐿𝑖𝑠𝑡"
+module.exports = {
+    config: {
+        name: "animeinfo",
+        aliases: ["mal", "anime"],
+        version: "3.0",
+        author: "Asif Mahmud",
+        countDown: 20,
+        role: 0,
+        category: "anime",
+        shortDescription: {
+            en: "Get anime details from MyAnimeList"
+        },
+        longDescription: {
+            en: "Fetch comprehensive anime information from MyAnimeList"
+        },
+        guide: {
+            en: "{p}animeinfo [anime title]"
+        },
+        dependencies: {
+            "mal-scraper": "",
+            "axios": "",
+            "fs-extra": ""
+        }
     },
-    longDescription: {
-        en: "𝐹𝑒𝑡𝑐ℎ 𝑐𝑜𝑚𝑝𝑟𝑒ℎ𝑒𝑛𝑠𝑖𝑣𝑒 𝑎𝑛𝑖𝑚𝑒 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑟𝑜𝑚 𝑀𝑦𝐴𝑛𝑖𝑚𝑒𝐿𝑖𝑠𝑡"
-    },
-    category: "𝑎𝑛𝑖𝑚𝑒",
-    guide: {
-        en: "{p}animeinfo [𝑎𝑛𝑖𝑚𝑒 𝑡𝑖𝑡𝑙𝑒]"
-    },
-    dependencies: {
-        "mal-scraper": "",
-        "axios": "",
-        "fs-extra": ""
-    }
-};
 
-module.exports.onStart = async function({ message, args }) {
-    try {
-        // Check dependencies
-        if (!Scraper || !axios || !fs) {
-            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
-        }
-
-        const animeTitle = args.join(" ");
-        if (!animeTitle) {
-            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎𝑛 𝑎𝑛𝑖𝑚𝑒 𝑡𝑖𝑡𝑙𝑒!");
-        }
-
-        await message.reply(`🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑀𝑦𝐴𝑛𝑖𝑚𝑒𝐿𝑖𝑠𝑡 𝑓𝑜𝑟 "${animeTitle}"...`);
-
-        const animeData = await Scraper.getInfoFromName(animeTitle);
-        if (!animeData) {
-            return message.reply("❌ 𝑁𝑜 𝑟𝑒𝑠𝑢𝑙𝑡𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑡𝑖𝑡𝑙𝑒!");
-        }
-
-        // Create cache directory if it doesn't exist
-        const cacheDir = path.join(__dirname, 'cache');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
-        }
-
-        const imagePath = path.join(cacheDir, `mal_${Date.now()}.jpg`);
-        const imageUrl = animeData.picture;
-
-        // Download image
+    onStart: async function({ message, args }) {
         try {
-            const imageResponse = await axios.get(imageUrl, { 
-                responseType: 'arraybuffer',
-                timeout: 10000
-            });
-            await fs.writeFile(imagePath, Buffer.from(imageResponse.data, 'binary'));
-        } catch (imageError) {
-            console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", imageError);
-        }
+            // Dependency check with better validation
+            let dependenciesAvailable = true;
+            try {
+                require('mal-scraper');
+                require('axios');
+                require('fs-extra');
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
 
-        // Format data
-        const genres = animeData.genres?.join(", ") || "𝑁/𝐴";
-        const studios = animeData.studios?.join(", ") || "𝑁/𝐴";
-        const producers = animeData.producers?.join(", ") || "𝑁/𝐴";
+            if (!dependenciesAvailable) {
+                return message.reply("❌ Missing required dependencies: mal-scraper, axios, fs-extra");
+            }
 
-        const messageBody = `
-🎬 𝑇𝑖𝑡𝑙𝑒: ${animeData.title || "𝑁/𝐴"}
-🇯🇵 𝐽𝑎𝑝𝑎𝑛𝑒𝑠𝑒 𝑇𝑖𝑡𝑙𝑒: ${animeData.japaneseTitle || "𝑁/𝐴"}
-📺 𝑇𝑦𝑝𝑒: ${animeData.type || "𝑁/𝐴"}
-📊 𝑆𝑡𝑎𝑡𝑢𝑠: ${animeData.status || "𝑁/𝐴"}
-🗓️ 𝑃𝑟𝑒𝑚𝑖𝑒𝑟𝑒𝑑: ${animeData.premiered || "𝑁/𝐴"}
-⏰ 𝐵𝑟𝑜𝑎𝑑𝑐𝑎𝑠𝑡: ${animeData.broadcast || "𝑁/𝐴"}
-📡 𝐴𝑖𝑟𝑒𝑑: ${animeData.aired || "𝑁/𝐴"}
-🏭 𝑃𝑟𝑜𝑑𝑢𝑐𝑒𝑟𝑠: ${producers}
-🎥 𝑆𝑡𝑢𝑑𝑖𝑜𝑠: ${studios}
-📚 𝑆𝑜𝑢𝑟𝑐𝑒: ${animeData.source || "𝑁/𝐴"}
-📈 𝐸𝑝𝑖𝑠𝑜𝑑𝑒𝑠: ${animeData.episodes || "𝑁/𝐴"}
-⏱️ 𝐷𝑢𝑟𝑎𝑡𝑖𝑜𝑛: ${animeData.duration || "𝑁/𝐴"}
-🏷️ 𝐺𝑒𝑛𝑟𝑒𝑠: ${genres}
-🌟 𝑃𝑜𝑝𝑢𝑙𝑎𝑟𝑖𝑡𝑦: #${animeData.popularity || "𝑁/𝐴"}
-🏆 𝑅𝑎𝑛𝑘𝑒𝑑: #${animeData.ranked || "𝑁/𝐴"}
-⭐ 𝑆𝑐𝑜𝑟𝑒: ${animeData.score || "𝑁/𝐴"}
-🔞 𝑅𝑎𝑡𝑖𝑛𝑔: ${animeData.rating || "𝑁/𝐴"}
-📝 𝑆𝑦𝑛𝑜𝑝𝑠𝑖𝑠:
-${animeData.synopsis?.substring(0, 500) + (animeData.synopsis?.length > 500 ? "..." : "") || "𝑁𝑜 𝑠𝑦𝑛𝑜𝑝𝑠𝑖𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒"}
-🔗 𝑉𝑖𝑒𝑤 𝑓𝑢𝑙𝑙 𝑑𝑒𝑡𝑎𝑖𝑙𝑠: ${animeData.url}
-`;
+            const animeTitle = args.join(" ").trim();
+            if (!animeTitle) {
+                return message.reply("❌ Please enter an anime title!\n\nExample: /animeinfo Naruto Shippuden");
+            }
 
-        // Send result with or without image
-        if (fs.existsSync(imagePath)) {
-            await message.reply({
-                body: messageBody,
-                attachment: fs.createReadStream(imagePath)
-            });
+            if (animeTitle.length > 100) {
+                return message.reply("❌ Anime title is too long. Please keep it under 100 characters.");
+            }
+
+            const loadingMsg = await message.reply("🔍 Searching MyAnimeList database... ⏳");
+
+            let animeData = null;
+            try {
+                animeData = await Scraper.getInfoFromName(animeTitle);
+                if (!animeData || !animeData.title) {
+                    throw new Error("No valid data received from MyAnimeList");
+                }
+            } catch (scraperError) {
+                console.error("Scraper Error:", scraperError);
+                await message.unsend(loadingMsg.messageID);
+                return message.reply(`❌ No results found for "${animeTitle}"\n\n💡 Try a different title or check spelling.`);
+            }
+
+            // Create cache directory if it doesn't exist
+            const cacheDir = path.join(__dirname, 'cache');
+            try {
+                if (!fs.existsSync(cacheDir)) {
+                    fs.mkdirSync(cacheDir, { recursive: true });
+                }
+            } catch (dirError) {
+                console.error("Cache directory error:", dirError);
+            }
+
+            const imagePath = path.join(cacheDir, `mal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`);
+            const imageUrl = animeData.picture;
+            let imageDownloaded = false;
+
+            // Download image with enhanced error handling
+            if (imageUrl && imageUrl.startsWith('http')) {
+                try {
+                    console.log(`📥 Downloading image: ${imageUrl}`);
+                    const imageResponse = await axios.get(imageUrl, { 
+                        responseType: 'arraybuffer',
+                        timeout: 15000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'Referer': 'https://myanimelist.net/'
+                        },
+                        maxContentLength: 5 * 1024 * 1024 // 5MB limit
+                    });
+
+                    // Check if it's actually an image
+                    const contentType = imageResponse.headers['content-type'];
+                    if (contentType && contentType.startsWith('image/')) {
+                        await fs.writeFile(imagePath, Buffer.from(imageResponse.data, 'binary'));
+                        
+                        // Verify file was written
+                        const stats = await fs.stat(imagePath);
+                        if (stats.size > 1000) { // At least 1KB
+                            imageDownloaded = true;
+                            console.log(`✅ Image downloaded successfully (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
+                        } else {
+                            await fs.unlink(imagePath).catch(() => {});
+                        }
+                    }
+                } catch (imageError) {
+                    console.error("❌ Image download failed:", imageError.message);
+                    // Continue without image
+                }
+            }
+
+            // Format data with dark stylish font
+            const genres = animeData.genres?.join(", ") || "N/A";
+            const studios = animeData.studios?.join(", ") || "N/A";
+            const producers = animeData.producers?.join(", ") || "N/A";
             
-            // Clean up after sending
-            await fs.unlink(imagePath);
-        } else {
-            await message.reply(messageBody);
-        }
+            // Truncate synopsis if too long
+            let synopsis = animeData.synopsis || "No synopsis available";
+            if (synopsis.length > 800) {
+                synopsis = synopsis.substring(0, 800) + "...";
+            }
 
-    } catch (error) {
-        console.error("𝐴𝑛𝑖𝑚𝑒𝐼𝑛𝑓𝑜 𝐸𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑎𝑛𝑖𝑚𝑒 𝑑𝑎𝑡𝑎. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+            // Remove HTML tags from synopsis
+            synopsis = synopsis.replace(/<[^>]*>/g, '');
+
+            const messageBody = `╔═══════════════════════════════╗
+║          🎬 ＡＮＩＭＥ ＩＮＦＯ          ║
+╠═══════════════════════════════╣
+║ 📖 Title: ${(animeData.title || "N/A").padEnd(30)} ║
+║ 🇯🇵 Japanese: ${(animeData.japaneseTitle || "N/A").substring(0, 28).padEnd(28)} ║
+╠═══════════════════════════════╣
+║ 📺 Type: ${(animeData.type || "N/A").padEnd(30)} ║
+║ 📊 Status: ${(animeData.status || "N/A").padEnd(29)} ║
+║ 🗓️ Premiered: ${(animeData.premiered || "N/A").padEnd(25)} ║
+║ 📡 Aired: ${(animeData.aired || "N/A").substring(0, 29).padEnd(29)} ║
+╠═══════════════════════════════╣
+║ 📈 Episodes: ${String(animeData.episodes || "N/A").padEnd(28)} ║
+║ ⏱️ Duration: ${(animeData.duration || "N/A").padEnd(27)} ║
+║ 📚 Source: ${(animeData.source || "N/A").padEnd(29)} ║
+║ 🔞 Rating: ${(animeData.rating || "N/A").padEnd(28)} ║
+╠═══════════════════════════════╣
+║ 🏭 Studios: ${studios.substring(0, 28).padEnd(28)} ║
+║ 🏷️ Genres: ${genres.substring(0, 29).padEnd(29)} ║
+╠═══════════════════════════════╣
+║ ⭐ Score: ${String(animeData.score || "N/A").padEnd(31)} ║
+║ 🏆 Ranked: #${String(animeData.ranked || "N/A").padEnd(28)} ║
+║ 🌟 Popularity: #${String(animeData.popularity || "N/A").padEnd(23)} ║
+╠═══════════════════════════════╣
+║ 📝 Synopsis:
+║ ${synopsis.split('\n').join('\n║ ')}
+╠═══════════════════════════════╣
+║ 🔗 MyAnimeList: ${animeData.url?.substring(0, 25) || "N/A"}
+╚═══════════════════════════════╝
+
+✨ Data provided by MyAnimeList
+💫 Coded by Asif Mahmud`;
+
+            // Unsend loading message
+            try {
+                await message.unsend(loadingMsg.messageID);
+            } catch (unsendError) {
+                console.warn("Could not unsend loading message:", unsendError.message);
+            }
+
+            // Send result with or without image
+            if (imageDownloaded && fs.existsSync(imagePath)) {
+                await message.reply({
+                    body: messageBody,
+                    attachment: fs.createReadStream(imagePath)
+                });
+                
+                // Clean up after sending
+                try {
+                    await fs.unlink(imagePath);
+                    console.log("🧹 Cleaned up temporary image file");
+                } catch (cleanupError) {
+                    console.warn("Image cleanup error:", cleanupError.message);
+                }
+            } else {
+                await message.reply(messageBody);
+            }
+
+        } catch (error) {
+            console.error("💥 AnimeInfo Error:", error);
+            
+            let errorMessage = "❌ An error occurred while fetching anime data. Please try again later.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ Network error. Cannot connect to MyAnimeList.";
+            } else if (error.code === 'ETIMEDOUT') {
+                errorMessage = "❌ Request timeout. MyAnimeList is taking too long to respond.";
+            } else if (error.message.includes('getaddrinfo')) {
+                errorMessage = "❌ DNS error. Please check your internet connection.";
+            }
+            
+            await message.reply(errorMessage);
+        }
     }
 };
