@@ -17,7 +17,7 @@ function toMathBoldItalic(text) {
 module.exports = {
   config: {
     name: "bf",
-    aliases: ["couplev2", "pairv2"],
+    aliases: [],
     version: "7.3.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
