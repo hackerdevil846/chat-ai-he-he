@@ -1,32 +1,46 @@
-const request = require("request");
+const axios = require("axios");
 const fs = require("fs-extra");
 
-module.exports.config = {
-    name: "sex",
-    aliases: ["sexy", "adult"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "adult",
-    shortDescription: {
-        en: "𝐺𝑒𝑡 𝑠𝑒𝑥𝑦 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠 🥵"
+module.exports = {
+    config: {
+        name: "sex",
+        aliases: [],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "adult",
+        shortDescription: {
+            en: "𝖦𝖾𝗍 𝗌𝖾𝗑𝗒 𝗉𝗂𝖼𝗍𝗎𝗋𝖾𝗌 🥵"
+        },
+        longDescription: {
+            en: "𝖲𝖾𝗇𝖽𝗌 𝗋𝖺𝗇𝖽𝗈𝗆 𝗌𝖾𝗑𝗒 𝗉𝗂𝖼𝗍𝗎𝗋𝖾𝗌"
+        },
+        guide: {
+            en: "{p}sex"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
     },
-    longDescription: {
-        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝑠𝑒𝑥𝑦 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
-    },
-    guide: {
-        en: "{p}sex"
-    },
-    dependencies: {
-        "request": "",
-        "fs-extra": ""
-    }
-};
 
-module.exports.onStart = async function({ api, event, message }) {
-    try {
-        const links = [
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
+
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌 𝖺𝗇𝖽 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+            }
+
+            const links = [
             "https://i.postimg.cc/wTZJ1Yvb/images-1-29.jpg",
             "https://i.postimg.cc/ZRN79xP1/97420.jpg",
             "https://i.postimg.cc/tCB54cQs/27712360-320x180.jpg",
@@ -141,31 +155,83 @@ module.exports.onStart = async function({ api, event, message }) {
             "https://i.postimg.cc/52z6xh36/cute-college-girl-in-glasses-showing-boobs.jpg",
             "https://i.postimg.cc/4NDxF8gZ/sexy-boobs-show-by-cute-Bangladeshi-girl.webp"
         ];
-        
-        const path = __dirname + "/cache/sex.jpg";
-        
-        if (!fs.existsSync(__dirname + "/cache")) {
-            fs.mkdirSync(__dirname + "/cache", { recursive: true });
+            
+            // Create cache directory if it doesn't exist
+            const cacheDir = __dirname + "/cache";
+            try {
+                if (!fs.existsSync(cacheDir)) {
+                    fs.mkdirSync(cacheDir, { recursive: true });
+                }
+            } catch (dirError) {
+                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒:", dirError);
+                // Continue without cache directory
+            }
+
+            // Select random image
+            const randomIndex = Math.floor(Math.random() * links.length);
+            const imageUrl = links[randomIndex];
+            
+            console.log(`🔞 𝖲𝖾𝗅𝖾𝖼𝗍𝖾𝖽 𝗂𝗆𝖺𝗀𝖾 ${randomIndex + 1}/${links.length}: ${imageUrl}`);
+
+            let imageStream;
+            let success = false;
+
+            // Try to get image stream
+            try {
+                imageStream = await global.utils.getStreamFromURL(imageUrl);
+                if (imageStream) {
+                    success = true;
+                    console.log("✅ 𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖼𝗋𝖾𝖺𝗍𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒");
+                }
+            } catch (streamError) {
+                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆:", streamError.message);
+            }
+
+            // If first image fails, try another one
+            if (!success) {
+                console.log("🔄 𝖳𝗋𝗒𝗂𝗇𝗀 𝖺𝗅𝗍𝖾𝗋𝗇𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾...");
+                
+                // Try up to 3 different images
+                for (let i = 1; i <= 3 && i < links.length; i++) {
+                    const alternateIndex = (randomIndex + i) % links.length;
+                    const alternateUrl = links[alternateIndex];
+                    
+                    try {
+                        console.log(`🔄 𝖳𝗋𝗒𝗂𝗇𝗀 𝖺𝗅𝗍𝖾𝗋𝗇𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 ${i}: ${alternateUrl}`);
+                        imageStream = await global.utils.getStreamFromURL(alternateUrl);
+                        if (imageStream) {
+                            success = true;
+                            console.log("✅ 𝖠𝗅𝗍𝖾𝗋𝗇𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅");
+                            break;
+                        }
+                    } catch (altError) {
+                        console.error(`❌ 𝖠𝗅𝗍𝖾𝗋𝗇𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 ${i} 𝖿𝖺𝗂𝗅𝖾𝖽:`, altError.message);
+                    }
+                }
+            }
+
+            if (success && imageStream) {
+                await message.reply({
+                    body: `🔞 𝖫𝗎𝖼𝖼𝗁𝖺 𝖻𝖾𝖽𝖺 😋\n✨ 𝖲𝖾𝗑𝗒 𝗉𝗂𝖼𝗍𝗎𝗋𝖾 𝖺𝗋𝗋𝗂𝗏𝖾𝖽!\n\n📸 𝖭𝗎𝗆𝖻𝖾𝗋 𝗈𝖿 𝗂𝗆𝖺𝗀𝖾𝗌: ${links.length}`,
+                    attachment: imageStream
+                });
+            } else {
+                console.error("❌ 𝖠𝗅𝗅 𝗂𝗆𝖺𝗀𝖾 𝖺𝗍𝗍𝖾𝗆𝗉𝗍𝗌 𝖿𝖺𝗂𝗅𝖾𝖽");
+                await message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝗌𝖾𝗑𝗒 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+            }
+            
+        } catch (error) {
+            console.error("💥 𝖲𝖾𝗑 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            
+            if (error.message.includes('getStreamFromURL')) {
+                errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            } else if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        const imageUrl = links[Math.floor(Math.random() * links.length)];
-        
-        await new Promise((resolve, reject) => {
-            request(encodeURI(imageUrl))
-                .pipe(fs.createWriteStream(path))
-                .on("close", resolve)
-                .on("error", reject);
-        });
-
-        await message.reply({
-            body: `🔞 𝐿𝑢𝑐𝑐ℎ𝑎 𝑏𝑒𝑑𝑎 😋\n✨ 𝑆𝑒𝑥𝑦 𝑝𝑖𝑐𝑡𝑢𝑟𝑒 𝑎𝑟𝑟𝑖𝑣𝑒𝑑!\n\n📸 𝑁𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠: ${links.length}`,
-            attachment: fs.createReadStream(path)
-        });
-
-        fs.unlinkSync(path);
-        
-    } catch (error) {
-        console.error("𝐸𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑖𝑚𝑎𝑔𝑒");
     }
 };
