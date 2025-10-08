@@ -2,32 +2,46 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 
-module.exports.config = {
-    name: "ayaka",
-    aliases: ["kamisato"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "random-img",
-    shortDescription: {
-        en: "𝐴𝑦𝑎𝑘𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑚𝑎𝑔𝑒"
+module.exports = {
+    config: {
+        name: "ayaka",
+        aliases: [],
+        version: "1.0.0",
+        author: "Asif Mahmud",
+        countDown: 5,
+        role: 0,
+        category: "random-img",
+        shortDescription: {
+            en: "✨ 𝖠𝗒𝖺𝗄𝖺 𝗋𝖺𝗇𝖽𝗈𝗆 𝗂𝗆𝖺𝗀𝖾"
+        },
+        longDescription: {
+            en: "𝖲𝖾𝗇𝖽𝗌 𝗋𝖺𝗇𝖽𝗈𝗆 𝖠𝗒𝖺𝗄𝖺 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗋𝗈𝗆 𝖦𝖾𝗇𝗌𝗁𝗂𝗇 𝖨𝗆𝗉𝖺𝖼𝗍"
+        },
+        guide: {
+            en: "{p}ayaka"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
+        }
     },
-    longDescription: {
-        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝐴𝑦𝑎𝑘𝑎 𝑖𝑚𝑎𝑔𝑒𝑠"
-    },
-    guide: {
-        en: "{p}ayaka"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
 
-module.exports.onStart = async function({ message }) {
-    try {
-        const imageLinks = [
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
+
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌 𝖺𝗇𝖽 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+            }
+
+            const imageLinks = [
             "https://i.imgur.com/uXWLBeC.jpeg",
             "https://i.imgur.com/7Dc9GrN.jpeg",
             "https://i.imgur.com/IaAVMFK.jpeg",
@@ -128,29 +142,146 @@ module.exports.onStart = async function({ message }) {
             "https://i.imgur.com/5SWTCJ4.jpeg"
         ];
 
-        const cacheDir = path.join(__dirname, 'cache');
-        if (!fs.existsSync(cacheDir)) {
-            fs.mkdirSync(cacheDir, { recursive: true });
+            // Create cache directory
+            const cacheDir = path.join(__dirname, 'cache');
+            try {
+                if (!fs.existsSync(cacheDir)) {
+                    fs.mkdirSync(cacheDir, { recursive: true });
+                }
+            } catch (dirError) {
+                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒:", dirError);
+                return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒.");
+            }
+
+            const imagePath = path.join(cacheDir, `ayaka_${Date.now()}.jpg`);
+            const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+
+            console.log(`🎯 𝖲𝖾𝗅𝖾𝖼𝗍𝖾𝖽 𝖠𝗒𝖺𝗄𝖺 𝗂𝗆𝖺𝗀𝖾: ${randomImage}`);
+
+            try {
+                const response = await axios.get(randomImage, {
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                        'Accept': 'image/jpeg,image/png,image/webp,image/*'
+                    },
+                    maxContentLength: 10 * 1024 * 1024 // 10MB limit
+                });
+
+                // Check content type
+                const contentType = response.headers['content-type'];
+                if (!contentType || !contentType.startsWith('image/')) {
+                    throw new Error("𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖼𝗈𝗇𝗍𝖾𝗇𝗍 𝗍𝗒𝗉𝖾: " + contentType);
+                }
+
+                await fs.writeFileSync(imagePath, Buffer.from(response.data));
+
+                // Verify file was written successfully
+                const stats = await fs.stat(imagePath);
+                if (stats.size < 1000) { // At least 1KB
+                    throw new Error("𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝖽 𝖿𝗂𝗅𝖾 𝗂𝗌 𝗍𝗈𝗈 𝗌𝗆𝖺𝗅𝗅");
+                }
+
+                console.log(`✅ 𝖠𝗒𝖺𝗄𝖺 𝗂𝗆𝖺𝗀𝖾 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 (${(stats.size / 1024 / 1024).toFixed(2)}𝖬𝖡)`);
+
+                await message.reply({
+                    body: `✨ 𝖠𝗒𝖺𝗄𝖺 𝗋𝖺𝗇𝖽𝗈𝗆 𝗂𝗆𝖺𝗀𝖾...\n📊 𝖳𝗈𝗍𝖺𝗅 𝗂𝗆𝖺𝗀𝖾𝗌: ${imageLinks.length}`,
+                    attachment: fs.createReadStream(imagePath)
+                });
+
+                // Clean up file
+                try {
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                        console.log("🧹 𝖢𝗅𝖾𝖺𝗇𝖾𝖽 𝗎𝗉 𝗍𝖾𝗆𝗉𝗈𝗋𝖺𝗋𝗒 𝖿𝗂𝗅𝖾");
+                    }
+                } catch (cleanupError) {
+                    console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖿𝗂𝗅𝖾:", cleanupError.message);
+                }
+
+            } catch (downloadError) {
+                console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖾𝗋𝗋𝗈𝗋:", downloadError.message);
+                
+                // Clean up file if it exists
+                try {
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                    }
+                } catch (cleanupError) {
+                    console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖿𝗂𝗅𝖾:", cleanupError.message);
+                }
+
+                // Try fallback images
+                await this.sendFallbackImage(message, imageLinks, cacheDir);
+            }
+
+        } catch (error) {
+            console.error("💥 𝖠𝗒𝖺𝗄𝖺 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝖠𝗒𝖺𝗄𝖺 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+            } else if (error.code === 'ETIMEDOUT') {
+                errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            } else if (error.message.includes('maxContentLength')) {
+                errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗂𝗌 𝗍𝗈𝗈 𝗅𝖺𝗋𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            }
+            
+            await message.reply(errorMessage);
         }
+    },
 
-        const imagePath = path.join(cacheDir, 'ayaka.jpg');
-        const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+    // Fallback method for sending images
+    sendFallbackImage: async function(message, imageLinks, cacheDir) {
+        try {
+            console.log("🔄 𝖳𝗋𝗒𝗂𝗇𝗀 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗂𝗆𝖺𝗀𝖾𝗌...");
+            
+            // Try up to 3 different images
+            for (let i = 0; i < Math.min(3, imageLinks.length); i++) {
+                try {
+                    const fallbackImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+                    const fallbackPath = path.join(cacheDir, `ayaka_fallback_${Date.now()}.jpg`);
+                    
+                    console.log(`🔄 𝖳𝗋𝗒𝗂𝗇𝗀 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗂𝗆𝖺𝗀𝖾 ${i + 1}: ${fallbackImage}`);
+                    
+                    const response = await axios.get(fallbackImage, {
+                        responseType: 'arraybuffer',
+                        timeout: 15000
+                    });
 
-        const response = await axios.get(randomImage, {
-            responseType: 'arraybuffer'
-        });
+                    await fs.writeFileSync(fallbackPath, Buffer.from(response.data));
 
-        await fs.writeFileSync(imagePath, Buffer.from(response.data));
+                    await message.reply({
+                        body: `✨ 𝖠𝗒𝖺𝗄𝖺 𝗋𝖺𝗇𝖽𝗈𝗆 𝗂𝗆𝖺𝗀𝖾 (𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄)...\n📊 𝖳𝗈𝗍𝖺𝗅 𝗂𝗆𝖺𝗀𝖾𝗌: ${imageLinks.length}`,
+                        attachment: fs.createReadStream(fallbackPath)
+                    });
 
-        await message.reply({
-            body: `✨ 𝐴𝑦𝑎𝑘𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑖𝑚𝑎𝑔𝑒...\n𝑇𝑜𝑡𝑎𝑙 𝑖𝑚𝑎𝑔𝑒𝑠: ${imageLinks.length}`,
-            attachment: fs.createReadStream(imagePath)
-        });
+                    // Clean up
+                    try {
+                        if (fs.existsSync(fallbackPath)) {
+                            fs.unlinkSync(fallbackPath);
+                        }
+                    } catch (cleanupError) {
+                        console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝖿𝗂𝗅𝖾:", cleanupError.message);
+                    }
 
-        fs.unlinkSync(imagePath);
-
-    } catch (error) {
-        console.error("𝐴𝑦𝑎𝑘𝑎 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-        await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝐴𝑦𝑎𝑘𝑎 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+                    console.log("✅ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗂𝗆𝖺𝗀𝖾 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗇𝗍");
+                    return;
+                    
+                } catch (fallbackError) {
+                    console.error(`❌ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗂𝗆𝖺𝗀𝖾 ${i + 1} 𝖿𝖺𝗂𝗅𝖾𝖽:`, fallbackError.message);
+                    continue;
+                }
+            }
+            
+            // If all fallbacks fail
+            throw new Error("𝖠𝗅𝗅 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝖺𝗂𝗅𝖾𝖽");
+            
+        } catch (fallbackError) {
+            console.error("💥 𝖠𝗅𝗅 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄𝗌 𝖿𝖺𝗂𝗅𝖾𝖽:", fallbackError);
+            throw fallbackError;
+        }
     }
 };
