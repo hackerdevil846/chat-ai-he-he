@@ -42,7 +42,7 @@ function toBI(text) {
 module.exports = {
   config: {
     name: "archive",
-    aliases: ["arc"],
+    aliases: [],
     version: "2.0",
     author: "Asif Mahmud",
     countDown: 5,
