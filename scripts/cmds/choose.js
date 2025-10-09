@@ -1,64 +1,92 @@
-module.exports.config = {
-    name: "choose",
-    aliases: ["select", "pick"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "utilities",
-    shortDescription: {
-        en: "𝐻𝑒𝑙𝑝𝑠 𝑦𝑜𝑢 𝑐ℎ𝑜𝑜𝑠𝑒 𝑏𝑒𝑡𝑤𝑒𝑒𝑛 𝑜𝑝𝑡𝑖𝑜𝑛𝑠"
-    },
-    longDescription: {
-        en: "𝐴𝑠𝑠𝑖𝑠𝑡𝑠 𝑖𝑛 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑛𝑔 𝑎𝑛 𝑜𝑝𝑡𝑖𝑜𝑛 𝑓𝑟𝑜𝑚 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑐ℎ𝑜𝑖𝑐𝑒𝑠"
-    },
-    guide: {
-        en: "{p}choose [𝑂𝑝𝑡𝑖𝑜𝑛 1] | [𝑂𝑝𝑡𝑖𝑜𝑛 2]"
-    }
-};
-
-function toMathBoldItalic(text) {
-    const map = {
-        'A': '𝑨', 'B': '𝑩', 'C': '𝑪', 'D': '𝑫', 'E': '𝑬', 'F': '𝑭', 'G': '𝑮', 'H': '𝑯', 'I': '𝑰', 'J': '𝑱', 'K': '𝑲', 'L': '𝑳', 'M': '𝑴',
-        'N': '𝑵', 'O': '𝑶', 'P': '𝑷', 'Q': '𝑸', 'R': '𝑹', 'S': '𝑺', 'T': '𝑻', 'U': '𝑼', 'V': '𝑽', 'W': '𝑾', 'X': '𝑿', 'Y': '𝒀', 'Z': '𝒁',
-        'a': '𝒂', 'b': '𝒃', 'c': '𝒄', 'd': '𝒅', 'e': '𝒆', 'f': '𝒇', 'g': '𝒈', 'h': '𝒉', 'i': '𝒊', 'j': '𝒋', 'k': '𝒌', 'l': '𝒍', 'm': '𝒎',
-        'n': '𝒏', 'o': '𝒐', 'p': '𝒑', 'q': '𝒒', 'r': '𝒓', 's': '𝒔', 't': '𝒕', 'u': '𝒖', 'v': '𝒗', 'w': '𝒘', 'x': '𝒙', 'y': '𝒚', 'z': '𝒛',
-        '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗',
-        ' ': ' ', '!': '!', '?': '?', '.': '.', ',': ',', "'": "'", '"': '"', ':': ':', ';': ';', '-': '-', '_': '_'
-    };
-    return text.split('').map(char => map[char] || char).join('');
-}
-
-module.exports.languages = {
-    "en": {
-        "return": toMathBoldItalic("%1 𝑖𝑠 𝑡ℎ𝑒 𝑏𝑒𝑠𝑡 𝑐ℎ𝑜𝑖𝑐𝑒 𝑓𝑜𝑟 𝑦𝑜𝑢, 𝑖𝑛 𝑚𝑦 𝑜𝑝𝑖𝑛𝑖𝑜𝑛 🤔")
-    }
-};
-
-module.exports.onStart = async function({ message, event, args, getText }) {
-    try {
-        const { threadID, messageID } = event;
-
-        let input = args.join(" ").trim();
-        if (!input) {
-            const errorMsg = toMathBoldItalic("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑠𝑜𝑚𝑒 𝑜𝑝𝑡𝑖𝑜𝑛𝑠! 𝑈𝑠𝑎𝑔𝑒: 𝑐ℎ𝑜𝑜𝑠𝑒 𝑜𝑝𝑡𝑖𝑜𝑛1 | 𝑜𝑝𝑡𝑖𝑜𝑛2");
-            return message.reply(errorMsg);
+module.exports = {
+    config: {
+        name: "choose",
+        aliases: [],
+        version: "1.0.1",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "utilities",
+        shortDescription: {
+            en: "𝖧𝖾𝗅𝗉𝗌 𝗒𝗈𝗎 𝖼𝗁𝗈𝗈𝗌𝖾 𝖻𝖾𝗍𝗐𝖾𝖾𝗇 𝗈𝗉𝗍𝗂𝗈𝗇𝗌"
+        },
+        longDescription: {
+            en: "𝖠𝗌𝗌𝗂𝗌𝗍𝗌 𝗂𝗇 𝗌𝖾𝗅𝖾𝖼𝗍𝗂𝗇𝗀 𝖺𝗇 𝗈𝗉𝗍𝗂𝗈𝗇 𝖿𝗋𝗈𝗆 𝗆𝗎𝗅𝗍𝗂𝗉𝗅𝖾 𝖼𝗁𝗈𝗂𝖼𝖾𝗌"
+        },
+        guide: {
+            en: "{p}choose [𝖮𝗉𝗍𝗂𝗈𝗇 1] | [𝖮𝗉𝗍𝗂𝗈𝗇 2]"
         }
+    },
 
-        let array = input.split(" | ");
-        if (array.length < 2) {
-            const errorMsg = toMathBoldItalic("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎𝑡 𝑙𝑒𝑎𝑠𝑡 2 𝑜𝑝𝑡𝑖𝑜𝑛𝑠! 𝑈𝑠𝑎𝑔𝑒: 𝑐ℎ𝑜𝑜𝑠𝑒 𝑜𝑝𝑡𝑖𝑜𝑛1 | 𝑜𝑝𝑡𝑖𝑜𝑛2");
-            return message.reply(errorMsg);
+    onStart: async function({ message, event, args }) {
+        try {
+            const { threadID } = event;
+
+            // Check if arguments are provided
+            if (!args || args.length === 0) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗌𝗈𝗆𝖾 𝗈𝗉𝗍𝗂𝗈𝗇𝗌!\n\n𝖴𝗌𝖺𝗀𝖾: {p}choose 𝗈𝗉𝗍𝗂𝗈𝗇1 | 𝗈𝗉𝗍𝗂𝗈𝗇2");
+            }
+
+            let input = args.join(" ").trim();
+            
+            // Validate input length
+            if (input.length === 0) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗏𝖺𝗅𝗂𝖽 𝗈𝗉𝗍𝗂𝗈𝗇𝗌!");
+            }
+
+            // Check if input contains separator
+            if (!input.includes("|")) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗌𝖾𝗉𝖺𝗋𝖺𝗍𝖾 𝗈𝗉𝗍𝗂𝗈𝗇𝗌 𝗐𝗂𝗍𝗁 ' | '\n\n𝖤𝗑𝖺𝗆𝗉𝗅𝖾: {p}choose 𝖺𝗉𝗉𝗅𝖾 | 𝖻𝖺𝗇𝖺𝗇𝖺 | 𝗈𝗋𝖺𝗇𝗀𝖾");
+            }
+
+            let array = input.split(" | ").map(option => option.trim()).filter(option => option.length > 0);
+            
+            // Validate number of options
+            if (array.length < 2) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺𝗍 𝗅𝖾𝖺𝗌𝗍 2 𝗈𝗉𝗍𝗂𝗈𝗇𝗌!\n\n𝖴𝗌𝖺𝗀𝖾: {p}choose 𝗈𝗉𝗍𝗂𝗈𝗇1 | 𝗈𝗉𝗍𝗂𝗈𝗇2");
+            }
+
+            // Check for too many options
+            if (array.length > 20) {
+                return message.reply("❌ 𝖳𝗈𝗈 𝗆𝖺𝗇𝗒 𝗈𝗉𝗍𝗂𝗈𝗇𝗌! 𝖯𝗅𝖾𝖺𝗌𝖾 𝗅𝗂𝗆𝗂𝗍 𝗍𝗈 20 𝗈𝗉𝗍𝗂𝗈𝗇𝗌 𝗈𝗋 𝗅𝖾𝗌𝗌.");
+            }
+
+            // Check for duplicate options
+            const uniqueOptions = [...new Set(array)];
+            if (uniqueOptions.length !== array.length) {
+                return message.reply("❌ 𝖣𝗎𝗉𝗅𝗂𝖼𝖺𝗍𝖾 𝗈𝗉𝗍𝗂𝗈𝗇𝗌 𝖿𝗈𝗎𝗇𝖽! 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗎𝗇𝗂𝗊𝗎𝖾 𝗈𝗉𝗍𝗂𝗈𝗇𝗌.");
+            }
+
+            // Validate option lengths
+            const invalidOptions = array.filter(option => option.length > 100);
+            if (invalidOptions.length > 0) {
+                return message.reply("❌ 𝖲𝗈𝗆𝖾 𝗈𝗉𝗍𝗂𝗈𝗇𝗌 𝖺𝗋𝖾 𝗍𝗈𝗈 𝗅𝗈𝗇𝗀! 𝖯𝗅𝖾𝖺𝗌𝖾 𝗅𝗂𝗆𝗂𝗍 𝖾𝖺𝖼𝗁 𝗈𝗉𝗍𝗂𝗈𝗇 𝗍𝗈 100 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌 𝗈𝗋 𝗅𝖾𝗌𝗌.");
+            }
+
+            console.log(`🎯 𝖢𝗁𝗈𝗈𝗌𝗂𝗇𝗀 𝖿𝗋𝗈𝗆 ${array.length} 𝗈𝗉𝗍𝗂𝗈𝗇𝗌:`, array);
+
+            // Random selection with proper randomization
+            const randomIndex = Math.floor(Math.random() * array.length);
+            const selected = array[randomIndex];
+
+            // Create response message
+            const optionsList = array.map((option, index) => `${index + 1}. ${option}`).join('\n');
+            const result = `🎯 𝖱𝖺𝗇𝖽𝗈𝗆 𝖲𝖾𝗅𝖾𝖼𝗍𝗂𝗈𝗇 𝖱𝖾𝗌𝗎𝗅𝗍:\n\n📋 𝖮𝗉𝗍𝗂𝗈𝗇𝗌:\n${optionsList}\n\n✨ 𝖲𝖾𝗅𝖾𝖼𝗍𝖾𝖽: "${selected}"\n\n🤔 𝖨 𝗍𝗁𝗂𝗇𝗄 "${selected}" 𝗂𝗌 𝗍𝗁𝖾 𝖻𝖾𝗌𝗍 𝖼𝗁𝗈𝗂𝖼𝖾 𝖿𝗈𝗋 𝗒𝗈𝗎!`;
+
+            return message.reply(result);
+
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝗈𝗈𝗌𝖾 𝖤𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗒𝗈𝗎𝗋 𝗋𝖾𝗊𝗎𝖾𝗌𝗍";
+            
+            if (error.message.includes('memory') || error.message.includes('heap')) {
+                errorMessage = "❌ 𝖬𝖾𝗆𝗈𝗋𝗒 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝗐𝗂𝗍𝗁 𝖿𝖾𝗐𝖾𝗋 𝗈𝗉𝗍𝗂𝗈𝗇𝗌.";
+            } else if (error.message.includes('timeout')) {
+                errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            }
+            
+            return message.reply(errorMessage);
         }
-
-        const selected = array[Math.floor(Math.random() * array.length)];
-        const result = getText("return", selected);
-
-        return message.reply(`🎯 𝑅𝑒𝑠𝑢𝑙𝑡: ${result}`);
-
-    } catch (error) {
-        console.error("𝐶ℎ𝑜𝑜𝑠𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
-        const errorMsg = toMathBoldItalic("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
-        return message.reply(errorMsg);
     }
 };
