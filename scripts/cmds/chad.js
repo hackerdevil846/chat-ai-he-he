@@ -1,59 +1,56 @@
 const jimp = require("jimp");
 const fs = require("fs-extra");
 
-module.exports.config = {
-    name: "chad",
-    aliases: ["gigachad", "chadmeme"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "fun",
-    shortDescription: {
-        en: "😎 𝐶𝑟𝑒𝑎𝑡𝑒 𝐺𝑖𝑔𝑎 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒 𝑤𝑖𝑡ℎ 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
-    },
-    longDescription: {
-        en: "🖼️ 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒 𝑢𝑠𝑖𝑛𝑔 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟𝑠' 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
-    },
-    guide: {
-        en: "{p}chad [@𝑡𝑎𝑔]"
-    },
-    dependencies: {
-        "jimp": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ message, event, args }) {
-    try {
-        // Check if jimp is available
-        if (!jimp) {
-            return message.reply("❌ 𝐽𝐼𝑀𝑃 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑗𝑖𝑚𝑝 𝑝𝑎𝑐𝑘𝑎𝑔𝑒.");
+module.exports = {
+    config: {
+        name: "chad",
+        aliases: ["gigachad", "chadmeme"],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "fun",
+        shortDescription: {
+            en: "😎 𝐶𝑟𝑒𝑎𝑡𝑒 𝐺𝑖𝑔𝑎 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒 𝑤𝑖𝑡ℎ 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
+        },
+        longDescription: {
+            en: "🖼️ 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒 𝑢𝑠𝑖𝑛𝑔 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟𝑠' 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
+        },
+        guide: {
+            en: "{p}chad [@𝑡𝑎𝑔]"
+        },
+        dependencies: {
+            "jimp": "",
+            "fs-extra": ""
         }
+    },
 
-        const mention = Object.keys(event.mentions);
-        if (mention.length === 0) {
-            return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒!");
+    onStart: async function({ message, event }) {
+        try {
+            const mention = Object.keys(event.mentions);
+            if (mention.length === 0) {
+                return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝐶ℎ𝑎𝑑 𝑚𝑒𝑚𝑒!");
+            }
+
+            const one = mention.length === 1 ? event.senderID : mention[1];
+            const two = mention[0];
+
+            const imagePath = await createChadImage(one, two);
+            
+            await message.reply({
+                body: "😎 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝐶ℎ𝑎𝑑 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛!",
+                attachment: fs.createReadStream(imagePath)
+            });
+
+            // Clean up
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+
+        } catch (error) {
+            console.error("𝐶ℎ𝑎𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
+            // Don't send error message to avoid spam
         }
-
-        const one = mention.length === 1 ? event.senderID : mention[1];
-        const two = mention[0];
-
-        const imagePath = await createChadImage(one, two);
-        
-        await message.reply({
-            body: "😎 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝐶ℎ𝑎𝑑 𝑐𝑟𝑒𝑎𝑡𝑖𝑜𝑛!",
-            attachment: fs.createReadStream(imagePath)
-        });
-
-        // Clean up
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
-
-    } catch (error) {
-        console.error("𝐶ℎ𝑎𝑑 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
     }
 };
 
