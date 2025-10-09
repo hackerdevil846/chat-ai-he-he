@@ -1,185 +1,264 @@
 const fs = require("fs-extra");
+const path = require("path");
 
-module.exports.config = {
-    name: "checktt",
-    aliases: ["messagestats", "msgcount"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
-    shortDescription: {
-        en: "𝐼𝑛𝑡𝑒𝑟𝑎𝑐𝑡𝑖𝑣𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑐𝑜𝑢𝑛𝑡𝑒𝑟 & 𝑟𝑎𝑛𝑘 𝑐ℎ𝑒𝑐𝑘𝑒𝑟"
-    },
-    longDescription: {
-        en: "𝑇𝑟𝑎𝑐𝑘𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑐𝑜𝑢𝑛𝑡𝑠 𝑎𝑛𝑑 𝑟𝑎𝑛𝑘𝑠 𝑓𝑜𝑟 𝑢𝑠𝑒𝑟𝑠 𝑖𝑛 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡"
-    },
-    guide: {
-        en: "{p}checktt [𝑎𝑙𝑙/𝑟𝑎𝑛𝑘/@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
-    },
-    dependencies: {
-        "fs-extra": ""
-    }
-};
-
-module.exports.onLoad = () => {
-    const path = __dirname + '/count-by-thread/';
-    if (!fs.existsSync(path) || !fs.statSync(path).isDirectory()) {
-        fs.mkdirSync(path, { recursive: true });
-    }
-};
-
-module.exports.onChat = async function ({ event, api }) {
-    try {
-        const path = __dirname + '/count-by-thread/';
-        const { threadID, senderID } = event;
-
-        if (!global.data.allThreadID.includes(threadID)) return;
-
-        const threadPath = path + threadID + ".json";
-        if (!fs.existsSync(threadPath) || fs.statSync(threadPath).isDirectory()) {
-            fs.writeFileSync(threadPath, JSON.stringify({}, null, 4));
+module.exports = {
+    config: {
+        name: "checktt",
+        aliases: [],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "utility",
+        shortDescription: {
+            en: "𝖨𝗇𝗍𝖾𝗋𝖺𝖼𝗍𝗂𝗏𝖾 𝗆𝖾𝗌𝗌𝖺𝗀𝖾 𝖼𝗈𝗎𝗇𝗍𝖾𝗋 & 𝗋𝖺𝗇𝗄 𝖼𝗁𝖾𝖼𝗄𝖾𝗋"
+        },
+        longDescription: {
+            en: "𝖳𝗋𝖺𝖼𝗄𝗌 𝗆𝖾𝗌𝗌𝖺𝗀𝖾 𝖼𝗈𝗎𝗇𝗍𝗌 𝖺𝗇𝖽 𝗋𝖺𝗇𝗄𝗌 𝖿𝗈𝗋 𝗎𝗌𝖾𝗋𝗌 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍"
+        },
+        guide: {
+            en: "{p}checktt [𝖺𝗅𝗅/𝗋𝖺𝗇𝗄/@𝗆𝖾𝗇𝗍𝗂𝗈𝗇]"
+        },
+        dependencies: {
+            "fs-extra": ""
         }
+    },
 
-        const threadData = JSON.parse(fs.readFileSync(threadPath)) || {};
-        if (!threadData[senderID]) threadData[senderID] = 0;
-        threadData[senderID]++;
-        fs.writeFileSync(threadPath, JSON.stringify(threadData, null, 4));
-
-    } catch (error) {
-        console.error("𝐶ℎ𝑒𝑐𝑘𝑡𝑡 𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-    }
-};
-
-const rankNames = {
-    "Copper I": "🟫 𝐶𝑜𝑝𝑝𝑒𝑟 𝐼",
-    "Copper II": "🟫 𝐶𝑜𝑝𝑝𝑒𝑟 𝐼𝐼",
-    "Copper III": "🟫 𝐶𝑜𝑝𝑝𝑒𝑟 𝐼𝐼𝐼",
-    "Silver I": "⚪ 𝑆𝑖𝑙𝑣𝑒𝑟 𝐼",
-    "Silver II": "⚪ 𝑆𝑖𝑙𝑣𝑒𝑟 𝐼𝐼",
-    "Silver III": "⚪ 𝑆𝑖𝑙𝑣𝑒𝑟 𝐼𝐼𝐼",
-    "Gold I": "🟡 𝐺𝑜𝑙𝑑 𝐼",
-    "Gold II": "🟡 𝐺𝑜𝑙𝑑 𝐼𝐼",
-    "Gold III": "🟡 𝐺𝑜𝑙𝑑 𝐼𝐼𝐼",
-    "Gold IV": "🟡 𝐺𝑜𝑙𝑑 𝐼𝑉",
-    "Platinum I": "🔵 𝑃𝑙𝑎𝑡𝑖𝑛𝑢𝑚 𝐼",
-    "Platinum II": "🔵 𝑃𝑙𝑎𝑡𝑖𝑛𝑢𝑚 𝐼𝐼",
-    "Platinum III": "🔵 𝑃𝑙𝑎𝑡𝑖𝑛𝑢𝑚 𝐼𝐼𝐼",
-    "Platinum IV": "🔵 𝑃𝑙𝑎𝑡𝑖𝑛𝑢𝑚 𝐼𝑉",
-    "Diamond I": "💎 𝐷𝑖𝑎𝑚𝑜𝑛𝑑 𝐼",
-    "Diamond II": "💎 𝐷𝑖𝑎𝑚𝑜𝑛𝑑 𝐼𝐼",
-    "Diamond III": "💎 𝐷𝑖𝑎𝑚𝑜𝑛𝑑 𝐼𝐼𝐼",
-    "Diamond IV": "💎 𝐷𝑖𝑎𝑚𝑜𝑛𝑑 𝐼𝑉",
-    "Diamond V": "💎 𝐷𝑖𝑎𝑚𝑜𝑛𝑑 𝑉",
-    "Elite I": "🏅 𝐸𝑙𝑖𝑡𝑒 𝐼",
-    "Elite II": "🏅 𝐸𝑙𝑖𝑡𝑒 𝐼𝐼",
-    "Elite III": "🏅 𝐸𝑙𝑖𝑡𝑒 𝐼𝐼𝐼",
-    "Elite IV": "🏅 𝐸𝑙𝑖𝑡𝑒 𝐼𝑉",
-    "Elite V": "🏅 𝐸𝑙𝑖𝑡𝑒 𝑉",
-    "Master": "🏆 𝑀𝑎𝑠𝑡𝑒𝑟",
-    "War Generals": "⚔️ 𝑊𝑎𝑟 𝐺𝑒𝑛𝑒𝑟𝑎𝑙𝑠"
-};
-
-const getRankName = count => {
-    return count > 50000 ? rankNames["War Generals"]
-        : count > 9000 ? rankNames["Master"]
-        : count > 8000 ? rankNames["Elite V"]
-        : count > 6100 ? rankNames["Elite IV"]
-        : count > 5900 ? rankNames["Elite III"]
-        : count > 5700 ? rankNames["Elite II"]
-        : count > 5200 ? rankNames["Elite I"]
-        : count > 5000 ? rankNames["Diamond V"]
-        : count > 4800 ? rankNames["Diamond IV"]
-        : count > 4500 ? rankNames["Diamond III"]
-        : count > 4000 ? rankNames["Diamond II"]
-        : count > 3800 ? rankNames["Diamond I"]
-        : count > 3500 ? rankNames["Platinum IV"]
-        : count > 3200 ? rankNames["Platinum III"]
-        : count > 3000 ? rankNames["Platinum II"]
-        : count > 2900 ? rankNames["Platinum I"]
-        : count > 2500 ? rankNames["Gold IV"]
-        : count > 2300 ? rankNames["Gold III"]
-        : count > 2000 ? rankNames["Gold II"]
-        : count > 1500 ? rankNames["Gold I"]
-        : count > 1200 ? rankNames["Silver III"]
-        : count > 1000 ? rankNames["Silver II"]
-        : count > 900 ? rankNames["Silver I"]
-        : count > 500 ? rankNames["Copper III"]
-        : count > 100 ? rankNames["Copper II"]
-        : rankNames["Copper I"];
-};
-
-module.exports.onStart = async function ({ api, event, args, Users }) {
-    try {
-        const path = __dirname + '/count-by-thread/';
-        const { messageID, threadID, senderID, mentions } = event;
-
-        const threadPath = path + threadID + ".json";
-        if (!fs.existsSync(threadPath) || fs.statSync(threadPath).isDirectory()) {
-            fs.writeFileSync(threadPath, JSON.stringify({}, null, 4));
+    onLoad: () => {
+        try {
+            const directoryPath = __dirname + '/count-by-thread/';
+            if (!fs.existsSync(directoryPath)) {
+                fs.mkdirSync(directoryPath, { recursive: true });
+                console.log(`✅ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒: ${directoryPath}`);
+            }
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝖾𝖼𝗄𝗍𝗍 𝖮𝗇𝖫𝗈𝖺𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
         }
+    },
 
-        const query = args[0] ? args[0].toLowerCase() : "";
-        const threadData = JSON.parse(fs.readFileSync(threadPath)) || {};
-
-        if (!threadData[senderID]) threadData[senderID] = 1;
-
-        if (query === "all") {
+    onChat: async function ({ event, api }) {
+        try {
+            // Dependency check
+            let fsAvailable = true;
             try {
-                const allThread = await api.getThreadInfo(threadID);
-                if (allThread && allThread.participantIDs) {
-                    for (const id of allThread.participantIDs) {
-                        if (!threadData[id]) threadData[id] = 0;
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
+            }
+
+            if (!fsAvailable) return;
+
+            const directoryPath = __dirname + '/count-by-thread/';
+            const { threadID, senderID } = event;
+
+            if (!global.data.allThreadID || !global.data.allThreadID.includes(threadID)) return;
+
+            const threadPath = directoryPath + threadID + ".json";
+            
+            try {
+                // Ensure directory exists
+                if (!fs.existsSync(directoryPath)) {
+                    fs.mkdirSync(directoryPath, { recursive: true });
+                }
+
+                let threadData = {};
+                if (fs.existsSync(threadPath)) {
+                    try {
+                        const fileContent = fs.readFileSync(threadPath, 'utf8');
+                        threadData = JSON.parse(fileContent) || {};
+                    } catch (parseError) {
+                        console.error(`❌ 𝖯𝖺𝗋𝗌𝖾 𝖾𝗋𝗋𝗈𝗋 𝖿𝗈𝗋 ${threadPath}:`, parseError);
+                        threadData = {};
                     }
                 }
-            } catch (error) {
-                console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑡ℎ𝑟𝑒𝑎𝑑 𝑖𝑛𝑓𝑜:", error);
-            }
-        }
 
-        const storage = [];
-        for (const id in threadData) {
+                if (typeof threadData !== 'object') threadData = {};
+                if (!threadData[senderID]) threadData[senderID] = 0;
+                threadData[senderID]++;
+                
+                fs.writeFileSync(threadPath, JSON.stringify(threadData, null, 4));
+
+            } catch (fileError) {
+                console.error(`❌ 𝖥𝗂𝗅𝖾 𝗈𝗉𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋 𝖿𝗈𝗋 ${threadPath}:`, fileError);
+            }
+
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝖾𝖼𝗄𝗍𝗍 𝖢𝗁𝖺𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+        }
+    },
+
+    onStart: async function ({ api, event, args, message }) {
+        try {
+            // Dependency check
+            let fsAvailable = true;
             try {
-                const name = await Users.getNameUser(id);
-                storage.push({ id, name, count: threadData[id] });
-            } catch (error) {
-                console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝑛𝑎𝑚𝑒 𝑓𝑜𝑟 ${id}:`, error);
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
             }
-        }
 
-        storage.sort((a, b) => b.count - a.count || (a.name || "").localeCompare(b.name || ""));
+            if (!fsAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+            }
 
-        let msg = "";
-        if (query === "all") {
-            msg += "📊=== 𝐶𝐻𝐸𝐶𝐾𝑇𝑇 𝐿𝐸𝐴𝐷𝐸𝑅𝐵𝑂𝐴𝑅𝐷 ===📊";
-            let rank = 1;
-            for (const user of storage) {
-                if (rank <= 50) {
-                    msg += `\n${rank++}. ${user.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛"} - 💌 ${user.count} 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠`;
+            const directoryPath = __dirname + '/count-by-thread/';
+            const { threadID, senderID, mentions } = event;
+
+            const rankNames = {
+                "Copper I": "🟫 𝖢𝗈𝗉𝗉𝖾𝗋 𝖨",
+                "Copper II": "🟫 𝖢𝗈𝗉𝗉𝖾𝗋 𝖨𝖨",
+                "Copper III": "🟫 𝖢𝗈𝗉𝗉𝖾𝗋 𝖨𝖨𝖨",
+                "Silver I": "⚪ 𝖲𝗂𝗅𝗏𝖾𝗋 𝖨",
+                "Silver II": "⚪ 𝖲𝗂𝗅𝗏𝖾𝗋 𝖨𝖨",
+                "Silver III": "⚪ 𝖲𝗂𝗅𝗏𝖾𝗋 𝖨𝖨𝖨",
+                "Gold I": "🟡 𝖦𝗈𝗅𝖽 𝖨",
+                "Gold II": "🟡 𝖦𝗈𝗅𝖽 𝖨𝖨",
+                "Gold III": "🟡 𝖦𝗈𝗅𝖽 𝖨𝖨𝖨",
+                "Gold IV": "🟡 𝖦𝗈𝗅𝖽 𝖨𝖵",
+                "Platinum I": "🔵 𝖯𝗅𝖺𝗍𝗂𝗇𝗎𝗆 𝖨",
+                "Platinum II": "🔵 𝖯𝗅𝖺𝗍𝗂𝗇𝗎𝗆 𝖨𝖨",
+                "Platinum III": "🔵 𝖯𝗅𝖺𝗍𝗂𝗇𝗎𝗆 𝖨𝖨𝖨",
+                "Platinum IV": "🔵 𝖯𝗅𝖺𝗍𝗂𝗇𝗎𝗆 𝖨𝖵",
+                "Diamond I": "💎 𝖣𝗂𝖺𝗆𝗈𝗇𝖽 𝖨",
+                "Diamond II": "💎 𝖣𝗂𝖺𝗆𝗈𝗇𝖽 𝖨𝖨",
+                "Diamond III": "💎 𝖣𝗂𝖺𝗆𝗈𝗇𝖽 𝖨𝖨𝖨",
+                "Diamond IV": "💎 𝖣𝗂𝖺𝗆𝗈𝗇𝖽 𝖨𝖵",
+                "Diamond V": "💎 𝖣𝗂𝖺𝗆𝗈𝗇𝖽 𝖵",
+                "Elite I": "🏅 𝖤𝗅𝗂𝗍𝖾 𝖨",
+                "Elite II": "🏅 𝖤𝗅𝗂𝗍𝖾 𝖨𝖨",
+                "Elite III": "🏅 𝖤𝗅𝗂𝗍𝖾 𝖨𝖨𝖨",
+                "Elite IV": "🏅 𝖤𝗅𝗂𝗍𝖾 𝖨𝖵",
+                "Elite V": "🏅 𝖤𝗅𝗂𝗍𝖾 𝖵",
+                "Master": "🏆 𝖬𝖺𝗌𝗍𝖾𝗋",
+                "War Generals": "⚔️ 𝖶𝖺𝗋 𝖦𝖾𝗇𝖾𝗋𝖺𝗅𝗌"
+            };
+
+            const getRankName = count => {
+                return count > 50000 ? rankNames["War Generals"]
+                    : count > 9000 ? rankNames["Master"]
+                    : count > 8000 ? rankNames["Elite V"]
+                    : count > 6100 ? rankNames["Elite IV"]
+                    : count > 5900 ? rankNames["Elite III"]
+                    : count > 5700 ? rankNames["Elite II"]
+                    : count > 5200 ? rankNames["Elite I"]
+                    : count > 5000 ? rankNames["Diamond V"]
+                    : count > 4800 ? rankNames["Diamond IV"]
+                    : count > 4500 ? rankNames["Diamond III"]
+                    : count > 4000 ? rankNames["Diamond II"]
+                    : count > 3800 ? rankNames["Diamond I"]
+                    : count > 3500 ? rankNames["Platinum IV"]
+                    : count > 3200 ? rankNames["Platinum III"]
+                    : count > 3000 ? rankNames["Platinum II"]
+                    : count > 2900 ? rankNames["Platinum I"]
+                    : count > 2500 ? rankNames["Gold IV"]
+                    : count > 2300 ? rankNames["Gold III"]
+                    : count > 2000 ? rankNames["Gold II"]
+                    : count > 1500 ? rankNames["Gold I"]
+                    : count > 1200 ? rankNames["Silver III"]
+                    : count > 1000 ? rankNames["Silver II"]
+                    : count > 900 ? rankNames["Silver I"]
+                    : count > 500 ? rankNames["Copper III"]
+                    : count > 100 ? rankNames["Copper II"]
+                    : rankNames["Copper I"];
+            };
+
+            const threadPath = directoryPath + threadID + ".json";
+            let threadData = {};
+
+            try {
+                if (fs.existsSync(threadPath)) {
+                    const fileContent = fs.readFileSync(threadPath, 'utf8');
+                    threadData = JSON.parse(fileContent) || {};
+                } else {
+                    fs.writeFileSync(threadPath, JSON.stringify({}, null, 4));
+                }
+            } catch (fileError) {
+                console.error(`❌ 𝖥𝗂𝗅𝖾 𝗈𝗉𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:`, fileError);
+                return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖺𝖼𝖼𝖾𝗌𝗌 𝗆𝖾𝗌𝗌𝖺𝗀𝖾 𝖽𝖺𝗍𝖺.");
+            }
+
+            if (!threadData[senderID]) threadData[senderID] = 1;
+
+            const query = args[0] ? args[0].toLowerCase() : "";
+
+            if (query === "all") {
+                try {
+                    const allThread = await api.getThreadInfo(threadID);
+                    if (allThread && allThread.participantIDs) {
+                        for (const id of allThread.participantIDs) {
+                            if (!threadData[id]) threadData[id] = 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗀𝖾𝗍 𝗍𝗁𝗋𝖾𝖺𝖽 𝗂𝗇𝖿𝗈:", error);
                 }
             }
-            if (storage.length > 50) {
-                msg += `\n\n...𝑎𝑛𝑑 ${storage.length - 50} 𝑚𝑜𝑟𝑒 𝑢𝑠𝑒𝑟𝑠`;
+
+            const storage = [];
+            const processedUsers = new Set();
+
+            for (const id in threadData) {
+                if (processedUsers.has(id)) continue;
+                processedUsers.add(id);
+
+                try {
+                    const userInfo = await api.getUserInfo(id);
+                    const name = userInfo[id]?.name || "𝖴𝗇𝗄𝗇𝗈𝗐𝗇";
+                    storage.push({ id, name, count: threadData[id] });
+                } catch (error) {
+                    console.error(`❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗀𝖾𝗍 𝗇𝖺𝗆𝖾 𝖿𝗈𝗋 ${id}:`, error);
+                    storage.push({ id, name: "𝖴𝗇𝗄𝗇𝗈𝗐𝗇", count: threadData[id] });
+                }
             }
-        } else if (query === "rank") {
-            msg += "🏅=== 𝑅𝐴𝑁𝐾 𝐿𝐼𝑆𝑇 ===🏅\n" + Object.values(rankNames).join("\n");
-        } else {
-            let userID = senderID;
-            if (Object.keys(mentions).length > 0) userID = Object.keys(mentions)[0];
 
-            const userIndex = storage.findIndex(e => e.id == userID);
-            const user = storage[userIndex] || { id: userID, name: "𝑈𝑛𝑘𝑛𝑜𝑤𝑛", count: 0 };
+            storage.sort((a, b) => b.count - a.count || (a.name || "").localeCompare(b.name || ""));
 
-            msg += `💠 ${userID == senderID ? "𝑌𝑜𝑢𝑟 𝑆𝑡𝑎𝑡𝑠" : (user.name + "'𝑠 𝑆𝑡𝑎𝑡𝑠")}\n`;
-            msg += `📌 𝑅𝑎𝑛𝑘: ${userIndex >= 0 ? userIndex + 1 : "𝑁/𝐴"}\n`;
-            msg += `💌 𝑀𝑒𝑠𝑠𝑎𝑔𝑒𝑠: ${user.count}\n`;
-            msg += `🔰 𝑅𝑎𝑛𝑘 𝑇𝑖𝑡𝑙𝑒: ${getRankName(user.count)}`;
+            let msg = "";
+            if (query === "all") {
+                msg += "📊=== 𝖢𝖧𝖤𝖢𝖪𝖳𝖳 𝖫𝖤𝖠𝖣𝖤𝖱𝖡𝖮𝖠𝖱𝖣 ===📊\n\n";
+                let rank = 1;
+                let displayedCount = 0;
+                for (const user of storage) {
+                    if (displayedCount < 50 && user.count > 0) {
+                        msg += `🏅 ${rank++}. ${user.name} - 💌 ${user.count} 𝗆𝖾𝗌𝗌𝖺𝗀𝖾𝗌\n`;
+                        displayedCount++;
+                    }
+                }
+                if (storage.length > displayedCount) {
+                    msg += `\n...𝖺𝗇𝖽 ${storage.length - displayedCount} 𝗆𝗈𝗋𝖾 𝗎𝗌𝖾𝗋𝗌`;
+                }
+                if (displayedCount === 0) {
+                    msg += "📝 𝖭𝗈 𝗆𝖾𝗌𝗌𝖺𝗀𝖾 𝗌𝗍𝖺𝗍𝗂𝗌𝗍𝗂𝖼𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗒𝖾𝗍.";
+                }
+            } else if (query === "rank") {
+                msg += "🏅=== 𝖱𝖠𝖭𝖪 𝖫𝖨𝖲𝖳 ===🏅\n\n" + Object.values(rankNames).join("\n");
+            } else {
+                let userID = senderID;
+                if (Object.keys(mentions).length > 0) userID = Object.keys(mentions)[0];
+
+                const userIndex = storage.findIndex(e => e.id == userID);
+                const user = storage[userIndex] || { id: userID, name: "𝖴𝗇𝗄𝗇𝗈𝗐𝗇", count: 0 };
+
+                msg += `💠 ${userID == senderID ? "𝖸𝗈𝗎𝗋 𝖲𝗍𝖺𝗍𝗌" : (user.name + "'𝗌 𝖲𝗍𝖺𝗍𝗌")}\n\n`;
+                msg += `📌 𝖱𝖺𝗇𝗄: ${userIndex >= 0 ? userIndex + 1 : "𝖭/𝖠"}\n`;
+                msg += `💌 𝖬𝖾𝗌𝗌𝖺𝗀𝖾𝗌: ${user.count}\n`;
+                msg += `🔰 𝖱𝖺𝗇𝗄 𝖳𝗂𝗍𝗅𝖾: ${getRankName(user.count)}`;
+            }
+
+            await message.reply(msg);
+
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝖾𝖼𝗄𝗍𝗍 𝖮𝗇𝖲𝗍𝖺𝗋𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗉𝗋𝗈𝖼𝖾𝗌𝗌 𝖼𝗁𝖾𝖼𝗄𝗍𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.";
+            
+            if (error.message.includes('JSON')) {
+                errorMessage = "❌ 𝖣𝖺𝗍𝖺 𝖿𝗂𝗅𝖾 𝖼𝗈𝗋𝗋𝗎𝗉𝗍𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            } else if (error.message.includes('permission')) {
+                errorMessage = "❌ 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋. 𝖢𝗁𝖾𝖼𝗄 𝖿𝗂𝗅𝖾 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        await api.sendMessage(msg, threadID, messageID);
-
-    } catch (error) {
-        console.error("𝐶ℎ𝑒𝑐𝑘𝑡𝑡 𝑂𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-        await api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑐ℎ𝑒𝑐𝑘𝑡𝑡 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.", threadID, messageID);
     }
 };
