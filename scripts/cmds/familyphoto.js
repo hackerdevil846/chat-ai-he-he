@@ -6,7 +6,7 @@ const superfetch = require("node-superfetch");
 module.exports = {
   config: {
     name: "familyphoto",
-    aliases: [""],
+    aliases: [],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
