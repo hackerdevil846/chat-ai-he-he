@@ -1,67 +1,131 @@
-const fs = require("fs");
-const path = require("path");
+const axios = require("axios");
 
-module.exports.config = {
-    name: "chocolate",
-    aliases: ["toffee", "sweet"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "fun",
-    shortDescription: {
-        en: "🍫 𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑒𝑑 𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑠𝑦𝑠𝑡𝑒𝑚"
+module.exports = {
+    config: {
+        name: "chocolate",
+        aliases: [],
+        version: "1.0.1",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "fun",
+        shortDescription: {
+            en: "🍫 𝖠𝗎𝗍𝗈𝗆𝖺𝗍𝖾𝖽 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾 𝗌𝗒𝗌𝗍𝖾𝗆"
+        },
+        longDescription: {
+            en: "𝖠𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗍𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖺𝗇𝖽 𝗍𝗈𝖿𝖿𝖾𝖾 𝗄𝖾𝗒𝗐𝗈𝗋𝖽𝗌 𝗐𝗂𝗍𝗁 𝖺 𝗌𝗐𝖾𝖾𝗍 𝗆𝖾𝗌𝗌𝖺𝗀𝖾"
+        },
+        guide: {
+            en: "𝖩𝗎𝗌𝗍 𝗍𝗒𝗉𝖾 '𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾' 𝗈𝗋 '𝗍𝗈𝖿𝖿𝖾𝖾' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍"
+        },
+        dependencies: {
+            "axios": ""
+        }
     },
-    longDescription: {
-        en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑡𝑜 𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑎𝑛𝑑 𝑡𝑜𝑓𝑓𝑒𝑒 𝑘𝑒𝑦𝑤𝑜𝑟𝑑𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑠𝑤𝑒𝑒𝑡 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
-    },
-    guide: {
-        en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 '𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒' 𝑜𝑟 '𝑡𝑜𝑓𝑓𝑒𝑒' 𝑖𝑛 𝑡ℎ𝑒 𝑐ℎ𝑎𝑡"
-    },
-    dependencies: {
-        "fs": "",
-        "path": ""
-    }
-};
 
-module.exports.onLoad = function() {
-    console.log('🍫 𝐶ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑚𝑜𝑑𝑢𝑙𝑒 𝑙𝑜𝑎𝑑𝑒𝑑');
-};
-
-module.exports.onStart = async function({ message }) {
-    try {
-        // 𝐸𝑚𝑝𝑡𝑦 𝑜𝑛𝑆𝑡𝑎𝑟𝑡 𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛 𝑡𝑜 𝑝𝑟𝑒𝑣𝑒𝑛𝑡 𝑒𝑟𝑟𝑜𝑟𝑠
-        // 𝑇ℎ𝑒 𝑎𝑐𝑡𝑢𝑎𝑙 𝑓𝑢𝑛𝑐𝑡𝑖𝑜𝑛𝑎𝑙𝑖𝑡𝑦 𝑖𝑠 𝑖𝑛 𝑜𝑛𝐶ℎ𝑎𝑡
-    } catch (error) {
-        console.error("𝐶ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑂𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-    }
-};
-
-module.exports.onChat = async function({ event, message, api }) {
-    try {
-        const { threadID, messageID, body } = event;
-        const triggers = ["chocolate", "toffee"];
-        
-        if (triggers.some(trigger => 
-            body && body.toLowerCase().includes(trigger.toLowerCase())
-        )) {
-            const chocolatePath = path.join(__dirname, 'cache', 'chocolate.jpg');
-            
-            if (!fs.existsSync(chocolatePath)) {
-                console.error("𝐶ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑:", chocolatePath);
-                return message.reply("🍫 𝑌𝑒 𝑙𝑜 𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑑𝑎𝑟𝑙𝑖𝑛𝑔! 💝\n(𝐼𝑚𝑎𝑔𝑒 𝑛𝑜𝑡 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒)");
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+            } catch (e) {
+                dependenciesAvailable = false;
             }
 
-            await message.reply({
-                body: "🍫 𝑌𝑒 𝑙𝑜 𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑑𝑎𝑟𝑙𝑖𝑛𝑔! 💝",
-                attachment: fs.createReadStream(chocolatePath)
-            });
-            
-            await api.setMessageReaction("🍫", messageID, (err) => {
-                if (err) console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑡 𝑟𝑒𝑎𝑐𝑡𝑖𝑜𝑛:", err);
-            }, true);
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+            }
+
+            return message.reply("🍫 𝖳𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗐𝗁𝖾𝗇 𝗌𝗈𝗆𝖾𝗈𝗇𝖾 𝗍𝗒𝗉𝖾𝗌 '𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾' 𝗈𝗋 '𝗍𝗈𝖿𝖿𝖾𝖾' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍!");
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖮𝗇𝖲𝗍𝖺𝗋𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+            // Don't send error message to avoid spam
         }
-    } catch (error) {
-        console.error("𝐶ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒 𝑂𝑛𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+    },
+
+    onChat: async function({ event, message, api }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
+
+            if (!dependenciesAvailable) {
+                return;
+            }
+
+            const { threadID, messageID, body } = event;
+            
+            if (!body) return;
+
+            const triggers = [
+                "chocolate", 
+                "toffee", 
+                "sweet",
+                "𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾",
+                "𝗍𝗈𝖿𝖿𝖾𝖾",
+                "𝗌𝗐𝖾𝖾𝗍",
+                "𝑐ℎ𝑜𝑐𝑜𝑙𝑎𝑡𝑒",
+                "𝑡𝑜𝑓𝑓𝑒𝑒",
+                "𝑠𝑤𝑒𝑒𝑡"
+            ];
+            
+            const messageText = body.toLowerCase().trim();
+            const shouldTrigger = triggers.some(trigger => 
+                messageText.includes(trigger.toLowerCase())
+            );
+
+            if (shouldTrigger) {
+                const chocolateImageURL = "https://i.imgur.com/8B3r2Q9.jpeg";
+                
+                console.log(`🍫 𝖳𝗋𝗂𝗀𝗀𝖾𝗋𝖾𝖽 𝖻𝗒: "${body}"`);
+
+                try {
+                    const imageStream = await global.utils.getStreamFromURL(chocolateImageURL);
+
+                    if (!imageStream) {
+                        throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+                    }
+
+                    await message.reply({
+                        body: "🍫 𝖸𝖾 𝗅𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖽𝖺𝗋𝗅𝗂𝗇𝗀! 💝",
+                        attachment: imageStream
+                    });
+                    
+                    console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗇𝗍 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾`);
+
+                    // Add reaction with error handling
+                    try {
+                        await api.setMessageReaction("🍫", messageID, () => {}, true);
+                    } catch (reactionError) {
+                        console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗋𝖾𝖺𝖼𝗍𝗂𝗈𝗇:", reactionError.message);
+                    }
+                    
+                } catch (streamError) {
+                    console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖾𝗋𝗋𝗈𝗋:", streamError);
+                    
+                    // Fallback: send text-only response
+                    try {
+                        await message.reply("🍫 𝖸𝖾 𝗅𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖽𝖺𝗋𝗅𝗂𝗇𝗀! 💝\n\n❌ 𝖨𝗆𝖺𝗀𝖾 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾, 𝖻𝗎𝗍 𝗁𝖾𝗋𝖾'𝗌 𝗒𝗈𝗎𝗋 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝗅𝗈𝗏𝖾!");
+                        
+                        // Add reaction for text-only response
+                        try {
+                            await api.setMessageReaction("🍫", messageID, () => {}, true);
+                        } catch (reactionError) {
+                            console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗋𝖾𝖺𝖼𝗍𝗂𝗈𝗇:", reactionError.message);
+                        }
+                    } catch (fallbackError) {
+                        console.error("❌ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾 𝖿𝖺𝗂𝗅𝖾𝖽:", fallbackError);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("💥 𝖢𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖮𝗇𝖢𝗁𝖺𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+            // Don't send error message to avoid spam
+        }
     }
 };
