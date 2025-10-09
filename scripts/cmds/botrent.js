@@ -4,278 +4,388 @@ const moment = require('moment-timezone');
 const crypto = require('crypto');
 const cron = require('node-cron');
 
-module.exports.config = {
-    name: "botrent",
-    aliases: ["rentbot", "botlease"],
-    version: "1.7.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 1,
-    role: 3,
-    category: "system",
-    shortDescription: {
-        en: "𝐵𝑜𝑡 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚 𝑚𝑎𝑛𝑎𝑔𝑒𝑚𝑒𝑛𝑡"
+module.exports = {
+    config: {
+        name: "botrent",
+        aliases: [],
+        version: "1.7.0",
+        author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+        countDown: 1,
+        role: 3,
+        category: "system",
+        shortDescription: {
+            en: "𝖡𝗈𝗍 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆 𝗆𝖺𝗇𝖺𝗀𝖾𝗆𝖾𝗇𝗍"
+        },
+        longDescription: {
+            en: "𝖬𝖺𝗇𝖺𝗀𝖾 𝖻𝗈𝗍 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆 𝗐𝗂𝗍𝗁 𝗄𝖾𝗒 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖺𝗇𝖽 𝖾𝗑𝗉𝗂𝗋𝖺𝗍𝗂𝗈𝗇 𝗍𝗋𝖺𝖼𝗄𝗂𝗇𝗀"
+        },
+        guide: {
+            en: "{p}botrent [𝖺𝖽𝖽|𝗅𝗂𝗌𝗍|𝗂𝗇𝖿𝗈|𝗇𝖾𝗐𝗄𝖾𝗒|𝖼𝗁𝖾𝖼𝗄]"
+        },
+        dependencies: {
+            "fs-extra": "",
+            "path": "",
+            "moment-timezone": "",
+            "crypto": "",
+            "node-cron": ""
+        }
     },
-    longDescription: {
-        en: "𝑀𝑎𝑛𝑎𝑔𝑒 𝑏𝑜𝑡 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚 𝑤𝑖𝑡ℎ 𝑘𝑒𝑦 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑒𝑥𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛 𝑡𝑟𝑎𝑐𝑘𝑖𝑛𝑔"
-    },
-    guide: {
-        en: "{p}botrent [𝑎𝑑𝑑|𝑙𝑖𝑠𝑡|𝑖𝑛𝑓𝑜|𝑛𝑒𝑤𝑘𝑒𝑦|𝑐ℎ𝑒𝑐𝑘]"
-    },
-    dependencies: {
-        "fs-extra": "",
-        "path": "",
-        "moment-timezone": "",
-        "crypto": "",
-        "node-cron": ""
-    }
-};
 
-module.exports.onLoad = function() {
-    const RENT_DATA_PATH = path.join(__dirname, 'cache/data/thuebot.json');
-    const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
-    const setNameCheckPath = path.join(__dirname, 'data/setnamecheck.json');
-    const TIMEZONE = 'Asia/Dhaka';
-
-    // Create directories if they don't exist
-    if (!fs.existsSync(path.dirname(RENT_DATA_PATH))) {
-        fs.mkdirSync(path.dirname(RENT_DATA_PATH), { recursive: true });
-    }
-    if (!fs.existsSync(path.dirname(setNameCheckPath))) {
-        fs.mkdirSync(path.dirname(setNameCheckPath), { recursive: true });
-    }
-
-    this.rentData = fs.existsSync(RENT_DATA_PATH) ? JSON.parse(fs.readFileSync(RENT_DATA_PATH, 'utf8')) : [];
-    this.keys = fs.existsSync(RENT_KEY_PATH) ? JSON.parse(fs.readFileSync(RENT_KEY_PATH, 'utf8')) : {};
-    this.setNameCheck = fs.existsSync(setNameCheckPath) ? JSON.parse(fs.readFileSync(setNameCheckPath, 'utf8')) : {};
-
-    // Schedule daily tasks
-    cron.schedule('42 03 * * *', async () => {
-        console.log('𝑈𝑝𝑑𝑎𝑡𝑖𝑛𝑔 𝑏𝑜𝑡 𝑛𝑎𝑚𝑒𝑠 𝑏𝑎𝑠𝑒𝑑 𝑜𝑛 𝑟𝑒𝑛𝑡𝑎𝑙 𝑒𝑥𝑝𝑖𝑟𝑎𝑡𝑖𝑜𝑛');
-        await this.updateGroupNames();
-        await this.cleanupAllKeys();
-    }, {
-        scheduled: true,
-        timezone: TIMEZONE
-    });
-};
-
-module.exports.saveData = function() {
-    const RENT_DATA_PATH = path.join(__dirname, 'cache/data/thuebot.json');
-    fs.writeFileSync(RENT_DATA_PATH, JSON.stringify(this.rentData, null, 2), 'utf8');
-};
-
-module.exports.saveKeys = function() {
-    const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
-    fs.writeFileSync(RENT_KEY_PATH, JSON.stringify(this.keys, null, 2), 'utf8');
-};
-
-module.exports.formatDate = function(input) {
-    return input.split('/').reverse().join('/');
-};
-
-module.exports.isInvalidDate = function(date) {
-    return isNaN(new Date(date).getTime());
-};
-
-module.exports.generateKey = function() {
-    const randomString = crypto.randomBytes(6).toString('hex').slice(0, 6);
-    return `hphong_${randomString}_key_2025`.toLowerCase();
-};
-
-module.exports.updateGroupNames = async function() {
-    console.log('𝑈𝑝𝑑𝑎𝑡𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒𝑠');
-    const TIMEZONE = 'Asia/Dhaka';
-    const setNameCheckPath = path.join(__dirname, 'data/setnamecheck.json');
-
-    try {
-        for (const entry of this.rentData) {
-            const { t_id, time_end } = entry;
-            const currentDate = moment().tz(TIMEZONE);
-            const endDate = moment(time_end, 'DD/MM/YYYY');
-            const daysRemaining = endDate.diff(currentDate, 'days');
-
-            let botName;
-            if (daysRemaining <= 0) {
-                botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝐸𝑥𝑝𝑖𝑟𝑒𝑑: ${time_end}`;
-            } else if (daysRemaining <= 3) {
-                botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || ⚠️${daysRemaining} 𝑑𝑎𝑦𝑠 𝑟𝑒𝑚𝑎𝑖𝑛𝑖𝑛𝑔`;
-            } else {
-                botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝐸𝑥𝑝𝑖𝑟𝑒𝑠: ${time_end} || ✅${daysRemaining} 𝑑𝑎𝑦𝑠`;
-            }
-
+    onLoad: function() {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
             try {
-                const currentUserId = await global.client.api.getCurrentUserID();
-                if (currentUserId) {
-                    await global.client.api.changeNickname(botName, t_id, currentUserId);
-                    this.setNameCheck[t_id] = true;
-                }
-            } catch (error) {
-                console.error(`𝐸𝑟𝑟𝑜𝑟 𝑢𝑝𝑑𝑎𝑡𝑖𝑛𝑔 𝑛𝑖𝑐𝑘𝑛𝑎𝑚𝑒 𝑓𝑜𝑟 𝑔𝑟𝑜𝑢𝑝 ${t_id}:`, error);
+                require("fs-extra");
+                require("path");
+                require("moment-timezone");
+                require("crypto");
+                require("node-cron");
+            } catch (e) {
+                dependenciesAvailable = false;
             }
-        }
-        fs.writeFileSync(setNameCheckPath, JSON.stringify(this.setNameCheck, null, 2), 'utf8');
-    } catch (error) {
-        console.error('𝐸𝑟𝑟𝑜𝑟 𝑢𝑝𝑑𝑎𝑡𝑖𝑛𝑔 𝑔𝑟𝑜𝑢𝑝 𝑛𝑎𝑚𝑒𝑠:', error);
-    }
-};
 
-module.exports.cleanupAllKeys = function() {
-    console.log('𝐶𝑙𝑒𝑎𝑛𝑖𝑛𝑔 𝑢𝑝 𝑎𝑙𝑙 𝑘𝑒𝑦𝑠');
-    this.keys = {};
-    const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
-    fs.writeFileSync(RENT_KEY_PATH, JSON.stringify(this.keys, null, 2), 'utf8');
-};
+            if (!dependenciesAvailable) {
+                console.error("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌 𝖿𝗈𝗋 𝖻𝗈𝗍𝗋𝖾𝗇𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽");
+                return;
+            }
 
-module.exports.onStart = async function({ message, event, args }) {
-    try {
-        if (!global.config.ADMINBOT.includes(event.senderID)) {
-            return message.reply(`⚠️ 𝑂𝑛𝑙𝑦 𝑚𝑎𝑖𝑛 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑢𝑠𝑒 𝑡ℎ𝑖𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑!`);
-        }
+            const RENT_DATA_PATH = path.join(__dirname, 'cache/data/thuebot.json');
+            const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
+            const setNameCheckPath = path.join(__dirname, 'data/setnamecheck.json');
+            const TIMEZONE = 'Asia/Dhaka';
 
-        const prefix = global.config.PREFIX;
-
-        switch (args[0]) {
-            case 'add':
-                if (!args[1]) return message.reply(`❎ 𝑈𝑠𝑒: ${prefix}${this.config.name} 𝑎𝑑𝑑 + 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑢𝑠𝑒𝑟`);
-                let userId = event.senderID;
-                if (event.type === "message_reply") {
-                    userId = event.messageReply.senderID;
-                } else if (Object.keys(event.mentions).length > 0) {
-                    userId = Object.keys(event.mentions)[0];
+            // Create directories if they don't exist
+            try {
+                if (!fs.existsSync(path.dirname(RENT_DATA_PATH))) {
+                    fs.mkdirSync(path.dirname(RENT_DATA_PATH), { recursive: true });
                 }
-                let t_id = event.threadID;
-                let time_start = moment.tz('Asia/Dhaka').format('DD/MM/YYYY');
-                let time_end = args[1];
-                
-                if (this.isInvalidDate(this.formatDate(time_start)) || this.isInvalidDate(this.formatDate(time_end))) {
-                    return message.reply(`❎ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑑𝑎𝑡𝑒 𝑓𝑜𝑟𝑚𝑎𝑡!`);
+                if (!fs.existsSync(path.dirname(setNameCheckPath))) {
+                    fs.mkdirSync(path.dirname(setNameCheckPath), { recursive: true });
                 }
-                
-                const existingData = this.rentData.find(entry => entry.t_id === t_id);
-                if (existingData) {
-                    return message.reply(`⚠️ 𝐺𝑟𝑜𝑢𝑝 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑒𝑥𝑖𝑠𝑡𝑠 𝑖𝑛 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚!`);
-                }
-                
-                this.rentData.push({ t_id, id: userId, time_start, time_end });
-                this.saveData();
-                return message.reply(`✅ 𝐴𝑑𝑑𝑒𝑑 𝑔𝑟𝑜𝑢𝑝 𝑡𝑜 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚!`);
+            } catch (dirError) {
+                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝖼𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗂𝖾𝗌:", dirError);
+            }
 
-            case 'list':
-                if (this.rentData.length === 0) {
-                    return message.reply('❎ 𝑁𝑜 𝑔𝑟𝑜𝑢𝑝𝑠 𝑖𝑛 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚!');
-                }
-                
-                const updatedData = this.rentData.map((item) => {
-                    const timeEnd = new Date(this.formatDate(item.time_end)).getTime();
-                    const now = Date.now();
-                    const remainingTime = timeEnd - now;
-                    const daysRemaining = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-                    const hoursRemaining = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    
-                    return {
-                        ...item,
-                        daysRemaining,
-                        hoursRemaining,
-                        status: remainingTime <= 0 ? '❎ 𝐸𝑥𝑝𝑖𝑟𝑒𝑑' : '✅ 𝐴𝑐𝑡𝑖𝑣𝑒'
-                    };
+            // Load data with error handling
+            try {
+                this.rentData = fs.existsSync(RENT_DATA_PATH) ? JSON.parse(fs.readFileSync(RENT_DATA_PATH, 'utf8')) : [];
+                this.keys = fs.existsSync(RENT_KEY_PATH) ? JSON.parse(fs.readFileSync(RENT_KEY_PATH, 'utf8')) : {};
+                this.setNameCheck = fs.existsSync(setNameCheckPath) ? JSON.parse(fs.readFileSync(setNameCheckPath, 'utf8')) : {};
+            } catch (loadError) {
+                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝖽𝖺𝗍𝖺:", loadError);
+                this.rentData = [];
+                this.keys = {};
+                this.setNameCheck = {};
+            }
+
+            // Schedule daily tasks
+            try {
+                cron.schedule('42 03 * * *', async () => {
+                    console.log('🔄 𝖴𝗉𝖽𝖺𝗍𝗂𝗇𝗀 𝖻𝗈𝗍 𝗇𝖺𝗆𝖾𝗌 𝖻𝖺𝗌𝖾𝖽 𝗈𝗇 𝗋𝖾𝗇𝗍𝖺𝗅 𝖾𝗑𝗉𝗂𝗋𝖺𝗍𝗂𝗈𝗇');
+                    await this.updateGroupNames();
+                    await this.cleanupAllKeys();
+                }, {
+                    scheduled: true,
+                    timezone: TIMEZONE
                 });
+            } catch (cronError) {
+                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖼𝗁𝖾𝖽𝗎𝗅𝗂𝗇𝗀 𝖼𝗋𝗈𝗇 𝗃𝗈𝖻:", cronError);
+            }
 
-                const listMessage = `[ 𝐵𝑂𝑇 𝑅𝐸𝑁𝑇𝐴𝐿 𝑆𝑌𝑆𝑇𝐸𝑀 ]\n\n${updatedData.map((item, i) => 
-                    `${i + 1}. ${global.data.userName.get(item.id)}\n⩺ 𝑆𝑡𝑎𝑡𝑢𝑠: ${item.status}\n⩺ 𝐺𝑟𝑜𝑢𝑝: ${(global.data.threadInfo.get(item.t_id) || {}).threadName}\n⩺ ${item.daysRemaining} 𝑑𝑎𝑦𝑠 ${item.hoursRemaining} ℎ𝑜𝑢𝑟𝑠 𝑟𝑒𝑚𝑎𝑖𝑛𝑖𝑛𝑔`
-                ).join('\n\n')}`;
-
-                return message.reply(listMessage);
-
-            case 'info':
-                const rentInfo = this.rentData.find(entry => entry.t_id === event.threadID);
-                if (!rentInfo) {
-                    return message.reply(`❎ 𝑁𝑜 𝑟𝑒𝑛𝑡𝑎𝑙 𝑑𝑎𝑡𝑎 𝑓𝑜𝑟 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝`);
-                }
-                
-                const timeEnd = new Date(this.formatDate(rentInfo.time_end)).getTime();
-                const now = Date.now();
-                const daysRemaining = Math.floor((timeEnd - now) / (1000 * 60 * 60 * 24));
-                const hoursRemaining = Math.floor((timeEnd - now) / (1000 * 60 * 60) % 24);
-                
-                return message.reply(`[ 𝑅𝐸𝑁𝑇𝐴𝐿 𝐼𝑁𝐹𝑂 ]\n\n👤 𝑈𝑠𝑒𝑟: ${global.data.userName.get(rentInfo.id)}\n🔗 𝐿𝑖𝑛𝑘: https://www.facebook.com/profile.php?id=${rentInfo.id}\n🗓️ 𝑆𝑡𝑎𝑟𝑡: ${rentInfo.time_start}\n⌛ 𝐸𝑛𝑑: ${rentInfo.time_end}\n⩺ ${daysRemaining} 𝑑𝑎𝑦𝑠 ${hoursRemaining} ℎ𝑜𝑢𝑟𝑠 𝑟𝑒𝑚𝑎𝑖𝑛𝑖𝑛𝑔`);
-
-            case 'newkey':
-                const days = parseInt(args[1], 10) || 31;
-                if (isNaN(days) || days <= 0) {
-                    return message.reply(`❎ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑑𝑎𝑦𝑠 𝑣𝑎𝑙𝑢𝑒!`);
-                }
-                
-                const generatedKey = this.generateKey();
-                this.keys[generatedKey] = {
-                    days: days,
-                    used: false,
-                    groupId: null
-                };
-                this.saveKeys();
-                return message.reply(`🔑 𝑁𝑒𝑤 𝑘𝑒𝑦: ${generatedKey}\n📆 𝑉𝑎𝑙𝑖𝑑 𝑓𝑜𝑟 ${days} 𝑑𝑎𝑦𝑠`);
-
-            case 'check':
-                if (Object.keys(this.keys).length === 0) {
-                    return message.reply('❎ 𝑁𝑜 𝑘𝑒𝑦𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒!');
-                }
-                
-                const keyList = Object.entries(this.keys).map(([key, info], i) => 
-                    `${i + 1}. 𝐾𝑒𝑦: ${key}\n🗓️ 𝐷𝑎𝑦𝑠: ${info.days}\n📝 𝑆𝑡𝑎𝑡𝑢𝑠: ${info.used ? '✅ 𝑈𝑠𝑒𝑑' : '❎ 𝑈𝑛𝑢𝑠𝑒𝑑'}\n📎 𝐺𝑟𝑜𝑢𝑝 𝐼𝐷: ${info.groupId || '𝑁/𝐴'}`
-                ).join('\n\n');
-                
-                return message.reply(`[ 𝐾𝐸𝑌 𝐿𝐼𝑆𝑇 ]\n\n${keyList}\n\n⩺ 𝐴𝑢𝑡𝑜-𝑟𝑒𝑓𝑟𝑒𝑠ℎ 𝑎𝑡 00:00 𝑑𝑎𝑖𝑙𝑦!`);
-
-            default:
-                return message.reply(`[ 𝐵𝑂𝑇 𝑅𝐸𝑁𝑇𝐴𝐿 𝑀𝐸𝑁𝑈 ]\n──────────────────\n⩺ ${prefix}botrent 𝑎𝑑𝑑: 𝐴𝑑𝑑 𝑔𝑟𝑜𝑢𝑝 𝑡𝑜 𝑟𝑒𝑛𝑡𝑎𝑙 𝑠𝑦𝑠𝑡𝑒𝑚\n⩺ ${prefix}botrent 𝑛𝑒𝑤𝑘𝑒𝑦: 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑛𝑒𝑤 𝑟𝑒𝑛𝑡𝑎𝑙 𝑘𝑒𝑦\n⩺ ${prefix}botrent 𝑖𝑛𝑓𝑜: 𝑉𝑖𝑒𝑤 𝑟𝑒𝑛𝑡𝑎𝑙 𝑖𝑛𝑓𝑜 𝑓𝑜𝑟 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝑔𝑟𝑜𝑢𝑝\n⩺ ${prefix}botrent 𝑐ℎ𝑒𝑐𝑘: 𝐶ℎ𝑒𝑐𝑘 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑘𝑒𝑦𝑠\n⩺ ${prefix}botrent 𝑙𝑖𝑠𝑡: 𝐿𝑖𝑠𝑡 𝑎𝑙𝑙 𝑟𝑒𝑛𝑡𝑒𝑑 𝑔𝑟𝑜𝑢𝑝𝑠`);
+        } catch (error) {
+            console.error("💥 𝖡𝗈𝗍𝖱𝖾𝗇𝗍 𝗈𝗇𝖫𝗈𝖺𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
         }
-    } catch (error) {
-        console.error("𝐵𝑜𝑡𝑅𝑒𝑛𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑡ℎ𝑒 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
-    }
-};
+    },
 
-module.exports.onChat = async function({ event, message, api }) {
-    try {
-        const msg = event.body.toLowerCase();
-        const groupId = event.threadID;
-        const keyMatch = msg.match(/hphong_[0-9a-fA-F]{6}_key_2025/);
+    saveData: function() {
+        try {
+            const RENT_DATA_PATH = path.join(__dirname, 'cache/data/thuebot.json');
+            fs.writeFileSync(RENT_DATA_PATH, JSON.stringify(this.rentData, null, 2), 'utf8');
+        } catch (error) {
+            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗋𝖾𝗇𝗍 𝖽𝖺𝗍𝖺:", error);
+        }
+    },
 
-        if (keyMatch && event.senderID !== api.getCurrentUserID()) {
-            const key = keyMatch[0];
-            
-            if (this.keys.hasOwnProperty(key)) {
-                const keyInfo = this.keys[key];
-                if (!keyInfo.used) {
-                    const existingData = this.rentData.find(entry => entry.t_id === groupId);
-                    const time_start = moment().format('DD/MM/YYYY');
-                    let time_end;
+    saveKeys: function() {
+        try {
+            const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
+            fs.writeFileSync(RENT_KEY_PATH, JSON.stringify(this.keys, null, 2), 'utf8');
+        } catch (error) {
+            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗄𝖾𝗒𝗌:", error);
+        }
+    },
 
-                    if (existingData) {
-                        const oldEndDate = moment(existingData.time_end, 'DD/MM/YYYY');
-                        time_end = oldEndDate.add(keyInfo.days, 'days').format('DD/MM/YYYY');
-                        existingData.time_end = time_end;
+    formatDate: function(input) {
+        try {
+            return input.split('/').reverse().join('/');
+        } catch (error) {
+            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝖿𝗈𝗋𝗆𝖺𝗍𝗍𝗂𝗇𝗀 𝖽𝖺𝗍𝖾:", error);
+            return input;
+        }
+    },
+
+    isInvalidDate: function(date) {
+        try {
+            return isNaN(new Date(date).getTime());
+        } catch (error) {
+            return true;
+        }
+    },
+
+    generateKey: function() {
+        try {
+            const randomString = crypto.randomBytes(6).toString('hex').slice(0, 6);
+            return `hphong_${randomString}_key_2025`.toLowerCase();
+        } catch (error) {
+            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗇𝗀 𝗄𝖾𝗒:", error);
+            return `hphong_${Date.now().toString(36)}_key_2025`;
+        }
+    },
+
+    updateGroupNames: async function() {
+        console.log('🔄 𝖴𝗉𝖽𝖺𝗍𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗇𝖺𝗆𝖾𝗌');
+        const TIMEZONE = 'Asia/Dhaka';
+        const setNameCheckPath = path.join(__dirname, 'data/setnamecheck.json');
+
+        try {
+            for (const entry of this.rentData) {
+                const { t_id, time_end } = entry;
+                
+                try {
+                    const currentDate = moment().tz(TIMEZONE);
+                    const endDate = moment(time_end, 'DD/MM/YYYY');
+                    const daysRemaining = endDate.diff(currentDate, 'days');
+
+                    let botName;
+                    if (daysRemaining <= 0) {
+                        botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝖤𝗑𝗉𝗂𝗋𝖾𝖽: ${time_end}`;
+                    } else if (daysRemaining <= 3) {
+                        botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || ⚠️${daysRemaining} 𝖽𝖺𝗒𝗌 𝗋𝖾𝗆𝖺𝗂𝗇𝗂𝗇𝗀`;
                     } else {
-                        time_end = moment().add(keyInfo.days, 'days').format('DD/MM/YYYY');
-                        this.rentData.push({ t_id: groupId, id: event.senderID, time_start, time_end });
+                        botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝖤𝗑𝗉𝗂𝗋𝖾𝗌: ${time_end} || ✅${daysRemaining} 𝖽𝖺𝗒𝗌`;
                     }
 
-                    const botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝐸𝑥𝑝𝑖𝑟𝑒𝑠: ${time_end}`;
-                    await api.changeNickname(botName, groupId, api.getCurrentUserID());
-
-                    keyInfo.used = true;
-                    keyInfo.groupId = groupId;
-                    this.saveKeys();
-                    this.saveData();
-                    
-                    message.reply(`🔑 𝐾𝑒𝑦 𝑣𝑎𝑙𝑖𝑑! 𝐵𝑜𝑡 𝑟𝑒𝑛𝑡𝑎𝑙 𝑒𝑥𝑡𝑒𝑛𝑑𝑒𝑑 𝑓𝑜𝑟 ${keyInfo.days} 𝑑𝑎𝑦𝑠.`);
-                } else {
-                    message.reply(`🔒 𝐾𝑒𝑦 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑢𝑠𝑒𝑑 𝑜𝑟 𝑖𝑛𝑣𝑎𝑙𝑖𝑑!`);
+                    try {
+                        const currentUserId = await global.api.getCurrentUserID();
+                        if (currentUserId) {
+                            await global.api.changeNickname(botName, t_id, currentUserId);
+                            this.setNameCheck[t_id] = true;
+                        }
+                    } catch (nicknameError) {
+                        console.error(`❌ 𝖤𝗋𝗋𝗈𝗋 𝗎𝗉𝖽𝖺𝗍𝗂𝗇𝗀 𝗇𝗂𝖼𝗄𝗇𝖺𝗆𝖾 𝖿𝗈𝗋 𝗀𝗋𝗈𝗎𝗉 ${t_id}:`, nicknameError.message);
+                    }
+                } catch (dateError) {
+                    console.error(`❌ 𝖤𝗋𝗋𝗈𝗋 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖽𝖺𝗍𝖾 𝖿𝗈𝗋 𝗀𝗋𝗈𝗎𝗉 ${t_id}:`, dateError);
                 }
-            } else {
-                message.reply(`❎ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑘𝑒𝑦 𝑓𝑜𝑟𝑚𝑎𝑡!`);
             }
+            
+            try {
+                fs.writeFileSync(setNameCheckPath, JSON.stringify(this.setNameCheck, null, 2), 'utf8');
+            } catch (writeError) {
+                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗌𝖾𝗍𝗇𝖺𝗆𝖾𝖼𝗁𝖾𝖼𝗄:", writeError);
+            }
+        } catch (error) {
+            console.error('💥 𝖤𝗋𝗋𝗈𝗋 𝗎𝗉𝖽𝖺𝗍𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗇𝖺𝗆𝖾𝗌:', error);
         }
-    } catch (error) {
-        console.error("𝐾𝑒𝑦 𝐻𝑎𝑛𝑑𝑙𝑖𝑛𝑔 𝐸𝑟𝑟𝑜𝑟:", error);
+    },
+
+    cleanupAllKeys: function() {
+        console.log('🧹 𝖢𝗅𝖾𝖺𝗇𝗂𝗇𝗀 𝗎𝗉 𝖺𝗅𝗅 𝗄𝖾𝗒𝗌');
+        this.keys = {};
+        const RENT_KEY_PATH = path.join(__dirname, 'cache/data/keys.json');
+        try {
+            fs.writeFileSync(RENT_KEY_PATH, JSON.stringify(this.keys, null, 2), 'utf8');
+        } catch (error) {
+            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝖼𝗅𝖾𝖺𝗇𝖾𝖽 𝗄𝖾𝗒𝗌:", error);
+        }
+    },
+
+    onStart: async function({ message, event, args, api }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("fs-extra");
+                require("path");
+                require("moment-timezone");
+                require("crypto");
+                require("node-cron");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
+
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺, 𝗉𝖺𝗍𝗁, 𝗆𝗈𝗆𝖾𝗇𝗍-𝗍𝗂𝗆𝖾𝗓𝗈𝗇𝖾, 𝖼𝗋𝗒𝗉𝗍𝗈, 𝖺𝗇𝖽 𝗇𝗈𝖽𝖾-𝖼𝗋𝗈𝗇.");
+            }
+
+            if (!global.config.ADMINBOT.includes(event.senderID)) {
+                return message.reply(`⚠️ 𝖮𝗇𝗅𝗒 𝗆𝖺𝗂𝗇 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽!`);
+            }
+
+            const prefix = global.config.PREFIX;
+
+            switch (args[0]) {
+                case 'add':
+                    if (!args[1]) return message.reply(`❎ 𝖴𝗌𝖾: ${prefix}${this.config.name} 𝖺𝖽𝖽 + 𝗋𝖾𝗉𝗅𝗒 𝗍𝗈 𝗎𝗌𝖾𝗋`);
+                    let userId = event.senderID;
+                    if (event.type === "message_reply") {
+                        userId = event.messageReply.senderID;
+                    } else if (Object.keys(event.mentions).length > 0) {
+                        userId = Object.keys(event.mentions)[0];
+                    }
+                    let t_id = event.threadID;
+                    let time_start = moment.tz('Asia/Dhaka').format('DD/MM/YYYY');
+                    let time_end = args[1];
+                    
+                    if (this.isInvalidDate(this.formatDate(time_start)) || this.isInvalidDate(this.formatDate(time_end))) {
+                        return message.reply(`❎ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖽𝖺𝗍𝖾 𝖿𝗈𝗋𝗆𝖺𝗍!`);
+                    }
+                    
+                    const existingData = this.rentData.find(entry => entry.t_id === t_id);
+                    if (existingData) {
+                        return message.reply(`⚠️ 𝖦𝗋𝗈𝗎𝗉 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝖾𝗑𝗂𝗌𝗍𝗌 𝗂𝗇 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆!`);
+                    }
+                    
+                    this.rentData.push({ t_id, id: userId, time_start, time_end });
+                    this.saveData();
+                    return message.reply(`✅ 𝖠𝖽𝖽𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝗈 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆!`);
+
+                case 'list':
+                    if (this.rentData.length === 0) {
+                        return message.reply('❎ 𝖭𝗈 𝗀𝗋𝗈𝗎𝗉𝗌 𝗂𝗇 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆!');
+                    }
+                    
+                    const updatedData = this.rentData.map((item) => {
+                        try {
+                            const timeEnd = new Date(this.formatDate(item.time_end)).getTime();
+                            const now = Date.now();
+                            const remainingTime = timeEnd - now;
+                            const daysRemaining = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+                            const hoursRemaining = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            
+                            return {
+                                ...item,
+                                daysRemaining,
+                                hoursRemaining,
+                                status: remainingTime <= 0 ? '❎ 𝖤𝗑𝗉𝗂𝗋𝖾𝖽' : '✅ 𝖠𝖼𝗍𝗂𝗏𝖾'
+                            };
+                        } catch (error) {
+                            return {
+                                ...item,
+                                daysRemaining: 0,
+                                hoursRemaining: 0,
+                                status: '❎ 𝖤𝗋𝗋𝗈𝗋'
+                            };
+                        }
+                    });
+
+                    const listMessage = `[ 𝖡𝖮𝖳 𝖱𝖤𝖭𝖳𝖠𝖫 𝖲𝖸𝖲𝖳𝖤𝖬 ]\n\n${updatedData.map((item, i) => 
+                        `${i + 1}. ${global.data.userName.get(item.id) || '𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖴𝗌𝖾𝗋'}\n⩺ 𝖲𝗍𝖺𝗍𝗎𝗌: ${item.status}\n⩺ 𝖦𝗋𝗈𝗎𝗉: ${(global.data.threadInfo.get(item.t_id) || {}).threadName || '𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖦𝗋𝗈𝗎𝗉'}\n⩺ ${item.daysRemaining} 𝖽𝖺𝗒𝗌 ${item.hoursRemaining} 𝗁𝗈𝗎𝗋𝗌 𝗋𝖾𝗆𝖺𝗂𝗇𝗂𝗇𝗀`
+                    ).join('\n\n')}`;
+
+                    return message.reply(listMessage);
+
+                case 'info':
+                    const rentInfo = this.rentData.find(entry => entry.t_id === event.threadID);
+                    if (!rentInfo) {
+                        return message.reply(`❎ 𝖭𝗈 𝗋𝖾𝗇𝗍𝖺𝗅 𝖽𝖺𝗍𝖺 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝗀𝗋𝗈𝗎𝗉`);
+                    }
+                    
+                    try {
+                        const timeEnd = new Date(this.formatDate(rentInfo.time_end)).getTime();
+                        const now = Date.now();
+                        const daysRemaining = Math.floor((timeEnd - now) / (1000 * 60 * 60 * 24));
+                        const hoursRemaining = Math.floor((timeEnd - now) / (1000 * 60 * 60) % 24);
+                        
+                        return message.reply(`[ 𝖱𝖤𝖭𝖳𝖠𝖫 𝖨𝖭𝖥𝖮 ]\n\n👤 𝖴𝗌𝖾𝗋: ${global.data.userName.get(rentInfo.id) || '𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖴𝗌𝖾𝗋'}\n🔗 𝖫𝗂𝗇𝗄: https://www.facebook.com/profile.php?id=${rentInfo.id}\n🗓️ 𝖲𝗍𝖺𝗋𝗍: ${rentInfo.time_start}\n⌛ 𝖤𝗇𝖽: ${rentInfo.time_end}\n⩺ ${daysRemaining} 𝖽𝖺𝗒𝗌 ${hoursRemaining} 𝗁𝗈𝗎𝗋𝗌 𝗋𝖾𝗆𝖺𝗂𝗇𝗂𝗇𝗀`);
+                    } catch (dateError) {
+                        return message.reply(`❎ 𝖤𝗋𝗋𝗈𝗋 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖽𝖺𝗍𝖾 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇`);
+                    }
+
+                case 'newkey':
+                    const days = parseInt(args[1], 10) || 31;
+                    if (isNaN(days) || days <= 0) {
+                        return message.reply(`❎ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖽𝖺𝗒𝗌 𝗏𝖺𝗅𝗎𝖾!`);
+                    }
+                    
+                    const generatedKey = this.generateKey();
+                    this.keys[generatedKey] = {
+                        days: days,
+                        used: false,
+                        groupId: null
+                    };
+                    this.saveKeys();
+                    return message.reply(`🔑 𝖭𝖾𝗐 𝗄𝖾𝗒: ${generatedKey}\n📆 𝖵𝖺𝗅𝗂𝖽 𝖿𝗈𝗋 ${days} 𝖽𝖺𝗒𝗌`);
+
+                case 'check':
+                    if (Object.keys(this.keys).length === 0) {
+                        return message.reply('❎ 𝖭𝗈 𝗄𝖾𝗒𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾!');
+                    }
+                    
+                    const keyList = Object.entries(this.keys).map(([key, info], i) => 
+                        `${i + 1}. 𝖪𝖾𝗒: ${key}\n🗓️ 𝖣𝖺𝗒𝗌: ${info.days}\n📝 𝖲𝗍𝖺𝗍𝗎𝗌: ${info.used ? '✅ 𝖴𝗌𝖾𝖽' : '❎ 𝖴𝗇𝗎𝗌𝖾𝖽'}\n📎 𝖦𝗋𝗈𝗎𝗉 𝖨𝖣: ${info.groupId || '𝖭/𝖠'}`
+                    ).join('\n\n');
+                    
+                    return message.reply(`[ 𝖪𝖤𝖸 𝖫𝖨𝖲𝖳 ]\n\n${keyList}\n\n⩺ 𝖠𝗎𝗍𝗈-𝗋𝖾𝖿𝗋𝖾𝗌𝗁 𝖺𝗍 00:00 𝖽𝖺𝗂𝗅𝗒!`);
+
+                default:
+                    return message.reply(`[ 𝖡𝖮𝖳 𝖱𝖤𝖭𝖳𝖠𝖫 𝖬𝖤𝖭𝖴 ]\n──────────────────\n⩺ ${prefix}botrent 𝖺𝖽𝖽: 𝖠𝖽𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝗈 𝗋𝖾𝗇𝗍𝖺𝗅 𝗌𝗒𝗌𝗍𝖾𝗆\n⩺ ${prefix}botrent 𝗇𝖾𝗐𝗄𝖾𝗒: 𝖦𝖾𝗇𝖾𝗋𝖺𝗍𝖾 𝗇𝖾𝗐 𝗋𝖾𝗇𝗍𝖺𝗅 𝗄𝖾𝗒\n⩺ ${prefix}botrent 𝗂𝗇𝖿𝗈: 𝖵𝗂𝖾𝗐 𝗋𝖾𝗇𝗍𝖺𝗅 𝗂𝗇𝖿𝗈 𝖿𝗈𝗋 𝖼𝗎𝗋𝗋𝖾𝗇𝗍 𝗀𝗋𝗈𝗎𝗉\n⩺ ${prefix}botrent 𝖼𝗁𝖾𝖼𝗄: 𝖢𝗁𝖾𝖼𝗄 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗄𝖾𝗒𝗌\n⩺ ${prefix}botrent 𝗅𝗂𝗌𝗍: 𝖫𝗂𝗌𝗍 𝖺𝗅𝗅 𝗋𝖾𝗇𝗍𝖾𝖽 𝗀𝗋𝗈𝗎𝗉𝗌`);
+            }
+        } catch (error) {
+            console.error("💥 𝖡𝗈𝗍𝖱𝖾𝗇𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
+            message.reply("❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗍𝗁𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽.");
+        }
+    },
+
+    onChat: async function({ event, message, api }) {
+        try {
+            const msg = event.body.toLowerCase();
+            const groupId = event.threadID;
+            const keyMatch = msg.match(/hphong_[0-9a-fA-F]{6}_key_2025/);
+
+            if (keyMatch && event.senderID !== api.getCurrentUserID()) {
+                const key = keyMatch[0];
+                
+                if (this.keys.hasOwnProperty(key)) {
+                    const keyInfo = this.keys[key];
+                    if (!keyInfo.used) {
+                        const existingData = this.rentData.find(entry => entry.t_id === groupId);
+                        const time_start = moment().format('DD/MM/YYYY');
+                        let time_end;
+
+                        try {
+                            if (existingData) {
+                                const oldEndDate = moment(existingData.time_end, 'DD/MM/YYYY');
+                                time_end = oldEndDate.add(keyInfo.days, 'days').format('DD/MM/YYYY');
+                                existingData.time_end = time_end;
+                            } else {
+                                time_end = moment().add(keyInfo.days, 'days').format('DD/MM/YYYY');
+                                this.rentData.push({ t_id: groupId, id: event.senderID, time_start, time_end });
+                            }
+
+                            const botName = `『 ${global.config.PREFIX} 』 ⪼ ${global.config.BOTNAME} || 𝖤𝗑𝗉𝗂𝗋𝖾𝗌: ${time_end}`;
+                            await api.changeNickname(botName, groupId, api.getCurrentUserID());
+
+                            keyInfo.used = true;
+                            keyInfo.groupId = groupId;
+                            this.saveKeys();
+                            this.saveData();
+                            
+                            message.reply(`🔑 𝖪𝖾𝗒 𝗏𝖺𝗅𝗂𝖽! 𝖡𝗈𝗍 𝗋𝖾𝗇𝗍𝖺𝗅 𝖾𝗑𝗍𝖾𝗇𝖽𝖾𝖽 𝖿𝗈𝗋 ${keyInfo.days} 𝖽𝖺𝗒𝗌.`);
+                        } catch (dateError) {
+                            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖽𝖺𝗍𝖾:", dateError);
+                            message.reply(`❌ 𝖤𝗋𝗋𝗈𝗋 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗄𝖾𝗒. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.`);
+                        }
+                    } else {
+                        message.reply(`🔒 𝖪𝖾𝗒 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝗎𝗌𝖾𝖽 𝗈𝗋 𝗂𝗇𝗏𝖺𝗅𝗂𝖽!`);
+                    }
+                } else {
+                    message.reply(`❎ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝗄𝖾𝗒 𝖿𝗈𝗋𝗆𝖺𝗍!`);
+                }
+            }
+        } catch (error) {
+            console.error("💥 𝖪𝖾𝗒 𝖧𝖺𝗇𝖽𝗅𝗂𝗇𝗀 𝖤𝗋𝗋𝗈𝗋:", error);
+        }
     }
 };
