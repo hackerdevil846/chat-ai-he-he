@@ -1,98 +1,154 @@
-const fs = require("fs-extra");
 const axios = require("axios");
 
-module.exports.config = {
-    name: "catsay",
-    aliases: ["cattext", "catmessage"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "edit-img",
-    shortDescription: {
-        en: "🐱 𝐶𝑎𝑡 𝑖𝑚𝑎𝑔𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
-    },
-    longDescription: {
-        en: "🐱 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑐𝑢𝑡𝑒 𝑐𝑎𝑡 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑢𝑠𝑡𝑜𝑚 𝑚𝑒𝑠𝑠𝑎𝑔𝑒"
-    },
-    guide: {
-        en: "{p}catsay [𝑡𝑒𝑥𝑡]"
-    },
-    dependencies: {
-        "fs-extra": "",
-        "axios": ""
-    }
-};
-
-module.exports.languages = {
-    "en": {
-        "errorText": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑒𝑥𝑡 𝑡𝑜 𝑑𝑖𝑠𝑝𝑙𝑎𝑦 𝑜𝑛 𝑡ℎ𝑒 𝑐𝑎𝑡 𝑖𝑚𝑎𝑔𝑒!",
-        "successText": "🐱 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑐𝑎𝑡 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒!"
-    }
-};
-
-function toMathBoldItalic(text) {
-    const map = {
-        'A': '𝑨','B': '𝑩','C': '𝑪','D': '𝑫','E': '𝑬','F': '𝑭','G': '𝑮','H': '𝑯','I': '𝑰','J': '𝑱','K': '𝑲','L': '𝑳','M': '𝑴',
-        'N': '𝑵','O': '𝑶','P': '𝑷','Q': '𝑸','R': '𝑹','S': '𝑺','T': '𝑻','U': '𝑼','V': '𝑽','W': '𝑾','X': '𝑿','Y': '𝒀','Z': '𝒁',
-        'a': '𝒂','b': '𝒃','c': '𝒄','d': '𝒅','e': '𝒆','f': '𝒇','g': '𝒈','h': '𝒉','i': '𝒊','j': '𝒋','k': '𝒌','l': '𝒍','m': '𝒎',
-        'n': '𝒏','o': '𝒐','p': '𝒑','q': '𝒒','r': '𝒓','s': '𝒔','t': '𝒕','u': '𝒖','v': '𝒗','w': '𝒘','x': '𝒙','y': '𝒚','z': '𝒛',
-        ' ': ' ','!': '!','?': '?','.': '.','\'': '\'','"': '"',':': ':',';': ';','-': '-'
-    };
-    return text.split('').map(char => map[char] || char).join('');
-}
-
-module.exports.onStart = async function({ message, args }) {
-    try {
-        // Check dependencies
-        if (!fs.existsSync || !axios) {
-            throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
+module.exports = {
+    config: {
+        name: "catsay",
+        aliases: [],
+        version: "1.0.1",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "edit-img",
+        shortDescription: {
+            en: "🐱 𝖢𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗈𝗋 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋 𝖼𝗎𝗌𝗍𝗈𝗆 𝗍𝖾𝗑𝗍"
+        },
+        longDescription: {
+            en: "🐱 𝖢𝗋𝖾𝖺𝗍𝖾 𝖺 𝖼𝗎𝗍𝖾 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋 𝖼𝗎𝗌𝗍𝗈𝗆 𝗆𝖾𝗌𝗌𝖺𝗀𝖾"
+        },
+        guide: {
+            en: "{p}catsay [𝗍𝖾𝗑𝗍]"
+        },
+        dependencies: {
+            "axios": ""
         }
+    },
 
-        if (!args[0]) {
-            return message.reply(toMathBoldItalic(module.exports.languages.en.errorText));
+    onStart: async function({ message, args, event }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
+
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+            }
+
+            if (!args[0]) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝗍𝖾𝗑𝗍 𝗍𝗈 𝖽𝗂𝗌𝗉𝗅𝖺𝗒 𝗈𝗇 𝗍𝗁𝖾 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾!");
+            }
+
+            const text = args.join(" ");
+
+            // Validate text length
+            if (text.length > 100) {
+                return message.reply("❌ 𝖳𝖾𝗑𝗍 𝗂𝗌 𝗍𝗈𝗈 𝗅𝗈𝗇𝗀. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗄𝖾𝖾𝗉 𝗂𝗍 𝗎𝗇𝖽𝖾𝗋 100 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌.");
+            }
+
+            if (text.length < 1) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝗏𝖺𝗅𝗂𝖽 𝗍𝖾𝗑𝗍.");
+            }
+
+            const loadingMsg = await message.reply("⏳ 𝖦𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗇𝗀 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾... 🐱");
+
+            // Encode text for URL
+            const encodedText = encodeURIComponent(text);
+            
+            // Primary API URL with enhanced parameters
+            const imageUrl = `https://cataas.com/cat/cute/says/${encodedText}?fontSize=50&fontColor=white&width=500&height=500`;
+            
+            console.log(`🐱 𝖱𝖾𝗊𝗎𝖾𝗌𝗍𝗂𝗇𝗀 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾: ${imageUrl}`);
+
+            try {
+                // Get image stream with error handling
+                const imageStream = await global.utils.getStreamFromURL(imageUrl);
+                
+                if (!imageStream) {
+                    throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+                }
+
+                // Unsend loading message
+                try {
+                    await message.unsend(loadingMsg.messageID);
+                } catch (unsendError) {
+                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                }
+
+                await message.reply({
+                    body: `🐱 𝖧𝖾𝗋𝖾'𝗌 𝗒𝗈𝗎𝗋 𝖼𝖺𝗍 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋 𝗆𝖾𝗌𝗌𝖺𝗀𝖾!\n\n📝 ${text}`,
+                    attachment: imageStream
+                });
+
+                console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾𝖽 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝖿𝗈𝗋: "${text}"`);
+
+            } catch (streamError) {
+                console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖾𝗋𝗋𝗈𝗋:", streamError);
+                
+                // Unsend loading message
+                try {
+                    await message.unsend(loadingMsg.messageID);
+                } catch (unsendError) {
+                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                }
+
+                // Try fallback API endpoints
+                const fallbackUrls = [
+                    `https://cataas.com/cat/says/${encodedText}?fontSize=40&fontColor=white`,
+                    `https://cataas.com/cat/gif/says/${encodedText}?fontSize=40&fontColor=white`,
+                    `https://cataas.com/cat/says/${encodedText}`
+                ];
+
+                let fallbackSuccess = false;
+                
+                for (let i = 0; i < fallbackUrls.length; i++) {
+                    try {
+                        console.log(`🔄 𝖳𝗋𝗒𝗂𝗇𝗀 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝖠𝖯𝖨 ${i + 1}: ${fallbackUrls[i]}`);
+                        
+                        const fallbackStream = await global.utils.getStreamFromURL(fallbackUrls[i]);
+                        
+                        if (fallbackStream) {
+                            await message.reply({
+                                body: `🐱 𝖧𝖾𝗋𝖾'𝗌 𝗒𝗈𝗎𝗋 𝖼𝖺𝗍 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋 𝗆𝖾𝗌𝗌𝖺𝗀𝖾! (𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄)\n\n📝 ${text}`,
+                                attachment: fallbackStream
+                            });
+                            fallbackSuccess = true;
+                            console.log(`✅ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝖠𝖯𝖨 ${i + 1} 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅`);
+                            break;
+                        }
+                    } catch (fallbackError) {
+                        console.error(`❌ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝖠𝖯𝖨 ${i + 1} 𝖿𝖺𝗂𝗅𝖾𝖽:`, fallbackError.message);
+                    }
+                }
+
+                if (!fallbackSuccess) {
+                    const errorMessages = [
+                        `❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝖿𝗈𝗋 "${text}". 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.`,
+                        `❌ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝖿𝗈𝗋 "${text}". 𝖳𝗋𝗒 𝖺 𝗌𝗁𝗈𝗋𝗍𝖾𝗋 𝗍𝖾𝗑𝗍.`,
+                        `❌ 𝖲𝖾𝗋𝗏𝖾𝗋 𝖾𝗋𝗋𝗈𝗋. 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾 𝖼𝖺𝗍 𝗂𝗆𝖺𝗀𝖾 𝖿𝗈𝗋 "${text}".`
+                    ];
+                    
+                    const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+                    await message.reply(randomError);
+                }
+            }
+
+        } catch (error) {
+            console.error("💥 𝖢𝖺𝗍𝗌𝖺𝗒 𝖾𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+            } else if (error.message.includes('getStreamFromURL')) {
+                errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            } else if (error.message.includes('URI too long')) {
+                errorMessage = "❌ 𝖳𝖾𝗑𝗍 𝗂𝗌 𝗍𝗈𝗈 𝗅𝗈𝗇𝗀. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗎𝗌𝖾 𝗌𝗁𝗈𝗋𝗍𝖾𝗋 𝗍𝖾𝗑𝗍.";
+            }
+            
+            await message.reply(errorMessage);
         }
-
-        const text = args.join(" ");
-        const filePath = __dirname + "/cache/cat.png";
-
-        // Create cache directory if it doesn't exist
-        if (!fs.existsSync(__dirname + "/cache")) {
-            fs.mkdirSync(__dirname + "/cache", { recursive: true });
-        }
-
-        // Fetch cat image with custom text
-        const imageUrl = `https://cataas.com/cat/cute/says/${encodeURIComponent(text)}?fontSize=50&fontColor=white`;
-        
-        const response = await axios({
-            method: 'GET',
-            url: imageUrl,
-            responseType: 'stream'
-        });
-
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
-
-        writer.on('finish', () => {
-            message.reply({
-                body: toMathBoldItalic(module.exports.languages.en.successText),
-                attachment: fs.createReadStream(filePath)
-            }).then(() => {
-                // Clean up file after sending
-                fs.unlinkSync(filePath);
-            }).catch(error => {
-                console.error("𝑆𝑒𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-                fs.unlinkSync(filePath);
-            });
-        });
-
-        writer.on('error', (error) => {
-            console.error("𝑊𝑟𝑖𝑡𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
-            message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑐𝑎𝑡 𝑖𝑚𝑎𝑔𝑒");
-        });
-
-    } catch (error) {
-        console.error("𝐶𝑎𝑡𝑠𝑎𝑦 𝑒𝑟𝑟𝑜𝑟:", error);
-        message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑟𝑜𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡");
     }
 };
