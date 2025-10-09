@@ -1,49 +1,43 @@
-const fs = require("fs-extra");
 const axios = require("axios");
-const path = require("path");
 
-module.exports.config = {
-    name: "boy",
-    aliases: ["boys", "male"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 2,
-    role: 0,
-    category: "random-img",
-    shortDescription: {
-        en: "𝑆𝑒𝑛𝑑 𝑟𝑎𝑛𝑑𝑜𝑚 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑏𝑜𝑦 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
+module.exports = {
+    config: {
+        name: "boy",
+        aliases: ["boys", "male"],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 2,
+        role: 0,
+        category: "random-img",
+        shortDescription: {
+            en: "𝖲𝖾𝗇𝖽 𝗋𝖺𝗇𝖽𝗈𝗆 𝖨𝗌𝗅𝖺𝗆𝗂𝖼 𝖻𝗈𝗒 𝗉𝗋𝗈𝖿𝗂𝗅𝖾 𝗉𝗂𝖼𝗍𝗎𝗋𝖾𝗌"
+        },
+        longDescription: {
+            en: "𝖲𝖾𝗇𝖽𝗌 𝗋𝖺𝗇𝖽𝗈𝗆 𝖨𝗌𝗅𝖺𝗆𝗂𝖼 𝖻𝗈𝗒 𝗉𝗋𝗈𝖿𝗂𝗅𝖾 𝗉𝗂𝖼𝗍𝗎𝗋𝖾𝗌"
+        },
+        guide: {
+            en: "{p}boy"
+        },
+        dependencies: {
+            "axios": ""
+        }
     },
-    longDescription: {
-        en: "𝑆𝑒𝑛𝑑𝑠 𝑟𝑎𝑛𝑑𝑜𝑚 𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑏𝑜𝑦 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑝𝑖𝑐𝑡𝑢𝑟𝑒𝑠"
-    },
-    guide: {
-        en: "{p}boy"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
 
-module.exports.languages = {
-    "en": {
-        "success": "📸✨ 𝐵𝑂𝑌 𝐹𝐵 𝑃𝑅𝑂𝐹𝐼𝐿𝐸 𝐼𝑀𝐺",
-        "error": "❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟."
-    }
-};
+    onStart: async function ({ message }) {
+        try {
+            // Dependency check
+            let dependenciesAvailable = true;
+            try {
+                require("axios");
+            } catch (e) {
+                dependenciesAvailable = false;
+            }
 
-module.exports.onLoad = async function () {
-    const cachePath = path.join(__dirname, "cache");
-    try {
-        await fs.ensureDir(cachePath);
-    } catch (e) {
-        console.error("𝐵𝑜𝑦 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑜𝑛𝐿𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", e);
-    }
-};
+            if (!dependenciesAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+            }
 
-module.exports.onStart = async function ({ message, event }) {
-    try {
-        const imageLinks = [
+            const imageLinks = [
             "https://i.imgur.com/oq4f87f.jpg",
             "https://i.imgur.com/epThBlZ.jpg",
             "https://i.imgur.com/wMBN6K7.jpg",
@@ -192,37 +186,61 @@ module.exports.onStart = async function ({ message, event }) {
             "https://i.imgur.com/K5RfFYF.jpg",
             "https://i.imgur.com/BFuXq0I.jpg"
         ];
+            console.log(`🔄 𝖲𝖾𝗅𝖾𝖼𝗍𝗂𝗇𝗀 𝗋𝖺𝗇𝖽𝗈𝗆 𝗂𝗆𝖺𝗀𝖾 𝖿𝗋𝗈𝗆 ${imageLinks.length} 𝗈𝗉𝗍𝗂𝗈𝗇𝗌...`);
+            const randomLink = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+            console.log(`📥 𝖲𝖾𝗅𝖾𝖼𝗍𝖾𝖽 𝗂𝗆𝖺𝗀𝖾: ${randomLink}`);
 
-        const randomLink = imageLinks[Math.floor(Math.random() * imageLinks.length)];
-        const cachePath = path.join(__dirname, "cache");
-        await fs.ensureDir(cachePath);
+            let imageStream;
+            let attempts = 0;
+            const maxAttempts = 3;
 
-        const imagePath = path.join(cachePath, `boy_${Date.now()}.jpg`);
-        const response = await axios.get(randomLink, { responseType: "arraybuffer" });
-
-        await fs.writeFile(imagePath, Buffer.from(response.data, "binary"));
-
-        const messageBody = module.exports.languages["en"].success;
-
-        await message.reply({
-            body: messageBody + " 🔁",
-            attachment: fs.createReadStream(imagePath)
-        });
-
-        try {
-            if (fs.existsSync(imagePath)) {
-                await fs.unlink(imagePath);
+            // Try multiple images if one fails
+            while (attempts < maxAttempts) {
+                try {
+                    const currentLink = attempts === 0 ? randomLink : imageLinks[Math.floor(Math.random() * imageLinks.length)];
+                    console.log(`🔗 𝖠𝗍𝗍𝖾𝗆𝗉𝗍 ${attempts + 1}: ${currentLink}`);
+                    
+                    imageStream = await global.utils.getStreamFromURL(currentLink);
+                    
+                    if (imageStream) {
+                        console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗀𝗈𝗍 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆`);
+                        break;
+                    } else {
+                        throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+                    }
+                } catch (streamError) {
+                    attempts++;
+                    console.error(`❌ 𝖠𝗍𝗍𝖾𝗆𝗉𝗍 ${attempts} 𝖿𝖺𝗂𝗅𝖾𝖽:`, streamError.message);
+                    
+                    if (attempts >= maxAttempts) {
+                        throw new Error(`𝖠𝗅𝗅 ${maxAttempts} 𝗂𝗆𝖺𝗀𝖾 𝖺𝗍𝗍𝖾𝗆𝗉𝗍𝗌 𝖿𝖺𝗂𝗅𝖾𝖽`);
+                    }
+                }
             }
-        } catch (e) {
-            console.error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑟𝑒𝑚𝑜𝑣𝑒 𝑡𝑒𝑚𝑝 𝑖𝑚𝑎𝑔𝑒:", e);
-        }
 
-    } catch (err) {
-        console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑏𝑜𝑦 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", err);
-        try {
-            await message.reply(module.exports.languages["en"].error);
-        } catch (e) {
-            console.error("𝐴𝑙𝑠𝑜 𝑓𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑒𝑛𝑑 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑒𝑟𝑟𝑜𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒:", e);
+            if (!imageStream) {
+                throw new Error("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗀𝖾𝗍 𝖺𝗇𝗒 𝗏𝖺𝗅𝗂𝖽 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+            }
+
+            await message.reply({
+                body: "📸✨ 𝖡𝖮𝖸 𝖥𝖡 𝖯𝖱𝖮𝖥𝖨𝖫𝖤 𝖨𝖬𝖦 🔁",
+                attachment: imageStream
+            });
+
+            console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗇𝗍 𝖻𝗈𝗒 𝗂𝗆𝖺𝗀𝖾`);
+
+        } catch (error) {
+            console.error("💥 𝖤𝗋𝗋𝗈𝗋 𝗂𝗇 𝖻𝗈𝗒 𝖼𝗈𝗆𝗆𝖺𝗇𝖽:", error);
+            
+            let errorMessage = "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝖻𝗈𝗒 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            
+            if (error.message.includes('getStreamFromURL')) {
+                errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+            } else if (error.message.includes('network') || error.message.includes('ECONNREFUSED')) {
+                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+            }
+            
+            await message.reply(errorMessage);
         }
     }
 };
