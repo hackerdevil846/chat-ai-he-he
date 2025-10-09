@@ -1,89 +1,159 @@
 const fs = require("fs-extra");
 
-module.exports.config = {
-    name: "bruh",
-    aliases: ["bruhh", "bruhvoice"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
-    shortDescription: {
-        en: "𝐵𝑟𝑢ℎ 𝑠𝑜𝑢𝑛𝑑 𝑒𝑓𝑓𝑒𝑐𝑡"
-    },
-    longDescription: {
-        en: "𝑃𝑙𝑎𝑦𝑠 𝑏𝑟𝑢ℎ 𝑠𝑜𝑢𝑛𝑑 𝑒𝑓𝑓𝑒𝑐𝑡 𝑤ℎ𝑒𝑛 𝑡𝑟𝑖𝑔𝑔𝑒𝑟𝑒𝑑"
-    },
-    guide: {
-        en: "𝐽𝑢𝑠𝑡 𝑡𝑦𝑝𝑒 '𝑏𝑟𝑢ℎ' 𝑖𝑛 𝑐ℎ𝑎𝑡"
-    },
-    dependencies: {
-        "fs-extra": ""
-    }
-};
-
-module.exports.languages = {
-    en: {
-        success: "𝐵𝑟𝑢ℎ 𝐵𝑟𝑢𝑢𝑢ℎ 😏",
-        fileMissing: "(⚠) 𝐵𝑟𝑢ℎ 𝑠𝑜𝑢𝑛𝑑 𝑓𝑖𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑆𝑒𝑛𝑑𝑖𝑛𝑔 𝑡𝑒𝑥𝑡 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘..."
-    }
-};
-
-module.exports.onLoad = function () {
-    try {
-        const filePath = __dirname + "/noprefix/xxx.mp3";
-        if (!fs.existsSync(filePath)) {
-            console.warn("[𝑏𝑟𝑢ℎ] 𝑤𝑎𝑟𝑛𝑖𝑛𝑔: 𝑠𝑜𝑢𝑛𝑑 𝑓𝑖𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑎𝑡:", filePath);
+module.exports = {
+    config: {
+        name: "bruh",
+        aliases: [],
+        version: "1.0.1",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        category: "utility",
+        shortDescription: {
+            en: "𝖡𝗋𝗎𝗁 𝗌𝗈𝗎𝗇𝖽 𝖾𝖿𝖿𝖾𝖼𝗍"
+        },
+        longDescription: {
+            en: "𝖯𝗅𝖺𝗒𝗌 𝖻𝗋𝗎𝗁 𝗌𝗈𝗎𝗇𝖽 𝖾𝖿𝖿𝖾𝖼𝗍 𝗐𝗁𝖾𝗇 𝗍𝗋𝗂𝗀𝗀𝖾𝗋𝖾𝖽"
+        },
+        guide: {
+            en: "𝖩𝗎𝗌𝗍 𝗍𝗒𝗉𝖾 '𝖻𝗋𝗎𝗁' 𝗂𝗇 𝖼𝗁𝖺𝗍"
+        },
+        dependencies: {
+            "fs-extra": ""
         }
-    } catch (e) {
-        console.warn("[𝑏𝑟𝑢ℎ] 𝑜𝑛𝐿𝑜𝑎𝑑 𝑐ℎ𝑒𝑐𝑘 𝑓𝑎𝑖𝑙𝑒𝑑:", e);
-    }
-};
+    },
 
-module.exports.onChat = async function({ event, api, message }) {
-    try {
-        if (!event || !event.body) return;
-
-        const { threadID, messageID, senderID, body } = event;
-
-        let otherBots = [];
+    onLoad: function () {
         try {
-            if (global.config && Array.isArray(global.config.OTHERBOT)) {
-                otherBots = global.config.OTHERBOT;
+            // Dependency check
+            let fsAvailable = true;
+            try {
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
             }
-        } catch (err) {
-            otherBots = [];
+
+            if (!fsAvailable) {
+                console.warn("❌ [𝖻𝗋𝗎𝗁] 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗒: 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺");
+                return;
+            }
+
+            const filePath = __dirname + "/noprefix/xxx.mp3";
+            if (!fs.existsSync(filePath)) {
+                console.warn("⚠️ [𝖻𝗋𝗎𝗁] 𝖲𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝖺𝗍:", filePath);
+            } else {
+                console.log("✅ [𝖻𝗋𝗎𝗁] 𝖲𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝗏𝖾𝗋𝗂𝖿𝗂𝖾𝖽");
+            }
+        } catch (e) {
+            console.warn("❌ [𝖻𝗋𝗎𝗁] 𝖮𝗇𝖫𝗈𝖺𝖽 𝖼𝗁𝖾𝖼𝗄 𝖿𝖺𝗂𝗅𝖾𝖽:", e.message);
         }
+    },
 
-        const firstWord = body.trim().split(/\s+/)[0] || "";
-        if (firstWord.toLowerCase() !== "bruh") return;
+    onStart: async function({ message }) {
+        try {
+            // Dependency check
+            let fsAvailable = true;
+            try {
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
+            }
 
-        if (otherBots.includes(senderID)) return;
+            if (!fsAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+            }
 
-        const filePath = __dirname + "/noprefix/xxx.mp3";
-
-        const msg = {
-            body: module.exports.languages.en.success,
-        };
-
-        if (fs.existsSync(filePath)) {
-            msg.attachment = fs.createReadStream(filePath);
-            await message.reply(msg);
-        } else {
-            msg.body = module.exports.languages.en.fileMissing + "\n" + module.exports.languages.en.success;
-            console.warn("[𝑏𝑟𝑢ℎ] 𝑠𝑜𝑢𝑛𝑑 𝑓𝑖𝑙𝑒 𝑚𝑖𝑠𝑠𝑖𝑛𝑔, 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 𝑡𝑒𝑥𝑡 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘. 𝐸𝑥𝑝𝑒𝑐𝑡𝑒𝑑:", filePath);
-            await message.reply(msg);
+            const filePath = __dirname + "/noprefix/xxx.mp3";
+            
+            if (fs.existsSync(filePath)) {
+                // Check if file is readable and has content
+                try {
+                    const stats = fs.statSync(filePath);
+                    if (stats.size > 0) {
+                        await message.reply({
+                            body: "𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏",
+                            attachment: fs.createReadStream(filePath)
+                        });
+                        console.log("✅ [𝖻𝗋𝗎𝗁] 𝖲𝗈𝗎𝗇𝖽 𝗌𝖾𝗇𝗍 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒");
+                    } else {
+                        throw new Error("𝖥𝗂𝗅𝖾 𝗂𝗌 𝖾𝗆𝗉𝗍𝗒");
+                    }
+                } catch (fileError) {
+                    console.error("❌ [𝖻𝗋𝗎𝗁] 𝖥𝗂𝗅𝖾 𝖺𝖼𝖼𝖾𝗌𝗌 𝖾𝗋𝗋𝗈𝗋:", fileError.message);
+                    await message.reply("𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏\n⚠️ 𝖲𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝖼𝗈𝗋𝗋𝗎𝗉𝗍𝖾𝖽. 𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗍𝖾𝗑𝗍 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄...");
+                }
+            } else {
+                await message.reply("𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏\n⚠️ 𝖡𝗋𝗎𝗁 𝗌𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽. 𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗍𝖾𝗑𝗍 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄...");
+            }
+        } catch (error) {
+            console.error("💥 [𝖻𝗋𝗎𝗁] 𝖮𝗇𝖲𝗍𝖺𝗋𝗍 𝖾𝗋𝗋𝗈𝗋:", error);
+            await message.reply("𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏");
         }
-    } catch (error) {
-        console.error("[𝑏𝑟𝑢ℎ] 𝑜𝑛𝐶ℎ𝑎𝑡 𝑒𝑟𝑟𝑜𝑟:", error);
-    }
-};
+    },
 
-module.exports.onStart = async function({ message, event }) {
-    try {
-        const { threadID, messageID } = event;
-        await message.reply(module.exports.languages.en.success);
-    } catch (error) {
-        console.error("[𝑏𝑟𝑢ℎ] 𝑜𝑛𝑆𝑡𝑎𝑟𝑡 𝑒𝑟𝑟𝑜𝑟:", error);
+    onChat: async function({ event, message }) {
+        try {
+            // Dependency check
+            let fsAvailable = true;
+            try {
+                require("fs-extra");
+            } catch (e) {
+                fsAvailable = false;
+            }
+
+            if (!fsAvailable) {
+                return;
+            }
+
+            if (!event || !event.body) return;
+
+            const { senderID, body } = event;
+
+            // Get first word and check if it's "bruh"
+            const firstWord = body.trim().split(/\s+/)[0] || "";
+            if (firstWord.toLowerCase() !== "bruh") return;
+
+            // Check if sender is another bot
+            let otherBots = [];
+            try {
+                if (global.config && Array.isArray(global.config.OTHERBOT)) {
+                    otherBots = global.config.OTHERBOT;
+                }
+            } catch (err) {
+                console.warn("❌ [𝖻𝗋𝗎𝗁] 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗀𝖾𝗍 𝖮𝖳𝖧𝖤𝖱𝖡𝖮𝖳 𝖼𝗈𝗇𝖿𝗂𝗀:", err.message);
+                otherBots = [];
+            }
+
+            if (otherBots.includes(senderID)) {
+                console.log("🔇 [𝖻𝗋𝗎𝗁] 𝖨𝗀𝗇𝗈𝗋𝖾𝖽 𝗋𝖾𝗊𝗎𝖾𝗌𝗍 𝖿𝗋𝗈𝗆 𝗈𝗍𝗁𝖾𝗋 𝖻𝗈𝗍:", senderID);
+                return;
+            }
+
+            const filePath = __dirname + "/noprefix/xxx.mp3";
+
+            if (fs.existsSync(filePath)) {
+                // Check if file is readable and has content
+                try {
+                    const stats = fs.statSync(filePath);
+                    if (stats.size > 0) {
+                        await message.reply({
+                            body: "𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏",
+                            attachment: fs.createReadStream(filePath)
+                        });
+                        console.log("✅ [𝖻𝗋𝗎𝗁] 𝖠𝗎𝗍𝗈-𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾 𝗌𝖾𝗇𝗍 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒");
+                    } else {
+                        throw new Error("𝖥𝗂𝗅𝖾 𝗂𝗌 𝖾𝗆𝗉𝗍𝗒");
+                    }
+                } catch (fileError) {
+                    console.error("❌ [𝖻𝗋𝗎𝗁] 𝖥𝗂𝗅𝖾 𝖺𝖼𝖼𝖾𝗌𝗌 𝖾𝗋𝗋𝗈𝗋:", fileError.message);
+                    await message.reply("𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏\n⚠️ 𝖲𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝖼𝗈𝗋𝗋𝗎𝗉𝗍𝖾𝖽. 𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗍𝖾𝗑𝗍 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄...");
+                }
+            } else {
+                await message.reply("𝖡𝗋𝗎𝗁 𝖡𝗋𝗎𝗎𝗎𝗁 😏\n⚠️ 𝖡𝗋𝗎𝗁 𝗌𝗈𝗎𝗇𝖽 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽. 𝖲𝖾𝗇𝖽𝗂𝗇𝗀 𝗍𝖾𝗑𝗍 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄...");
+            }
+        } catch (error) {
+            console.error("💥 [𝖻𝗋𝗎𝗁] 𝖮𝗇𝖢𝗁𝖺𝗍 𝖾𝗋𝗋𝗈𝗋:", error);
+            // Silent fail to avoid spam
+        }
     }
 };
