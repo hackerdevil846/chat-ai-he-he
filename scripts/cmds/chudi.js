@@ -1,21 +1,37 @@
-module.exports.config = {
-    name: "chudi",
-    version: "1.0",
-    role: 1,
-    author: "asif",
-    description: "5 বারের জন্য ক্রমাগত বন্ধুর ট্যাগ ট্যাগ করুন\nসেই ব্যক্তিকে আত্মা কলিং বলা যেতে পারে",
-    category: "nsfw",
-    guide: " please @mention",
-    coolDown: 10
-}
-module.exports.onStart = async function({ api, args, Users, event}) {
-    var mention = Object.keys(event.mentions)[0];
-    if(!mention) return api.sendMessage("বস আসিফ খানকিরপুলারে একটা মেনশন দেন-!!🫂", event.threadID);
- let name =  event.mentions[mention];
-    var arraytag = [];
+module.exports = {
+    config: {
+        name: "chudi",
+        aliases: ["choda", "gali"],
+        version: "1.0",
+        role: 1,
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        description: {
+            en: "𝑆𝑒𝑛𝑑𝑠 𝑚𝑢𝑙𝑡𝑖𝑝𝑙𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑠"
+        },
+        category: "fun",
+        guide: {
+            en: "{p}chudi [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+        },
+        coolDown: 10
+    },
+
+    onStart: async function({ api, event, args }) {
+        var mention = Object.keys(event.mentions)[0];
+        if(!mention) return api.sendMessage("বস আসিফ খানকিরপুলারে একটা মেনশন দেন-!!🫂", event.threadID);
+        
+        let name = event.mentions[mention];
+        var arraytag = [];
         arraytag.push({id: mention, tag: name});
-    var a = function (a) { api.sendMessage(a, event.threadID); }
-a("তোরে চুদলো আসিফ");
+        
+        var a = function (message) { 
+            if (typeof message === 'string') {
+                api.sendMessage(message, event.threadID);
+            } else {
+                api.sendMessage(message, event.threadID);
+            }
+        }
+
+        a("তোরে চুদলো আসিফ");
 setTimeout(() => {a({body: "ভোদাই জানে চোদার মজা তোর মাকে জিজ্ঞেস কর কেমন দিছিলাম চোদা 🥰।" + " নিশি রাতে তোর মাকে চুদে পেয়েছিলাম অনেক আনন্দ।🤩✊🏻 " + name, mentions: arraytag})}, 3000);
 setTimeout(() => {a({body: "খাংকির পোলা তর কচি বোন রে চুদি 😍.." + " " + name, mentions: arraytag})}, 5000);
 setTimeout(() => {a({body: "মাদারচোদ তর আম্মু পম পম খাংকির পো 🐰" + " " + name, mentions: arraytag})}, 7000);
