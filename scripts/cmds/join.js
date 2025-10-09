@@ -1,107 +1,187 @@
 const chalk = require('chalk');
 
-module.exports.config = {
-    name: "join",
-    aliases: ["joingroup", "addme"],
-    version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 2,
-    category: "𝑠𝑦𝑠𝑡𝑒𝑚",
-    shortDescription: {
-        en: "𝐵𝑜𝑡 𝑗𝑜𝑖𝑛𝑠 𝑢𝑠𝑒𝑟 𝑡𝑜 𝑔𝑟𝑜𝑢𝑝𝑠"
-    },
-    longDescription: {
-        en: "𝐴𝑙𝑙𝑜𝑤𝑠 𝑢𝑠𝑒𝑟𝑠 𝑡𝑜 𝑗𝑜𝑖𝑛 𝑏𝑜𝑡'𝑠 𝑔𝑟𝑜𝑢𝑝𝑠 𝑡ℎ𝑟𝑜𝑢𝑔ℎ 𝑎 𝑙𝑖𝑠𝑡"
-    },
-    guide: {
-        en: "{p}join"
-    },
-    dependencies: {
-        "chalk": ""
-    }
-};
-
-module.exports.onLoad = function() {
-    console.log(chalk.bold.hex("#00c300")("╔════════════════════════════════════════╗"));
-    console.log(chalk.bold.hex("#00c300")("│          𝐽𝑂𝐼𝑁 𝐶𝑂𝑀𝑀𝐴𝑁𝐷 𝐿𝑂𝐴𝐷𝐸𝐷          │"));
-    console.log(chalk.bold.hex("#00c300")("│       𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑       │"));
-    console.log(chalk.bold.hex("#00c300")("╚════════════════════════════════════════╝"));
-};
-
-module.exports.onReply = async function({ api, event, handleReply, threadsData }) {
-    const { threadID, messageID, senderID, body } = event;
-    const { ID } = handleReply;
-
-    if (!body || !parseInt(body)) {
-        return api.sendMessage('🔢 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑛𝑢𝑚𝑏𝑒𝑟!', threadID, messageID);
-    }
-
-    const selectedIndex = parseInt(body) - 1;
-    if (selectedIndex < 0 || selectedIndex >= ID.length) {
-        return api.sendMessage("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑠𝑒𝑙𝑒𝑐𝑡𝑖𝑜𝑛 𝑛𝑢𝑚𝑏𝑒𝑟!", threadID, messageID);
-    }
-
-    try {
-        const threadInfo = await threadsData.get(ID[selectedIndex]);
-        const { participantIDs, approvalMode, adminIDs } = threadInfo;
-
-        if (participantIDs.includes(senderID)) {
-            return api.sendMessage(`✅ 𝑌𝑜𝑢'𝑟𝑒 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑖𝑛 𝑡ℎ𝑖𝑠 𝑔𝑟𝑜𝑢𝑝!`, threadID, messageID);
+module.exports = {
+    config: {
+        name: "join",
+        aliases: [],
+        version: "1.0.1",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 2,
+        category: "system",
+        shortDescription: {
+            en: "𝖡𝗈𝗍 𝗃𝗈𝗂𝗇𝗌 𝗎𝗌𝖾𝗋 𝗍𝗈 𝗀𝗋𝗈𝗎𝗉𝗌"
+        },
+        longDescription: {
+            en: "𝖠𝗅𝗅𝗈𝗐𝗌 𝗎𝗌𝖾𝗋𝗌 𝗍𝗈 𝗃𝗈𝗂𝗇 𝖻𝗈𝗍'𝗌 𝗀𝗋𝗈𝗎𝗉𝗌 𝗍𝗁𝗋𝗈𝗎𝗀𝗁 𝖺 𝗅𝗂𝗌𝗍"
+        },
+        guide: {
+            en: "{p}join"
+        },
+        dependencies: {
+            "chalk": ""
         }
+    },
 
-        await api.addUserToGroup(senderID, ID[selectedIndex]);
-
-        if (approvalMode && !adminIDs.some(admin => admin.id === api.getCurrentUserID())) {
-            return api.sendMessage("📩 𝐴𝑑𝑑𝑒𝑑 𝑡𝑜 𝑎𝑝𝑝𝑟𝑜𝑣𝑎𝑙 𝑞𝑢𝑒𝑢𝑒. 𝑊𝑎𝑖𝑡𝑖𝑛𝑔 𝑓𝑜𝑟 𝑎𝑑𝑚𝑖𝑛 𝑎𝑝𝑝𝑟𝑜𝑣𝑎𝑙...", threadID, messageID);
-        } else {
-            return api.sendMessage(`✨ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑗𝑜𝑖𝑛𝑒𝑑 "${threadInfo.threadName}"\n💫 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑦𝑜𝑢𝑟 𝑠𝑝𝑎𝑚 𝑓𝑜𝑙𝑑𝑒𝑟 𝑖𝑓 𝑦𝑜𝑢 𝑑𝑜𝑛'𝑡 𝑠𝑒𝑒 𝑡ℎ𝑒 𝑔𝑟𝑜𝑢𝑝`, threadID, messageID);
+    onLoad: function() {
+        try {
+            require("chalk");
+            console.log(chalk.bold.hex("#00c300")("╔════════════════════════════════════════╗"));
+            console.log(chalk.bold.hex("#00c300")("│          𝖩𝖮𝖨𝖭 𝖢𝖮𝖬𝖬𝖠𝖭𝖣 𝖫𝖮𝖠𝖣𝖤𝖣          │"));
+            console.log(chalk.bold.hex("#00c300")("│       𝖣𝖾𝗏𝖾𝗅𝗈𝗉𝖾𝖽 𝖻𝗒 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽       │"));
+            console.log(chalk.bold.hex("#00c300")("╚════════════════════════════════════════╝"));
+        } catch (error) {
+            console.log("🔧 𝖩𝗈𝗂𝗇 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖫𝗈𝖺𝖽𝖾𝖽 (𝖼𝗁𝖺𝗅𝗄 𝗇𝗈𝗍 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾)");
         }
-    } catch (error) {
-        console.error("𝐽𝑜𝑖𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
-        return api.sendMessage(`❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑗𝑜𝑖𝑛 𝑔𝑟𝑜𝑢𝑝:\n${error.message}`, threadID, messageID);
-    }
-};
+    },
 
-module.exports.onStart = async function({ api, event, threadsData }) {
-    const { threadID, messageID, senderID } = event;
-    
-    try {
-        const allThreads = await threadsData.getAll();
-        const availableThreads = allThreads.filter(thread => 
-            thread.threadID && thread.threadInfo && thread.threadInfo.threadName
-        );
-
-        if (availableThreads.length === 0) {
-            return api.sendMessage("❌ 𝑁𝑜 𝑔𝑟𝑜𝑢𝑝𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑡𝑜 𝑗𝑜𝑖𝑛.", threadID, messageID);
-        }
-
-        let msg = `🎯 𝐴𝑉𝐴𝐼𝐿𝐴𝐵𝐿𝐸 𝐺𝑅𝑂𝑈𝑃𝑆 𝐿𝐼𝑆𝑇\n\n`;
-        const ID = [];
-        
-        availableThreads.forEach((thread, index) => {
-            msg += `${index + 1}. ${thread.threadInfo.threadName || '𝑈𝑛𝑛𝑎𝑚𝑒𝑑 𝐺𝑟𝑜𝑢𝑝'}\n`;
-            ID.push(thread.threadID);
-        });
-
-        msg += `\n💭 𝑅𝑒𝑝𝑙𝑦 𝑤𝑖𝑡ℎ 𝑡ℎ𝑒 𝑛𝑢𝑚𝑏𝑒𝑟 𝑡𝑜 𝑗𝑜𝑖𝑛 𝑡ℎ𝑎𝑡 𝑔𝑟𝑜𝑢𝑝`;
-        
-        return api.sendMessage(msg, threadID, (error, info) => {
-            if (error) {
-                console.error("𝑆𝑒𝑛𝑑 𝑀𝑒𝑠𝑠𝑎𝑔𝑒 𝐸𝑟𝑟𝑜𝑟:", error);
-                return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑖𝑠𝑝𝑙𝑎𝑦 𝑔𝑟𝑜𝑢𝑝 𝑙𝑖𝑠𝑡", threadID, messageID);
+    onReply: async function({ api, event, Reply, threadsData }) {
+        try {
+            // Dependency check
+            let chalkAvailable = true;
+            try {
+                require("chalk");
+            } catch (e) {
+                chalkAvailable = false;
             }
+
+            const { threadID, messageID, senderID, body } = event;
+            const { ID, author } = Reply;
+
+            // Validate author
+            if (senderID !== author) {
+                return api.sendMessage('❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗅𝖾𝗍 𝗍𝗁𝖾 𝗈𝗋𝗂𝗀𝗂𝗇𝖺𝗅 𝗎𝗌𝖾𝗋 𝗌𝖾𝗅𝖾𝖼𝗍 𝖺 𝗀𝗋𝗈𝗎𝗉.', threadID, messageID);
+            }
+
+            // Validate input
+            if (!body || !parseInt(body)) {
+                return api.sendMessage('🔢 𝖯𝗅𝖾𝖺𝗌𝖾 𝗋𝖾𝗉𝗅𝗒 𝗐𝗂𝗍𝗁 𝖺 𝗏𝖺𝗅𝗂𝖽 𝗇𝗎𝗆𝖻𝖾𝗋!', threadID, messageID);
+            }
+
+            const selectedIndex = parseInt(body) - 1;
+            if (selectedIndex < 0 || selectedIndex >= ID.length) {
+                return api.sendMessage("❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝗌𝖾𝗅𝖾𝖼𝗍𝗂𝗈𝗇 𝗇𝗎𝗆𝖻𝖾𝗋!", threadID, messageID);
+            }
+
+            const targetThreadID = ID[selectedIndex];
+
+            try {
+                const threadInfo = await threadsData.get(targetThreadID);
+                
+                if (!threadInfo) {
+                    return api.sendMessage("❌ 𝖦𝗋𝗈𝗎𝗉 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝗈𝗋 𝖻𝗈𝗍 𝗇𝗈 𝗅𝗈𝗇𝗀𝖾𝗋 𝗂𝗇 𝗍𝗁𝖺𝗍 𝗀𝗋𝗈𝗎𝗉.", threadID, messageID);
+                }
+
+                const { participantIDs, approvalMode, adminIDs, threadName } = threadInfo;
+
+                // Check if user is already in group
+                if (participantIDs && participantIDs.includes(senderID)) {
+                    return api.sendMessage(`✅ 𝖸𝗈𝗎'𝗋𝖾 𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝗂𝗇 "${threadName}"!`, threadID, messageID);
+                }
+
+                // Check if bot is admin in the target group
+                const botID = api.getCurrentUserID();
+                const isBotAdmin = adminIDs && adminIDs.some(admin => admin.id === botID);
+                
+                if (!isBotAdmin) {
+                    return api.sendMessage("❌ 𝖡𝗈𝗍 𝗂𝗌 𝗇𝗈𝗍 𝖺𝗇 𝖺𝖽𝗆𝗂𝗇 𝗂𝗇 𝗍𝗁𝖺𝗍 𝗀𝗋𝗈𝗎𝗉. 𝖢𝖺𝗇𝗇𝗈𝗍 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋𝗌.", threadID, messageID);
+                }
+
+                // Add user to group
+                await api.addUserToGroup(senderID, targetThreadID);
+
+                if (approvalMode) {
+                    return api.sendMessage("📩 𝖠𝖽𝖽𝖾𝖽 𝗍𝗈 𝖺𝗉𝗉𝗋𝗈𝗏𝖺𝗅 𝗊𝗎𝖾𝗎𝖾. 𝖶𝖺𝗂𝗍𝗂𝗇𝗀 𝖿𝗈𝗋 𝖺𝖽𝗆𝗂𝗇 𝖺𝗉𝗉𝗋𝗈𝗏𝖺𝗅...", threadID, messageID);
+                } else {
+                    return api.sendMessage(
+                        `✨ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗃𝗈𝗂𝗇𝖾𝖽 "${threadName}"\n` +
+                        `💫 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗌𝗉𝖺𝗆 𝖿𝗈𝗅𝖽𝖾𝗋 𝗂𝖿 𝗒𝗈𝗎 𝖽𝗈𝗇'𝗍 𝗌𝖾𝖾 𝗍𝗁𝖾 𝗀𝗋𝗈𝗎𝗉`,
+                        threadID, messageID
+                    );
+                }
+            } catch (error) {
+                console.error("💥 𝖩𝗈𝗂𝗇 𝖤𝗋𝗋𝗈𝗋:", error);
+                
+                let errorMessage = "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗃𝗈𝗂𝗇 𝗀𝗋𝗈𝗎𝗉.";
+                
+                if (error.message.includes('not friends')) {
+                    errorMessage += "\n❌ 𝖸𝗈𝗎 𝖺𝗋𝖾 𝗇𝗈𝗍 𝖿𝗋𝗂𝖾𝗇𝖽𝗌 𝗐𝗂𝗍𝗁 𝗍𝗁𝖾 𝖻𝗈𝗍.";
+                } else if (error.message.includes('block')) {
+                    errorMessage += "\n❌ 𝖸𝗈𝗎 𝗁𝖺𝗏𝖾 𝖻𝗅𝗈𝖼𝗄𝖾𝖽 𝗍𝗁𝖾 𝖻𝗈𝗍.";
+                } else if (error.message.includes('admin')) {
+                    errorMessage += "\n❌ 𝖡𝗈𝗍 𝗇𝖾𝖾𝖽𝗌 𝖺𝖽𝗆𝗂𝗇 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.";
+                }
+                
+                return api.sendMessage(errorMessage, threadID, messageID);
+            }
+        } catch (error) {
+            console.error("💥 𝖱𝖾𝗉𝗅𝗒 𝖧𝖺𝗇𝖽𝗅𝖾𝗋 𝖤𝗋𝗋𝗈𝗋:", error);
+            return api.sendMessage("❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", event.threadID, event.messageID);
+        }
+    },
+
+    onStart: async function({ api, event, threadsData }) {
+        try {
+            // Dependency check
+            let chalkAvailable = true;
+            try {
+                require("chalk");
+            } catch (e) {
+                chalkAvailable = false;
+            }
+
+            const { threadID, messageID, senderID } = event;
             
-            global.client.handleReply.push({
-                name: this.config.name,
-                author: senderID,
-                messageID: info.messageID,
-                ID: ID      
-            });
-        }, messageID);
-        
-    } catch (error) {
-        console.error("𝑀𝑎𝑖𝑛 𝐸𝑟𝑟𝑜𝑟:", error);
-        return api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑟𝑒𝑡𝑟𝑖𝑒𝑣𝑒 𝑔𝑟𝑜𝑢𝑝 𝑙𝑖𝑠𝑡", threadID, messageID);
+            try {
+                const allThreads = await threadsData.getAll();
+                const availableThreads = allThreads.filter(thread => 
+                    thread && 
+                    thread.threadID && 
+                    thread.threadInfo && 
+                    thread.threadInfo.threadName &&
+                    thread.participantIDs &&
+                    thread.participantIDs.includes(api.getCurrentUserID())
+                );
+
+                if (availableThreads.length === 0) {
+                    return api.sendMessage("❌ 𝖭𝗈 𝗀𝗋𝗈𝗎𝗉𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗍𝗈 𝗃𝗈𝗂𝗇.", threadID, messageID);
+                }
+
+                let msg = `🎯 𝖠𝖵𝖠𝖨𝖫𝖠𝖡𝖫𝖤 𝖦𝖱𝖮𝖴𝖯𝖲 𝖫𝖨𝖲𝖳\n\n`;
+                const ID = [];
+                
+                availableThreads.forEach((thread, index) => {
+                    const threadName = thread.threadInfo.threadName || '𝖴𝗇𝗇𝖺𝗆𝖾𝖽 𝖦𝗋𝗈𝗎𝗉';
+                    const memberCount = thread.participantIDs ? thread.participantIDs.length : 0;
+                    
+                    msg += `${index + 1}. ${threadName}\n`;
+                    msg += `   👥 𝖬𝖾𝗆𝖻𝖾𝗋𝗌: ${memberCount}\n\n`;
+                    ID.push(thread.threadID);
+                });
+
+                msg += `💭 𝖱𝖾𝗉𝗅𝗒 𝗐𝗂𝗍𝗁 𝗍𝗁𝖾 𝗇𝗎𝗆𝖻𝖾𝗋 𝗍𝗈 𝗃𝗈𝗂𝗇 𝗍𝗁𝖺𝗍 𝗀𝗋𝗈𝗎𝗉`;
+                
+                return api.sendMessage(msg, threadID, (error, info) => {
+                    if (error) {
+                        console.error("💥 𝖲𝖾𝗇𝖽 𝖬𝖾𝗌𝗌𝖺𝗀𝖾 𝖤𝗋𝗋𝗈𝗋:", error);
+                        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗂𝗌𝗉𝗅𝖺𝗒 𝗀𝗋𝗈𝗎𝗉 𝗅𝗂𝗌𝗍", threadID, messageID);
+                    }
+                    
+                    global.client.handleReply.push({
+                        name: this.config.name,
+                        author: senderID,
+                        messageID: info.messageID,
+                        ID: ID      
+                    });
+                }, messageID);
+                
+            } catch (error) {
+                console.error("💥 𝖬𝖺𝗂𝗇 𝖤𝗋𝗋𝗈𝗋:", error);
+                return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗋𝖾𝗍𝗋𝗂𝖾𝗏𝖾 𝗀𝗋𝗈𝗎𝗉 𝗅𝗂𝗌𝗍", threadID, messageID);
+            }
+        } catch (error) {
+            console.error("💥 𝖲𝗍𝖺𝗋𝗍 𝖧𝖺𝗇𝖽𝗅𝖾𝗋 𝖤𝗋𝗋𝗈𝗋:", error);
+            return api.sendMessage("❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", event.threadID, event.messageID);
+        }
     }
 };
