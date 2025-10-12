@@ -5,7 +5,7 @@ const path = require('path');
 module.exports = {
     config: {
         name: "menu2", // Changed from "menu" to avoid conflict
-        aliases: ["help2", "commands2"], // Unique aliases
+        aliases: [], // Unique aliases
         version: "1.2.0",
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         role: 0,
