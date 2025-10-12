@@ -1,34 +1,55 @@
 const moment = require("moment-timezone");
 
-module.exports.config = {
-    name: "lich",
-    aliases: ["calendar", "date"],
-    version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-        en: "𝐶ℎ𝑒𝑐𝑘 𝑐𝑎𝑙𝑒𝑛𝑑𝑎𝑟 𝑎𝑛𝑑 𝑠ℎ𝑜𝑤 𝑎 𝑝𝑟𝑜𝑣𝑒𝑟𝑏"
+module.exports = {
+    config: {
+        name: "lich",
+        aliases: [],
+        version: "1.0.0",
+        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        countDown: 5,
+        role: 0,
+        shortDescription: {
+            en: "𝖢𝗁𝖾𝖼𝗄 𝖼𝖺𝗅𝖾𝗇𝖽𝖺𝗋 𝖺𝗇𝖽 𝗌𝗁𝗈𝗐 𝖺 𝗉𝗋𝗈𝗏𝖾𝗋𝖻"
+        },
+        longDescription: {
+            en: "𝖣𝗂𝗌𝗉𝗅𝖺𝗒𝗌 𝗍𝗁𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝗍 𝖦𝗋𝖾𝗀𝗈𝗋𝗂𝖺𝗇 𝖽𝖺𝗍𝖾, 𝗍𝗂𝗆𝖾 (𝖡𝖺𝗇𝗀𝗅𝖺𝖽𝖾𝗌𝗁), 𝖺𝗇𝖽 𝖺 𝗋𝖺𝗇𝖽𝗈𝗆 𝗉𝗋𝗈𝗏𝖾𝗋𝖻"
+        },
+        category: "utility",
+        guide: {
+            en: "{p}lich"
+        },
+        dependencies: {
+            "moment-timezone": "",
+            "axios": ""
+        }
     },
-    longDescription: {
-        en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑡ℎ𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡 𝐺𝑟𝑒𝑔𝑜𝑟𝑖𝑎𝑛 𝑑𝑎𝑡𝑒, 𝐿𝑢𝑛𝑎𝑟 𝑑𝑎𝑡𝑒, 𝑡𝑖𝑚𝑒 (𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ), 𝑎𝑛𝑑 𝑎 𝑟𝑎𝑛𝑑𝑜𝑚 𝑝𝑟𝑜𝑣𝑒𝑟𝑏"
-    },
-    category: "𝑢𝑡𝑖𝑙𝑖𝑡𝑦",
-    guide: {
-        en: "{p}lich"
-    },
-    dependencies: {
-        "moment-timezone": "",
-        "axios": ""
-    }
-};
 
-module.exports.onStart = async function({ api, event }) {
-    const DEFAULT_USER_NAME = "friend";
-    const TIMEZONE = "Asia/Dhaka";
+    onStart: async function({ api, event, message }) {
+        try {
+            // Dependency check
+            let momentAvailable = true;
+            let axiosAvailable = true;
+            
+            try {
+                require("moment-timezone");
+            } catch (e) {
+                momentAvailable = false;
+            }
+            
+            try {
+                require("axios");
+            } catch (e) {
+                axiosAvailable = false;
+            }
 
-    try {
-        // Proverb data
+            if (!momentAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝗆𝗈𝗆𝖾𝗇𝗍-𝗍𝗂𝗆𝖾𝗓𝗈𝗇𝖾.");
+            }
+
+            const DEFAULT_USER_NAME = "𝖿𝗋𝗂𝖾𝗇𝖽";
+            const TIMEZONE = "Asia/Dhaka";
+
+            // Proverb data
         const jsoncd = {
             "data": {
           "1": "চাটুকার কথায় কান দিও না, / ফাঁদে হাত দিলে আটকে যাবে।",
@@ -302,44 +323,46 @@ module.exports.onStart = async function({ api, event }) {
         }
         };
 
-        // Random proverb selection
-        const keys = Object.keys(jsoncd.data);
-        const randKey = keys[Math.floor(Math.random() * keys.length)];
-        const proverb = jsoncd.data[randKey];
+            // Random proverb selection
+            const keys = Object.keys(jsoncd.data);
+            const randKey = keys[Math.floor(Math.random() * keys.length)];
+            const proverb = jsoncd.data[randKey];
 
-        // Current date/time in Bangladesh
-        const now = moment().tz(TIMEZONE);
-        
-        const dd = now.date();
-        const mm = now.month() + 1;
-        const yyyy = now.year();
-        const h = now.format("HH");
-        const m = now.format("mm");
-        const s = now.format("ss");
-        const dayName = now.format("dddd");
+            // Current date/time in Bangladesh
+            const now = moment().tz(TIMEZONE);
+            
+            const dd = now.date();
+            const mm = now.month() + 1;
+            const yyyy = now.year();
+            const h = now.format("HH");
+            const m = now.format("mm");
+            const s = now.format("ss");
+            const dayName = now.format("dddd");
 
-        // Lunar date (simplified since amlich dependency was removed)
-        const lunarText = "𝐿𝑢𝑛𝑎𝑟: 𝑁𝑜𝑡 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒";
+            // Get user name with error handling
+            let name = DEFAULT_USER_NAME;
+            try {
+                const userInfo = await api.getUserInfo(event.senderID);
+                name = userInfo?.[event.senderID]?.name || DEFAULT_USER_NAME;
+            } catch (userError) {
+                console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗀𝖾𝗍 𝗎𝗌𝖾𝗋 𝗂𝗇𝖿𝗈, 𝗎𝗌𝗂𝗇𝗀 𝖽𝖾𝖿𝖺𝗎𝗅𝗍 𝗇𝖺𝗆𝖾:", userError.message);
+            }
 
-        // Get user name
-        const userInfo = await api.getUserInfo(event.senderID);
-        const name = userInfo?.[event.senderID]?.name || DEFAULT_USER_NAME;
+            // Build message
+            const msg = `𝖧𝖾𝗅𝗅𝗈 ${name},
 
-        // Build message
-        const msg = `𝐻𝑒𝑙𝑙𝑜 ${name},
+𝖦𝗋𝖾𝗀𝗈𝗋𝗂𝖺𝗇: ${dd}/${mm}/${yyyy} (${dayName})
+𝖳𝗂𝗆𝖾 (𝖡𝖺𝗇𝗀𝗅𝖺𝖽𝖾𝗌𝗁): ${h}:${m}:${s}
 
-𝐺𝑟𝑒𝑔𝑜𝑟𝑖𝑎𝑛: ${dd}/${mm}/${yyyy} (${dayName})
-${lunarText}
-𝑇𝑖𝑚𝑒 (𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ): ${h}:${m}:${s}
-
-𝑃𝑟𝑜𝑣𝑒𝑟𝑏:
+𝖯𝗋𝗈𝗏𝖾𝗋𝖻:
 "${proverb}"`;
 
-        // Send the message
-        return api.sendMessage(msg, event.threadID, event.messageID);
+            // Send the message
+            return message.reply(msg);
 
-    } catch (error) {
-        console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑙𝑖𝑐ℎ 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
-        return api.sendMessage("❌ 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔!", event.threadID, event.messageID);
+        } catch (error) {
+            console.error("💥 𝖤𝗋𝗋𝗈𝗋 𝗂𝗇 𝗅𝗂𝖼𝗁 𝖼𝗈𝗆𝗆𝖺𝗇𝖽:", error);
+            // Don't send error message to avoid spam
+        }
     }
 };
