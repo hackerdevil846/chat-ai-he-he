@@ -3,7 +3,7 @@ const OWNER_UID = "61571630409265";
 module.exports = {
     config: {
         name: "lockname",
-        aliases: ["lockgroup", "grouplock"],
+        aliases: [],
         version: "1.0.1",
         author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
         countDown: 3,
