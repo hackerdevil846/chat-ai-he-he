@@ -2,130 +2,213 @@ const axios = require('axios');
 const fs = require('fs-extra');
 const path = require('path');
 
-module.exports.config = {
-    name: "lyrics",
-    aliases: ["songlyrics", "ganerlyrics"],
-    version: "2.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 5,
-    role: 0,
-    category: "media",
-    shortDescription: {
-        en: "𝐺𝑎𝑛𝑒𝑟 𝑒𝑟 𝑙𝑦𝑟𝑖𝑐𝑠 𝑗𝑎𝑛𝑎𝑛"
-    },
-    longDescription: {
-        en: "𝐺𝑎𝑛𝑒𝑟 𝑒𝑟 𝑙𝑦𝑟𝑖𝑐𝑠 𝑗𝑎𝑛𝑎𝑛"
-    },
-    guide: {
-        en: "{p}lyrics [𝑔𝑎𝑛𝑒𝑟 𝑛𝑎𝑚]"
-    },
-    dependencies: {
-        "axios": "",
-        "fs-extra": ""
-    }
-};
-
-module.exports.onStart = async function({ api, event, args }) {
-    try {
-        // Check dependencies
-        if (!axios) throw new Error("𝑎𝑥𝑖𝑜𝑠 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-        if (!fs.ensureDir) throw new Error("𝑓𝑠-𝑒𝑥𝑡𝑟𝑎 𝑚𝑜𝑑𝑢𝑙𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑");
-
-        const songName = args.join(" ").trim();
-        if (!songName) {
-            return api.sendMessage("🎵 𝐺𝑎𝑛𝑒𝑟 𝑒𝑟 𝑛𝑎𝑚 𝑒𝑛𝑡𝑒𝑟 𝑘𝑜𝑟𝑢𝑛!\n𝑈𝑑𝑎ℎ𝑎𝑟𝑎𝑛: lyrics Tum Hi Ho", event.threadID, event.messageID);
+module.exports = {
+    config: {
+        name: "lyrics",
+        aliases: [],
+        version: "2.0.1",
+        author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+        countDown: 5,
+        role: 0,
+        category: "media",
+        shortDescription: {
+            en: "𝖦𝖾𝗍 𝗌𝗈𝗇𝗀 𝗅𝗒𝗋𝗂𝖼𝗌"
+        },
+        longDescription: {
+            en: "𝖥𝖾𝗍𝖼𝗁 𝗅𝗒𝗋𝗂𝖼𝗌 𝖿𝗈𝗋 𝖺𝗇𝗒 𝗌𝗈𝗇𝗀"
+        },
+        guide: {
+            en: "{p}lyrics [𝗌𝗈𝗇𝗀 𝗇𝖺𝗆𝖾]"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": ""
         }
+    },
 
-        const cacheDir = path.join(__dirname, 'cache');
-        const imagePath = path.join(cacheDir, 'lyrics.png');
-        await fs.ensureDir(cacheDir);
-
-        api.sendMessage(`🔍 \"${songName}\" 𝑒𝑟 𝑙𝑦𝑟𝑖𝑐𝑠 𝑘ℎ𝑢𝑛𝑐ℎ𝑖... ⏳`, event.threadID, event.messageID);
-
-        // Helper function to send results
-        const sendResult = async ({ title, artist, lyrics }) => {
-            const header = [
-                "━━━━━━━━━━━━━━━",
-                "🎶 𝐿𝑦𝑟𝑖𝑐𝑠 𝐹𝑖𝑛𝑑𝑒𝑟",
-                "━━━━━━━━━━━━━━━"
-            ].join("\n");
-
-            const info = [
-                `🎼 𝐺𝑎𝑛 𝑒𝑟 𝑛𝑎𝑚: ${title || '𝑁/𝐴'}`,
-                `👤 𝐺𝑜𝑙𝑜𝑘: ${artist || '𝑁/𝐴'}`
-            ].join("\n");
-
-            const footer = [
-                "\n━━━━━━━━━━━━━━━",
-                "© 𝐶𝑟𝑒𝑑𝑖𝑡𝑠: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-                "━━━━━━━━━━━━━━━"
-            ].join("\n");
-
-            const bodyText = `${header}\n${info}\n\n📝 𝐿𝑦𝑟𝑖𝑐𝑠:\n${lyrics || '𝑁𝑜𝑡 𝑓𝑜𝑢𝑛𝑑.'}\n${footer}`;
-
-            return api.sendMessage({ body: bodyText }, event.threadID, event.messageID);
-        };
-
-        // Step 1: Try original API (kept unchanged)
+    onStart: async function({ message, event, args }) {
         try {
-            const url = `https://lrclib.net/api/search?q=${encodeURIComponent(songName)}`;
-            const { data } = await axios.get(url, { timeout: 15000 });
+            // Dependency check
+            let axiosAvailable = true;
+            let fsAvailable = true;
+            try {
+                require("axios");
+                require("fs-extra");
+            } catch (e) {
+                axiosAvailable = false;
+                fsAvailable = false;
+            }
 
-            if (Array.isArray(data) && data.length > 0) {
-                const payload = data[0];
-                const title = payload.trackName || songName;
-                const artist = payload.artistName || '𝑈𝑛𝑘𝑛𝑜𝑤𝑛';
-                const lyrics = payload.plainLyrics || '';
+            if (!axiosAvailable || !fsAvailable) {
+                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌 𝖺𝗇𝖽 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
+            }
 
-                if (lyrics && typeof lyrics === 'string') {
-                    return await sendResult({ title, artist, lyrics });
+            const songName = args.join(" ").trim();
+            if (!songName) {
+                return message.reply("🎵 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝖺 𝗌𝗈𝗇𝗀 𝗇𝖺𝗆𝖾!\n𝖤𝗑𝖺𝗆𝗉𝗅𝖾: {p}lyrics 𝖳𝗎𝗆 𝖧𝗂 𝖧𝗈");
+            }
+
+            // Validate song name length
+            if (songName.length > 100) {
+                return message.reply("❌ 𝖲𝗈𝗇𝗀 𝗇𝖺𝗆𝖾 𝗍𝗈𝗈 𝗅𝗈𝗇𝗀! 𝖯𝗅𝖾𝖺𝗌𝖾 𝗄𝖾𝖾𝗉 𝗂𝗍 𝗎𝗇𝖽𝖾𝗋 100 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌.");
+            }
+
+            if (songName.length < 2) {
+                return message.reply("❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝖺 𝗏𝖺𝗅𝗂𝖽 𝗌𝗈𝗇𝗀 𝗇𝖺𝗆𝖾.");
+            }
+
+            // Create cache directory
+            const cacheDir = path.join(__dirname, 'cache');
+            try {
+                await fs.ensureDir(cacheDir);
+            } catch (dirError) {
+                console.error("𝖢𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒 𝖾𝗋𝗋𝗈𝗋:", dirError);
+            }
+
+            const processingMsg = await message.reply(`🔍 𝖲𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝗅𝗒𝗋𝗂𝖼𝗌 𝖿𝗈𝗋 \"${songName}\"... ⏳`);
+
+            // Helper function to send results
+            const sendResult = async ({ title, artist, lyrics }) => {
+                const header = [
+                    "━━━━━━━━━━━━━━━",
+                    "🎶 𝖫𝗒𝗋𝗂𝖼𝗌 𝖥𝗂𝗇𝖽𝖾𝗋",
+                    "━━━━━━━━━━━━━━━"
+                ].join("\n");
+
+                const info = [
+                    `🎼 𝖲𝗈𝗇𝗀: ${title || '𝖭/𝖠'}`,
+                    `👤 𝖠𝗋𝗍𝗂𝗌𝗍: ${artist || '𝖭/𝖠'}`
+                ].join("\n");
+
+                const footer = [
+                    "\n━━━━━━━━━━━━━━━",
+                    "© 𝖢𝗋𝖾𝖽𝗂𝗍𝗌: 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+                    "━━━━━━━━━━━━━━━"
+                ].join("\n");
+
+                // Truncate lyrics if too long
+                let displayLyrics = lyrics || '𝖭𝗈𝗍 𝖿𝗈𝗎𝗇𝖽.';
+                if (displayLyrics.length > 4000) {
+                    displayLyrics = displayLyrics.substring(0, 4000) + '\n\n... (𝗍𝗋𝗎𝗇𝖼𝖺𝗍𝖾𝖽)';
+                }
+
+                const bodyText = `${header}\n${info}\n\n📝 𝖫𝗒𝗋𝗂𝖼𝗌:\n${displayLyrics}\n${footer}`;
+
+                try {
+                    await message.unsendMessage(processingMsg.messageID);
+                } catch (unsendError) {
+                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                }
+                return message.reply(bodyText);
+            };
+
+            // List of API endpoints to try
+            const apiEndpoints = [
+                {
+                    name: "𝗅𝗋𝖼𝗅𝗂𝖻",
+                    url: `https://lrclib.net/api/search?q=${encodeURIComponent(songName)}`,
+                    timeout: 15000,
+                    handler: (data) => {
+                        if (Array.isArray(data) && data.length > 0) {
+                            const payload = data[0];
+                            const title = payload.trackName || songName;
+                            const artist = payload.artistName || '𝖴𝗇𝗄𝗇𝗈𝗐𝗇';
+                            const lyrics = payload.plainLyrics || '';
+                            return { title, artist, lyrics };
+                        }
+                        return null;
+                    }
+                },
+                {
+                    name: "𝗅𝗒𝗋𝗂𝖼𝗌.𝗈𝗏𝗁",
+                    url: `https://api.lyrics.ovh/v1/${encodeURIComponent(songName)}`,
+                    timeout: 10000,
+                    handler: (data) => {
+                        if (data.lyrics) {
+                            return { 
+                                title: songName, 
+                                artist: '𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖠𝗋𝗍𝗂𝗌𝗍', 
+                                lyrics: data.lyrics 
+                            };
+                        }
+                        return null;
+                    }
+                },
+                {
+                    name: "𝗉𝗈𝗉𝖼𝖺𝗍",
+                    url: `https://api.popcat.xyz/lyrics?song=${encodeURIComponent(songName)}`,
+                    timeout: 10000,
+                    handler: (data) => {
+                        if (data.lyrics) {
+                            return {
+                                title: data.title || songName,
+                                artist: data.artist || '𝖴𝗇𝗄𝗇𝗈𝗐𝗇 𝖠𝗋𝗍𝗂𝗌𝗍',
+                                lyrics: data.lyrics
+                            };
+                        }
+                        return null;
+                    }
+                }
+            ];
+
+            let lastError = null;
+
+            // Try each API endpoint
+            for (const endpoint of apiEndpoints) {
+                try {
+                    console.log(`🔗 𝖳𝗋𝗒𝗂𝗇𝗀 ${endpoint.name} 𝖠𝖯𝖨...`);
+                    
+                    const response = await axios.get(endpoint.url, { 
+                        timeout: endpoint.timeout,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const result = endpoint.handler(response.data);
+                    if (result && result.lyrics && result.lyrics.trim().length > 0) {
+                        console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌 𝖿𝗋𝗈𝗆 ${endpoint.name} 𝖠𝖯𝖨`);
+                        return await sendResult(result);
+                    } else {
+                        throw new Error("𝖭𝗈 𝗅𝗒𝗋𝗂𝖼𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾");
+                    }
+                    
+                } catch (apiError) {
+                    lastError = apiError;
+                    console.error(`❌ ${endpoint.name} 𝖠𝖯𝖨 𝖿𝖺𝗂𝗅𝖾𝖽:`, apiError.message);
+                    continue;
                 }
             }
-        } catch (e) {
-            console.log("𝐿𝑅𝐶𝐿𝑖𝑏 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑, 𝑡𝑟𝑦𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘...");
-        }
 
-        // Step 2: Fallback to alternative API
-        try {
-            const fallbackUrl = `https://api.lyrics.ovh/v1/${encodeURIComponent(artist || '')}/${encodeURIComponent(title || songName)}`;
-            const { data: fallbackData } = await axios.get(fallbackUrl, { timeout: 10000 });
-            
-            if (fallbackData.lyrics) {
-                return await sendResult({ 
-                    title: songName, 
-                    artist: '𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝐴𝑟𝑡𝑖𝑠𝑡', 
-                    lyrics: fallbackData.lyrics 
-                });
+            // Final error message
+            try {
+                await message.unsendMessage(processingMsg.messageID);
+            } catch (unsendError) {
+                console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
             }
-        } catch (e) {
-            console.log("𝐿𝑦𝑟𝑖𝑐𝑠.𝑜𝑣ℎ 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑...");
-        }
 
-        // Step 3: Final fallback - search based approach
-        try {
-            const searchUrl = `https://api.popcat.xyz/lyrics?song=${encodeURIComponent(songName)}`;
-            const { data: searchData } = await axios.get(searchUrl, { timeout: 10000 });
+            const errorMessages = [
+                `⚠️ 𝖫𝗒𝗋𝗂𝖼𝗌 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝖿𝗈𝗋 \"${songName}\". 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺 𝖽𝗂𝖿𝖿𝖾𝗋𝖾𝗇𝗍 𝗌𝗈𝗇𝗀 𝗇𝖺𝗆𝖾.`,
+                `❌ 𝖭𝗈 𝗅𝗒𝗋𝗂𝖼𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖿𝗈𝗋 \"${songName}\". 𝖳𝗋𝗒 𝖺𝗇𝗈𝗍𝗁𝖾𝗋 𝗌𝗈𝗇𝗀.`,
+                `😢 𝖢𝗈𝗎𝗅𝖽𝗇'𝗍 𝖿𝗂𝗇𝖽 𝗅𝗒𝗋𝗂𝖼𝗌 𝖿𝗈𝗋 \"${songName}\". 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗍𝗁𝖾 𝗌𝗉𝖾𝗅𝗅𝗂𝗇𝗀.`
+            ];
             
-            if (searchData.lyrics) {
-                return await sendResult({
-                    title: searchData.title || songName,
-                    artist: searchData.artist || '𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝐴𝑟𝑡𝑖𝑠𝑡',
-                    lyrics: searchData.lyrics
-                });
+            const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+            return message.reply(randomError);
+
+        } catch (error) {
+            console.error("💥 𝖫𝗒𝗋𝗂𝖼𝗌 𝖤𝗋𝗋𝗈𝗋:", error);
+            
+            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽 𝗐𝗁𝗂𝗅𝖾 𝗌𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝖿𝗈𝗋 𝗅𝗒𝗋𝗂𝖼𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+            } else if (error.code === 'ETIMEDOUT') {
+                errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
             }
-        } catch (e) {
-            console.log("𝑃𝑜𝑝𝑐𝑎𝑡 𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑...");
+            
+            await message.reply(errorMessage);
         }
-
-        // Final error message
-        return api.sendMessage(
-            "⚠️ 𝐿𝑦𝑟𝑖𝑐𝑠 𝑝𝑎𝑤𝑎 𝑗𝑎𝑐𝑐ℎ𝑒 𝑛𝑎. 𝑑𝑎𝑦𝑎 𝑘𝑜𝑟𝑒 𝑘𝑖𝑐ℎ𝑢 𝑝𝑜𝑟𝑒 𝑝𝑢𝑛𝑜𝑟𝑎𝑦 𝑐ℎ𝑒𝑠𝑡𝑎 𝑘𝑜𝑟𝑢𝑛 😢",
-            event.threadID,
-            event.messageID
-        );
-
-    } catch (error) {
-        console.error("𝐿𝑦𝑟𝑖𝑐𝑠 𝐸𝑟𝑟𝑜𝑟:", error);
-        api.sendMessage("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑓𝑒𝑡𝑐ℎ𝑖𝑛𝑔 𝑙𝑦𝑟𝑖𝑐𝑠.", event.threadID, event.messageID);
     }
 };
