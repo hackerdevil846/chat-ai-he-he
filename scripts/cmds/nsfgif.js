@@ -2,47 +2,71 @@ const axios = require("axios");
 
 module.exports = {
   config: {
-    name: "nsfwanime",
-    aliases: ["animegif", "hentaigif"],
+    name: "nsfgif",
+    aliases: [],
     version: "1.0.0",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
     countDown: 5,
     role: 1,
     category: "adult",
     shortDescription: {
-      en: "🔞 𝑵𝑺𝑭𝑾 𝑨𝒏𝒊𝒎𝒆 𝑮𝑰𝑭 𝒄𝒐𝒎𝒎𝒂𝒏𝒅"
+      en: "🔞 𝖭𝖲𝖥𝖶 𝖦𝖨𝖥 𝖼𝗈𝗆𝗆𝖺𝗇𝖽"
     },
     longDescription: {
-      en: "🔞 𝑮𝒆𝒕 𝑵𝑺𝑭𝑾 𝑨𝒏𝒊𝒎𝒆 𝑮𝑰𝑭𝒔 𝒇𝒓𝒐𝒎 𝑵𝒆𝒌𝒐𝑩𝒐𝒕 𝑨𝑷𝑰"
+      en: "🔞 𝖦𝖾𝗍 𝖭𝖲𝖥𝖶 𝖦𝖨𝖥𝗌"
     },
     guide: {
-      en: "{p}nsfwanime"
+      en: "{p}nsfw"
     },
     dependencies: {
       "axios": ""
     }
   },
 
-  onStart: async function({ api, event }) {
+  onStart: async function({ message, event }) {
     try {
       // Dependency check
-      if (!axios) {
-        throw new Error("❌ 𝑴𝒊𝒔𝒔𝒊𝒏𝒈 𝒅𝒆𝒑𝒆𝒏𝒅𝒆𝒏𝒄𝒚: 𝒂𝒙𝒊𝒐𝒔");
+      let axiosAvailable = true;
+      try {
+        require("axios");
+      } catch (e) {
+        axiosAvailable = false;
       }
 
-      const { threadID, messageID } = event;
+      if (!axiosAvailable) {
+        return;
+      }
+
+      const response = await axios.get('https://nekobot.xyz/api/image?type=pgif', {
+        timeout: 30000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
       
-      const response = await axios.get('https://nekobot.xyz/api/image?type=pgif');
+      if (!response.data || !response.data.message) {
+        return;
+      }
+      
       const url = response.data.message;
       
-      await api.sendMessage({
-        body: `🔞 | 𝑵𝑺𝑭𝑾 𝑨𝑵𝑰𝑴𝑬 𝑮𝑰𝑭\n━━━━━━━━━━━━━━\n\n✨ 𝑮𝒊𝒇 𝒇𝒐𝒓 𝒚𝒐𝒖 𝒃𝒂𝒃𝒚...`,
-        attachment: await global.utils.getStreamFromURL(url)
-      }, threadID, messageID);
+      if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+        return;
+      }
+
+      const imageStream = await global.utils.getStreamFromURL(url);
+      
+      if (!imageStream) {
+        return;
+      }
+
+      await message.reply({
+        body: `🔞 | 𝖭𝖲𝖥𝖶 𝖦𝖨𝖥\n━━━━━━━━━━━━━━\n\n✨ 𝖦𝗂𝖿 𝖿𝗈𝗋 𝗒𝗈𝗎 𝖻𝖺𝖻𝗒...`,
+        attachment: imageStream
+      });
       
     } catch (error) {
-      console.error("𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒏𝒔𝒇𝒘𝒂𝒏𝒊𝒎𝒆:", error);
-      await api.sendMessage("❌ | 𝑬𝒓𝒓𝒐𝒓 𝒇𝒆𝒕𝒄𝒉𝒊𝒏𝒈 𝑵𝑺𝑭𝑾 𝒈𝒊𝒇!", event.threadID, event.messageID);
+      console.error("🔞 𝖤𝗋𝗋𝗈𝗋 𝗂𝗇 𝗇𝗌𝖿𝗀𝗂𝖿:", error);
     }
   }
 };
