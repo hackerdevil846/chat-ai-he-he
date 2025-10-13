@@ -1,25 +1,25 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-const { createCanvas, loadImage } = require("canvas");
+const { createCanvas, loadImage, registerFont } = require("canvas");
 
 module.exports = {
   config: {
     name: "pinsearchpro",
-    aliases: ["pinfinder", "pindownload"],
-    version: "1.6.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    aliases: [],
+    version: "2.1.0",
+    author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
     countDown: 10,
     role: 0,
     category: "search",
     shortDescription: {
-      en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡"
+      en: "🔍 𝖲𝖾𝖺𝗋𝖼𝗁 𝖺𝗇𝖽 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗋𝗈𝗆 𝖯𝗂𝗇𝗍𝖾𝗋𝖾𝗌𝗍"
     },
     longDescription: {
-      en: "🔍 𝑆𝑒𝑎𝑟𝑐ℎ 𝑎𝑛𝑑 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ℎ𝑖𝑔ℎ-𝑞𝑢𝑎𝑙𝑖𝑡𝑦 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑟𝑜𝑚 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑤𝑖𝑡ℎ 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑏𝑎𝑛𝑛𝑒𝑟𝑠"
+      en: "🔍 𝖲𝖾𝖺𝗋𝖼𝗁 𝖺𝗇𝖽 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗁𝗂𝗀𝗁-𝗊𝗎𝖺𝗅𝗂𝗍𝗒 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗋𝗈𝗆 𝖯𝗂𝗇𝗍𝖾𝗋𝖾𝗌𝗍 𝗐𝗂𝗍𝗁 𝗆𝗎𝗅𝗍𝗂𝗉𝗅𝖾 𝖻𝖺𝖼𝗄𝗎𝗉𝗌"
     },
     guide: {
-      en: "{𝑝}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]"
+      en: "{𝗉}𝗉𝗂𝗇𝗌𝖾𝖺𝗋𝖼𝗁𝗉𝗋𝗈 [𝗌𝖾𝖺𝗋𝖼𝗁 𝗍𝖾𝗋𝗆]-[𝗇𝗎𝗆𝖻𝖾𝗋 𝗈𝖿 𝗂𝗆𝖺𝗀𝖾𝗌]"
     },
     dependencies: {
       "axios": "",
@@ -27,7 +27,7 @@ module.exports = {
       "canvas": ""
     },
     envConfig: {
-      apiUrl: "https://asif-pinterest-api.onrender.com/v1/pinterest"
+      pixabayApiKey: "52739072-3d2518fb37d73bfd80ed5a82f"
     }
   },
 
@@ -40,16 +40,29 @@ module.exports = {
 
   onStart: async function({ api, event, args }) {
     try {
+      // Dependency check
+      let dependenciesAvailable = true;
+      try {
+        require("axios");
+        require("fs-extra");
+        require("canvas");
+      } catch (e) {
+        dependenciesAvailable = false;
+      }
+
+      if (!dependenciesAvailable) {
+        return api.sendMessage("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌, 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺, 𝖺𝗇𝖽 𝖼𝖺𝗇𝗏𝖺𝗌.", event.threadID, event.messageID);
+      }
+
       const { threadID, messageID, senderID } = event;
-      const { apiUrl } = this.config.envConfig;
       
       const input = args.join(" ");
       
       if (!input || !input.includes("-")) {
-        const helpMessage = `🖼️ 𝗣𝗶𝗻𝘁𝗲𝗿𝗲𝘀𝘁 𝗜𝗺𝗮𝗴𝗲 𝗦𝗲𝗮𝗿𝗰𝗵\n\n` +
-          `📝 𝑈𝑠𝑎𝑔𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 [𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚]-[𝑛𝑢𝑚𝑏𝑒𝑟 𝑜𝑓 𝑖𝑚𝑎𝑔𝑒𝑠]\n` +
-          `💡 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: ${global.config.PREFIX}𝑝𝑖𝑛𝑠𝑒𝑎𝑟𝑐ℎ𝑝𝑟𝑜 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑠𝑢𝑛𝑠𝑒𝑡-5\n\n` +
-          `⚠️ 𝑁𝑜𝑡𝑒: 𝑀𝑎𝑥𝑖𝑚𝑢𝑚 10 𝑖𝑚𝑎𝑔𝑒𝑠 𝑝𝑒𝑟 𝑟𝑒𝑞𝑢𝑒𝑠𝑡`;
+        const helpMessage = `🖼️ 𝖯𝗂𝗇𝗍𝖾𝗋𝖾𝗌𝗍 𝖨𝗆𝖺𝗀𝖾 𝖲𝖾𝖺𝗋𝖼𝗁\n\n` +
+          `📝 𝖴𝗌𝖺𝗀𝖾: ${global.config.PREFIX}𝗉𝗂𝗇𝗌𝖾𝖺𝗋𝖼𝗁𝗉𝗋𝗈 [𝗌𝖾𝖺𝗋𝖼𝗁 𝗍𝖾𝗋𝗆]-[𝗇𝗎𝗆𝖻𝖾𝗋 𝗈𝖿 𝗂𝗆𝖺𝗀𝖾𝗌]\n` +
+          `💡 𝖤𝗑𝖺𝗆𝗉𝗅𝖾: ${global.config.PREFIX}𝗉𝗂𝗇𝗌𝖾𝖺𝗋𝖼𝗁𝗉𝗋𝗈 𝖻𝖾𝖺𝗎𝗍𝗂𝖿𝗎𝗅 𝗌𝗎𝗇𝗌𝖾𝗍-5\n\n` +
+          `⚠️ 𝖭𝗈𝗍𝖾: 𝖬𝖺𝗑𝗂𝗆𝗎𝗆 10 𝗂𝗆𝖺𝗀𝖾𝗌 𝗉𝖾𝗋 𝗋𝖾𝗊𝗎𝖾𝗌𝗍`;
         return api.sendMessage(helpMessage, threadID, messageID);
       }
 
@@ -57,7 +70,7 @@ module.exports = {
       let imageCount = parseInt(countStr) || 5;
       
       if (!keyword) {
-        return api.sendMessage("🔍 | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 𝑎 𝑠𝑒𝑎𝑟𝑐ℎ 𝑘𝑒𝑦𝑤𝑜𝑟𝑑", threadID, messageID);
+        return api.sendMessage("🔍 | 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝖺 𝗌𝖾𝖺𝗋𝖼𝗁 𝖪𝖾𝗒𝗐𝗈𝗋𝖽", threadID, messageID);
       }
 
       imageCount = Math.max(1, Math.min(imageCount, 10));
@@ -65,84 +78,211 @@ module.exports = {
       const bannerPath = await createSearchBanner(keyword, senderID);
       
       api.sendMessage({
-        body: `🔍 𝑆𝑒𝑎𝑟𝑐ℎ𝑖𝑛𝑔 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝑓𝑜𝑟: "${keyword}"...`,
+        body: `🔍 𝖲𝖾𝖺𝗋𝖼𝗁𝗂𝗇𝗀 𝖯𝗂𝗇𝗍𝖾𝗋𝖾𝗌𝗍 𝖿𝗈𝗋: "${keyword}"...`,
         attachment: fs.createReadStream(bannerPath)
       }, threadID, async () => {
         fs.unlinkSync(bannerPath);
         
         try {
-          const response = await axios.get(apiUrl, { 
-            params: { 
-              search: encodeURIComponent(keyword) 
-            },
-            timeout: 30000
-          });
+          const imageUrls = await fetchImagesWithFallback(keyword, this.config.envConfig);
           
-          if (!response.data || !response.data.data || response.data.data.length === 0) {
+          if (!imageUrls || imageUrls.length === 0) {
             return api.sendMessage(
-              `❌ 𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑢𝑛𝑑 𝑓𝑜𝑟 "${keyword}". 𝑇𝑟𝑦 𝑎 𝑑𝑖𝑓𝑓𝑒𝑟𝑒𝑛𝑡 𝑠𝑒𝑎𝑟𝑐ℎ 𝑡𝑒𝑟𝑚.`,
+              `❌ 𝖭𝗈 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗈𝗎𝗇𝖽 𝖿𝗈𝗋 "${keyword}". 𝖳𝗋𝗒 𝖺 𝖽𝗂𝖿𝖿𝖾𝗋𝖾𝗇𝗍 𝗌𝖾𝖺𝗋𝖼𝗁 𝗍𝖾𝗋𝗆.`,
               threadID,
               messageID
             );
           }
           
-          const imageUrls = response.data.data.slice(0, imageCount);
+          const selectedUrls = imageUrls.slice(0, imageCount);
           const tempDir = path.join(__dirname, "pinsearch_cache");
           const imgPaths = [];
           
-          fs.readdirSync(tempDir)
-            .filter(file => file.startsWith(`${senderID}_`))
-            .forEach(file => fs.unlinkSync(path.join(tempDir, file)));
+          // Clean up old files
+          try {
+            const files = fs.readdirSync(tempDir);
+            files.filter(file => file.startsWith(`${senderID}_`))
+                 .forEach(file => fs.unlinkSync(path.join(tempDir, file)));
+          } catch (cleanupError) {
+            console.warn("𝖢𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", cleanupError.message);
+          }
           
           let downloadedCount = 0;
-          for (let i = 0; i < imageUrls.length; i++) {
+          for (let i = 0; i < selectedUrls.length; i++) {
             try {
               const imagePath = path.join(tempDir, `${senderID}_${Date.now()}_${i}.jpg`);
-              const imageRes = await axios.get(imageUrls[i], {
+              const imageRes = await axios.get(selectedUrls[i], {
                 responseType: 'arraybuffer',
-                timeout: 25000
+                timeout: 25000,
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                },
+                maxContentLength: 10 * 1024 * 1024 // 10MB limit
               });
               
-              fs.writeFileSync(imagePath, imageRes.data);
-              imgPaths.push(imagePath);
-              downloadedCount++;
+              // Check if response is actually an image
+              const contentType = imageRes.headers['content-type'];
+              if (!contentType || !contentType.startsWith('image/')) {
+                console.warn(`𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖼𝗈𝗇𝗍𝖾𝗇𝗍 𝗍𝗒𝗉𝖾: ${contentType}`);
+                continue;
+              }
+              
+              await fs.writeFile(imagePath, imageRes.data);
+              
+              // Verify file was written
+              const stats = await fs.stat(imagePath);
+              if (stats.size > 1000) { // At least 1KB
+                imgPaths.push(imagePath);
+                downloadedCount++;
+              } else {
+                await fs.unlink(imagePath);
+              }
             } catch (err) {
-              console.error(`𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟: ${err.message}`);
+              console.error(`𝖨𝗆𝖺𝗀𝖾 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖾𝗋𝗋𝗈𝗋: ${err.message}`);
             }
           }
           
           if (imgPaths.length > 0) {
             const attachments = imgPaths.map(path => fs.createReadStream(path));
-            const resultMessage = `✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 ${downloadedCount} 𝑖𝑚𝑎𝑔𝑒(𝑠) 𝑓𝑜𝑟:\n"${keyword}"\n\n✨ 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`;
+            const resultMessage = `✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝖽 ${downloadedCount} 𝗂𝗆𝖺𝗀𝖾(𝗌) 𝖿𝗈𝗋:\n"${keyword}"\n\n✨ 𝖯𝗈𝗐𝖾𝗋𝖾𝖽 𝖻𝗒 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽`;
             
             api.sendMessage({
               body: resultMessage,
               attachment: attachments
             }, threadID, (err) => {
-              if (err) console.error("𝑆𝑒𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", err);
+              if (err) console.error("𝖲𝖾𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", err);
               
+              // Cleanup files
               imgPaths.forEach(filePath => {
-                if (fs.existsSync(filePath)) {
-                  fs.unlinkSync(filePath);
+                try {
+                  if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                  }
+                } catch (fileError) {
+                  console.warn("𝖥𝗂𝗅𝖾 𝖼𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", fileError.message);
                 }
               });
             }, messageID);
           } else {
-            api.sendMessage("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑛𝑦 𝑖𝑚𝑎𝑔𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
+            api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖺𝗇𝗒 𝗂𝗆𝖺𝗀𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", threadID, messageID);
           }
           
         } catch (error) {
-          console.error("𝐴𝑃𝐼 𝐸𝑟𝑟𝑜𝑟:", error);
-          api.sendMessage("⚠️ 𝑃𝑖𝑛𝑡𝑒𝑟𝑒𝑠𝑡 𝐴𝑃𝐼 𝑖𝑠 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
+          console.error("💥 𝖠𝖯𝖨 𝖤𝗋𝗋𝗈𝗋:", error);
+          api.sendMessage("⚠️ 𝖠𝗅𝗅 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖲𝖾𝗋𝗏𝗂𝖼𝖾𝗌 𝖺𝗋𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝗍𝗅𝗒 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", threadID, messageID);
         }
       });
       
     } catch (error) {
-      console.error("𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
-      api.sendMessage("⚠️ 𝐴𝑛 𝑢𝑛𝑒𝑥𝑝𝑒𝑐𝑡𝑒𝑑 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", event.threadID, event.messageID);
+      console.error("💥 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
+      api.sendMessage("⚠️ 𝖠𝗇 𝗎𝗇𝖾𝗑𝗉𝖾𝖼𝗍𝖾𝖽 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", event.threadID, event.messageID);
     }
   }
 };
+
+async function fetchImagesWithFallback(keyword, envConfig) {
+  const apis = [
+    { name: "𝖯𝗋𝗂𝗆𝖺𝗋𝗒 𝖠𝖯𝖨 (𝖠𝗌𝗂𝖿 𝖯𝗂𝗇𝗍𝖾𝗋𝖾𝗌𝗍)", fetch: fetchFromPrimaryAPI },
+    { name: "𝖯𝗂𝗑𝖺𝖻𝖺𝗒 𝖥𝗋𝖾𝖾 𝖠𝖯𝖨", fetch: () => fetchFromPixabay(keyword, envConfig) },
+    { name: "𝖡𝖺𝖼𝗄𝗎𝗉 𝖠𝖯𝖨 (𝖯𝖾𝗑𝖾𝗅𝗌)", fetch: () => fetchFromPexels(keyword) },
+    { name: "𝖡𝖺𝖼𝗄𝗎𝗉 𝖠𝖯𝖨 (𝖫𝗈𝗋𝖾𝗆 𝖯𝗂𝖼𝗌𝗎𝗆)", fetch: () => fetchFromLoremPicsum(keyword) }
+  ];
+
+  for (const api of apis) {
+    try {
+      console.log(`⏳ 𝖠𝗍𝗍𝖾𝗆𝗉𝗍𝗂𝗇𝗀 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝖿𝗋𝗈𝗆: ${api.name}`);
+      const images = await api.fetch();
+      
+      if (images && images.length > 0) {
+        console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖿𝖾𝗍𝖼𝗁𝖾𝖽 ${images.length} 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗋𝗈𝗆 ${api.name}`);
+        return images;
+      }
+    } catch (err) {
+      console.warn(`⚠️ ${api.name} 𝖿𝖺𝗂𝗅𝖾𝖽: ${err.message}`);
+    }
+  }
+
+  console.error("❌ 𝖠𝗅𝗅 𝖠𝖯𝖨𝗌 𝖿𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝗂𝗆𝖺𝗀𝖾𝗌");
+  return null;
+}
+
+async function fetchFromPrimaryAPI() {
+  const response = await axios.get("https://asif-pinterest-api.onrender.com/v1/pinterest", {
+    params: { search: encodeURIComponent(keyword) },
+    timeout: 15000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0'
+    }
+  });
+  
+  if (response.data && response.data.data && Array.isArray(response.data.data)) {
+    return response.data.data.map(item => {
+      if (typeof item === 'string') return item;
+      return item.image || item.url || item.images || item.media || item.src;
+    }).filter(url => url && (typeof url === 'string'));
+  }
+  
+  return [];
+}
+
+async function fetchFromPixabay(keyword, envConfig) {
+  const response = await axios.get("https://pixabay.com/api/", {
+    params: {
+      key: envConfig.pixabayApiKey,
+      q: encodeURIComponent(keyword),
+      per_page: 20,
+      image_type: "photo",
+      orientation: "horizontal"
+    },
+    timeout: 15000
+  });
+  
+  if (response.data && response.data.hits && Array.isArray(response.data.hits)) {
+    return response.data.hits.map(item => item.largeImageURL || item.webformatURL).filter(url => url);
+  }
+  
+  return [];
+}
+
+async function fetchFromPexels(keyword) {
+  try {
+    const response = await axios.get("https://api.pexels.com/v1/search", {
+      params: {
+        query: encodeURIComponent(keyword),
+        per_page: 20
+      },
+      timeout: 15000,
+      headers: {
+        'Authorization': 'xWam7eao7qJ3owQMp9tDXT2ej8xVJoSM0EtHMiqj7d0HEUN2Jt2GhSEP',
+        'User-Agent': 'Mozilla/5.0'
+      }
+    });
+    
+    if (response.data && response.data.photos && Array.isArray(response.data.photos)) {
+      return response.data.photos.map(photo => photo.src.large || photo.src.original).filter(url => url);
+    }
+  } catch (err) {
+    throw new Error(`𝖯𝖾𝗑𝖾𝗅𝗌 𝖠𝖯𝖨 𝖤𝗋𝗋𝗈𝗋: ${err.message}`);
+  }
+  
+  return [];
+}
+
+async function fetchFromLoremPicsum(keyword) {
+  try {
+    const urls = [];
+    
+    for (let i = 0; i < 20; i++) {
+      const randomWidth = Math.floor(Math.random() * (1200 - 800 + 1)) + 800;
+      const randomHeight = Math.floor(Math.random() * (1200 - 800 + 1)) + 800;
+      urls.push(`https://picsum.photos/${randomWidth}/${randomHeight}?random=${i}`);
+    }
+    
+    return urls;
+  } catch (err) {
+    throw new Error(`𝖫𝗈𝗋𝖾𝗆 𝖯𝗂𝖼𝗌𝗎𝗆 𝖠𝖯𝖨 𝖤𝗋𝗋𝗈𝗋: ${err.message}`);
+  }
+}
 
 async function createSearchBanner(keyword, userId) {
   const width = 700;
@@ -150,6 +290,7 @@ async function createSearchBanner(keyword, userId) {
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext('2d');
   
+  // Create gradient background
   const gradient = ctx.createLinearGradient(0, 0, width, height);
   gradient.addColorStop(0, '#8a2387');
   gradient.addColorStop(0.5, '#e94057');
@@ -157,6 +298,7 @@ async function createSearchBanner(keyword, userId) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
   
+  // Draw Pinterest logo
   const logoSize = 60;
   const logoPadding = 20;
   const logoX = logoPadding + logoSize/2;
@@ -173,6 +315,7 @@ async function createSearchBanner(keyword, userId) {
   ctx.textBaseline = 'middle';
   ctx.fillText('P', logoX, logoY);
   
+  // Add decorative elements
   ctx.beginPath();
   for (let i = 0; i < 8; i++) {
     const size = Math.random() * 30 + 15;
@@ -184,6 +327,7 @@ async function createSearchBanner(keyword, userId) {
   ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.fill();
   
+  // Main title
   ctx.font = 'bold 38px Arial';
   ctx.fillStyle = '#ffffff';
   ctx.textAlign = 'center';
@@ -192,8 +336,9 @@ async function createSearchBanner(keyword, userId) {
   ctx.shadowOffsetX = 3;
   ctx.shadowOffsetY = 3;
   
-  ctx.fillText('PINTEREST IMAGE SEARCH', width / 2, 100);
+  ctx.fillText('𝖯𝖨𝖭𝖳𝖤𝖱𝖤𝖲𝖳 𝖨𝖬𝖠𝖦𝖤 𝖲𝖤𝖠𝖱𝖢𝖧', width / 2, 100);
   
+  // Search keyword box
   const text = `"${keyword}"`;
   ctx.font = 'italic 32px Arial';
   const textWidth = ctx.measureText(text).width;
@@ -222,7 +367,7 @@ async function createSearchBanner(keyword, userId) {
   ctx.fillText(text, width / 2, 170);
   
   const bannerPath = path.join(__dirname, "pinsearch_cache", `${userId}_banner.png`);
-  fs.writeFileSync(bannerPath, canvas.toBuffer('image/png'));
+  await fs.writeFile(bannerPath, canvas.toBuffer('image/png'));
   
   return bannerPath;
 }
