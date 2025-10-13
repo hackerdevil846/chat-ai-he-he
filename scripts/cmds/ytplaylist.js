@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = {
   config: {
     name: "ytplaylist",
-    aliases: ["youtubeplaylist", "playlistinfo"],
+    aliases: [],
     version: "2.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 15,
