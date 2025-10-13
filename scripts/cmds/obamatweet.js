@@ -5,7 +5,7 @@ const path = require("path");
 
 module.exports = {
   config: {
-    name: "obama",
+    name: "obamatweet",
     aliases: [],
     version: "1.1.0",
     author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
@@ -19,7 +19,7 @@ module.exports = {
       en: "🇺🇸 𝖢𝗋𝖾𝖺𝗍𝖾 𝗉𝗋𝖾𝗌𝗂𝖽𝖾𝗇𝗍𝗂𝖺𝗅 𝖮𝖻𝖺𝗆𝖺-𝗌𝗍𝗒𝗅𝖾 𝗍𝗐𝖾𝖾𝗍 𝗂𝗆𝖺𝗀𝖾𝗌 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋 𝖼𝗎𝗌𝗍𝗈𝗆 𝗍𝖾𝗑𝗍"
     },
     guide: {
-      en: "{p}obama [𝗍𝖾𝗑𝗍]"
+      en: "{p}obamatweet [𝗍𝖾𝗑𝗍]"
     },
     dependencies: {
       "axios": "",
@@ -46,14 +46,14 @@ module.exports = {
 
       if (args.length === 0) {
         return message.reply(
-          "🇺🇸 𝖮𝖻𝖺𝗆𝖺 𝖳𝗐𝖾𝖾𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝗋𝖾𝖺𝖽𝗒! 𝖳𝗒𝗉𝖾 '{p}obama [𝗍𝖾𝗑𝗍]' 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗒𝗈𝗎𝗋 𝗉𝗋𝖾𝗌𝗂𝖽𝖾𝗇𝗍𝗂𝖺𝗅 𝗍𝗐𝖾𝖾𝗍"
+          "🇺🇸 𝖮𝖻𝖺𝗆𝖺 𝖳𝗐𝖾𝖾𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝗋𝖾𝖺𝖽𝗒! 𝖳𝗒𝗉𝖾 '{p}obamatweet [𝗍𝖾𝗑𝗍]' 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗒𝗈𝗎𝗋 𝗉𝗋𝖾𝗌𝗂𝖽𝖾𝗇𝗍𝗂𝖺𝗅 𝗍𝗐𝖾𝖾𝗍"
         );
       }
 
       const text = args.join(" ").trim();
       if (!text) {
         return message.reply(
-          "✍️ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗍𝖾𝗑𝗍 𝖿𝗈𝗋 𝖮𝖻𝖺𝗆𝖺'𝗌 𝗍𝗐𝖾𝖾𝗍\n𝖤𝗑𝖺𝗆𝗉𝗅𝖾: {p}obama 𝖸𝖾𝗌 𝗐𝖾 𝖼𝖺𝗇! 𝖢𝗁𝖺𝗇𝗀𝖾 𝗂𝗌 𝖼𝗈𝗆𝗂𝗇𝗀."
+          "✍️ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗋𝗈𝗏𝗂𝖽𝖾 𝗍𝖾𝗑𝗍 𝖿𝗈𝗋 𝖮𝖻𝖺𝗆𝖺'𝗌 𝗍𝗐𝖾𝖾𝗍\n𝖤𝗑𝖺𝗆𝗉𝗅𝖾: {p}obamatweet 𝖸𝖾𝗌 𝗐𝖾 𝖼𝖺𝗇! 𝖢𝗁𝖺𝗇𝗀𝖾 𝗂𝗌 𝖼𝗈𝗆𝗂𝗇𝗀."
         );
       }
 
@@ -74,9 +74,13 @@ module.exports = {
         return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒.");
       }
       
+      // Generate unique filenames
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      
       // Download template
       const templateUrl = 'https://i.imgur.com/6fOxdex.png';
-      const templatePath = path.join(cacheDir, `obama_template_${Date.now()}.png`);
+      const templatePath = path.join(cacheDir, `obama_template_${timestamp}_${randomSuffix}.png`);
       
       try {
         const { data } = await axios.get(templateUrl, { 
@@ -101,7 +105,6 @@ module.exports = {
         try {
           font = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
         } catch (fontError) {
-          // Fallback to default font if custom font fails
           font = jimp.FONT_SANS_32_BLACK;
         }
 
@@ -152,7 +155,7 @@ module.exports = {
         });
 
         // Save the modified image
-        const outputPath = path.join(cacheDir, `obama_${Date.now()}.png`);
+        const outputPath = path.join(cacheDir, `obama_output_${timestamp}_${randomSuffix}.png`);
         await image.writeAsync(outputPath);
         
         // Verify output file exists and has content
@@ -187,10 +190,7 @@ module.exports = {
       }
 
     } catch (error) {
-      console.error("💥 𝖮𝖻𝖺𝗆𝖺 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
-      
-      // Don't send error message to avoid spam
-      // Just log it for debugging
+      console.error("💥 𝖮𝖻𝖺𝗆𝖺𝖳𝗐𝖾𝖾𝗍 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
     }
   }
 };
