@@ -176,7 +176,7 @@ async function tryDirectUpscaleServices(imageUrl) {
 module.exports = {
     config: {
         name: "4k",
-        aliases: ["enhance", "upscale"],
+        aliases: [],
         version: "3.0.0",
         author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
         countDown: 10,
