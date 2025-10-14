@@ -1,5 +1,4 @@
 const { commands } = global.GoatBot;
-const ADMIN_UID = "61571630409265";
 const ITEMS_PER_PAGE = 10;
 
 // Random image array from original version
@@ -17,18 +16,18 @@ module.exports = {
     name: "help",
     aliases: ["h"],
     version: "1.4",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
     countDown: 5,
     role: 0,
     category: "info",
     shortDescription: {
-      en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑠ℎ𝑎𝑑𝑜𝑤 𝑔𝑎𝑟𝑑𝑒𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 𝑎𝑛𝑑 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠"
+      en: "𝖣𝗂𝗌𝗉𝗅𝖺𝗒𝗌 𝖺𝗅𝗅 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌"
     },
     longDescription: {
-      en: "𝑅𝑒𝑣𝑒𝑎𝑙𝑠 𝑡ℎ𝑒 𝑠𝑒𝑐𝑟𝑒𝑡 𝑎𝑟𝑠𝑒𝑛𝑎𝑙 𝑜𝑓 𝑠ℎ𝑎𝑑𝑜𝑤 𝑔𝑎𝑟𝑑𝑒𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑𝑠 𝑎𝑛𝑑 𝑡ℎ𝑒𝑖𝑟 ℎ𝑖𝑑𝑑𝑒𝑛 𝑝𝑜𝑤𝑒𝑟𝑠"
+      en: "𝖲𝗁𝗈𝗐𝗌 𝖺𝗅𝗅 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌 𝗐𝗂𝗍𝗁 𝖽𝖾𝗍𝖺𝗂𝗅𝗌 𝖺𝗇𝖽 𝖼𝖺𝗍𝖾𝗀𝗈𝗋𝗂𝖾𝗌"
     },
     guide: {
-      en: "{p}help\n{p}help [𝑝𝑎𝑔𝑒]\n{p}help -[𝑐𝑎𝑡𝑒𝑔𝑜𝑟𝑦]\n{p}help [𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 𝑛𝑎𝑚𝑒]"
+      en: "{p}help\n{p}help [𝗉𝖺𝗀𝖾]\n{p}help -[𝖼𝖺𝗍𝖾𝗀𝗈𝗋𝗒]\n{p}help [𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝗇𝖺𝗆𝖾]"
     }
   },
 
@@ -43,15 +42,10 @@ module.exports = {
 
       if (cmd !== "help" && cmd !== "menu" && cmd !== "h") return;
       
-      // Check if user is admin or has permission
-      let userRole = 0;
-      if (event.senderID === ADMIN_UID) {
-        userRole = 2; // Admin role
-      }
-
-      return this.onStart({ message, args, event, role: userRole });
+      // Everyone has role 0 (user) - no admin restrictions
+      return this.onStart({ message, args, event, role: 0 });
     } catch (error) {
-      console.error("𝐻𝑒𝑙𝑝 𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+      console.error("𝖧𝖾𝗅𝗉 𝖢𝗁𝖺𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
     }
   },
 
@@ -59,13 +53,13 @@ module.exports = {
     try {
       // Validate global commands exists
       if (!commands || typeof commands !== 'object') {
-        return message.reply("❌ 𝑆ℎ𝑎𝑑𝑜𝑤 𝑎𝑟𝑐ℎ𝑖𝑣𝑒𝑠 𝑎𝑟𝑒 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦 𝑢𝑛𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒.");
+        return message.reply("❌ 𝖢𝗈𝗆𝗆𝖺𝗇𝖽𝗌 𝖺𝗋𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝗍𝗅𝗒 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾.");
       }
 
-      const top = "╭──═━┈ { 🗡️  𝑻𝑯𝑬 𝑬𝑴𝑰𝑵𝑬𝑵𝑪𝑬 𝑰𝑵 𝑺𝑯𝑨𝑫𝑶𝑾  🗡️} ┈━═──╮";
+      const top = "╭──═━┈ { 📖 𝖢𝖮𝖬𝖬𝖠𝖭𝖣 𝖫𝖨𝖲𝖳 📖 } ┈━═──╮";
       const mid = "┃";
       const sep = "┠──────────────────────────────";
-      const bottom = "╰──═━┈  [  𝑺𝑯𝑨𝑫𝑶𝑾 𝑮𝑨𝑹𝑫𝑬𝑵 𝑨𝑹𝑪𝑯𝑰𝑽𝑬𝑺  ]  ┈━═──╯";
+      const bottom = "╰──═━┈  [ 𝖡𝖮𝖳 𝖢𝖮𝖬𝖬𝖠𝖭𝖣𝖲 ]  ┈━═──╯";
 
       const arg = args[0]?.toLowerCase();
 
@@ -80,7 +74,7 @@ module.exports = {
 
       // If no commands found
       if (Object.keys(categories).length === 0) {
-        return message.reply("❌ 𝑁𝑜 𝑠ℎ𝑎𝑑𝑜𝑤 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑟𝑎𝑛𝑘.");
+        return message.reply("❌ 𝖭𝗈 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖿𝗈𝗋 𝗒𝗈𝗎.");
       }
 
       if (!arg || /^\d+$/.test(arg)) {
@@ -89,7 +83,7 @@ module.exports = {
         const totalPages = Math.ceil(catNames.length / ITEMS_PER_PAGE);
 
         if (page > totalPages) {
-          return message.reply(`❌ 𝑆ℎ𝑎𝑑𝑜𝑤 𝑝𝑎𝑔𝑒 ${page} 𝑑𝑜𝑒𝑠 𝑛𝑜𝑡 𝑒𝑥𝑖𝑠𝑡. 𝑇𝑜𝑡𝑎𝑙 𝑠𝑐𝑟𝑜𝑙𝑙𝑠: ${totalPages}`);
+          return message.reply(`❌ 𝖯𝖺𝗀𝖾 ${page} 𝖽𝗈𝖾𝗌 𝗇𝗈𝗍 𝖾𝗑𝗂𝗌𝗍. 𝖳𝗈𝗍𝖺𝗅 𝗉𝖺𝗀𝖾𝗌: ${totalPages}`);
         }
 
         const startIndex = (page - 1) * ITEMS_PER_PAGE;
@@ -98,23 +92,23 @@ module.exports = {
         // Use random image from original data array
         const randomImage = data[Math.floor(Math.random() * data.length)];
 
-        let body = `${top}\n${mid} 📜 𝑺𝑯𝑨𝑫𝑶𝑾 𝑨𝑹𝑪𝑯𝑰𝑽𝑬𝑺 (𝑆𝑐𝑟𝑜𝑙𝑙 ${page}/${totalPages})\n${sep}\n`;
-        body += `${mid} 🗝️  𝑺𝒉𝒂𝒅𝒐𝒘 𝑺𝒊𝒈𝒏: -\n${mid} ⚔️  𝑻𝒐𝒕𝒂𝒍 𝑻𝒆𝒄𝒉𝒏𝒊𝒒𝒖𝒆𝒔: ${commands.size}\n${sep}\n`;
+        let body = `${top}\n${mid} 📜 𝖢𝖮𝖬𝖬𝖠𝖭𝖣 𝖫𝖨𝖲𝖳 (𝖯𝖺𝗀𝖾 ${page}/${totalPages})\n${sep}\n`;
+        body += `${mid} 🔑 𝖯𝗋𝖾𝖿𝗂𝗑: ${global.GoatBot.config.prefix || "-"}\n${mid} 📊 𝖳𝗈𝗍𝖺𝗅 𝖢𝗈𝗆𝗆𝖺𝗇𝖽𝗌: ${commands.size}\n${sep}\n`;
 
         selectedCats.forEach((cat) => {
           const cmds = categories[cat];
-          body += `${mid} 🏛️  ${cat} [${cmds.length}]\n`;
+          body += `${mid} 📁 ${cat} [${cmds.length}]\n`;
           // Limit commands per category for better display
           cmds.slice(0, 15).forEach((n) => {
             body += `${mid} ✦ ${n}\n`;
           });
           if (cmds.length > 15) {
-            body += `${mid} ... 𝑎𝑛𝑑 ${cmds.length - 15} 𝑚𝑜𝑟𝑒\n`;
+            body += `${mid} ... 𝖺𝗇𝖽 ${cmds.length - 15} 𝗆𝗈𝗋𝖾\n`;
           }
           body += `${sep}\n`;
         });
 
-        body += `${mid} 💀 "𝑰 𝒂𝒎 𝒂𝒕𝒐𝒎𝒊𝒄..."\n`;
+        body += `${mid} 💡 "𝖳𝗒𝗉𝖾 ${global.GoatBot.config.prefix}help [𝖼𝗈𝗆𝗆𝖺𝗇𝖽] 𝖿𝗈𝗋 𝖽𝖾𝗍𝖺𝗂𝗅𝗌"\n`;
         body += `${bottom}`;
 
         try {
@@ -143,13 +137,13 @@ module.exports = {
         }
 
         if (!cmdsInCat.length) {
-          return message.reply(`❌ 𝑁𝑜 𝑠ℎ𝑎𝑑𝑜𝑤 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒𝑠 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑎𝑟𝑐ℎ𝑖𝑣𝑒 "${catName}"`);
+          return message.reply(`❌ 𝖭𝗈 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝖼𝖺𝗍𝖾𝗀𝗈𝗋𝗒 "${catName}"`);
         }
 
         return message.reply(
-          `${top}\n${mid} 🏛️  𝑺𝑯𝑨𝑫𝑶𝑾 𝑨𝑹𝑪𝑯𝑰𝑽𝑬: ${catName}\n${sep}\n` +
+          `${top}\n${mid} 📁 𝖢𝖠𝖳𝖤𝖦𝖮𝖱𝖸: ${catName}\n${sep}\n` +
           `${cmdsInCat.join("\n")}\n${sep}\n` +
-          `${mid} 🌑 "𝑃𝑜𝑤𝑒𝑟 𝑖𝑠 𝑒𝑣𝑒𝑟𝑦𝑡ℎ𝑖𝑛𝑔..."\n` +
+          `${mid} 📊 𝖳𝗈𝗍𝖺𝗅: ${cmdsInCat.length} 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌\n` +
           bottom
         );
       }
@@ -157,13 +151,13 @@ module.exports = {
       const cmdObj = commands.get(arg) || (global.GoatBot.aliases && global.GoatBot.aliases.get(arg) ? commands.get(global.GoatBot.aliases.get(arg)) : null);
       
       if (!cmdObj || !cmdObj.config || cmdObj.config.role > role) {
-        return message.reply(`❌ 𝑆ℎ𝑎𝑑𝑜𝑤 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 "${arg}" 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑜𝑟 𝑦𝑜𝑢 𝑙𝑎𝑐𝑘 𝑡ℎ𝑒 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑎𝑟𝑘𝑛𝑒𝑠𝑠.`);
+        return message.reply(`❌ 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 "${arg}" 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝗈𝗋 𝗒𝗈𝗎 𝖽𝗈𝗇'𝗍 𝗁𝖺𝗏𝖾 𝖺𝖼𝖼𝖾𝗌𝗌.`);
       }
 
       const cfg = cmdObj.config;
-      const shortDesc = cfg.shortDescription?.en || "𝑁𝑜 𝑠ℎ𝑎𝑑𝑜𝑤 𝑑𝑒𝑠𝑐𝑟𝑖𝑝𝑡𝑖𝑜𝑛 𝑟𝑒𝑐𝑜𝑟𝑑𝑒𝑑.";
-      const longDesc = cfg.longDescription?.en || "𝑇ℎ𝑒 𝑡𝑟𝑢𝑒 𝑛𝑎𝑡𝑢𝑟𝑒 𝑜𝑓 𝑡ℎ𝑖𝑠 𝑡𝑒𝑐ℎ𝑛𝑖𝑞𝑢𝑒 𝑟𝑒𝑚𝑎𝑖𝑛𝑠 ℎ𝑖𝑑𝑑𝑒𝑛 𝑖𝑛 𝑠ℎ𝑎𝑑𝑜𝑤𝑠.";
-      const usage = cfg.guide?.en || "𝑁𝑜 𝑖𝑛𝑐𝑎𝑛𝑡𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑟𝑚𝑢𝑙𝑎 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒.";
+      const shortDesc = cfg.shortDescription?.en || "𝖭𝗈 𝖽𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾.";
+      const longDesc = cfg.longDescription?.en || "𝖭𝗈 𝖽𝖾𝗍𝖺𝗂𝗅𝖾𝖽 𝖽𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾.";
+      const usage = cfg.guide?.en || "𝖭𝗈 𝗎𝗌𝖺𝗀𝖾 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾.";
 
       // Format long description to fit in box
       const formattedLongDesc = longDesc.replace(/\n/g, `\n${mid} `);
@@ -175,21 +169,22 @@ module.exports = {
 
       const details =
         `${top}\n` +
-        `${mid} 🔮 𝑺𝑯𝑨𝑫𝑶𝑾 𝑻𝑬𝑪𝑯𝑵𝑰𝑸𝑼𝑬 𝑫𝑬𝑻𝑨𝑰𝑳𝑺\n${sep}\n` +
-        `${mid} 🏛️  𝑨𝒓𝒄𝒉𝒊𝒗𝒆: ${cfg.category || "Uncategorized"}\n` +
-        `${mid} 📜 𝑻𝒆𝒄𝒉𝒏𝒊𝒒𝒖𝒆: ${cfg.name}\n` +
-        `${mid} ⚡ 𝑺𝒉𝒐𝒓𝒕: ${shortDesc}\n` +
-        `${mid} 📖 𝑫𝒆𝒆𝒑 𝑲𝒏𝒐𝒘𝒍𝒆𝒅𝒈𝒆:\n${mid} ${formattedLongDesc}\n` +
-        `${mid} 🧪 𝑰𝒏𝒄𝒂𝒏𝒕𝒂𝒕𝒊𝒐𝒏: ${formattedUsage}\n` +
-        `${mid} 👤 𝑺𝒉𝒂𝒅𝒐𝒘 𝑾𝒆𝒊𝒍𝒅𝒆𝒓: ${cfg.author || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝐸𝑚𝑖𝑛𝑒𝑛𝑐𝑒"}\n` +
+        `${mid} 📖 𝖢𝖮𝖬𝖬𝖠𝖭𝖣 𝖣𝖤𝖳𝖠𝖨𝖫𝖲\n${sep}\n` +
+        `${mid} 📁 𝖢𝖺𝗍𝖾𝗀𝗈𝗋𝗒: ${cfg.category || "Uncategorized"}\n` +
+        `${mid} 📝 𝖭𝖺𝗆𝖾: ${cfg.name}\n` +
+        `${mid} ⚡ 𝖲𝗁𝗈𝗋𝗍: ${shortDesc}\n` +
+        `${mid} 📋 𝖣𝖾𝗌𝖼𝗋𝗂𝗉𝗍𝗂𝗈𝗇:\n${mid} ${formattedLongDesc}\n` +
+        `${mid} 🎯 𝖴𝗌𝖺𝗀𝖾: ${formattedUsage}\n` +
+        `${mid} 👤 𝖠𝗎𝗍𝗁𝗈𝗋: ${cfg.author || "Unknown"}\n` +
+        `${mid} ⏱️ 𝖢𝗈𝗎𝗇𝗍𝖣𝗈𝗐𝗇: ${cfg.countDown || 5}𝗌\n` +
         `${sep}\n` +
-        `${mid} 🌑 "𝐼 𝑎𝑚 𝑎𝑡𝑜𝑚𝑖𝑐..."\n` +
+        `${mid} 💡 "𝖳𝗒𝗉𝖾 ${global.GoatBot.config.prefix}help 𝖿𝗈𝗋 𝗆𝗈𝗋𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌"\n` +
         bottom;
 
       return message.reply(details);
     } catch (error) {
-      console.error("𝑆ℎ𝑎𝑑𝑜𝑤 𝐴𝑟𝑐ℎ𝑖𝑣𝑒𝑠 𝐸𝑟𝑟𝑜𝑟:", error);
-      await message.reply("❌ 𝑇ℎ𝑒 𝑠ℎ𝑎𝑑𝑜𝑤𝑠 𝑟𝑒𝑓𝑢𝑠𝑒 𝑡𝑜 𝑟𝑒𝑣𝑒𝑎𝑙 𝑡ℎ𝑒𝑖𝑟 𝑠𝑒𝑐𝑟𝑒𝑡𝑠. 𝑇𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("𝖧𝖾𝗅𝗉 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
+      await message.reply("❌ 𝖤𝗋𝗋𝗈𝗋 𝖿𝖾𝗍𝖼𝗁𝗂𝗇𝗀 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
     }
   }
 };
