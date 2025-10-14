@@ -10,10 +10,10 @@ module.exports = {
         role: 0,
         category: "tool",
         shortDescription: {
-            en: "𝖨𝗇𝗍𝖾𝗋𝗇𝖺𝗍𝗂𝗈𝗇𝖺𝗅 𝖲𝗉𝖺𝖼𝖾 𝖲𝗍𝖺𝗍𝗂𝗈𝗇 𝖼𝗎𝗋𝗋𝖾𝗇𝗍 𝗅𝗈𝖼𝖺𝗍𝗂𝗈𝗇"
+            en: "International Space Station current location"
         },
         longDescription: {
-            en: "𝖲𝖾𝖾 𝗍𝗁𝖾 𝖼𝗎𝗋𝗋𝖾𝗇𝗍 𝗅𝗈𝖼𝖺𝗍𝗂𝗈𝗇 𝗈𝖿 𝗍𝗁𝖾 𝖨𝗇𝗍𝖾𝗋𝗇𝖺𝗍𝗂𝗈𝗇𝖺𝗅 𝖲𝗉𝖺𝖼𝖾 𝖲𝗍𝖺𝗍𝗂𝗈𝗇"
+            en: "See the current location of the International Space Station"
         },
         guide: {
             en: "{p}iss"
@@ -34,10 +34,10 @@ module.exports = {
             }
 
             if (!axiosAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+                return message.reply("❌ Missing dependencies. Please install axios.");
             }
 
-            const loadingMsg = await message.reply("🛰️ 𝖥𝖾𝗍𝖼𝗁𝗂𝗇𝗀 𝖨𝖲𝖲 𝗅𝗈𝖼𝖺𝗍𝗂𝗈𝗇...");
+            const loadingMsg = await message.reply("🛰️ Fetching ISS location...");
 
             // List of ISS API endpoints to try
             const apiEndpoints = [
@@ -52,7 +52,7 @@ module.exports = {
             // Try each API endpoint
             for (const endpoint of apiEndpoints) {
                 try {
-                    console.log(`🔗 𝖳𝗋𝗒𝗂𝗇𝗀 𝖨𝖲𝖲 𝖠𝖯𝖨: ${endpoint}`);
+                    console.log(`Trying ISS API: ${endpoint}`);
                     
                     const response = await axios.get(endpoint, {
                         timeout: 15000,
@@ -69,9 +69,9 @@ module.exports = {
                                 latitude: response.data.iss_position.latitude,
                                 longitude: response.data.iss_position.longitude,
                                 timestamp: response.data.timestamp,
-                                source: "𝖮𝗉𝖾𝗇 𝖭𝗈𝗍𝗂𝖿𝗒 𝖠𝖯𝖨"
+                                source: "Open Notify API"
                             };
-                            console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌 𝖿𝗋𝗈𝗆 𝖮𝗉𝖾𝗇 𝖭𝗈𝗍𝗂𝖿𝗒 𝖠𝖯𝖨`);
+                            console.log("Success from Open Notify API");
                             break;
                         }
                     } else if (endpoint.includes('wheretheiss.at')) {
@@ -82,16 +82,16 @@ module.exports = {
                                 longitude: response.data.longitude,
                                 altitude: response.data.altitude,
                                 velocity: response.data.velocity,
-                                source: "𝖶𝗁𝖾𝗋𝖾 𝖳𝗁𝖾 𝖨𝖲𝖲 𝖠𝗍 𝖠𝖯𝖨"
+                                source: "Where The ISS At API"
                             };
-                            console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌 𝖿𝗋𝗈𝗆 𝖶𝗁𝖾𝗋𝖾 𝖳𝗁𝖾 𝖨𝖲𝖲 𝖠𝗍 𝖠𝖯𝖨`);
+                            console.log("Success from Where The ISS At API");
                             break;
                         }
                     }
                     
                 } catch (apiError) {
                     lastError = apiError;
-                    console.error(`❌ 𝖠𝖯𝖨 𝖿𝖺𝗂𝗅𝖾𝖽: ${endpoint} - ${apiError.message}`);
+                    console.error(`API failed: ${endpoint} - ${apiError.message}`);
                     continue;
                 }
             }
@@ -100,23 +100,23 @@ module.exports = {
             try {
                 await message.unsendMessage(loadingMsg.messageID);
             } catch (unsendError) {
-                console.warn("❌ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                console.warn("Could not unsend loading message:", unsendError.message);
             }
 
             if (!issData) {
-                console.error("💥 𝖠𝗅𝗅 𝖨𝖲𝖲 𝖠𝖯𝖨𝗌 𝖿𝖺𝗂𝗅𝖾𝖽`);
+                console.error("All ISS APIs failed");
                 
                 // Send fallback information
                 return message.reply(
                     "🛰️ ━━━━━━━━━━━━━━━━━━━━ 🛰️\n" +
-                    "       𝖨𝖭𝖳𝖤𝖱𝖭𝖠𝖳𝖨𝖮𝖭𝖠𝖫 𝖲𝖯𝖠𝖢𝖤 𝖲𝖳𝖠𝖳𝖨𝖮𝖭\n" +
+                    "       INTERNATIONAL SPACE STATION\n" +
                     "🛰️ ━━━━━━━━━━━━━━━━━━━━ 🛰️\n\n" +
-                    "❌ 𝖴𝗇𝖺𝖻𝗅𝖾 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝖼𝗎𝗋𝗋𝖾𝗇𝗍 𝗅𝗈𝖼𝖺𝗍𝗂𝗈𝗇\n\n" +
-                    "🔭 𝖱𝖾𝖺𝗅-𝗍𝗂𝗆𝖾 𝗍𝗋𝖺𝖼𝗄𝗂𝗇𝗀:\n" +
+                    "❌ Unable to fetch current location\n\n" +
+                    "🔭 Real-time tracking:\n" +
                     "https://spotthestation.nasa.gov/tracking_map.cfm\n\n" +
-                    "🛰️ 𝖢𝗎𝗋𝗋𝖾𝗇𝗍 𝗌𝗉𝖾𝖾𝖽: 28,000 𝗄𝗆/𝗁\n" +
-                    "🌎 𝖮𝗋𝖻𝗂𝗍 𝗍𝗂𝗆𝖾: 90 𝗆𝗂𝗇𝗎𝗍𝖾𝗌\n" +
-                    "👨‍🚀 𝖢𝗋𝖾𝗐: 7 𝖺𝗌𝗍𝗋𝗈𝗇𝖺𝗎𝗍𝗌"
+                    "🛰️ Current speed: 28,000 km/h\n" +
+                    "🌎 Orbit time: 90 minutes\n" +
+                    "👨‍🚀 Crew: 7 astronauts"
                 );
             }
 
@@ -125,39 +125,39 @@ module.exports = {
             const lon = parseFloat(issData.longitude).toFixed(4);
             
             // Determine position over Earth
-            let position = "𝖮𝗏𝖾𝗋 𝗈𝖼𝖾𝖺𝗇";
+            let position = "Over ocean";
             if (lat > 0) {
-                position = "𝖭𝗈𝗋𝗍𝗁𝖾𝗋𝗇 𝗁𝖾𝗆𝗂𝗌𝗉𝗁𝖾𝗋𝖾";
+                position = "Northern hemisphere";
             } else {
-                position = "𝖲𝗈𝗎𝗍𝗁𝖾𝗋𝗇 𝗁𝖾𝗆𝗂𝗌𝗉𝗁𝖾𝗋𝖾";
+                position = "Southern hemisphere";
             }
 
             // Create the response message
             const issMessage = 
                 "🛰️ ━━━━━━━━━━━━━━━━━━━━ 🛰️\n" +
-                "       𝖨𝖭𝖳𝖤𝖱𝖭𝖠𝖳𝖨𝖮𝖭𝖠𝖫 𝖲𝖯𝖠𝖢𝖤 𝖲𝖳𝖠𝖳𝖨𝖮𝖭\n" +
+                "       INTERNATIONAL SPACE STATION\n" +
                 "🛰️ ━━━━━━━━━━━━━━━━━━━━ 🛰️\n\n" +
-                `📍 𝖫𝖺𝗍𝗂𝗍𝗎𝖽𝖾: ${lat}°\n` +
-                `📍 𝖫𝗈𝗇𝗀𝗂𝗍𝗎𝖽𝖾: ${lon}°\n` +
-                `🌍 𝖯𝗈𝗌𝗂𝗍𝗂𝗈𝗇: ${position}\n\n` +
-                `🔭 𝖱𝖾𝖺𝗅-𝗍𝗂𝗆𝖾 𝗍𝗋𝖺𝖼𝗄𝗂𝗇𝗀:\n` +
+                `📍 Latitude: ${lat}°\n` +
+                `📍 Longitude: ${lon}°\n` +
+                `🌍 Position: ${position}\n\n` +
+                `🔭 Real-time tracking:\n` +
                 `https://spotthestation.nasa.gov/tracking_map.cfm\n\n` +
-                `🛰️ 𝖢𝗎𝗋𝗋𝖾𝗇𝗍 𝗌𝗉𝖾𝖾𝖽: 28,000 𝗄𝗆/𝗁\n` +
-                `🌎 𝖮𝗋𝖻𝗂𝗍 𝗍𝗂𝗆𝖾: 90 𝗆𝗂𝗇𝗎𝗍𝖾𝗌\n` +
-                `👨‍🚀 𝖢𝗋𝖾𝗐: 7 𝖺𝗌𝗍𝗋𝗈𝗇𝖺𝗎𝗍𝗌\n` +
-                `📡 𝖣𝖺𝗍𝖺 𝗌𝗈𝗎𝗋𝖼𝖾: ${issData.source}`;
+                `🛰️ Current speed: 28,000 km/h\n` +
+                `🌎 Orbit time: 90 minutes\n` +
+                `👨‍🚀 Crew: 7 astronauts\n` +
+                `📡 Data source: ${issData.source}`;
 
             await message.reply(issMessage);
 
         } catch (error) {
-            console.error("💥 𝖨𝖲𝖲 𝖤𝗋𝗋𝗈𝗋:", error);
+            console.error("ISS Error:", error);
             
-            let errorMessage = "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝖨𝖲𝖲 𝖽𝖺𝗍𝖺. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            let errorMessage = "❌ Failed to fetch ISS data. Please try again later.";
             
             if (error.code === 'ECONNREFUSED') {
-                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝗂𝗇𝗍𝖾𝗋𝗇𝖾𝗍 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+                errorMessage = "❌ Network error. Please check your internet connection.";
             } else if (error.code === 'ETIMEDOUT') {
-                errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+                errorMessage = "❌ Request timed out. Please try again.";
             }
             
             await message.reply(errorMessage);
