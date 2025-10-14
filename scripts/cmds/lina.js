@@ -1,3 +1,4 @@
+/** 
 const axios = require("axios");
 
 module.exports = {
@@ -135,3 +136,4 @@ async function getMessage(yourMessage) {
         return randomFallback;
     }
 }
+*/
