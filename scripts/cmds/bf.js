@@ -14,6 +14,70 @@ function toMathBoldItalic(text) {
     return text.split('').map(char => map[char] || char).join('');
 }
 
+// Shared image download function with retry logic
+async function downloadBaseImageWithRetry() {
+    const dirMaterial = path.resolve(__dirname, "cache/canvas");
+    const arrPath = path.resolve(dirMaterial, "arr2.png");
+    
+    if (!fs.existsSync(dirMaterial)) {
+        fs.mkdirSync(dirMaterial, { recursive: true });
+    }
+    
+    // If image already exists, no need to download
+    if (fs.existsSync(arrPath)) {
+        return true;
+    }
+    
+    // If another file is currently downloading, wait
+    const lockFile = path.resolve(dirMaterial, "downloading.lock");
+    if (fs.existsSync(lockFile)) {
+        // Wait for other download to complete
+        let attempts = 0;
+        while (fs.existsSync(lockFile) && attempts < 30) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            attempts++;
+        }
+        // If file exists after waiting, download was successful
+        if (fs.existsSync(arrPath)) {
+            return true;
+        }
+    }
+    
+    // Create lock file and download
+    try {
+        fs.writeFileSync(lockFile, "downloading");
+        
+        const imageUrl = "https://i.imgur.com/iaOiAXe.jpeg";
+        let lastError;
+        
+        // Retry logic with exponential backoff
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                console.log(`Download attempt ${attempt} for base image...`);
+                const imageBuffer = await global.utils.getStreamFromURL(imageUrl);
+                await fs.writeFileSync(arrPath, imageBuffer);
+                console.log("Base image downloaded successfully");
+                return true;
+            } catch (error) {
+                lastError = error;
+                if (attempt < 3) {
+                    const delay = attempt * 2000; // 2, 4, 6 seconds
+                    console.log(`Attempt ${attempt} failed, waiting ${delay}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        throw lastError;
+        
+    } finally {
+        // Always remove lock file
+        if (fs.existsSync(lockFile)) {
+            fs.unlinkSync(lockFile);
+        }
+    }
+}
+
 module.exports = {
   config: {
     name: "bf",
@@ -41,16 +105,10 @@ module.exports = {
   },
 
   onLoad: async function() {
-    const dirMaterial = path.resolve(__dirname, "cache/canvas");
-    const arrPath = path.resolve(dirMaterial, "arr2.png");
-    if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
-    if (!fs.existsSync(arrPath)) {
-      try {
-        const imageBuffer = await global.utils.getStreamFromURL("https://i.imgur.com/iaOiAXe.jpeg");
-        await fs.writeFileSync(arrPath, imageBuffer);
-      } catch (error) {
-        console.error("Error loading base image:", error);
-      }
+    try {
+        await downloadBaseImageWithRetry();
+    } catch (error) {
+        console.error("Failed to load base image after all retries:", error);
     }
   }
 };
@@ -65,7 +123,14 @@ async function circle(imagePath) {
 // Generate couple image
 async function makeImage({ one, two }) {
   const __root = path.resolve(__dirname, "cache/canvas");
-  let baseImage = await jimp.read(path.join(__root, "arr2.png"));
+  
+  // Ensure base image exists before proceeding
+  const arrPath = path.join(__root, "arr2.png");
+  if (!fs.existsSync(arrPath)) {
+      await downloadBaseImageWithRetry();
+  }
+  
+  let baseImage = await jimp.read(arrPath);
 
   const avatarOnePath = path.join(__root, `avt_${one}.png`);
   const avatarTwoPath = path.join(__root, `avt_${two}.png`);
