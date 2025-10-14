@@ -25,70 +25,11 @@ module.exports = {
     }
   },
 
-  // Define word_valid function BEFORE onLoad to ensure it's available
+  // Define ALL functions BEFORE onLoad
   word_valid: function(word) {
     if (!word || typeof word !== 'string') return false;
     const trimmed = word.trim();
     return trimmed && /^[a-zA-Zà-ỹÀ-Ỹ]+ [a-zA-Zà-ỹÀ-Ỹ]+$/.test(trimmed);
-  },
-
-  onLoad: async function() {
-    const self = this; // Store reference to 'this'
-    const path = `${__dirname}/Trò_chơi/wordchain/wordchain.txt`;
-    
-    try {
-      // Ensure directory exists
-      const dir = `${__dirname}/Trò_chơi/wordchain`;
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      
-      let wordData = [];
-      
-      if (!fs.existsSync(path)) {
-        try {
-          console.log("Downloading word data from GitHub...");
-          const response = await axios.get(`https://raw.githubusercontent.com/J-JRT/api2/mainV2/linkword.json`);
-          if (response.data && typeof response.data === 'string') {
-            wordData = response.data.split(',').filter(word => self.word_valid(word));
-            console.log(`Downloaded ${wordData.length} valid words`);
-          } else {
-            throw new Error("Invalid response data format");
-          }
-        } catch (error) {
-          console.error("Error loading word data from GitHub:", error);
-          wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
-        }
-      } else {
-        try {
-          const fileContent = fs.readFileSync(path, 'utf8');
-          if (fileContent && fileContent.trim()) {
-            wordData = fileContent.split(',').filter(word => self.word_valid(word));
-            console.log(`Loaded ${wordData.length} valid words from cache`);
-          } else {
-            throw new Error("File is empty");
-          }
-        } catch (error) {
-          console.error("Error reading word file:", error);
-          wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
-        }
-      }
-      
-      // Ensure we have at least some words
-      if (wordData.length === 0) {
-        wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
-      }
-      
-      // Store data in module instance
-      this.data = wordData;
-      
-      // Save to file
-      this.save(path);
-      
-    } catch (error) {
-      console.error("Critical error in onLoad:", error);
-      this.data = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
-    }
   },
 
   save: function(path) {
@@ -115,6 +56,64 @@ module.exports = {
     } catch (error) {
       console.error("Error streaming image:", error);
       return null;
+    }
+  },
+
+  onLoad: async function() {
+    const path = `${__dirname}/Trò_chơi/wordchain/wordchain.txt`;
+    
+    try {
+      // Ensure directory exists
+      const dir = `${__dirname}/Trò_chơi/wordchain`;
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      
+      let wordData = [];
+      
+      if (!fs.existsSync(path)) {
+        try {
+          console.log("Downloading word data from GitHub...");
+          const response = await axios.get(`https://raw.githubusercontent.com/J-JRT/api2/mainV2/linkword.json`);
+          if (response.data && typeof response.data === 'string') {
+            wordData = response.data.split(',').filter(word => this.word_valid(word));
+            console.log(`Downloaded ${wordData.length} valid words`);
+          } else {
+            throw new Error("Invalid response data format");
+          }
+        } catch (error) {
+          console.error("Error loading word data from GitHub:", error);
+          wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
+        }
+      } else {
+        try {
+          const fileContent = fs.readFileSync(path, 'utf8');
+          if (fileContent && fileContent.trim()) {
+            wordData = fileContent.split(',').filter(word => this.word_valid(word));
+            console.log(`Loaded ${wordData.length} valid words from cache`);
+          } else {
+            throw new Error("File is empty");
+          }
+        } catch (error) {
+          console.error("Error reading word file:", error);
+          wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
+        }
+      }
+      
+      // Ensure we have at least some words
+      if (wordData.length === 0) {
+        wordData = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
+      }
+      
+      // Store data in module instance
+      this.data = wordData;
+      
+      // Save to file - this.save is now available
+      this.save(path);
+      
+    } catch (error) {
+      console.error("Critical error in onLoad:", error);
+      this.data = ["hello world", "word chain", "game play", "bot chat", "chain reaction", "word game"];
     }
   },
 
