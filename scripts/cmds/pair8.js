@@ -3,10 +3,76 @@ const fs = require("fs-extra");
 const path = require("path");
 const jimp = require("jimp");
 
+// Shared image download function with retry logic (same as in bf and gf files)
+async function downloadBaseImageWithRetry() {
+    const dirMaterial = path.resolve(__dirname, "cache", "canvas");
+    const arrPath = path.resolve(dirMaterial, "ar1r2.png");
+    
+    if (!fs.existsSync(dirMaterial)) {
+        fs.mkdirSync(dirMaterial, { recursive: true });
+    }
+    
+    // If image already exists, no need to download
+    if (fs.existsSync(arrPath)) {
+        return true;
+    }
+    
+    // If another file is currently downloading, wait
+    const lockFile = path.resolve(dirMaterial, "downloading.lock");
+    if (fs.existsSync(lockFile)) {
+        // Wait for other download to complete
+        let attempts = 0;
+        while (fs.existsSync(lockFile) && attempts < 30) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            attempts++;
+        }
+        // If file exists after waiting, download was successful
+        if (fs.existsSync(arrPath)) {
+            return true;
+        }
+    }
+    
+    // Create lock file and download
+    try {
+        fs.writeFileSync(lockFile, "downloading");
+        
+        const imageUrl = "https://i.imgur.com/iaOiAXe.jpeg";
+        let lastError;
+        
+        // Retry logic with exponential backoff
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                console.log(`Download attempt ${attempt} for base image...`);
+                const response = await axios.get(imageUrl, {
+                    responseType: 'arraybuffer'
+                });
+                await fs.writeFileSync(arrPath, Buffer.from(response.data));
+                console.log("Base image downloaded successfully");
+                return true;
+            } catch (error) {
+                lastError = error;
+                if (attempt < 3) {
+                    const delay = attempt * 2000; // 2, 4, 6 seconds
+                    console.log(`Attempt ${attempt} failed, waiting ${delay}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        throw lastError;
+        
+    } finally {
+        // Always remove lock file
+        if (fs.existsSync(lockFile)) {
+            fs.unlinkSync(lockFile);
+        }
+    }
+}
+
 module.exports = {
     config: {
         name: "pair8",
-        aliases: ["pair8", "couple8", "juti8"],
+        aliases: [],
         version: "7.3.1",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -37,19 +103,7 @@ module.exports = {
             require("path");
             require("jimp");
             
-            const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
-            const imagePath = path.resolve(dirMaterial, 'ar1r2.png');
-            
-            if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
-            
-            if (!fs.existsSync(imagePath)) {
-                try {
-                    const response = await axios.get("https://i.imgur.com/iaOiAXe.jpeg", { responseType: 'arraybuffer' });
-                    fs.writeFileSync(imagePath, Buffer.from(response.data));
-                } catch (error) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒:", error);
-                }
-            }
+            await downloadBaseImageWithRetry();
         } catch (e) {
             console.log("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑝𝑎𝑡ℎ, 𝑗𝑖𝑚𝑝");
         }
@@ -79,6 +133,11 @@ module.exports = {
                 const outputPath = path.resolve(__root, `pair_${one}_${two}.png`);
                 const avatarOnePath = path.resolve(__root, `avt_${one}.png`);
                 const avatarTwoPath = path.resolve(__root, `avt_${two}.png`);
+
+                // Ensure base image exists before proceeding
+                if (!fs.existsSync(templatePath)) {
+                    await downloadBaseImageWithRetry();
+                }
 
                 // Download and process first avatar
                 const avatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512`, 
