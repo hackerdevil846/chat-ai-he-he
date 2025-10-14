@@ -1,4 +1,5 @@
-/**const { createCanvas, loadImage } = require('canvas');
+/*
+const { createCanvas, loadImage } = require('canvas');
 
 module.exports = {
   config: {
@@ -77,4 +78,4 @@ module.exports = {
     }
   }
 };
-/**
+*/
