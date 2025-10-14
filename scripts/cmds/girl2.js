@@ -46640,7 +46640,6 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
 "https://i.imgur.com/xNOKINt.jpg",
 "https://i.imgur.com/5Sy0mk1.jpg",
   ];
-
       // Get user balance
       const userData = await usersData.get(senderID);
       const money = userData.money || 0;
@@ -46672,11 +46671,14 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
         method: "GET",
         url: randomImage,
         responseType: "arraybuffer",
-        timeout: 30000
+        timeout: 30000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
       });
 
       // Write file with binary encoding
-      await fs.writeFileSync(imagePath, Buffer.from(response.data, "binary"));
+      await fs.writeFile(imagePath, Buffer.from(response.data, "binary"));
 
       // Send message with attachment
       await message.reply({
@@ -46684,10 +46686,16 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
         attachment: fs.createReadStream(imagePath)
       });
 
-      // Clean up
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
-      }
+      // Clean up with delay to ensure file is sent
+      setTimeout(() => {
+        try {
+          if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
+          }
+        } catch (cleanupError) {
+          console.error("Cleanup error:", cleanupError);
+        }
+      }, 5000);
 
     } catch (error) {
       console.error("𝐺𝑖𝑟𝑙2 𝐸𝑟𝑟𝑜𝑟:", error);
