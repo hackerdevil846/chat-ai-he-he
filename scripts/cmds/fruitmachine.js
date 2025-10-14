@@ -8,19 +8,19 @@ module.exports = {
   config: {
     name: "fruitmachine",
     aliases: [],
-    version: "1.0.0",
+    version: "1.0.1",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     category: "game",
     shortDescription: {
-      en: "🎰 𝐹𝑟𝑢𝑖𝑡 𝑠𝑙𝑜𝑡 𝑚𝑎𝑐ℎ𝑖𝑛𝑒 𝑔𝑎𝑚𝑒"
+      en: "🎰 Fruit slot machine game"
     },
     longDescription: {
-      en: "𝑃𝑙𝑎𝑦 𝑓𝑟𝑢𝑖𝑡 𝑠𝑙𝑜𝑡 𝑚𝑎𝑐ℎ𝑖𝑛𝑒 𝑔𝑎𝑚𝑒 𝑤𝑖𝑡ℎ 𝑏𝑒𝑡𝑡𝑖𝑛𝑔"
+      en: "Play fruit slot machine game with betting"
     },
     guide: {
-      en: "{p}fruitmachine [𝑓𝑟𝑢𝑖𝑡 𝑛𝑎𝑚𝑒] [𝑏𝑒𝑡 𝑎𝑚𝑜𝑢𝑛𝑡]"
+      en: "{p}fruitmachine [fruit_name] [bet_amount]"
     },
     dependencies: {
       "axios": "",
@@ -29,69 +29,100 @@ module.exports = {
     }
   },
 
-  // Helper: wait
+  // ---------- helpers ----------
   __wait(ms) {
-    return new Promise((r) => setTimeout(r, ms));
+    return new Promise((res) => setTimeout(res, ms));
   },
 
-  // Robust download with retry/backoff and Retry-After handling
-  async __downloadWithRetry(url, destPath, opts = {}) {
-    const maxRetries = typeof opts.maxRetries === "number" ? opts.maxRetries : 4;
-    const timeout = typeof opts.timeout === "number" ? opts.timeout : 10000;
-    const userAgent = opts.userAgent || "chat-ai-he-he/fruitmachine";
+  // Robust download with retry/backoff and Retry-After handling.
+  // Returns the actual saved file path on success.
+  async __downloadWithRetry(url, destBasePath, options = {}) {
+    const maxRetries = Number.isInteger(options.maxRetries) ? options.maxRetries : 5;
+    const timeout = Number.isInteger(options.timeout) ? options.timeout : 15000;
+    const userAgent = options.userAgent || "chat-ai-he-he/fruitmachine (+https://github.com/hackerdevil846/chat-ai-he-he)";
+
+    // ensure directory exists
+    await fs.ensureDir(path.dirname(destBasePath));
+
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const res = await axios.get(url, {
           responseType: "stream",
           timeout,
-          headers: { "User-Agent": userAgent, Accept: "*/*" }
+          headers: {
+            "User-Agent": userAgent,
+            Accept: "*/*"
+          },
+          // do not throw on non-2xx here; we'll handle below
+          validateStatus: null
         });
 
-        // If dest directory doesn't exist, create it
-        await fs.ensureDir(path.dirname(destPath));
-
-        // If extension was not determined before, try derive from headers
-        let finalDest = destPath;
-        if (!path.extname(destPath)) {
-          const ct = (res.headers["content-type"] || "").toLowerCase();
-          const ext = ct.includes("gif") ? ".gif" : ct.includes("png") ? ".png" : ct.includes("jpeg") || ct.includes("jpg") ? ".jpg" : "";
-          finalDest = destPath + ext;
-        }
-
-        const writer = fs.createWriteStream(finalDest);
-        res.data.pipe(writer);
-        await new Promise((resolve, reject) => {
-          writer.on("finish", resolve);
-          writer.on("error", reject);
-          res.data.on("error", reject);
-        });
-
-        return finalDest; // success, return actual saved path
-      } catch (err) {
-        const status = err.response?.status;
-        // Respect Retry-After if provided on 429
+        const status = res.status || 0;
         if (status === 429) {
-          const ra = parseInt(err.response?.headers?.["retry-after"] || "0", 10);
-          const waitSeconds = ra > 0 ? ra : Math.min(2 ** attempt, 30);
-          console.warn(`[fruitmachine] received 429 from ${url}. retrying after ${waitSeconds}s (attempt ${attempt + 1}/${maxRetries})`);
+          // Respect Retry-After header if present
+          const ra = res.headers && res.headers["retry-after"] ? parseInt(res.headers["retry-after"], 10) : NaN;
+          const waitSeconds = Number.isFinite(ra) && ra > 0 ? ra : Math.min(2 ** attempt, 30);
+          console.warn(`[fruitmachine] 429 rate-limited from ${url}. retrying after ${waitSeconds}s (attempt ${attempt + 1}/${maxRetries})`);
           await this.__wait(waitSeconds * 1000);
           continue;
         }
-        // For network-ish errors use exponential backoff
-        if (attempt < maxRetries - 1) {
-          const backoff = Math.min(1000 * 2 ** attempt, 10000);
-          console.warn(`[fruitmachine] download error for ${url} (attempt ${attempt + 1}/${maxRetries}). backing off ${backoff}ms. error:`, err.message || err);
-          await this.__wait(backoff);
-          continue;
+        if (status >= 400) {
+          // non-retriable client errors (4xx except 429) -> break
+          if (status >= 400 && status < 500) {
+            throw new Error(`HTTP ${status} for ${url}`);
+          }
+          // server errors -> retry with backoff
+          throw new Error(`HTTP ${status} for ${url}`);
         }
-        // Last attempt failed -> throw
-        throw err;
+
+        // choose file extension from URL path or content-type header
+        let ext = path.extname(new URL(url).pathname || "").toLowerCase();
+        if (!ext) {
+          const ct = (res.headers["content-type"] || "").toLowerCase();
+          if (ct.includes("gif")) ext = ".gif";
+          else if (ct.includes("png")) ext = ".png";
+          else if (ct.includes("jpeg") || ct.includes("jpg")) ext = ".jpg";
+          else ext = ".jpg"; // fallback
+        }
+
+        // final target path includes extension
+        const finalPath = destBasePath.endsWith(ext) ? destBasePath : destBasePath + ext;
+        const tmpPath = finalPath + ".tmp";
+
+        // write stream safely to temp then rename
+        const writer = fs.createWriteStream(tmpPath);
+        await new Promise((resolve, reject) => {
+          res.data.pipe(writer);
+          let finished = false;
+          writer.on("finish", () => {
+            finished = true;
+            resolve();
+          });
+          writer.on("error", (err) => {
+            if (!finished) reject(err);
+          });
+          res.data.on("error", (err) => {
+            if (!finished) reject(err);
+          });
+        });
+
+        await fs.move(tmpPath, finalPath, { overwrite: true });
+        return finalPath;
+      } catch (err) {
+        const isLastAttempt = attempt === maxRetries - 1;
+        // If it's a network or transient error, backoff and retry.
+        const backoff = Math.min(1000 * 2 ** attempt, 15000);
+        console.warn(`[fruitmachine] download attempt ${attempt + 1}/${maxRetries} failed for ${url}: ${err && (err.message || err)}${isLastAttempt ? " — giving up" : ` — retrying in ${backoff}ms`}`);
+        if (isLastAttempt) throw err;
+        await this.__wait(backoff);
       }
-    } // end attempts
+    }
+    // shouldn't reach here
+    throw new Error("download failed after retries");
   },
 
+  // ---------- onLoad ----------
   onLoad: async function () {
-    // Map key => remote URL
     const imageUrls = {
       nho: "https://i.imgur.com/tmKK6Yj.jpg",
       dua: "https://i.imgur.com/mBTKhUW.jpg",
@@ -103,50 +134,62 @@ module.exports = {
     };
 
     const cacheDir = path.join(__dirname, "cache");
-    await fs.ensureDir(cacheDir);
+    try {
+      await fs.ensureDir(cacheDir);
+    } catch (e) {
+      console.error("[fruitmachine] failed to ensure cache dir:", e);
+      return;
+    }
 
-    // iterate sequentially to avoid hammering the remote host
+    // Download sequentially (to avoid hammering remote host)
     for (const [key, url] of Object.entries(imageUrls)) {
+      const baseDest = path.join(cacheDir, key); // extension appended by downloader
       try {
-        // derive extension from URL path
-        const urlPath = new URL(url).pathname;
-        let ext = path.extname(urlPath).toLowerCase();
-        // fallback to .jpg if no ext
-        if (!ext) ext = ".jpg";
-        const desiredPathWithoutExt = path.join(cacheDir, key); // we'll let download decide ext if necessary
-        // download with retry; this returns the actual path saved (including ext)
-        const savedPath = await this.__downloadWithRetry(url, desiredPathWithoutExt, { maxRetries: 4, timeout: 12000 });
-        console.info(`[fruitmachine] saved ${key} -> ${savedPath}`);
-      } catch (error) {
-        // Log but DO NOT throw — onLoad should not crash the whole bot.
-        console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${key} 𝑖𝑚𝑎𝑔𝑒:`, error && (error.message || error.toString ? error.toString() : error));
-        // Optionally, you could copy a local fallback image into cache here.
-        // Example: if you have ./assets/slot-fallback.gif bundled, copy it:
-        // if (key === 'slot') await fs.copy(path.join(__dirname,'..','assets','slot-fallback.gif'), path.join(cacheDir,'slot.gif')).catch(()=>{});
+        // Skip download if an existing file (gif/png/jpg) exists
+        const existingCandidates = [baseDest + ".gif", baseDest + ".jpg", baseDest + ".png"];
+        const exists = existingCandidates.some((p) => fs.existsSync(p));
+        if (exists) {
+          console.info(`[fruitmachine] cache hit for ${key}, skipping download.`);
+          continue;
+        }
+
+        // Attempt download with retries and backoff; will throw on final failure
+        const saved = await this.__downloadWithRetry(url, baseDest, { maxRetries: 5, timeout: 15000 });
+        console.info(`[fruitmachine] saved ${key} -> ${saved}`);
+      } catch (err) {
+        // Log error but do not throw: onLoad must not crash the process.
+        console.error(`Failed to download ${key} image:`, err && (err.message || err));
+        // Optional: if you bundle fallbacks in repo/assets, copy them here:
+        // const fallback = path.join(__dirname, '..', 'assets', `${key}-fallback.gif`);
+        // if (await fs.pathExists(fallback)) await fs.copy(fallback, path.join(cacheDir, key + path.extname(fallback)));
       }
+      // small delay between downloads to be polite and reduce rate-limit risk
+      await this.__wait(300);
     }
   },
 
+  // ---------- onStart ----------
   onStart: async function ({ message, event, args, usersData }) {
     try {
       const slotItems = ["nho", "dua", "dao", "tao", "dau", "bay"];
-      const userData = (await usersData.get(event.senderID)) || {};
+      const userId = event && event.senderID;
+      const userData = (await usersData.get(userId)) || {};
       const userMoney = typeof userData.money === "number" ? userData.money : 0;
 
-      if (!args[0] || !args[1]) {
-        return message.reply("𝑈𝑠𝑒: {p}fruitmachine [𝑔𝑟𝑎𝑝𝑒/𝑚𝑒𝑙𝑜𝑛/𝑝𝑒𝑎𝑐ℎ/𝑎𝑝𝑝𝑙𝑒/𝑠𝑡𝑟𝑎𝑤𝑏𝑒𝑟𝑟𝑦/𝑠𝑒𝑣𝑒𝑛] [𝑏𝑒𝑡 𝑎𝑚𝑜𝑢𝑛𝑡]");
+      if (!args || !args[0] || !args[1]) {
+        return message.reply("Use: {p}fruitmachine [grape/melon/peach/apple/strawberry/seven] [bet_amount]");
       }
 
-      const fruitChoice = args[0].toLowerCase();
-      const betAmount = parseInt(args[1]);
-      if (isNaN(betAmount) || betAmount <= 0) {
-        return message.reply("𝐵𝑒𝑡 𝑎𝑚𝑜𝑢𝑛𝑡 𝑚𝑢𝑠𝑡 𝑏𝑒 𝑎 𝑝𝑜𝑠𝑖𝑡𝑖𝑣𝑒 𝑛𝑢𝑚𝑏𝑒𝑟");
+      const fruitChoice = String(args[0]).toLowerCase();
+      const betAmount = parseInt(args[1], 10);
+      if (Number.isNaN(betAmount) || betAmount <= 0) {
+        return message.reply("Bet amount must be a positive number");
       }
       if (betAmount > userMoney) {
-        return message.reply("𝑌𝑜𝑢 𝑑𝑜𝑛'𝑡 ℎ𝑎𝑣𝑒 𝑒𝑛𝑜𝑢𝑔ℎ 𝑚𝑜𝑛𝑒𝑦 𝑡𝑜 𝑏𝑒𝑡 𝑡ℎ𝑎𝑡 𝑎𝑚𝑜𝑢𝑛𝑡");
+        return message.reply("You don't have enough money to bet that amount");
       }
       if (betAmount < 10000) {
-        return message.reply("𝑀𝑖𝑛𝑖𝑚𝑢𝑚 𝑏𝑒𝑡 𝑖𝑠 10000");
+        return message.reply("Minimum bet is 10000");
       }
 
       const fruitIcons = {
@@ -159,7 +202,7 @@ module.exports = {
       };
 
       if (!fruitIcons[fruitChoice]) {
-        return message.reply("𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑓𝑟𝑢𝑖𝑡 𝑐ℎ𝑜𝑖𝑐𝑒. 𝐴𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒: 𝑔𝑟𝑎𝑝𝑒, 𝑚𝑒𝑙𝑜𝑛, 𝑝𝑒𝑎𝑐ℎ, 𝑎𝑝𝑝𝑙𝑒, 𝑠𝑡𝑟𝑎𝑤𝑏𝑒𝑟𝑟𝑦, 𝑠𝑒𝑣𝑒𝑛");
+        return message.reply("Invalid fruit choice. Available: grape, melon, peach, apple, strawberry, seven");
       }
 
       // generate results
@@ -170,36 +213,35 @@ module.exports = {
 
       const resultIcons = results.map((fruit) => fruitIcons[fruit] || "❓");
 
-      // prepare image attachments (only include those present in cache)
+      // prepare attachments from cache if available
       const cacheDir = path.join(__dirname, "cache");
       const resultImages = [];
       for (const fruit of results) {
-        // find any matching file for this fruit key in cache (extensions may vary)
-        const jpg = path.join(cacheDir, `${fruit}.jpg`);
-        const png = path.join(cacheDir, `${fruit}.png`);
-        const gif = path.join(cacheDir, `${fruit}.gif`);
+        const candidates = [path.join(cacheDir, `${fruit}.gif`), path.join(cacheDir, `${fruit}.jpg`), path.join(cacheDir, `${fruit}.png`)];
         let chosen = null;
-        if (await fs.pathExists(jpg)) chosen = jpg;
-        else if (await fs.pathExists(png)) chosen = png;
-        else if (await fs.pathExists(gif)) chosen = gif;
-        // push readable stream only if file exists
+        for (const c of candidates) {
+          if (await fs.pathExists(c)) {
+            chosen = c;
+            break;
+          }
+        }
         if (chosen) resultImages.push(fs.createReadStream(chosen));
       }
 
-      // choose slot animation path for spinning message
+      // slot animation (spinner) path
       let slotAnimPath = null;
-      const g1 = path.join(cacheDir, "slot.gif");
-      const g2 = path.join(cacheDir, "slot.jpg");
-      if (await fs.pathExists(g1)) slotAnimPath = g1;
-      else if (await fs.pathExists(g2)) slotAnimPath = g2;
+      const slotGif = path.join(cacheDir, "slot.gif");
+      const slotJpg = path.join(cacheDir, "slot.jpg");
+      if (await fs.pathExists(slotGif)) slotAnimPath = slotGif;
+      else if (await fs.pathExists(slotJpg)) slotAnimPath = slotJpg;
 
-      // Send spinning message (with animation if available)
-      const spinningMsgPayload = { body: "𝑆𝑝𝑖𝑛𝑛𝑖𝑛𝑔..." };
-      if (slotAnimPath) spinningMsgPayload.attachment = fs.createReadStream(slotAnimPath);
-      const spinningMessage = await message.reply(spinningMsgPayload);
+      // send spinning message (with animation if available)
+      const spinPayload = { body: "Spinning..." };
+      if (slotAnimPath) spinPayload.attachment = fs.createReadStream(slotAnimPath);
+      await message.reply(spinPayload);
 
       // simulate spin time
-      await new Promise((resolve) => setTimeout(resolve, 5000));
+      await this.__wait(5000);
 
       // compute win/loss
       const matchCount = results.filter((r) => r === fruitChoice).length;
@@ -208,27 +250,27 @@ module.exports = {
 
       if (matchCount > 0) {
         winAmount = betAmount * matchCount;
-        await usersData.set(event.senderID, {
+        await usersData.set(userId, {
           money: userMoney + winAmount,
           data: userData.data || {}
         });
-        resultMessage = `[ 𝐹𝑅𝑈𝐼𝑇 𝑀𝐴𝐶𝐻𝐼𝑁𝐸 ]\n━━━━━━━━━━━━━━━━━━\n${resultIcons.join(" | ")}\n\n𝑌𝑜𝑢 𝑔𝑜𝑡 ${matchCount} ${fruitIcons[fruitChoice]}\n𝑌𝑜𝑢 𝑤𝑜𝑛: ${winAmount}\n𝑁𝑒𝑤 𝑏𝑎𝑙𝑎𝑛𝑐𝑒: ${userMoney + winAmount}`;
+        resultMessage = `[ FRUIT MACHINE ]\n━━━━━━━━━━━━━━━━━━\n${resultIcons.join(" | ")}\n\nYou got ${matchCount} ${fruitIcons[fruitChoice]}\nYou won: ${winAmount}\nNew balance: ${userMoney + winAmount}`;
       } else {
-        await usersData.set(event.senderID, {
+        await usersData.set(userId, {
           money: userMoney - betAmount,
           data: userData.data || {}
         });
-        resultMessage = `[ 𝐹𝑅𝑈𝐼𝑇 𝑀𝐴𝐶𝐻𝐼𝑁𝐸 ]\n━━━━━━━━━━━━━━━━━━\n${resultIcons.join(" | ")}\n\n𝑁𝑜 ${fruitIcons[fruitChoice]} 𝑓𝑜𝑢𝑛𝑑\n𝑌𝑜𝑢 𝑙𝑜𝑠𝑡: ${betAmount}\n𝑁𝑒𝑤 𝑏𝑎𝑙𝑎𝑛𝑐𝑒: ${userMoney - betAmount}`;
+        resultMessage = `[ FRUIT MACHINE ]\n━━━━━━━━━━━━━━━━━━\n${resultIcons.join(" | ")}\n\nNo ${fruitIcons[fruitChoice]} found\nYou lost: ${betAmount}\nNew balance: ${userMoney - betAmount}`;
       }
 
-      // send result message with any available images (attachments optional)
+      // reply with results and any available images
       const replyPayload = { body: resultMessage };
       if (resultImages.length > 0) replyPayload.attachment = resultImages;
       await message.reply(replyPayload);
     } catch (error) {
-      console.error("𝐹𝑟𝑢𝑖𝑡 𝑀𝑎𝑐ℎ𝑖𝑛𝑒 𝐸𝑟𝑟𝑜𝑟:", error && (error.stack || error.message || error));
+      console.error("Fruit Machine Error:", error && (error.stack || error.message || error));
       try {
-        await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑝𝑙𝑎𝑦𝑖𝑛𝑔 𝑡𝑕𝑒 𝑓𝑟𝑢𝑖𝑡 𝑚𝑎𝑐ℎ𝑖𝑛𝑒.");
+        await message.reply("❌ An error occurred while playing the fruit machine. Please try again later.");
       } catch (e) {
         console.error("[fruitmachine] failed to send error reply:", e);
       }
