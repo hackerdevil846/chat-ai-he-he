@@ -3,6 +3,72 @@ const fs = require("fs-extra");
 const path = require("path");
 const jimp = require("jimp");
 
+// Shared image download function with retry logic (same as in bf file)
+async function downloadBaseImageWithRetry() {
+    const dirMaterial = path.resolve(__dirname, "cache/canvas");
+    const arrPath = path.resolve(dirMaterial, "arr2.png");
+    
+    if (!fs.existsSync(dirMaterial)) {
+        fs.mkdirSync(dirMaterial, { recursive: true });
+    }
+    
+    // If image already exists, no need to download
+    if (fs.existsSync(arrPath)) {
+        return true;
+    }
+    
+    // If another file is currently downloading, wait
+    const lockFile = path.resolve(dirMaterial, "downloading.lock");
+    if (fs.existsSync(lockFile)) {
+        // Wait for other download to complete
+        let attempts = 0;
+        while (fs.existsSync(lockFile) && attempts < 30) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            attempts++;
+        }
+        // If file exists after waiting, download was successful
+        if (fs.existsSync(arrPath)) {
+            return true;
+        }
+    }
+    
+    // Create lock file and download
+    try {
+        fs.writeFileSync(lockFile, "downloading");
+        
+        const imageUrl = "https://i.imgur.com/iaOiAXe.jpeg";
+        let lastError;
+        
+        // Retry logic with exponential backoff
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                console.log(`Download attempt ${attempt} for base image...`);
+                const response = await axios.get(imageUrl, {
+                    responseType: 'arraybuffer'
+                });
+                await fs.writeFileSync(arrPath, Buffer.from(response.data, 'binary'));
+                console.log("Base image downloaded successfully");
+                return true;
+            } catch (error) {
+                lastError = error;
+                if (attempt < 3) {
+                    const delay = attempt * 2000; // 2, 4, 6 seconds
+                    console.log(`Attempt ${attempt} failed, waiting ${delay}ms before retry...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+        
+        throw lastError;
+        
+    } finally {
+        // Always remove lock file
+        if (fs.existsSync(lockFile)) {
+            fs.unlinkSync(lockFile);
+        }
+    }
+}
+
 module.exports = {
   config: {
     name: "gf",
@@ -25,21 +91,9 @@ module.exports = {
 
   onLoad: async function() {
     try {
-      const dirMaterial = __dirname + `/cache/canvas/`;
-      const imagePath = path.join(__dirname, 'cache/canvas', 'arr2.png');
-      
-      if (!fs.existsSync(dirMaterial)) {
-        fs.mkdirSync(dirMaterial, { recursive: true });
-      }
-      
-      if (!fs.existsSync(imagePath)) {
-        const response = await axios.get("https://i.imgur.com/iaOiAXe.jpeg", {
-          responseType: 'arraybuffer'
-        });
-        fs.writeFileSync(imagePath, Buffer.from(response.data, 'binary'));
-      }
+        await downloadBaseImageWithRetry();
     } catch (error) {
-      console.error("Failed to download background image:", error);
+        console.error("Failed to load base image after all retries:", error);
     }
   },
 
@@ -62,9 +116,14 @@ module.exports = {
       const two = mention[0];
       const __root = path.join(__dirname, "cache", "canvas");
 
+      // Ensure base image exists before proceeding
+      const background = path.join(__root, `arr2.png`);
+      if (!fs.existsSync(background)) {
+          await downloadBaseImageWithRetry();
+      }
+
       let avatarOne = path.join(__root, `avt_${one}.png`);
       let avatarTwo = path.join(__root, `avt_${two}.png`);
-      let background = path.join(__root, `arr2.png`);
       
       // Download avatars
       let downloadAvatar = async (userId, filePath) => {
