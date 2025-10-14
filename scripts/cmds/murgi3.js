@@ -1,7 +1,7 @@
 module.exports = {
     config: {
         name: "murgi3",
-        aliases: ["interactive2", "funsequence"],
+        aliases: [],
         version: "1.0.2",
         role: 2,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
