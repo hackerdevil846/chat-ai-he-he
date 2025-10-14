@@ -6,7 +6,7 @@ const cloudscraper = require("cloudscraper");
 module.exports = {
     config: {
         name: "imagesearch",
-        aliases: ["imgsearch", "picsearch"],
+        aliases: [],
         version: "2.0.1",
         author: "Asif Mahmud",
         countDown: 10,
