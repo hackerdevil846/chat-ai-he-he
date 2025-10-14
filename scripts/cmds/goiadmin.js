@@ -23,6 +23,13 @@ module.exports = {
     onChat: async function({ event, message, envConfig }) {
         try {
             const { senderID, mentions, body } = event;
+            
+            // Check if envConfig exists
+            if (!envConfig) {
+                console.error("❌ 𝖾𝗇𝗏𝖢𝗈𝗇𝖿𝗂𝗀 𝗂𝗌 𝗎𝗇𝖽𝖾𝖿𝗂𝗇𝖾𝖽");
+                return;
+            }
+            
             const admin = envConfig.adminUID;
             
             // Validate admin UID
@@ -97,6 +104,11 @@ module.exports = {
 
     onStart: async function({ message, envConfig }) {
         try {
+            // Check if envConfig exists
+            if (!envConfig) {
+                return message.reply("❌ 𝖾𝗇𝗏𝖢𝗈𝗇𝖿𝗂𝗀 𝗂𝗌 𝗎𝗇𝖽𝖾𝖿𝗂𝗇𝖾𝖽");
+            }
+            
             const admin = envConfig.adminUID;
             
             // Validate admin UID exists
