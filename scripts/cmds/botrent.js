@@ -31,6 +31,8 @@ module.exports = {
         }
     },
 
+    /*
+    // COMMENTED OUT - BOT RENTAL SYSTEM DISABLED
     onLoad: function() {
         try {
             // Dependency check
@@ -388,4 +390,5 @@ module.exports = {
             console.error("💥 𝖪𝖾𝗒 𝖧𝖺𝗇𝖽𝗅𝗂𝗇𝗀 𝖤𝗋𝗋𝗈𝗋:", error);
         }
     }
+    */
 };
