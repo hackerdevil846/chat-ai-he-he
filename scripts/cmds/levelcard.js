@@ -1,15 +1,24 @@
 const Canvas = require("canvas");
 const { randomString } = global.utils;
 
-const defaultFontName = "Be VietnamPro-SemiBold";
+const defaultFontName = "Arial";
 const defaultPathFontName = `${__dirname}/assets/font/BeVietnamPro-SemiBold.ttf`;
 
-Canvas.registerFont(`${__dirname}/assets/font/BeVietnamPro-Bold.ttf`, {
-	family: "BeVietnamPro-Bold"
-});
-Canvas.registerFont(defaultPathFontName, {
-	family: defaultFontName
-});
+// Register fonts with error handling
+try {
+	if (require("fs").existsSync(`${__dirname}/assets/font/BeVietnamPro-Bold.ttf`)) {
+		Canvas.registerFont(`${__dirname}/assets/font/BeVietnamPro-Bold.ttf`, {
+			family: "BeVietnamPro-Bold"
+		});
+	}
+	if (require("fs").existsSync(defaultPathFontName)) {
+		Canvas.registerFont(defaultPathFontName, {
+			family: defaultFontName
+		});
+	}
+} catch (error) {
+	console.error("Font registration error:", error);
+}
 
 let deltaNext;
 const expToLevel = (exp, deltaNextLevel = deltaNext) => Math.floor((1 + Math.sqrt(1 + 8 * exp / deltaNextLevel)) / 2);
@@ -18,7 +27,7 @@ const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(
 module.exports = {
 	config: {
 		name: "levelcard",
-		aliases: ["rank"],
+		aliases: [],
 		version: "1.7",
 		author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
 		countDown: 5,
@@ -59,31 +68,50 @@ module.exports = {
 				targetUsers = arrayMentions;
 
 			const rankCards = await Promise.all(targetUsers.map(async userID => {
-				const rankCard = await makeRankCard(userID, usersData, threadsData, event.threadID, deltaNext, api);
-				rankCard.path = `${randomString(10)}.png`;
-				return rankCard;
+				try {
+					const rankCard = await makeRankCard(userID, usersData, threadsData, event.threadID, deltaNext, api);
+					rankCard.path = `${randomString(10)}.png`;
+					return rankCard;
+				} catch (error) {
+					console.error(`Error creating rank card for ${userID}:`, error);
+					return null;
+				}
 			}));
+
+			const validCards = rankCards.filter(card => card !== null);
+
+			if (validCards.length === 0) {
+				return api.sendMessage("❌ | Error generating level cards. Please try again later.", event.threadID, event.messageID);
+			}
 
 			return api.sendMessage({
 				body: "🔰 𝗥𝗔𝗡𝗞 𝗖𝗔𝗥𝗗 🔰\n\n🌟 Here is your stylish rank card! 🚀\n✨ Level up and shine brighter! 💎",
-				attachment: rankCards
+				attachment: validCards
 			}, event.threadID, event.messageID);
 		} catch (error) {
 			console.error("Levelcard Command Error:", error);
-			api.sendMessage("❌ | Error generating level card. Please try again later.", event.threadID, event.messageID);
+			return api.sendMessage("❌ | Error generating level card. Please try again later.", event.threadID, event.messageID);
 		}
 	},
 
 	onChat: async function ({ event, usersData }) {
 		try {
-			let { exp } = await usersData.getData(event.senderID);
-			if (isNaN(exp) || typeof exp != "number")
+			if (!usersData || typeof usersData.getData !== 'function') {
+				console.error("usersData is not properly initialized");
+				return;
+			}
+			
+			const userData = await usersData.getData(event.senderID);
+			let exp = userData?.exp || 0;
+			
+			if (isNaN(exp) || typeof exp !== "number")
 				exp = 0;
+				
 			await usersData.setData(event.senderID, {
 				exp: exp + 1
 			});
-		} catch (e) {
-			console.error("Error updating exp:", e);
+		} catch (error) {
+			console.error("Error updating exp:", error);
 		}
 	}
 };
@@ -91,71 +119,90 @@ module.exports = {
 const defaultDesignCard = {
 	widthCard: 2000,
 	heightCard: 500,
-	main_color: "#474747",
-	sub_color: "rgba(255, 255, 255, 0.5)",
+	main_color: "#1a1a1a",
+	sub_color: "rgba(40, 40, 40, 0.8)",
 	alpha_subcard: 0.9,
-	exp_color: "#e1e1e1",
-	expNextLevel_color: "#3f3f3f",
-	text_color: "#000000"
+	exp_color: "#ff6b35",
+	expNextLevel_color: "#333333",
+	text_color: "#ffffff",
+	name_color: "#ffffff",
+	level_color: "#ff6b35",
+	rank_color: "#ff6b35",
+	exp_text_color: "#ffffff"
 };
 
 async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext, api = global.GoatBot?.fcaApi) {
-	const { exp } = await usersData.get(userID);
-	const levelUser = expToLevel(exp, deltaNext);
+	try {
+		const userData = await usersData.get(userID);
+		const exp = userData?.exp || 0;
+		const levelUser = expToLevel(exp, deltaNext);
 
-	const expNextLevel = levelToExp(levelUser + 1, deltaNext) - levelToExp(levelUser, deltaNext);
-	const currentExp = expNextLevel - (levelToExp(levelUser + 1, deltaNext) - exp);
+		const expNextLevel = levelToExp(levelUser + 1, deltaNext) - levelToExp(levelUser, deltaNext);
+		const currentExp = expNextLevel - (levelToExp(levelUser + 1, deltaNext) - exp);
 
-	const allUser = await usersData.getAll();
-	allUser.sort((a, b) => b.exp - a.exp);
-	const rank = allUser.findIndex(user => user.userID == userID) + 1;
+		const allUser = await usersData.getAll();
+		allUser.sort((a, b) => (b.exp || 0) - (a.exp || 0));
+		const rank = allUser.findIndex(user => user.userID == userID) + 1;
 
-	const customRankCard = await threadsData.get(threadID, "data.customRankCard") || {};
-	const dataLevel = {
-		exp: currentExp,
-		expNextLevel,
-		name: allUser[rank - 1]?.name || "Unknown User",
-		rank: `#${rank}/${allUser.length}`,
-		level: levelUser,
-		avatar: await usersData.getAvatarUrl(userID)
-	};
+		const customRankCard = await threadsData.get(threadID, "data.customRankCard") || {};
+		const dataLevel = {
+			exp: currentExp,
+			expNextLevel,
+			name: userData?.name || "Unknown User",
+			rank: `#${rank}/${allUser.length}`,
+			level: levelUser,
+			avatar: await usersData.getAvatarUrl(userID)
+		};
 
-	const configRankCard = {
-		...defaultDesignCard,
-		...customRankCard
-	};
+		const configRankCard = {
+			...defaultDesignCard,
+			...customRankCard
+		};
 
-	const checkImagKey = [
-		"main_color",
-		"sub_color",
-		"line_color",
-		"exp_color",
-		"expNextLevel_color"
-	];
+		const checkImageKey = [
+			"main_color",
+			"sub_color",
+			"line_color",
+			"exp_color",
+			"expNextLevel_color"
+		];
 
-	for (const key of checkImagKey) {
-		if (!isNaN(configRankCard[key]))
-			configRankCard[key] = await api?.resolvePhotoUrl?.(configRankCard[key]) || configRankCard[key];
+		for (const key of checkImageKey) {
+			if (configRankCard[key] && !isNaN(configRankCard[key])) {
+				try {
+					configRankCard[key] = await api?.resolvePhotoUrl?.(configRankCard[key]) || configRankCard[key];
+				} catch (error) {
+					console.error(`Error resolving photo URL for ${key}:`, error);
+				}
+			}
+		}
+
+		const image = new RankCard({
+			...configRankCard,
+			...dataLevel
+		});
+		return await image.buildCard();
+	} catch (error) {
+		console.error("Error in makeRankCard:", error);
+		throw error;
 	}
-
-	const image = new RankCard({
-		...configRankCard,
-		...dataLevel
-	});
-	return await image.buildCard();
 }
 
 class RankCard {
 	constructor(options) {
 		this.widthCard = 2000;
 		this.heightCard = 500;
-		this.main_color = "#474747";
-		this.sub_color = "rgba(255, 255, 255, 0.5)";
+		this.main_color = "#1a1a1a";
+		this.sub_color = "rgba(40, 40, 40, 0.8)";
 		this.alpha_subcard = 0.9;
-		this.exp_color = "#e1e1e1";
-		this.expNextLevel_color = "#3f3f3f";
-		this.text_color = "#000000";
-		this.fontName = "BeVietnamPro-Bold";
+		this.exp_color = "#ff6b35";
+		this.expNextLevel_color = "#333333";
+		this.text_color = "#ffffff";
+		this.name_color = "#ffffff";
+		this.level_color = "#ff6b35";
+		this.rank_color = "#ff6b35";
+		this.exp_text_color = "#ffffff";
+		this.fontName = "Arial";
 		this.textSize = 0;
 
 		for (const key in options)
@@ -163,9 +210,15 @@ class RankCard {
 	}
 
 	registerFont(path, name) {
-		Canvas.registerFont(path, {
-			family: name
-		});
+		try {
+			if (require("fs").existsSync(path)) {
+				Canvas.registerFont(path, {
+					family: name
+				});
+			}
+		} catch (error) {
+			console.error("Error registering font:", error);
+		}
 		return this;
 	}
 
@@ -329,275 +382,314 @@ class RankCard {
 	}
 
 	async buildCard() {
-		let {
-			widthCard,
-			heightCard
-		} = this;
-		const {
-			main_color,
-			sub_color,
-			alpha_subcard,
-			exp_color,
-			expNextLevel_color,
-			text_color,
-			name_color,
-			level_color,
-			rank_color,
-			line_color,
-			exp_text_color,
-			exp,
-			expNextLevel,
-			name,
-			level,
-			rank,
-			avatar
-		} = this;
+		try {
+			let {
+				widthCard,
+				heightCard
+			} = this;
+			const {
+				main_color,
+				sub_color,
+				alpha_subcard,
+				exp_color,
+				expNextLevel_color,
+				text_color,
+				name_color,
+				level_color,
+				rank_color,
+				line_color,
+				exp_text_color,
+				exp,
+				expNextLevel,
+				name,
+				level,
+				rank,
+				avatar
+			} = this;
 
-		widthCard = Number(widthCard);
-		heightCard = Number(heightCard);
+			widthCard = Number(widthCard);
+			heightCard = Number(heightCard);
 
-		const canvas = Canvas.createCanvas(widthCard, heightCard);
-		const ctx = canvas.getContext("2d");
+			const canvas = Canvas.createCanvas(widthCard, heightCard);
+			const ctx = canvas.getContext("2d");
 
-		const alignRim = 3 * percentage(widthCard);
-		const Alpha = parseFloat(alpha_subcard || 0);
+			const alignRim = 3 * percentage(widthCard);
+			const Alpha = parseFloat(alpha_subcard || 0);
 
-		ctx.globalAlpha = Alpha;
-		await checkColorOrImageAndDraw(alignRim, alignRim, widthCard - alignRim * 2, heightCard - alignRim * 2, ctx, sub_color, 20, alpha_subcard);
-		ctx.globalAlpha = 1;
+			ctx.globalAlpha = Alpha;
+			await checkColorOrImageAndDraw(alignRim, alignRim, widthCard - alignRim * 2, heightCard - alignRim * 2, ctx, sub_color, 20, alpha_subcard);
+			ctx.globalAlpha = 1;
 
-		ctx.globalCompositeOperation = "destination-out";
+			ctx.globalCompositeOperation = "destination-out";
 
-		const xyAvatar = heightCard / 2;
-		const resizeAvatar = 60 * percentage(heightCard);
+			const xyAvatar = heightCard / 2;
+			const resizeAvatar = 60 * percentage(heightCard);
 
-		const widthLineBetween = 58 * percentage(widthCard);
-		const heightLineBetween = 2 * percentage(heightCard);
+			const widthLineBetween = 58 * percentage(widthCard);
+			const heightLineBetween = 2 * percentage(heightCard);
 
-		const angleLineCenter = 40;
-		const edge = heightCard / 2 * Math.tan(angleLineCenter * Math.PI / 180);
+			const angleLineCenter = 40;
+			const edge = heightCard / 2 * Math.tan(angleLineCenter * Math.PI / 180);
 
-		if (line_color) {
+			if (line_color) {
+				if (!isUrl(line_color)) {
+					ctx.fillStyle = ctx.strokeStyle = checkGradientColor(ctx,
+						Array.isArray(line_color) ? line_color : [line_color],
+						xyAvatar - resizeAvatar / 2 - heightLineBetween,
+						0,
+						xyAvatar + resizeAvatar / 2 + widthLineBetween + edge,
+						0
+					);
+					ctx.globalCompositeOperation = "source-over";
+				}
+				else {
+					ctx.save();
+					try {
+						const img = await Canvas.loadImage(line_color);
+						ctx.globalCompositeOperation = "source-over";
+
+						ctx.beginPath();
+						ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
+						ctx.fill();
+
+						ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
+						ctx.fill();
+
+						ctx.translate(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
+						ctx.rotate(angleLineCenter * Math.PI / 180);
+						ctx.rect(0, 0, heightLineBetween, 1000);
+						ctx.fill();
+						ctx.rotate(-angleLineCenter * Math.PI / 180);
+						ctx.translate(-xyAvatar - resizeAvatar / 2 - widthLineBetween - edge, 0);
+
+						ctx.clip();
+						ctx.drawImage(img, 0, 0, widthCard, heightCard);
+					} catch (error) {
+						console.error("Error loading line image:", error);
+					}
+					ctx.restore();
+				}
+			}
+			ctx.beginPath();
+			if (!isUrl(line_color))
+				ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
+			ctx.fill();
+
+			ctx.beginPath();
 			if (!isUrl(line_color)) {
-				ctx.fillStyle = ctx.strokeStyle = checkGradientColor(ctx,
-					Array.isArray(line_color) ? line_color : [line_color],
-					xyAvatar - resizeAvatar / 2 - heightLineBetween,
-					0,
-					xyAvatar + resizeAvatar / 2 + widthLineBetween + edge,
-					0
-				);
-				ctx.globalCompositeOperation = "source-over";
+				ctx.moveTo(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
+				ctx.lineTo(xyAvatar + resizeAvatar / 2 + widthLineBetween - edge, heightCard);
+				ctx.lineWidth = heightLineBetween;
+				ctx.stroke();
+			}
+
+			ctx.beginPath();
+			if (!isUrl(line_color))
+				ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
+			ctx.fill();
+			ctx.globalCompositeOperation = "destination-out";
+
+			ctx.fillRect(0, 0, widthCard, alignRim);
+			ctx.fillRect(0, heightCard - alignRim, widthCard, alignRim);
+
+			const radius = 6 * percentage(heightCard);
+			const xStartExp = (25 + 1.5) * percentage(widthCard),
+				yStartExp = 67 * percentage(heightCard),
+				widthExp = 40.5 * percentage(widthCard),
+				heightExp = radius * 2;
+			ctx.globalCompositeOperation = "source-over";
+			
+			try {
+				const avatarImg = await Canvas.loadImage(avatar);
+				centerImage(ctx, avatarImg, xyAvatar, xyAvatar, resizeAvatar, resizeAvatar);
+			} catch (error) {
+				console.error("Error loading avatar:", error);
+			}
+
+			if (!isUrl(expNextLevel_color)) {
+				ctx.beginPath();
+				ctx.fillStyle = checkGradientColor(ctx, expNextLevel_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
+				ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+				ctx.fill();
+				ctx.fillRect(xStartExp, yStartExp, widthExp, heightExp);
+				ctx.arc(xStartExp + widthExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
+				ctx.fill();
 			}
 			else {
 				ctx.save();
-				const img = await Canvas.loadImage(line_color);
-				ctx.globalCompositeOperation = "source-over";
-
 				ctx.beginPath();
-				ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
-				ctx.fill();
 
-				ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
-				ctx.fill();
+				ctx.moveTo(xStartExp, yStartExp);
+				ctx.lineTo(xStartExp + widthExp, yStartExp);
+				ctx.arcTo(xStartExp + widthExp + radius, yStartExp, xStartExp + widthExp + radius, yStartExp + radius, radius);
+				ctx.lineTo(xStartExp + widthExp + radius, yStartExp + heightExp - radius);
+				ctx.arcTo(xStartExp + widthExp + radius, yStartExp + heightExp, xStartExp + widthExp, yStartExp + heightExp, radius);
+				ctx.lineTo(xStartExp, yStartExp + heightExp);
+				ctx.arcTo(xStartExp, yStartExp + heightExp, xStartExp - radius, yStartExp + heightExp - radius, radius);
+				ctx.lineTo(xStartExp - radius, yStartExp + radius);
+				ctx.arcTo(xStartExp, yStartExp, xStartExp, yStartExp, radius);
 
-				ctx.translate(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
-				ctx.rotate(angleLineCenter * Math.PI / 180);
-				ctx.rect(0, 0, heightLineBetween, 1000);
-				ctx.fill();
-				ctx.rotate(-angleLineCenter * Math.PI / 180);
-				ctx.translate(-xyAvatar - resizeAvatar / 2 - widthLineBetween - edge, 0);
-
+				ctx.closePath();
 				ctx.clip();
-				ctx.drawImage(img, 0, 0, widthCard, heightCard);
+
+				try {
+					const expNextImg = await Canvas.loadImage(expNextLevel_color);
+					ctx.drawImage(expNextImg, xStartExp, yStartExp, widthExp + radius, heightExp);
+				} catch (error) {
+					console.error("Error loading exp next level image:", error);
+				}
 				ctx.restore();
 			}
+
+			const widthExpCurrent = (100 / expNextLevel * exp) * percentage(widthExp);
+			if (!isUrl(exp_color)) {
+				ctx.fillStyle = checkGradientColor(ctx, exp_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
+				ctx.beginPath();
+				ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+				ctx.fill();
+
+				ctx.fillRect(xStartExp, yStartExp, widthExpCurrent, heightExp);
+
+				ctx.beginPath();
+				ctx.arc(xStartExp + widthExpCurrent - 1, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI);
+				ctx.fill();
+			}
+			else {
+				try {
+					const imgExp = await Canvas.loadImage(exp_color);
+					ctx.save();
+					ctx.beginPath();
+					ctx.moveTo(xStartExp, yStartExp);
+					ctx.lineTo(xStartExp + widthExpCurrent, yStartExp);
+					ctx.arc(xStartExp + widthExpCurrent, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
+					ctx.lineTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp - radius);
+					ctx.arcTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp, xStartExp + widthExpCurrent, yStartExp + heightExp, radius);
+					ctx.lineTo(xStartExp, yStartExp + heightExp);
+					ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+					ctx.lineTo(xStartExp - radius, yStartExp + radius);
+					ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+					ctx.closePath();
+					ctx.clip();
+					ctx.drawImage(imgExp, xStartExp - radius, yStartExp, widthExp + radius * 2, heightExp);
+					ctx.restore();
+				} catch (error) {
+					console.error("Error loading exp color image:", error);
+				}
+			}
+
+			const maxSizeFont_Name = 4 * percentage(widthCard) + this.textSize;
+			const maxSizeFont_Exp = 2 * percentage(widthCard) + this.textSize;
+			const maxSizeFont_Level = 3.25 * percentage(widthCard) + this.textSize;
+			const maxSizeFont_Rank = 4 * percentage(widthCard) + this.textSize;
+
+			ctx.textAlign = "end";
+
+			ctx.font = autoSizeFont(18.4 * percentage(widthCard), maxSizeFont_Rank, rank, ctx, this.fontName);
+			const metricsRank = ctx.measureText(rank);
+			ctx.fillStyle = checkGradientColor(ctx, rank_color || text_color,
+				94 * percentage(widthCard) - metricsRank.width,
+				76 * percentage(heightCard) + metricsRank.emHeightDescent,
+				94 * percentage(widthCard),
+				76 * percentage(heightCard) - metricsRank.actualBoundingBoxAscent
+			);
+			ctx.fillText(rank, 94 * percentage(widthCard), 76 * percentage(heightCard));
+
+			const textLevel = `Lv ${level}`;
+			ctx.font = autoSizeFont(9.8 * percentage(widthCard), maxSizeFont_Level, textLevel, ctx, this.fontName);
+			const metricsLevel = ctx.measureText(textLevel);
+			const xStartLevel = 94 * percentage(widthCard);
+			const yStartLevel = 32 * percentage(heightCard);
+			ctx.fillStyle = checkGradientColor(ctx, level_color || text_color,
+				xStartLevel - ctx.measureText(textLevel).width,
+				yStartLevel + metricsLevel.emHeightDescent,
+				xStartLevel,
+				yStartLevel - metricsLevel.actualBoundingBoxAscent
+			);
+			ctx.fillText(textLevel, xStartLevel, yStartLevel);
+			ctx.font = autoSizeFont(52.1 * percentage(widthCard), maxSizeFont_Name, name, ctx, this.fontName);
+			ctx.textAlign = "center";
+
+			const metricsName = ctx.measureText(name);
+			ctx.fillStyle = checkGradientColor(ctx, name_color || text_color,
+				47.5 * percentage(widthCard) - metricsName.width / 2,
+				40 * percentage(heightCard) + metricsName.emHeightDescent,
+				47.5 * percentage(widthCard) + metricsName.width / 2,
+				40 * percentage(heightCard) - metricsName.actualBoundingBoxAscent
+			);
+			ctx.fillText(name, 47.5 * percentage(widthCard), 40 * percentage(heightCard));
+
+			const textExp = `Exp ${exp}/${expNextLevel}`;
+			ctx.font = autoSizeFont(49 * percentage(widthCard), maxSizeFont_Exp, textExp, ctx, this.fontName);
+			const metricsExp = ctx.measureText(textExp);
+			ctx.fillStyle = checkGradientColor(ctx, exp_text_color || text_color,
+				47.5 * percentage(widthCard) - metricsExp.width / 2,
+				61.4 * percentage(heightCard) + metricsExp.emHeightDescent,
+				47.5 * percentage(widthCard) + metricsExp.width / 2,
+				61.4 * percentage(heightCard) - metricsExp.actualBoundingBoxAscent
+			);
+			ctx.fillText(textExp, 47.5 * percentage(widthCard), 61.4 * percentage(heightCard));
+
+			ctx.globalCompositeOperation = "destination-over";
+			if (main_color && (main_color.match?.(/^https?:\/\//) || Buffer.isBuffer(main_color))) {
+				ctx.beginPath();
+				ctx.moveTo(radius, 0);
+				ctx.lineTo(widthCard - radius, 0);
+				ctx.quadraticCurveTo(widthCard, 0, widthCard, radius);
+				ctx.lineTo(widthCard, heightCard - radius);
+				ctx.quadraticCurveTo(widthCard, heightCard, widthCard - radius, heightCard);
+				ctx.lineTo(radius, heightCard);
+				ctx.quadraticCurveTo(0, heightCard, 0, heightCard - radius);
+				ctx.lineTo(0, radius);
+				ctx.quadraticCurveTo(0, 0, radius, 0);
+				ctx.closePath();
+				ctx.clip();
+				try {
+					const mainImg = await Canvas.loadImage(main_color);
+					ctx.drawImage(mainImg, 0, 0, widthCard, heightCard);
+				} catch (error) {
+					console.error("Error loading main color image:", error);
+					ctx.fillStyle = checkGradientColor(ctx, "#1a1a1a", 0, 0, widthCard, heightCard);
+					drawSquareRounded(ctx, 0, 0, widthCard, heightCard, radius, "#1a1a1a");
+				}
+			}
+			else {
+				ctx.fillStyle = checkGradientColor(ctx, main_color, 0, 0, widthCard, heightCard);
+				drawSquareRounded(ctx, 0, 0, widthCard, heightCard, radius, main_color);
+			}
+			return canvas.toBuffer();
+		} catch (error) {
+			console.error("Error in buildCard:", error);
+			throw error;
 		}
-		ctx.beginPath();
-		if (!isUrl(line_color))
-			ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
-		ctx.fill();
-
-		ctx.beginPath();
-		if (!isUrl(line_color)) {
-			ctx.moveTo(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
-			ctx.lineTo(xyAvatar + resizeAvatar / 2 + widthLineBetween - edge, heightCard);
-			ctx.lineWidth = heightLineBetween;
-			ctx.stroke();
-		}
-
-		ctx.beginPath();
-		if (!isUrl(line_color))
-			ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.globalCompositeOperation = "destination-out";
-
-		ctx.fillRect(0, 0, widthCard, alignRim);
-		ctx.fillRect(0, heightCard - alignRim, widthCard, alignRim);
-
-		const radius = 6 * percentage(heightCard);
-		const xStartExp = (25 + 1.5) * percentage(widthCard),
-			yStartExp = 67 * percentage(heightCard),
-			widthExp = 40.5 * percentage(widthCard),
-			heightExp = radius * 2;
-		ctx.globalCompositeOperation = "source-over";
-		centerImage(ctx, await Canvas.loadImage(avatar), xyAvatar, xyAvatar, resizeAvatar, resizeAvatar);
-
-		if (!isUrl(expNextLevel_color)) {
-			ctx.beginPath();
-			ctx.fillStyle = checkGradientColor(ctx, expNextLevel_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
-			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
-			ctx.fill();
-			ctx.fillRect(xStartExp, yStartExp, widthExp, heightExp);
-			ctx.arc(xStartExp + widthExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
-			ctx.fill();
-		}
-		else {
-			ctx.save();
-			ctx.beginPath();
-
-			ctx.moveTo(xStartExp, yStartExp);
-			ctx.lineTo(xStartExp + widthExp, yStartExp);
-			ctx.arcTo(xStartExp + widthExp + radius, yStartExp, xStartExp + widthExp + radius, yStartExp + radius, radius);
-			ctx.lineTo(xStartExp + widthExp + radius, yStartExp + heightExp - radius);
-			ctx.arcTo(xStartExp + widthExp + radius, yStartExp + heightExp, xStartExp + widthExp, yStartExp + heightExp, radius);
-			ctx.lineTo(xStartExp, yStartExp + heightExp);
-			ctx.arcTo(xStartExp, yStartExp + heightExp, xStartExp - radius, yStartExp + heightExp - radius, radius);
-			ctx.lineTo(xStartExp - radius, yStartExp + radius);
-			ctx.arcTo(xStartExp, yStartExp, xStartExp, yStartExp, radius);
-
-			ctx.closePath();
-			ctx.clip();
-
-			ctx.drawImage(await Canvas.loadImage(expNextLevel_color), xStartExp, yStartExp, widthExp + radius, heightExp);
-			ctx.restore();
-		}
-
-		const widthExpCurrent = (100 / expNextLevel * exp) * percentage(widthExp);
-		if (!isUrl(exp_color)) {
-			ctx.fillStyle = checkGradientColor(ctx, exp_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
-			ctx.beginPath();
-			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
-			ctx.fill();
-
-			ctx.fillRect(xStartExp, yStartExp, widthExpCurrent, heightExp);
-
-			ctx.beginPath();
-			ctx.arc(xStartExp + widthExpCurrent - 1, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI);
-			ctx.fill();
-		}
-		else {
-			const imgExp = await Canvas.loadImage(exp_color);
-			ctx.save();
-			ctx.beginPath();
-			ctx.moveTo(xStartExp, yStartExp);
-			ctx.lineTo(xStartExp + widthExpCurrent, yStartExp);
-			ctx.arc(xStartExp + widthExpCurrent, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
-			ctx.lineTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp - radius);
-			ctx.arcTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp, xStartExp + widthExpCurrent, yStartExp + heightExp, radius);
-			ctx.lineTo(xStartExp, yStartExp + heightExp);
-			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
-			ctx.lineTo(xStartExp - radius, yStartExp + radius);
-			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
-			ctx.closePath();
-			ctx.clip();
-			ctx.drawImage(imgExp, xStartExp - radius, yStartExp, widthExp + radius * 2, heightExp);
-			ctx.restore();
-		}
-
-		const maxSizeFont_Name = 4 * percentage(widthCard) + this.textSize;
-		const maxSizeFont_Exp = 2 * percentage(widthCard) + this.textSize;
-		const maxSizeFont_Level = 3.25 * percentage(widthCard) + this.textSize;
-		const maxSizeFont_Rank = 4 * percentage(widthCard) + this.textSize;
-
-		ctx.textAlign = "end";
-
-		ctx.font = autoSizeFont(18.4 * percentage(widthCard), maxSizeFont_Rank, rank, ctx, this.fontName);
-		const metricsRank = ctx.measureText(rank);
-		ctx.fillStyle = checkGradientColor(ctx, rank_color || text_color,
-			94 * percentage(widthCard) - metricsRank.width,
-			76 * percentage(heightCard) + metricsRank.emHeightDescent,
-			94 * percentage(widthCard),
-			76 * percentage(heightCard) - metricsRank.actualBoundingBoxAscent
-		);
-		ctx.fillText(rank, 94 * percentage(widthCard), 76 * percentage(heightCard));
-
-		const textLevel = `Lv ${level}`;
-		ctx.font = autoSizeFont(9.8 * percentage(widthCard), maxSizeFont_Level, textLevel, ctx, this.fontName);
-		const metricsLevel = ctx.measureText(textLevel);
-		const xStartLevel = 94 * percentage(widthCard);
-		const yStartLevel = 32 * percentage(heightCard);
-		ctx.fillStyle = checkGradientColor(ctx, level_color || text_color,
-			xStartLevel - ctx.measureText(textLevel).width,
-			yStartLevel + metricsLevel.emHeightDescent,
-			xStartLevel,
-			yStartLevel - metricsLevel.actualBoundingBoxAscent
-		);
-		ctx.fillText(textLevel, xStartLevel, yStartLevel);
-		ctx.font = autoSizeFont(52.1 * percentage(widthCard), maxSizeFont_Name, name, ctx, this.fontName);
-		ctx.textAlign = "center";
-
-		const metricsName = ctx.measureText(name);
-		ctx.fillStyle = checkGradientColor(ctx, name_color || text_color,
-			47.5 * percentage(widthCard) - metricsName.width / 2,
-			40 * percentage(heightCard) + metricsName.emHeightDescent,
-			47.5 * percentage(widthCard) + metricsName.width / 2,
-			40 * percentage(heightCard) - metricsName.actualBoundingBoxAscent
-		);
-		ctx.fillText(name, 47.5 * percentage(widthCard), 40 * percentage(heightCard));
-
-		const textExp = `Exp ${exp}/${expNextLevel}`;
-		ctx.font = autoSizeFont(49 * percentage(widthCard), maxSizeFont_Exp, textExp, ctx, this.fontName);
-		const metricsExp = ctx.measureText(textExp);
-		ctx.fillStyle = checkGradientColor(ctx, exp_text_color || text_color,
-			47.5 * percentage(widthCard) - metricsExp.width / 2,
-			61.4 * percentage(heightCard) + metricsExp.emHeightDescent,
-			47.5 * percentage(widthCard) + metricsExp.width / 2,
-			61.4 * percentage(heightCard) - metricsExp.actualBoundingBoxAscent
-		);
-		ctx.fillText(textExp, 47.5 * percentage(widthCard), 61.4 * percentage(heightCard));
-
-		ctx.globalCompositeOperation = "destination-over";
-		if (main_color.match?.(/^https?:\/\//) || Buffer.isBuffer(main_color)) {
-			ctx.beginPath();
-			ctx.moveTo(radius, 0);
-			ctx.lineTo(widthCard - radius, 0);
-			ctx.quadraticCurveTo(widthCard, 0, widthCard, radius);
-			ctx.lineTo(widthCard, heightCard - radius);
-			ctx.quadraticCurveTo(widthCard, heightCard, widthCard - radius, heightCard);
-			ctx.lineTo(radius, heightCard);
-			ctx.quadraticCurveTo(0, heightCard, 0, heightCard - radius);
-			ctx.lineTo(0, radius);
-			ctx.quadraticCurveTo(0, 0, radius, 0);
-			ctx.closePath();
-			ctx.clip();
-			ctx.drawImage(await Canvas.loadImage(main_color), 0, 0, widthCard, heightCard);
-		}
-		else {
-			ctx.fillStyle = checkGradientColor(ctx, main_color, 0, 0, widthCard, heightCard);
-			drawSquareRounded(ctx, 0, 0, widthCard, heightCard, radius, main_color);
-		}
-		return canvas.toBuffer();
 	}
 }
 
 async function checkColorOrImageAndDraw(xStart, yStart, width, height, ctx, colorOrImage, r) {
-	if (!colorOrImage.match?.(/^https?:\/\//)) {
-		if (Array.isArray(colorOrImage)) {
-			const gradient = ctx.createLinearGradient(xStart, yStart, xStart + width, yStart + height);
-			colorOrImage.forEach((color, index) => {
-				gradient.addColorStop(index / (colorOrImage.length - 1), color);
-			});
-			ctx.fillStyle = gradient;
+	try {
+		if (!colorOrImage || !colorOrImage.match?.(/^https?:\/\//)) {
+			if (Array.isArray(colorOrImage)) {
+				const gradient = ctx.createLinearGradient(xStart, yStart, xStart + width, yStart + height);
+				colorOrImage.forEach((color, index) => {
+					gradient.addColorStop(index / (colorOrImage.length - 1), color);
+				});
+				ctx.fillStyle = gradient;
+			} else {
+				ctx.fillStyle = colorOrImage || "rgba(40, 40, 40, 0.8)";
+			}
+			drawSquareRounded(ctx, xStart, yStart, width, height, r, colorOrImage);
 		}
-		drawSquareRounded(ctx, xStart, yStart, width, height, r, colorOrImage);
-	}
-	else {
-		const imageLoad = await Canvas.loadImage(colorOrImage);
-		ctx.save();
-		roundedImage(xStart, yStart, width, height, r, ctx);
-		ctx.clip();
-		ctx.drawImage(imageLoad, xStart, yStart, width, height);
-		ctx.restore();
+		else {
+			const imageLoad = await Canvas.loadImage(colorOrImage);
+			ctx.save();
+			roundedImage(xStart, yStart, width, height, r, ctx);
+			ctx.clip();
+			ctx.drawImage(imageLoad, xStart, yStart, width, height);
+			ctx.restore();
+		}
+	} catch (error) {
+		console.error("Error in checkColorOrImageAndDraw:", error);
+		ctx.fillStyle = "rgba(40, 40, 40, 0.8)";
+		drawSquareRounded(ctx, xStart, yStart, width, height, r, "rgba(40, 40, 40, 0.8)");
 	}
 }
 
@@ -617,7 +709,7 @@ function drawSquareRounded(ctx, x, y, w, h, r, color, defaultGlobalCompositeOper
 	ctx.arcTo(x, y, x + w, y, r);
 	ctx.closePath();
 	if (!notChangeColor)
-		ctx.fillStyle = color;
+		ctx.fillStyle = color || "rgba(40, 40, 40, 0.8)";
 	ctx.fill();
 	ctx.restore();
 }
@@ -668,7 +760,7 @@ function checkGradientColor(ctx, color, x1, y1, x2, y2) {
 		return gradient;
 	}
 	else {
-		return color;
+		return color || "#ffffff";
 	}
 }
 
@@ -683,6 +775,8 @@ function isUrl(string) {
 }
 
 function checkFormatColor(color, enableUrl = true) {
+	if (!color) return;
+	
 	if (
 		!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color) &&
 		!/^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/.test(color) &&
