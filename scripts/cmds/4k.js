@@ -247,7 +247,7 @@ module.exports = {
                 );
             }
 
-            const waitMsg = await message.reply("🖼️ Enhancing your image to 4K... (Using Open-Source Real-ESRGAN). Please wait.");
+            const waitMsg = await message.reply("🖼️ Enhancing your image to 4K.... Please wait.");
 
             try {
                 console.log("🚀 Starting upscale process with Open-Source APIs...");
@@ -311,7 +311,7 @@ module.exports = {
                 console.log(`✅ Image enhanced successfully (${(stats.size / 1024 / 1024).toFixed(2)}MB)`);
 
                 await message.reply({
-                    body: "✅ Image enhanced to 4K successfully! (Using Real-ESRGAN Open-Source Model)",
+                    body: "✅ Image enhanced to 4K successfully!",
                     attachment: fs.createReadStream(tempPath)
                 });
 
