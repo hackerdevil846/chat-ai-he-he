@@ -17,7 +17,7 @@ module.exports = {
         },
         category: "fun",
         guide: {
-            en: "𝖩𝗎𝗌𝗍 𝗍𝗒𝗉𝖾 '𝗍𝖾𝖺', '𝖼𝗁𝖺𝗂', 𝗈𝗋 '𝖼𝗁𝖺' 𝗂𝗇 𝖼𝗁𝖺𝗍"
+            en: "𝖩𝗎𝗌𝗍 𝗍𝗒𝗉𝖾 '𝗍𝖾𝖺' 𝗈𝗋 'চা' 𝗂𝗇 𝖼𝗁𝖺𝗍"
         },
         dependencies: {
             "fs": "",
@@ -42,7 +42,7 @@ module.exports = {
                 return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌 𝖺𝗇𝖽 𝗉𝖺𝗍𝗁.");
             }
 
-            return message.reply("☕ | 𝖳𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗐𝗁𝖾𝗇 𝗒𝗈𝗎 𝗍𝗒𝗉𝖾 '𝗍𝖾𝖺', '𝖼𝗁𝖺𝗂', 𝗈𝗋 '𝖼𝗁𝖺' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍!");
+            return message.reply("☕ | 𝖳𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗐𝗁𝖾𝗇 𝗒𝗈𝗎 𝗍𝗒𝗉𝖾 '𝗍𝖾𝖺' 𝗈𝗋 'চা' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍!");
         } catch (error) {
             console.error("💥 𝖳𝖾𝖺 𝖮𝗇𝖲𝗍𝖺𝗋𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
         }
@@ -73,15 +73,13 @@ module.exports = {
                 return;
             }
 
-            const triggers = ["tea", "chai", "cha", "té", "chay"];
             const messageText = body.toLowerCase().trim();
             
-            // Check if any trigger word is in the message
-            const hasTrigger = triggers.some(trigger => 
-                messageText.includes(trigger.toLowerCase())
-            );
-
-            if (!hasTrigger) {
+            // Check for EXACT matches only - no partial matching
+            const isTeaTrigger = messageText === "tea";
+            const isChaTrigger = messageText === "চা";
+            
+            if (!isTeaTrigger && !isChaTrigger) {
                 return;
             }
 
@@ -96,7 +94,7 @@ module.exports = {
                     
                     // Send text response if file doesn't exist
                     await message.reply({
-                        body: "☕ | 𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 ☕\n\n❌ 𝖵𝗂𝖽𝖾𝗈 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾"
+                        body: "𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 tea ☕\nচল এক কাপ চা খাই"
                     });
                     return;
                 }
@@ -116,7 +114,7 @@ module.exports = {
                 }
 
                 const msg = {
-                    body: "☕ | 𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 ☕",
+                    body: "𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 tea ☕\nচল এক কাপ চা খাই",
                     attachment: fs.createReadStream(teaVideoPath)
                 };
                 
@@ -126,7 +124,7 @@ module.exports = {
                 
                 // Add reaction with error handling
                 try {
-                    await api.setMessageReaction("🫖", messageID, (err) => {
+                    await api.setMessageReaction("☕", messageID, (err) => {
                         if (err) {
                             console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗌𝖾𝗍 𝗋𝖾𝖺𝖼𝗍𝗂𝗈𝗇:", err.message);
                         }
@@ -141,7 +139,7 @@ module.exports = {
                 // Fallback: send text-only response
                 try {
                     await message.reply({
-                        body: "☕ | 𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 ☕\n\n✨ 𝖳𝖾𝖺 𝗍𝗂𝗆𝖾! (𝗏𝗂𝖽𝖾𝗈 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾)"
+                        body: "𝖺𝗂𝗂 𝗅𝗈 𝖻𝖺𝖻𝗒 tea ☕\nচল এক কাপ চা খাই\n\n✨ (𝗏𝗂𝖽𝖾𝗈 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾)"
                     });
                 } catch (fallbackError) {
                     console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗇𝖽 𝖿𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", fallbackError.message);
