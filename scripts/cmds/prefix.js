@@ -1,218 +1,218 @@
 const fs = require("fs-extra");
-const path = require("path");
+const { utils } = global;
 
 module.exports = {
   config: {
     name: "prefix",
-    aliases: [],
-    version: "1.8",
-    author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+    aliases: ["setprefix"],
+    version: "1.5",
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
-    description: "𝖡𝗈𝗍𝖾𝗋 𝗉𝗋𝖾𝖿𝗂𝗑 𝗉𝖺𝗋𝗂𝖻𝖺𝗋𝗍𝖺𝗇 𝗄𝗈𝗋𝗎𝗇 𝗌𝗎𝗇𝖽𝗈𝗋 𝖽𝖾𝗌𝗂𝗀𝗇",
-    category: "⚙️ 𝖢𝗈𝗇𝖿𝗂𝗀𝗎𝗋𝖺𝗍𝗂𝗈𝗇",
+    description: "Change the bot prefix in your chat box or globally (admin only)",
+    category: "⚙️ Configuration",
     guide: {
-      en: `
-╭───────『 ✧  𝖯𝖱𝖤𝖥𝖨𝖷 𝖦𝖴𝖨𝖣𝖤  ✧ 』───────╮
-│
-│ ✦ {𝗉} <𝗇𝖾𝗐 𝗉𝗋𝖾𝖿𝗂𝗑>
-│     𝖤𝗂 𝖼𝗁𝖺𝗍 𝖾𝗋 𝗃𝗈𝗇𝗇𝗈 𝗉𝗋𝖾𝖿𝗂𝗑 𝗌𝖾𝗍 𝗄𝗈𝗋𝗎𝗇
-│     𝖴𝖽𝖺𝗁𝖺𝗋𝖺𝗇: {𝗉} $
-│
-│ ✦ {𝗉} <𝗇𝖾𝗐 𝗉𝗋𝖾𝖿𝗂𝗑> -𝗀
-│     𝖦𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑 𝗌𝖾𝗍 𝗄𝗈𝗋𝗎𝗇 (𝖠𝖽𝗆𝗂𝗇 𝖽𝖾𝗋 𝗃𝗈𝗇𝗇𝗈)
-│     𝖴𝖽𝖺𝗁𝖺𝗋𝖺𝗇: {𝗉} $ -𝗀
-│
-│ ♻️ {𝗉} 𝗋𝖾𝗌𝖾𝗍
-│     𝖣𝖾𝖿𝖺𝗎𝗅𝗍 𝗉𝗋𝖾𝖿𝗂𝗑 𝖾 𝗋𝖾𝗌𝖾𝗍 𝗄𝗈𝗋𝗎𝗇
-│
-╰───────────────────────╯`
-    },
-    dependencies: {
-      "fs-extra": ""
+      en:
+        "┌─『 Prefix Settings 』─┐\n"
+      + "│\n"
+      + "│ 🔹 {pn} <prefix>\n"
+      + "│     Set prefix for this chat\n"
+      + "│     Example: {pn} $\n"
+      + "│\n"
+      + "│ 🔹 {pn} <prefix> -g\n"
+      + "│     Set global prefix (Admin only)\n"
+      + "│     Example: {pn} $ -g\n"
+      + "│\n"
+      + "│ ♻️ {pn} reset\n"
+      + "│     Reset to default prefix\n"
+      + "│\n"
+      + "└──────────────────────┘"
     }
   },
 
-  onStart: async function ({ message, event, args, threadsData, role, api }) {
-    try {
-      // Dependency check
-      let fsAvailable = true;
-      try {
-        require("fs-extra");
-      } catch (e) {
-        fsAvailable = false;
-      }
-
-      if (!fsAvailable) {
-        return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
-      }
-
-      const { threadID } = event;
-      
-      if (!args[0]) {
-        return this.showPrefix(message, threadID, threadsData);
-      }
-
-      if (args[0] === "reset") {
-        try {
-          await threadsData.set(threadID, "", "data.prefix");
-          console.log(`✅ 𝖯𝗋𝖾𝖿𝗂𝗑 𝗋𝖾𝗌𝖾𝗍 𝖿𝗈𝗋 𝗍𝗁𝗋𝖾𝖺𝖽 ${threadID}`);
-          return message.reply(this.getLang("reset", global.config.PREFIX));
-        } catch (resetError) {
-          console.error("𝖯𝗋𝖾𝖿𝗂𝗑 𝗋𝖾𝗌𝖾𝗍 𝖾𝗋𝗋𝗈𝗋:", resetError);
-          return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗋𝖾𝗌𝖾𝗍 𝗉𝗋𝖾𝖿𝗂𝗑. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
-        }
-      }
-
-      const newPrefix = args[0].trim();
-      const setGlobal = args[1] === "-g";
-
-      // Validate prefix
-      if (newPrefix.length > 5) {
-        return message.reply("❌ 𝖯𝗋𝖾𝖿𝗂𝗑 𝗍𝗈𝗈 𝗅𝗈𝗇𝗀! 𝖬𝖺𝗑𝗂𝗆𝗎𝗆 5 𝖼𝗁𝖺𝗋𝖺𝖼𝗍𝖾𝗋𝗌 𝖺𝗅𝗅𝗈𝗐𝖾𝖽.");
-      }
-
-      if (newPrefix.includes(' ') || newPrefix.includes('\n')) {
-        return message.reply("❌ 𝖯𝗋𝖾𝖿𝗂𝗑 𝖼𝖺𝗇𝗇𝗈𝗍 𝖼𝗈𝗇𝗍𝖺𝗂𝗇 𝗌𝗉𝖺𝖼𝖾𝗌 𝗈𝗋 𝗇𝖾𝗐 𝗅𝗂𝗇𝖾𝗌.");
-      }
-
-      if (setGlobal) {
-        if (role < 2) {
-          return message.reply(this.getLang("onlyAdmin"));
-        }
-        
-        try {
-          // Backup current config
-          const configBackup = JSON.stringify(global.config, null, 2);
-          
-          // Update global config
-          global.config.PREFIX = newPrefix;
-          
-          // Write to config file
-          fs.writeFileSync(global.client.configPath, JSON.stringify(global.config, null, 2));
-          
-          // Verify the write was successful
-          const verifyConfig = fs.readFileSync(global.client.configPath, 'utf8');
-          const parsedConfig = JSON.parse(verifyConfig);
-          
-          if (parsedConfig.PREFIX !== newPrefix) {
-            // Restore backup if write failed
-            fs.writeFileSync(global.client.configPath, configBackup);
-            throw new Error("𝖢𝗈𝗇𝖿𝗂𝗀 𝗐𝗋𝗂𝗍𝖾 𝗏𝖾𝗋𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 𝖿𝖺𝗂𝗅𝖾𝖽");
-          }
-          
-          console.log(`✅ 𝖦𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑 𝗌𝖾𝗍 𝗍𝗈: ${newPrefix}`);
-          return message.reply(this.getLang("successGlobal", newPrefix));
-        } catch (globalError) {
-          console.error("𝖦𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑 𝖾𝗋𝗋𝗈𝗋:", globalError);
-          return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗀𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
-        }
-      }
-
-      try {
-        await threadsData.set(threadID, newPrefix, "data.prefix");
-        console.log(`✅ 𝖳𝗁𝗋𝖾𝖺𝖽 𝗉𝗋𝖾𝖿𝗂𝗑 𝗌𝖾𝗍 𝗍𝗈: ${newPrefix} 𝖿𝗈𝗋 𝗍𝗁𝗋𝖾𝖺𝖽 ${threadID}`);
-        return message.reply(this.getLang("successThisThread", newPrefix));
-      } catch (threadError) {
-        console.error("𝖳𝗁𝗋𝖾𝖺𝖽 𝗉𝗋𝖾𝖿𝗂𝗑 𝖾𝗋𝗋𝗈𝗋:", threadError);
-        return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗍𝗁𝗋𝖾𝖺𝖽 𝗉𝗋𝖾𝖿𝗂𝗑. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
-      }
-    } catch (error) {
-      console.error("💥 𝖯𝗋𝖾𝖿𝗂𝗑 𝖤𝗋𝗋𝗈𝗋:", error);
-      
-      let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
-      
-      if (error.message.includes('threadsData')) {
-        errorMessage = "❌ 𝖣𝖺𝗍𝖺𝗌𝗍𝗈𝗋𝖾 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗍𝗁𝖾 𝖻𝗈𝗍'𝗌 𝖼𝗈𝗇𝖿𝗂𝗀𝗎𝗋𝖺𝗍𝗂𝗈𝗇.";
-      } else if (error.message.includes('permission')) {
-        errorMessage = "❌ 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝖿𝗂𝗅𝖾 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.";
-      }
-      
-      await message.reply(errorMessage);
+  langs: {
+    en: {
+      reset:
+        "┌─『 Prefix Reset 』─┐\n"
+      + `│ ✅ Reset to default: %1\n`
+      + "└────────────────────┘",
+      onlyAdmin:
+        "┌─『 Permission Denied 』─┐\n"
+      + "│ ⛔ Only bot admins can change global prefix!\n"
+      + "└──────────────────────────┘",
+      confirmGlobal:
+        "┌─『 Global Prefix Change 』─┐\n"
+      + "│ ⚙️ React to confirm global prefix update.\n"
+      + "└────────────────────────────┘",
+      confirmThisThread:
+        "┌─『 Chat Prefix Change 』─┐\n"
+      + "│ ⚙️ React to confirm this chat's prefix update.\n"
+      + "└──────────────────────────┘",
+      successGlobal:
+        "┌─『 Prefix Updated 』─┐\n"
+      + `│ ✅ Global prefix: %1\n`
+      + "└─────────────────────┘",
+      successThisThread:
+        "┌─『 Prefix Updated 』─┐\n"
+      + `│ ✅ Chat prefix: %1\n`
+      + "└─────────────────────┘",
+      myPrefix:
+        "┌─『 Current Prefix 』─┐\n"
+      + `│ 🌍 Global: %1\n`
+      + `│ 💬 This Chat: %2\n`
+      + "│\n"
+      + `│ ➤ Type: %2help\n`
+      + "└─────────────────────┘"
     }
+  },
+
+  onStart: async function ({ message, role, args, commandName, event, threadsData, getLang }) {
+    if (!args[0]) return message.SyntaxError();
+
+    if (args[0] === "reset") {
+      await threadsData.set(event.threadID, null, "data.prefix");
+      return message.reply(getLang("reset", global.GoatBot.config.prefix));
+    }
+
+    const newPrefix = args[0];
+    const formSet = {
+      commandName,
+      author: event.senderID,
+      newPrefix,
+      setGlobal: args[1] === "-g"
+    };
+
+    if (formSet.setGlobal && role < 2) {
+      return message.reply(getLang("onlyAdmin"));
+    }
+
+    const confirmMessage = formSet.setGlobal ? getLang("confirmGlobal") : getLang("confirmThisThread");
+    return message.reply(confirmMessage, (err, info) => {
+      formSet.messageID = info.messageID;
+      global.GoatBot.onReaction.set(info.messageID, formSet);
+    });
+  },
+
+  onReaction: async function ({ message, threadsData, event, Reaction, getLang }) {
+    const { author, newPrefix, setGlobal } = Reaction;
+    if (event.userID !== author) return;
+
+    if (setGlobal) {
+      global.GoatBot.config.prefix = newPrefix;
+      fs.writeFileSync(global.client.dirConfig, JSON.stringify(global.GoatBot.config, null, 2));
+      return message.reply(getLang("successGlobal", newPrefix));
+    }
+
+    await threadsData.set(event.threadID, newPrefix, "data.prefix");
+    return message.reply(getLang("successThisThread", newPrefix));
   },
 
   onChat: async function ({ event, message, threadsData }) {
-    try {
-      if (event.body && event.body.toLowerCase() === "prefix") {
-        await this.showPrefix(message, event.threadID, threadsData);
-      }
-    } catch (error) {
-      console.error("💥 𝖯𝗋𝖾𝖿𝗂𝗑 𝖼𝗁𝖺𝗍 𝗁𝖺𝗇𝖽𝗅𝖾𝗋 𝖾𝗋𝗋𝗈𝗋:", error);
-      // Silent fail to avoid spam
-    }
-  },
+    const memeLinks = [
+      "https://i.imgur.com/zoQxUwC.jpg", "https://i.imgur.com/bXVBasN.jpg", "https://i.imgur.com/E3bMZMM.jpg", 
+      "https://i.imgur.com/pkchwDe.jpg", "https://i.imgur.com/PFV6etU.jpg", "https://i.imgur.com/DLElS0y.jpg", 
+      "https://i.imgur.com/6hufzML.jpg", "https://i.imgur.com/ikevA6M.jpg", "https://i.imgur.com/aGuU2tB.jpg", 
+      "https://i.imgur.com/tsUsL6B.jpg", "https://i.imgur.com/sAUL2X0.jpg", "https://i.imgur.com/fGSX9z3.jpg", 
+      "https://i.imgur.com/TeT8dXA.jpg", "https://i.imgur.com/kCnHvly.jpg", "https://i.imgur.com/wfB1cU7.jpg", 
+      "https://i.imgur.com/dmUAjtN.jpg", "https://i.imgur.com/RqaTxa4.jpg", "https://i.imgur.com/gXFNJGi.jpg", 
+      "https://i.imgur.com/DwDTSsS.jpg", "https://i.imgur.com/BSreuve.jpg", "https://i.imgur.com/B6TOC4a.jpg", 
+      "https://i.imgur.com/S83pmyW.jpg", "https://i.imgur.com/7FNPBkX.jpg", "https://i.imgur.com/SIdbUrD.jpg", 
+      "https://i.imgur.com/ErngTHc.jpg", "https://i.imgur.com/onfBoPC.jpg", "https://i.imgur.com/UVk3zcd.jpg", 
+      "https://i.imgur.com/3aOuDZ9.jpg", "https://i.imgur.com/OHfqttV.jpg", "https://i.imgur.com/aiNRtVF.jpg", 
+      "https://i.imgur.com/rgPnYTJ.jpg", "https://i.imgur.com/YOVZBYH.jpg", "https://i.imgur.com/aiFNcBf.jpg", 
+      "https://i.imgur.com/FbI0kGj.jpg", "https://i.imgur.com/QOMUwDy.jpg", "https://i.imgur.com/UP8wysc.jpg", 
+      "https://i.imgur.com/seb2NbZ.jpg", "https://i.imgur.com/YdcVmTe.jpg", "https://i.imgur.com/WjkPmwu.jpg", 
+      "https://i.imgur.com/z7ZeFky.jpg", "https://i.imgur.com/H8YGlIn.jpg", "https://i.imgur.com/gjCymKq.jpg", 
+      "https://i.imgur.com/4XiF5dQ.jpg", "https://i.imgur.com/Nd5nrJW.jpg", "https://i.imgur.com/C4f0pdf.jpg", 
+      "https://i.imgur.com/EO0YsOT.jpg", "https://i.imgur.com/dKEAsb9.jpg", "https://i.imgur.com/7zfnhkO.jpg", 
+      "https://i.imgur.com/LrOjwMX.jpg", "https://i.imgur.com/7wAImE3.jpg", "https://i.imgur.com/D8Kzo1X.jpg", 
+      "https://i.imgur.com/VTXRcYo.jpg", "https://i.imgur.com/BcjRdU8.jpg", "https://i.imgur.com/hNb9WCk.jpg", 
+      "https://i.imgur.com/8GM1pn9.jpg", "https://i.imgur.com/SHiXJ0G.jpg", "https://i.imgur.com/0qCoPhR.jpg", 
+      "https://i.imgur.com/IhRr8Gx.jpg", "https://i.imgur.com/eAqbfri.jpg", "https://i.imgur.com/Q6m1EEm.jpg", 
+      "https://i.imgur.com/SzzeFeV.jpg", "https://i.imgur.com/ZfnJQHj.jpg", "https://i.imgur.com/puwolKD.jpg", 
+      "https://i.imgur.com/FQklA6q.jpg", "https://i.imgur.com/SwLufsH.jpg", "https://i.imgur.com/SmOYXY5.jpg", 
+      "https://i.imgur.com/7w3hmYF.jpg", "https://i.imgur.com/TmfIRv5.jpg", "https://i.imgur.com/aBwvOal.jpg", 
+      "https://i.imgur.com/eGIF9B1.jpg", "https://i.imgur.com/hjmok8Q.jpg", "https://i.imgur.com/RrPuRfT.jpg", 
+      "https://i.imgur.com/UzkdFiS.jpg", "https://i.imgur.com/Mn9GMDf.jpg", "https://i.imgur.com/OPZ9857.jpg", 
+      "https://i.imgur.com/ZsHL2Y2.jpg", "https://i.imgur.com/MIG763l.jpg", "https://i.imgur.com/1Zr3rcS.jpg", 
+      "https://i.imgur.com/flMpukD.jpg", "https://i.imgur.com/u1YieFf.jpg", "https://i.imgur.com/nGG1Rq3.jpg", 
+      "https://i.imgur.com/tbXQXmA.jpg", "https://i.imgur.com/2s6oXka.jpg", "https://i.imgur.com/KrAQO5Z.jpg", 
+      "https://i.imgur.com/oCeGlm4.jpg", "https://i.imgur.com/m7dBh5G.jpg", "https://i.imgur.com/gvOK3Rk.jpg", 
+      "https://i.imgur.com/MwvLw2x.jpg", "https://i.imgur.com/WnuiI8E.jpg", "https://i.imgur.com/7mwcaYl.jpg", 
+      "https://i.imgur.com/PwSkA3b.jpg", "https://i.imgur.com/lGUiOWJ.jpg", "https://i.imgur.com/6tILjzR.jpg", 
+      "https://i.imgur.com/s2k6F7b.jpg", "https://i.imgur.com/U8snOes.jpg", "https://i.imgur.com/BEpH4tL.jpg", 
+      "https://i.imgur.com/LYW6vCV.jpg", "https://i.imgur.com/uL4vzUm.jpg", "https://i.imgur.com/nfaJSc8.jpg", 
+      "https://i.imgur.com/2VVnQdy.jpg", "https://i.imgur.com/PiEEsSU.jpg", "https://i.imgur.com/VaKdGyK.jpg", 
+      "https://i.imgur.com/DBBCMT5.jpg", "https://i.imgur.com/9SzyANt.jpg", "https://i.imgur.com/8wvo2rv.jpg", 
+      "https://i.imgur.com/CZ3u4pG.jpg", "https://i.imgur.com/rDXCZ7T.jpg", "https://i.imgur.com/k7hFQDI.jpg", 
+      "https://i.imgur.com/ZUbdLcH.jpg", "https://i.imgur.com/4B6q7qo.jpg", "https://i.imgur.com/uns90FG.jpg", 
+      "https://i.imgur.com/BUo8Gip.jpg", "https://i.imgur.com/OEjUJpt.jpg", "https://i.imgur.com/0EMIF5N.jpg", 
+      "https://i.imgur.com/pfClCuw.jpg", "https://i.imgur.com/B3xmc6u.jpg", "https://i.imgur.com/r3k76o1.jpg", 
+      "https://i.imgur.com/rF7elZ9.jpg", "https://i.imgur.com/sUCiNka.jpg", "https://i.imgur.com/H4txTF9.jpg", 
+      "https://i.imgur.com/XJYsBGt.jpg", "https://i.imgur.com/VhUKFn6.jpg", "https://i.imgur.com/4NMv9DQ.jpg", 
+      "https://i.imgur.com/BF7REhe.jpg", "https://i.imgur.com/vXJ177V.jpg", "https://i.imgur.com/rpLbigJ.jpg", 
+      "https://i.imgur.com/kTH9hI0.jpg", "https://i.imgur.com/qdFVoSy.jpg", "https://i.imgur.com/otrQpMc.jpg", 
+      "https://i.imgur.com/D3WqpgT.jpg", "https://i.imgur.com/MW0N2it.jpg", "https://i.imgur.com/GwbXEte.jpg", 
+      "https://i.imgur.com/9JR6W3w.jpg", "https://i.imgur.com/YgIPVwa.jpg", "https://i.imgur.com/czv7Fz5.jpg", 
+      "https://i.imgur.com/Zw9KZBd.jpg", "https://i.imgur.com/BDVgpWb.jpg", "https://i.imgur.com/0y9UHo3.jpg", 
+      "https://i.imgur.com/o13FtAd.jpg", "https://i.imgur.com/caEX9gQ.jpg", "https://i.imgur.com/5HUayMT.jpg", 
+      "https://i.imgur.com/mfA3aZm.jpg", "https://i.imgur.com/fvZlGx4.jpg", "https://i.imgur.com/9X7xHrc.jpg", 
+      "https://i.imgur.com/fhC0uQO.jpg", "https://i.imgur.com/k0kgL6g.jpg", "https://i.imgur.com/tKJbKC3.jpg", 
+      "https://i.imgur.com/XAG9XXY.jpg", "https://i.imgur.com/WOITKH9.jpg", "https://i.imgur.com/AlSxfCU.jpg", 
+      "https://i.imgur.com/dcldScy.jpg", "https://i.imgur.com/CGvFkMn.jpg", "https://i.imgur.com/pXC6YUo.jpg", 
+      "https://i.imgur.com/loz0CDt.jpg", "https://i.imgur.com/XWbFJ67.jpg", "https://i.imgur.com/bpzaZda.jpg", 
+      "https://i.imgur.com/QRoyoSB.jpg", "https://i.imgur.com/VwbnHjt.jpg", "https://i.imgur.com/4CCcn4w.jpg", 
+      "https://i.imgur.com/TWnfUPu.jpg", "https://i.imgur.com/jL9zgtp.jpg", "https://i.imgur.com/6Hh2eap.jpg", 
+      "https://i.imgur.com/EHD734u.jpg", "https://i.imgur.com/uC2YI3l.jpg", "https://i.imgur.com/zCP4AzS.jpg", 
+      "https://i.imgur.com/bovYCdz.jpg", "https://i.imgur.com/2lO8cZg.jpg", "https://i.imgur.com/ehEVYQK.jpg", 
+      "https://i.imgur.com/IzhVUTo.jpg", "https://i.imgur.com/nViB6oJ.jpg", "https://i.imgur.com/6YzpZyq.jpg", 
+      "https://i.imgur.com/9bwh3qa.jpg", "https://i.imgur.com/oTy9Ylw.jpg", "https://i.imgur.com/jHzuUKA.jpg", 
+      "https://i.imgur.com/8Y8NrSw.jpg", "https://i.imgur.com/OTH5p7Z.jpg", "https://i.imgur.com/Yyb0sdO.jpg", 
+      "https://i.imgur.com/hA7p8M3.jpg", "https://i.imgur.com/LbwoVjX.jpg", "https://i.imgur.com/z9X2gPw.jpg", 
+      "https://i.imgur.com/XzyO1x6.jpg", "https://i.imgur.com/9VLIeHE.jpg", "https://i.imgur.com/bSAggk1.jpg", 
+      "https://i.imgur.com/PtiAaHm.jpg", "https://i.imgur.com/VvD1BO7.jpg", "https://i.imgur.com/99QmViE.jpg", 
+      "https://i.imgur.com/HAHOYFm.jpg", "https://i.imgur.com/Gw33heq.jpg", "https://i.imgur.com/Oc5v81n.jpg", 
+      "https://i.imgur.com/IQLPXsn.jpg", "https://i.imgur.com/b8KE45g.jpg", "https://i.imgur.com/3Adx4WN.jpg", 
+      "https://i.imgur.com/N0BCsl7.jpg", "https://i.imgur.com/VFRn575.jpg", "https://i.imgur.com/GJbWcCy.jpg", 
+      "https://i.imgur.com/YbWXwDd.jpg", "https://i.imgur.com/BIaJ0rP.jpg", "https://i.imgur.com/A1C9CNt.jpg", 
+      "https://i.imgur.com/Ar2Mtvy.jpg", "https://i.imgur.com/DGTIp1i.jpg", "https://i.imgur.com/1qOGiYV.jpg", 
+      "https://i.imgur.com/hr0EHTb.jpg", "https://i.imgur.com/vAsgQst.jpg", "https://i.imgur.com/jVgapSO.jpg", 
+      "https://i.imgur.com/LH9RZdn.jpg", "https://i.imgur.com/frkJZ1M.jpg", "https://i.imgur.com/fiyW8dO.jpg", 
+      "https://i.imgur.com/SaSgjuB.jpg", "https://i.imgur.com/KtneWEN.jpg", "https://i.imgur.com/rM8A3Zl.jpg", 
+      "https://i.imgur.com/jR6DcLT.jpg", "https://i.imgur.com/uWKiNLn.jpg", "https://i.imgur.com/NBRKOfg.jpg", 
+      "https://i.imgur.com/jKA05vC.jpg", "https://i.imgur.com/0X706YR.jpg", "https://i.imgur.com/EvOv3jE.jpg", 
+      "https://i.imgur.com/QNnnXIc.jpg", "https://i.imgur.com/t5uQRhT.jpg", "https://i.imgur.com/erB6gj3.jpg", 
+      "https://i.imgur.com/63iydJC.jpg", "https://i.imgur.com/RH1YinJ.jpg", "https://i.imgur.com/qt8TmLM.jpg", 
+      "https://i.imgur.com/P2wkD52.jpg", "https://i.imgur.com/b8vDMuU.jpg", "https://i.imgur.com/KZ9R9HY.jpg", 
+      "https://i.imgur.com/s84ogtX.jpg", "https://i.imgur.com/ebT27Ho.jpg", "https://i.imgur.com/hVqaTKa.jpg", 
+      "https://i.imgur.com/wrydrf6.jpg", "https://i.imgur.com/a5FmXef.jpg", "https://i.imgur.com/Put4cUm.jpg", 
+      "https://i.imgur.com/pLHUONd.jpg", "https://i.imgur.com/Yrenc2R.jpg", "https://i.imgur.com/MO2n9c8.jpg", 
+      "https://i.imgur.com/Sd8M4P1.jpg", "https://i.imgur.com/JceYbZ9.jpg", "https://i.imgur.com/OO2HHbe.jpg", 
+      "https://i.imgur.com/8XbncY7.jpg", "https://i.imgur.com/EapRG2l.jpg", "https://i.imgur.com/laWJCD1.jpg", 
+      "https://i.imgur.com/uiqy66z.jpg", "https://i.imgur.com/amHzUJO.jpg", "https://i.imgur.com/GBfY6QF.jpg", 
+      "https://i.imgur.com/rZ0xm2d.jpg", "https://i.imgur.com/S482v7g.jpg", "https://i.imgur.com/1ElFRik.jpg", 
+      "https://i.imgur.com/dtBMiNZ.jpg", "https://i.imgur.com/NIDfRlO.jpg", "https://i.imgur.com/5Ov0TeS.jpg", 
+      "https://i.imgur.com/euiRsRb.jpg", "https://i.imgur.com/ZlY19ug.jpg", "https://i.imgur.com/8V1Z1c8.jpg", 
+      "https://i.imgur.com/v3MUQ23.jpg", "https://i.imgur.com/4nFOS0w.jpg", "https://i.imgur.com/tC2Sy8a.jpg",
+      "https://files.catbox.moe/e7bozl.jpg"
+    ];
 
-  showPrefix: async function (message, threadID, threadsData) {
-    try {
-      const globalPrefix = global.config.PREFIX;
-      let threadPrefix;
+    const globalPrefix = global.GoatBot.config.prefix;
+    const threadPrefix = await threadsData.get(event.threadID, "data.prefix") || globalPrefix;
+
+    if (event.body && event.body.toLowerCase() === "prefix") {
+      const randomMeme = memeLinks[Math.floor(Math.random() * memeLinks.length)];
       
-      try {
-        threadPrefix = await threadsData.get(threadID, "data.prefix") || globalPrefix;
-      } catch (dataError) {
-        console.error("𝖤𝗋𝗋𝗈𝗋 𝗀𝖾𝗍𝗍𝗂𝗇𝗀 𝗍𝗁𝗋𝖾𝖺𝖽 𝗉𝗋𝖾𝖿𝗂𝗑:", dataError);
-        threadPrefix = globalPrefix;
-      }
-
-      try {
-        const imageStream = await global.utils.getStreamFromURL("https://files.catbox.moe/e7bozl.jpg");
-        await message.reply({
-          body: this.getLang("myPrefix", globalPrefix, threadPrefix),
-          attachment: imageStream
-        });
-      } catch (imageError) {
-        // If image fails, send text only
-        console.warn("𝖨𝗆𝖺𝗀𝖾 𝗅𝗈𝖺𝖽 𝖿𝖺𝗂𝗅𝖾𝖽, 𝗌𝖾𝗇𝖽𝗂𝗇𝗀 𝗍𝖾𝗑𝗍 𝗈𝗇𝗅𝗒:", imageError);
-        await message.reply(this.getLang("myPrefix", globalPrefix, threadPrefix));
-      }
-    } catch (error) {
-      console.error("💥 𝖲𝗁𝗈𝗐 𝖯𝗋𝖾𝖿𝗂𝗑 𝖤𝗋𝗋𝗈𝗋:", error);
-      // Silent fail to avoid spam
+      return message.reply({
+        body:
+          "✨ 𝖠𝖲𝖲𝖠𝖫𝖠𝖬𝖴𝖠𝖫𝖠𝖨𝖪𝖴𝖬 ✨\n\n" +
+          "╔══『 𝐏𝐑𝐄𝐅𝐈𝐗 』══╗\n"
+        + `║ 🌍 System : ${globalPrefix}\n`
+        + `║ 💬 Chatbox : ${threadPrefix}\n`
+        + `║ ➤ ${threadPrefix}help to see all available cmds 🥵\n`
+        + "╚═══════════════╝",
+        attachment: await utils.getStreamFromURL(randomMeme)
+      });
     }
-  },
-
-  getLang: function (key, ...values) {
-    const lang = {
-      reset: 
-`╭───────『 ✧  𝖯𝖱𝖤𝖥𝖨𝖷 𝖱𝖤𝖲𝖤𝖳  ✧ 』───────╮
-│
-│ ✅ » 𝖣𝖾𝖿𝖺𝗎𝗅𝗍 𝖾 𝗋𝖾𝗌𝖾𝗍 𝗄𝗈𝗋𝖺 𝗁𝗈𝗅𝗈: %1
-│
-╰───────────────────────╯`,
-      onlyAdmin: 
-`╭───────『 ✧  𝖯𝖤𝖱𝖬𝖨𝖲𝖲𝖨𝖮𝖭  ✧ 』───────╮
-│
-│ ⛔ » 𝖲𝗎𝖽𝗁𝗎 𝖻𝗈𝗍 𝖺𝖽𝗆𝗂𝗇𝗋𝖺 𝗀𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑 𝗉𝖺𝗋𝗂𝖻𝖺𝗋𝗍𝖺𝗇 𝗄𝗈𝗋𝗍𝖾 𝗉𝖺𝗋𝖻𝖾𝗇!
-│
-╰───────────────────────╯`,
-      successGlobal: 
-`╭───────『 ✧  𝖲𝖴𝖢𝖢𝖤𝖲𝖲  ✧ 』───────╮
-│
-│ ✅ » 𝖦𝗅𝗈𝖻𝖺𝗅 𝗉𝗋𝖾𝖿𝗂𝗑: %1
-│
-╰───────────────────────╯`,
-      successThisThread: 
-`╭───────『 ✧  𝖲𝖴𝖢𝖢𝖤𝖲𝖲  ✧ 』───────╮
-│
-│ ✅ » 𝖢𝗁𝖺𝗍 𝗉𝗋𝖾𝖿𝗂𝗑: %1
-│
-╰───────────────────────╯`,
-      myPrefix: 
-`╭───────『 ✧  𝖠𝗍𝗈𝗆𝗂𝖼𝖡𝗈𝗍  ✧ 』───────╮
-│
-│ ✨ 𝖠𝖲𝖲𝖠𝖫𝖠𝖬𝖴𝖠𝖫𝖠𝖨𝖪𝖴𝖬 ✨
-│
-│ ❄️ » 𝖲𝗒𝗌𝗍𝖾𝗆 𝖯𝗋𝖾𝖿𝗂𝗑: 【%1】
-│ 💬 » 𝖢𝗁𝖺𝗍 𝖯𝗋𝖾𝖿𝗂𝗑: 【%2】
-│
-│ 📜 » 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖽𝖾𝗄𝗁𝗍𝖾 『%2𝗁𝖾𝗅𝗉』 𝗅𝗂𝗄𝗁𝗎𝗇
-│
-│ 🌟 » 𝖮𝗐𝗇𝖾𝗋: 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽
-│
-╰───────────────────────╯`
-    };
-
-    return lang[key].replace(/%(\d+)/g, (_, index) => values[parseInt(index) - 1]);
   }
 };
