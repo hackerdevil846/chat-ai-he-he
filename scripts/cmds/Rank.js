@@ -1,437 +1,971 @@
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
+const Canvas = require("canvas");
+const { uploadZippyshare } = global.utils;
+
+const defaultFontName = "BeVietnamPro-SemiBold";
+const defaultPathFontName = `${__dirname}/assets/font/BeVietnamPro-SemiBold.ttf`;
+const { randomString } = global.utils;
+const percentage = total => total / 100;
+
+Canvas.registerFont(`${__dirname}/assets/font/BeVietnamPro-Bold.ttf`, {
+	family: "BeVietnamPro-Bold"
+});
+Canvas.registerFont(defaultPathFontName, {
+	family: defaultFontName
+});
+
+let deltaNext;
+const expToLevel = (exp, deltaNextLevel = deltaNext) => Math.floor((1 + Math.sqrt(1 + 8 * exp / deltaNextLevel)) / 2);
+const levelToExp = (level, deltaNextLevel = deltaNext) => Math.floor(((Math.pow(level, 2) - level) * deltaNextLevel) / 2);
+global.client.makeRankCard = makeRankCard;
 
 module.exports = {
-    config: {
-        name: "rank",
-        aliases: [],
-        version: "2.0.1",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        countDown: 5,
-        role: 0,
-        category: "𝑔𝑟𝑜𝑢𝑝",
-        shortDescription: {
-            en: "𝑀𝑒𝑚𝑏𝑒𝑟 𝑅𝑎𝑛𝑘𝑖𝑛𝑔𝑠 💫"
-        },
-        longDescription: {
-            en: "𝐷𝑖𝑠𝑝𝑙𝑎𝑦𝑠 𝑡ℎ𝑒 𝑟𝑎𝑛𝑘 𝑐𝑎𝑟𝑑 𝑓𝑜𝑟 𝑎 𝑢𝑠𝑒𝑟, 𝑠ℎ𝑜𝑤𝑖𝑛𝑔 𝑡ℎ𝑒𝑖𝑟 𝑙𝑒𝑣𝑒𝑙, 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒, 𝑎𝑛𝑑 𝑔𝑙𝑜𝑏𝑎𝑙 𝑟𝑎𝑛𝑘𝑖𝑛𝑔."
-        },
-        guide: {
-            en: "{p}rank 𝑜𝑟 {p}rank @𝑢𝑠𝑒𝑟"
-        },
-        dependencies: {
-            "fs-extra": "",
-            "axios": "",
-            "canvas": "",
-            "jimp": ""
-        }
-    },
+	config: {
+		name: "rank",
+		version: "1.7",
+		author: "NTKhang",
+		countDown: 5,
+		role: 0,
+		description: {
+			vi: "Xem level của bạn hoặc người được tag. Có thể tag nhiều người",
+			en: "View your level or the level of the tagged person. You can tag many people"
+		},
+		category: "rank",
+		guide: {
+			vi: "   {pn} [để trống | @tags]",
+			en: "   {pn} [empty | @tags]"
+		},
+		envConfig: {
+			deltaNext: 5
+		}
+	},
 
-    onLoad: async function () {
-        try {
-            console.log("🔄 𝐼𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑖𝑛𝑔 𝑟𝑎𝑛𝑘 𝑐𝑜𝑚𝑚𝑎𝑛𝑑...");
-            
-            const cachePath = path.join(__dirname, "cache");
-            const customPath = path.join(cachePath, "customrank");
-            
-            // Create directories if they don't exist
-            if (!fs.existsSync(cachePath)) {
-                fs.mkdirSync(cachePath, { recursive: true });
-                console.log("✅ 𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑐𝑎𝑐ℎ𝑒 𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑦");
-            }
-            
-            if (!fs.existsSync(customPath)) {
-                fs.mkdirSync(customPath, { recursive: true });
-                console.log("✅ 𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑐𝑢𝑠𝑡𝑜𝑚 𝑟𝑎𝑛𝑘 𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑦");
-            }
-            
-            // Download required assets if they don't exist
-            const assets = [
-                {
-                    url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/fonts/regular-font.ttf",
-                    path: path.join(cachePath, 'regular-font.ttf'),
-                    name: "𝑅𝑒𝑔𝑢𝑙𝑎𝑟 𝐹𝑜𝑛𝑡"
-                },
-                {
-                    url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/fonts/bold-font.ttf",
-                    path: path.join(cachePath, 'bold-font.ttf'),
-                    name: "𝐵𝑜𝑙𝑑 𝐹𝑜𝑛𝑡"
-                },
-                {
-                    url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/rank_card/rankcard.png",
-                    path: path.join(cachePath, 'rankcard.png'),
-                    name: "𝑅𝑎𝑛𝑘 𝐶𝑎𝑟𝑑 𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑"
-                }
-            ];
-            
-            let downloadedCount = 0;
-            for (const asset of assets) {
-                if (!fs.existsSync(asset.path)) {
-                    try {
-                        console.log(`📥 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑖𝑛𝑔 ${asset.name}...`);
-                        const response = await axios.get(asset.url, { 
-                            responseType: 'arraybuffer',
-                            timeout: 30000 
-                        });
-                        fs.writeFileSync(asset.path, Buffer.from(response.data));
-                        downloadedCount++;
-                        console.log(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 ${asset.name}`);
-                    } catch (error) {
-                        console.error(`❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${asset.name}:`, error.message);
-                    }
-                } else {
-                    console.log(`✅ ${asset.name} 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑒𝑥𝑖𝑠𝑡𝑠`);
-                }
-            }
-            
-            console.log(`🎯 𝑅𝑎𝑛𝑘 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛 𝑐𝑜𝑚𝑝𝑙𝑒𝑡𝑒. 𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 ${downloadedCount} 𝑎𝑠𝑠𝑒𝑡𝑠.`);
-            
-        } catch (error) {
-            console.error("💥 𝑂𝑛𝐿𝑜𝑎𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
-        }
-    },
+	onStart: async function ({ message, event, usersData, threadsData, commandName, envCommands, api }) {
+		deltaNext = envCommands[commandName].deltaNext;
+		let targetUsers;
+		const arrayMentions = Object.keys(event.mentions);
 
-    onStart: async function({ message, event, args, Users, Currencies }) {
-        try {
-            // Dependency check
-            let canvas, jimp;
-            try {
-                canvas = require("canvas");
-                jimp = require("jimp");
-            } catch (error) {
-                console.error("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠:", error);
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙: 𝑐𝑎𝑛𝑣𝑎𝑠 𝑎𝑛𝑑 𝑗𝑖𝑚𝑝");
-            }
+		if (arrayMentions.length == 0)
+			targetUsers = [event.senderID];
+		else
+			targetUsers = arrayMentions;
 
-            const { createCanvas, loadImage, registerFont } = canvas;
+		const rankCards = await Promise.all(targetUsers.map(async userID => {
+			const rankCard = await makeRankCard(userID, usersData, threadsData, event.threadID, deltaNext, api);
+			rankCard.path = `${randomString(10)}.png`;
+			return rankCard;
+		}));
 
-            // Helper function to convert experience points to level
-            function expToLevel(point) {
-                if (!point || point < 0) return 0;
-                return Math.floor((Math.sqrt(1 + (4 * point) / 3) + 1) / 2);
-            }
+		return message.reply({
+			attachment: rankCards
+		});
+	},
 
-            // Helper function to convert level to experience points
-            function levelToExp(level) {
-                if (!level || level <= 0) return 0;
-                return 3 * level * (level - 1);
-            }
-
-            // Helper function to get user's rank information
-            async function getInfo(uid) {
-                try {
-                    let userData = await Currencies.getData(uid);
-                    if (!userData || typeof userData.exp === 'undefined') {
-                        return { level: 0, expCurrent: 0, expNextLevel: 100 };
-                    }
-                    
-                    let point = userData.exp || 0;
-                    const level = expToLevel(point);
-                    const expCurrent = point - levelToExp(level);
-                    const expNextLevel = levelToExp(level + 1) - levelToExp(level);
-                    return { level, expCurrent, expNextLevel };
-                } catch (error) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜:", error);
-                    return { level: 0, expCurrent: 0, expNextLevel: 100 };
-                }
-            }
-
-            // Helper function to make an image circular
-            async function circle(imageBuffer) {
-                try {
-                    const image = await jimp.read(imageBuffer);
-                    image.circle();
-                    return await image.getBufferAsync("image/png");
-                } catch (error) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑐𝑖𝑟𝑐𝑢𝑙𝑎𝑟 𝑖𝑚𝑎𝑔𝑒:", error);
-                    throw error;
-                }
-            }
-
-            // List of valid fallback avatar URLs
-            const fallbackAvatars = [
-                "https://i.imgur.com/uXWLBeC.jpeg",
-                "https://i.imgur.com/7Dc9GrN.jpeg",
-                "https://i.imgur.com/IaAVMFK.jpeg",
-                "https://i.imgur.com/WceNH2z.jpeg",
-                "https://i.imgur.com/1XosaEA.jpeg",
-                "https://i.imgur.com/M58fVe6.jpeg",
-                "https://i.imgur.com/czaXZ3a.jpeg",
-                "https://i.imgur.com/xsu6v2I.jpeg",
-                "https://i.imgur.com/f17dCCM.jpeg",
-                "https://i.imgur.com/opquSuU.jpeg"
-            ];
-
-            // Helper function to get a random fallback avatar
-            function getRandomFallbackAvatar() {
-                const randomIndex = Math.floor(Math.random() * fallbackAvatars.length);
-                return fallbackAvatars[randomIndex];
-            }
-
-            // Helper function to create the rank card image
-            async function makeRankCard(data) {
-                const { id, name, rank, level, expCurrent, expNextLevel } = data;
-                const cachePath = path.join(__dirname, "cache");
-                
-                // Register fonts with error handling
-                try {
-                    registerFont(path.join(cachePath, "regular-font.ttf"), { family: "Manrope", weight: "regular" });
-                    registerFont(path.join(cachePath, "bold-font.ttf"), { family: "Manrope", weight: "bold" });
-                } catch (fontError) {
-                    console.warn("𝐹𝑜𝑛𝑡 𝑟𝑒𝑔𝑖𝑠𝑡𝑟𝑎𝑡𝑖𝑜𝑛 𝑓𝑎𝑖𝑙𝑒𝑑, 𝑢𝑠𝑖𝑛𝑔 𝑑𝑒𝑓𝑎𝑢𝑙𝑡 𝑓𝑜𝑛𝑡𝑠:", fontError);
-                }
-
-                const pathCustom = path.join(cachePath, "customrank");
-                let dirImage = path.join(cachePath, "rankcard.png");
-                
-                // Check for custom rank cards
-                if (fs.existsSync(pathCustom)) {
-                    try {
-                        const customDir = fs.readdirSync(pathCustom).map(item => item.replace(/\.png/g, ""));
-                        for (const singleLimit of customDir) {
-                            let limitRate = false;
-                            const split = singleLimit.split(/-/g);
-                            let min = parseInt(split[0]) || 0;
-                            let max = parseInt(split[1]) || min;
-                            for (; min <= max; min++) {
-                                if (level == min) { 
-                                    limitRate = true; 
-                                    break; 
-                                }
-                            }
-                            if (limitRate) { 
-                                dirImage = path.join(pathCustom, `${singleLimit}.png`); 
-                                break; 
-                            }
-                        }
-                    } catch (error) {
-                        console.warn("𝐸𝑟𝑟𝑜𝑟 𝑟𝑒𝑎𝑑𝑖𝑛𝑔 𝑐𝑢𝑠𝑡𝑜𝑚 𝑟𝑎𝑛𝑘 𝑐𝑎𝑟𝑑𝑠:", error);
-                    }
-                }
-
-                // Load rank card background
-                let rankCard;
-                try {
-                    rankCard = await loadImage(dirImage);
-                } catch (error) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑙𝑜𝑎𝑑𝑖𝑛𝑔 𝑟𝑎𝑛𝑘 𝑐𝑎𝑟𝑑 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑:", error);
-                    // Create a simple fallback background
-                    const fallbackCanvas = createCanvas(1000, 282);
-                    const fallbackCtx = fallbackCanvas.getContext("2d");
-                    fallbackCtx.fillStyle = "#2C3E50";
-                    fallbackCtx.fillRect(0, 0, 1000, 282);
-                    fallbackCtx.fillStyle = "#FFFFFF";
-                    fallbackCtx.font = "30px Arial";
-                    fallbackCtx.fillText("𝑅𝑎𝑛𝑘 𝐶𝑎𝑟𝑑", 400, 150);
-                    rankCard = fallbackCanvas;
-                }
-
-                const pathImg = path.join(cachePath, `rank_${id}_${Date.now()}.png`);
-                let expWidth = (expCurrent * 610) / expNextLevel;
-                if (expWidth > 610 - 19.5) expWidth = 610 - 19.5;
-                if (expWidth < 0) expWidth = 0;
-
-                // Get user avatar with multiple fallback options
-                let avatar;
-                let avatarSuccess = false;
-                
-                try {
-                    // Try Facebook API first
-                    const avatarResponse = await axios.get(
-                        `https://graph.facebook.com/${id}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-                        { responseType: 'arraybuffer', timeout: 10000 }
-                    );
-                    avatar = await circle(avatarResponse.data);
-                    avatarSuccess = true;
-                    console.log(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑙𝑜𝑎𝑑𝑒𝑑 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑎𝑣𝑎𝑡𝑎𝑟 𝑓𝑜𝑟 𝑢𝑠𝑒𝑟 ${id}`);
-                } catch (facebookError) {
-                    console.warn(`❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑔𝑒𝑡 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑎𝑣𝑎𝑡𝑎𝑟 𝑓𝑜𝑟 ${id}:`, facebookError.message);
-                    
-                    // Try random fallback avatars
-                    let fallbackAttempts = 0;
-                    const maxFallbackAttempts = 3;
-                    
-                    while (!avatarSuccess && fallbackAttempts < maxFallbackAttempts) {
-                        try {
-                            const randomAvatarUrl = getRandomFallbackAvatar();
-                            console.log(`🔄 𝑇𝑟𝑦𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑎𝑣𝑎𝑡𝑎𝑟 ${fallbackAttempts + 1}: ${randomAvatarUrl}`);
-                            
-                            const defaultAvatarResponse = await axios.get(
-                                randomAvatarUrl, 
-                                { responseType: 'arraybuffer', timeout: 10000 }
-                            );
-                            avatar = await circle(defaultAvatarResponse.data);
-                            avatarSuccess = true;
-                            console.log(`✅ 𝑆𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦 𝑙𝑜𝑎𝑑𝑒𝑑 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑎𝑣𝑎𝑡𝑎𝑟`);
-                        } catch (fallbackError) {
-                            fallbackAttempts++;
-                            console.warn(`❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑎𝑣𝑎𝑡𝑎𝑟 𝑎𝑡𝑡𝑒𝑚𝑝𝑡 ${fallbackAttempts}:`, fallbackError.message);
-                        }
-                    }
-                    
-                    // Final fallback - create a colored circle
-                    if (!avatarSuccess) {
-                        console.log("🎨 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑓𝑖𝑛𝑎𝑙 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑎𝑣𝑎𝑡𝑎𝑟");
-                        const simpleCanvas = createCanvas(512, 512);
-                        const simpleCtx = simpleCanvas.getContext("2d");
-                        const colors = ["#3498DB", "#E74C3C", "#2ECC71", "#F39C12", "#9B59B6", "#1ABC9C"];
-                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                        
-                        simpleCtx.fillStyle = randomColor;
-                        simpleCtx.arc(256, 256, 256, 0, 2 * Math.PI);
-                        simpleCtx.fill();
-                        simpleCtx.fillStyle = "#FFFFFF";
-                        simpleCtx.font = "bold 100px Arial";
-                        simpleCtx.textAlign = "center";
-                        simpleCtx.textBaseline = "middle";
-                        simpleCtx.fillText("?", 256, 256);
-                        
-                        avatar = simpleCanvas.toBuffer();
-                        avatarSuccess = true;
-                    }
-                }
-
-                const canvas = createCanvas(1000, 282);
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(rankCard, 0, 0, canvas.width, canvas.height);
-                
-                // Draw avatar
-                try {
-                    const avatarImage = await loadImage(avatar);
-                    ctx.drawImage(avatarImage, 70, 75, 150, 150);
-                } catch (avatarError) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑑𝑟𝑎𝑤𝑖𝑛𝑔 𝑎𝑣𝑎𝑡𝑎𝑟:", avatarError);
-                }
-
-                // Set font properties
-                ctx.font = "bold 36px Manrope, Arial, sans-serif";
-                ctx.fillStyle = "#FFFFFF";
-                ctx.textAlign = "start";
-                
-                // Truncate long names
-                let displayName = name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-                const maxNameWidth = 500;
-                if (ctx.measureText(displayName).width > maxNameWidth) {
-                    while (ctx.measureText(displayName + "...").width > maxNameWidth && displayName.length > 1) {
-                        displayName = displayName.slice(0, -1);
-                    }
-                    displayName += "...";
-                }
-                ctx.fillText(displayName, 270, 164);
-
-                // Draw level and rank
-                ctx.font = "bold 38px Manrope, Arial, sans-serif";
-                ctx.fillStyle = "#FF0000";
-                ctx.textAlign = "end";
-                ctx.fillText(level, 866, 82);
-                ctx.fillText("Lv.", 793, 82);
-                ctx.fillText(`#${rank}`, 700, 82);
-
-                // Draw experience
-                ctx.font = "bold 40px Manrope, Arial, sans-serif";
-                ctx.fillStyle = "#00BFFF";
-                ctx.fillText(expCurrent, 710, 164);
-                ctx.fillStyle = "#1874CD";
-                ctx.fillText(`/ ${expNextLevel}`, 710 + ctx.measureText(expCurrent).width + 10, 164);
-
-                // Draw experience bar
-                ctx.beginPath();
-                ctx.fillStyle = "#FFB90F";
-                ctx.arc(257 + 18.5, 147.5 + 18.5 + 36.25, 18.5, 1.5 * Math.PI, 0.5 * Math.PI, true);
-                ctx.fill();
-                ctx.fillRect(257 + 18.5, 147.5 + 36.25, expWidth, 37.5);
-                ctx.arc(257 + 18.5 + expWidth, 147.5 + 18.5 + 36.25, 18.75, 1.5 * Math.PI, 0.5 * Math.PI, false);
-                ctx.fill();
-
-                const imageBuffer = canvas.toBuffer();
-                fs.writeFileSync(pathImg, imageBuffer);
-                return pathImg;
-            }
-
-            // Get all user data for ranking
-            let dataAll;
-            try {
-                dataAll = await Currencies.getAll(["userID", "exp"]);
-                dataAll = dataAll.filter(item => item && item.exp > 0);
-                dataAll.sort((a, b) => b.exp - a.exp);
-            } catch (error) {
-                console.error("𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑑𝑎𝑡𝑎:", error);
-                return message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑎𝑐𝑐𝑒𝑠𝑠𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑑𝑎𝑡𝑎. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-            }
-
-            if (dataAll.length === 0) {
-                return message.reply("❌ 𝑁𝑜 𝑢𝑠𝑒𝑟𝑠 𝑤𝑖𝑡ℎ 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒 𝑝𝑜𝑖𝑛𝑡𝑠 𝑓𝑜𝑢𝑛𝑑.");
-            }
-
-            // Determine which user to show rank for
-            let targetUserID;
-            if (args.length === 0) {
-                targetUserID = event.senderID;
-            } else if (Object.keys(event.mentions).length > 0) {
-                targetUserID = Object.keys(event.mentions)[0];
-            } else if (!isNaN(args[0])) {
-                targetUserID = args[0];
-            } else {
-                targetUserID = event.senderID;
-            }
-
-            // Validate target user ID
-            if (!targetUserID || isNaN(targetUserID)) {
-                return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑒𝑟 𝐼𝐷.");
-            }
-
-            // Get user rank
-            const rankIndex = dataAll.findIndex(item => item.userID === targetUserID);
-            if (rankIndex === -1) {
-                return message.reply("❌ 𝑇ℎ𝑖𝑠 𝑢𝑠𝑒𝑟 𝑑𝑜𝑒𝑠𝑛'𝑡 ℎ𝑎𝑣𝑒 𝑎𝑛𝑦 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒 𝑝𝑜𝑖𝑛𝑡𝑠 𝑦𝑒𝑡.");
-            }
-            
-            const rank = rankIndex + 1;
-            
-            // Get user info
-            let userInfo;
-            try {
-                userInfo = await Users.getData(targetUserID);
-            } catch (error) {
-                console.error("𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜:", error);
-                return message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑡𝑡𝑖𝑛𝑔 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛.");
-            }
-            
-            const name = userInfo?.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-            
-            // Get level info
-            const pointInfo = await getInfo(targetUserID);
-            
-            // Generate rank card
-            const startTime = Date.now();
-            const pathRankCard = await makeRankCard({
-                id: targetUserID,
-                name,
-                rank,
-                ...pointInfo
-            });
-            
-            const timeTaken = Date.now() - startTime;
-            
-            // Send the rank card
-            await message.reply({
-                body: `🏆 𝑅𝑎𝑛𝑘: #${rank}\n⭐ 𝐿𝑒𝑣𝑒𝑙: ${pointInfo.level}\n📊 𝐸𝑋𝑃: ${pointInfo.expCurrent}/${pointInfo.expNextLevel}\n⏱ 𝑇𝑖𝑚𝑒 𝑡𝑎𝑘𝑒𝑛: ${timeTaken}𝑚𝑠`,
-                attachment: fs.createReadStream(pathRankCard)
-            });
-            
-            // Clean up
-            try {
-                if (fs.existsSync(pathRankCard)) {
-                    fs.unlinkSync(pathRankCard);
-                }
-            } catch (cleanupError) {
-                console.warn("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupError);
-            }
-            
-        } catch (error) {
-            console.error("💥 𝑅𝑎𝑛𝑘 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑟𝑎𝑛𝑘 𝑐𝑎𝑟𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-        }
-    }
+	onChat: async function ({ usersData, event }) {
+		let { exp } = await usersData.get(event.senderID);
+		if (isNaN(exp) || typeof exp != "number")
+			exp = 0;
+		try {
+			await usersData.set(event.senderID, {
+				exp: exp + 1
+			});
+		}
+		catch (e) { }
+	}
 };
+
+const defaultDesignCard = {
+	widthCard: 2000,
+	heightCard: 500,
+	main_color: "#474747",
+	sub_color: "rgba(255, 255, 255, 0.5)",
+	alpha_subcard: 0.9,
+	exp_color: "#e1e1e1",
+	expNextLevel_color: "#3f3f3f",
+	text_color: "#000000"
+};
+
+async function makeRankCard(userID, usersData, threadsData, threadID, deltaNext, api = global.GoatBot.fcaApi) {
+	const { exp } = await usersData.get(userID);
+	const levelUser = expToLevel(exp, deltaNext);
+
+	const expNextLevel = levelToExp(levelUser + 1, deltaNext) - levelToExp(levelUser, deltaNext);
+	const currentExp = expNextLevel - (levelToExp(levelUser + 1, deltaNext) - exp);
+
+	const allUser = await usersData.getAll();
+	allUser.sort((a, b) => b.exp - a.exp);
+	const rank = allUser.findIndex(user => user.userID == userID) + 1;
+
+	const customRankCard = await threadsData.get(threadID, "data.customRankCard") || {};
+	const dataLevel = {
+		exp: currentExp,
+		expNextLevel,
+		name: allUser[rank - 1].name,
+		rank: `#${rank}/${allUser.length}`,
+		level: levelUser,
+		avatar: await usersData.getAvatarUrl(userID)
+	};
+
+	const configRankCard = {
+		...defaultDesignCard,
+		...customRankCard
+	};
+
+	const checkImagKey = [
+		"main_color",
+		"sub_color",
+		"line_color",
+		"exp_color",
+		"expNextLevel_color"
+	];
+
+	for (const key of checkImagKey) {
+		if (!isNaN(configRankCard[key]))
+			configRankCard[key] = await api.resolvePhotoUrl(configRankCard[key]);
+	}
+
+	const image = new RankCard({
+		...configRankCard,
+		...dataLevel
+	});
+	return await image.buildCard();
+}
+
+
+class RankCard {
+	/**
+	 * Create a new RankCard
+	 * @param {Object} options - Options for the RankCard: 
+	 * @param {String} options.main_color - The main color of the card
+	 * @param {String} options.sub_color - The sub color of the card
+	 * @param {Number} options.alpha_subcard - The alpha of the sub card
+	 * @param {String} options.exp_color - The color of the exp bar
+	 * @param {String} options.expNextLevel_color - The color of the expNextLevel bar
+	 * @param {String} options.text_color - The color of the text
+	 * @param {String} options.name_color - The color of the name
+	 * @param {String} options.level_color - The color of the level
+	 * @param {String} options.rank_color - The color of the rank
+	 * @param {String} options.line_color - The color of the line
+	 * @param {String} options.exp_text_color - The color of the exp text
+	 * @param {Number} options.exp - The exp of the user
+	 * @param {Number} options.expNextLevel - The expNextLevel of the user
+	 * @param {String} options.name - The name of the user
+	 * @param {Number} options.level - The level of the user
+	 * @param {Number} options.rank - The rank of the user
+	 * @param {String} options.avatar - The avatar of the user
+	 * @param {Number} options.widthCard - The width of the card
+	 * @param {Number} options.heightCard - The height of the card
+	 * @param {String} options.fontName - The font name of the card
+	 * @param {String} options.textSize - The value will be added to the font size of all text, default is 0
+	 * 
+	 * @example 
+	 * const fs = require("fs-extra");
+	 * const card = new RankCard()
+	 * 	.setWidthCard(2000)
+	 * 	.setHeightCard(500)
+	 * 	.setMainColor("#474747")
+	 * 	.setSubColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setAlphaSubCard(0.9)
+	 * 	.setExpColor("#e1e1e1")
+	 * 	.setExpBarColor("#3f3f3f")
+	 * 	.setTextColor("#000000");
+	 * 
+	 * rank.buildCard()
+	 * 	.then(buffer => {
+	 * 		fs.writeFileSync("rank.png", buffer);	
+	 * 	})
+	 * 	.catch(err => {
+	 * 		console.log(err);
+	 * 	});
+	 * 
+	 * // or
+	 * const card = new RankCard({
+	 * 	widthCard: 2000,
+	 * 	heightCard: 500,
+	 * 	main_color: "#474747",
+	 * 	sub_color: "rgba(255, 255, 255, 0.5)",
+	 * 	alpha_subcard: 0.9,
+	 * 	exp_color: "#e1e1e1",
+	 * 	expNextLevel_color: "#3f3f3f",
+	 * 	text_color: "#000000"
+	 * });
+	 * 
+	 * rank.buildCard()
+	 * 	.then(buffer => {
+	 * 		fs.writeFileSync("rank.png", buffer);
+	 * 	})
+	 * 	.catch(err => {
+	 * 		console.log(err);
+	 * 	});
+	 */
+	constructor(options) {
+		this.widthCard = 2000;
+		this.heightCard = 500;
+		this.main_color = "#474747";
+		this.sub_color = "rgba(255, 255, 255, 0.5)";
+		this.alpha_subcard = 0.9;
+		this.exp_color = "#e1e1e1";
+		this.expNextLevel_color = "#3f3f3f";
+		this.text_color = "#000000";
+		this.fontName = "BeVietnamPro-Bold";
+		this.textSize = 0;
+
+		for (const key in options)
+			this[key] = options[key];
+	}
+
+	/**
+	 * @param {string} path
+	 * @param {string} name 
+	 * @description Register a new font
+	 * @returns {RankCard}
+	 * @example
+	 * 	.registerFont("path/to/font.ttf", "FontName");
+	 */
+	registerFont(path, name) {
+		Canvas.registerFont(path, {
+			family: name
+		});
+		return this;
+	}
+
+	/**
+	 * @param {string} fontName
+	 * @description Set the font name
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setFontName("BeVietnamPro-SemiBold");
+	 * 	.setFontName("BeVietnamPro-Bold");
+	 * 	.setFontName("Arial");
+	 * 	.setFontName("Arial Italic");
+	 */
+	setFontName(fontName) {
+		this.fontName = fontName;
+		return this;
+	}
+
+	/**
+	 * @param {size} size
+	 * @description increase the size of all the text by {size} units
+	 * @returns {RankCard}
+	 * @example
+	 * 	.increaseTextSize(10);
+	 * 	.increaseTextSize(20);
+	 */
+	increaseTextSize(size) {
+		if (isNaN(size))
+			throw new Error("Size must be a number");
+		if (size < 0)
+			throw new Error("Size must be greater than 0");
+		this.textSize = size;
+		return this;
+	}
+
+	/**
+	 * @param {number} size
+	 * @description decrease the size of all the text by {size} units
+	 * @returns {RankCard}
+	 * @example
+	 * 	.decreaseTextSize(10);
+	 * 	.decreaseTextSize(20);
+	 */
+	decreaseTextSize(size) {
+		if (isNaN(size))
+			throw new Error("Size must be a number");
+		if (size < 0)
+			throw new Error("Size must be greater than 0");
+		this.textSize = -size;
+		return this;
+	}
+
+	/**
+	 * @param {number} widthCard
+	 * @description Width of the card
+	 * @returns {RankCard}
+	 * @example 
+	 * 	.setWidthCard(2000);
+	 */
+	setWidthCard(widthCard) {
+		if (isNaN(widthCard))
+			throw new Error("Width card must be a number");
+		if (widthCard < 0)
+			throw new Error("Width card must be greater than 0");
+		this.widthCard = Number(widthCard);
+		return this;
+	}
+
+	/**
+	 * @param {number} heightCard
+	 * @description Height of the card
+	 * @returns {RankCard}
+	 * @example 
+	 * 	.setHeightCard(500);
+	 */
+	setHeightCard(heightCard) {
+		if (isNaN(heightCard))
+			throw new Error("Height card must be a number");
+		if (heightCard < 0)
+			throw new Error("Height card must be greater than 0");
+		this.heightCard = Number(heightCard);
+		return this;
+	}
+
+	/**
+	 * @param {number} alpha_subcard
+	 * @description Alpha of the sub card is a number between 0 and 1
+	 * @returns {RankCard}
+	 * @example 
+	 * .setAlphaSubCard(0.5)
+	 * 0.5 = 50% opacity
+	 * 0.9 = 90% opacity
+	 * 1 = 100% opacity
+	 * 0 = 0% opacity
+	 */
+	setAlphaSubCard(alpha_subcard) {
+		if (isNaN(alpha_subcard))
+			throw new Error("Alpha subcard must be a number");
+		if (alpha_subcard < 0 || alpha_subcard > 1)
+			throw new Error("Alpha subcard must be between 0 and 1");
+		this.alpha_subcard = Number(alpha_subcard);
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} main_color
+	 * @description Color of the main card (background) is a string or array that can be a `hex color`, `rgb`, `rgba`, `image url`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setMainColor("#474747");
+	 * 	.setMainColor("rgb(255, 255, 255)");
+	 * 	.setMainColor("rgba(255, 255, 255, 0.5)");
+	 * 	.setMainColor("https://example.com/image.png");
+	 */
+	setMainColor(main_color) {
+		if (typeof main_color !== "string" && !Array.isArray(main_color))
+			throw new Error("Main color must be a string or array");
+		checkFormatColor(main_color);
+		this.main_color = main_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} sub_color
+	 * @description Color of the sub card is a string or array that can be a `hex color`, `rgb`, `rgba`, `image url`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setSubColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setSubColor("#474747")
+	 * 	.setSubColor("rgb(255, 255, 255)")
+	 * 	.setSubColor("https://example.com/image.png")
+	 */
+	setSubColor(sub_color) {
+		if (typeof sub_color !== "string" && !Array.isArray(sub_color))
+			throw new Error("Sub color must be a string or array");
+		checkFormatColor(sub_color);
+		this.sub_color = sub_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} exp_color
+	 * @description Color of the exp bar is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setExpColor("#474747")
+	 * 	.setExpColor("rgb(255, 255, 255)")
+	 * 	.setExpColor("rgba(255, 255, 255, 0.5)")
+	 */
+	setExpColor(exp_color) {
+		if (typeof exp_color !== "string" && !Array.isArray(exp_color))
+			throw new Error("Exp color must be a string or array");
+		checkFormatColor(exp_color);
+		this.exp_color = exp_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} expNextLevel_color
+	 * @description Color of the exp bar next level is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setExpBarColor("#474747")
+	 * 	.setExpBarColor("rgb(255, 255, 255)")
+	 * 	.setExpBarColor("rgba(255, 255, 255, 0.5)")
+	 */
+	setExpBarColor(expNextLevel_color) {
+		if (typeof expNextLevel_color !== "string" && !Array.isArray(expNextLevel_color))
+			throw new Error("Exp next level color must be a string");
+		checkFormatColor(expNextLevel_color);
+		this.expNextLevel_color = expNextLevel_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} text_color
+	 * @description Color of the all text is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setTextColor("#474747")
+	 * 	.setTextColor("rgb(255, 255, 255)")
+	 * 	.setTextColor("rgba(255, 255, 255, 0.5)")
+	 */
+	setTextColor(text_color) {
+		if (typeof text_color !== "string" && !Array.isArray(text_color))
+			throw new Error("Text color must be a string or an array of string");
+		checkFormatColor(text_color, false);
+		this.text_color = text_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} name_color
+	 * @description Color of the name is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setNameColor("#474747")
+	 * 	.setNameColor("rgb(255, 255, 255)")
+	 * 	.setNameColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setNameColor(["#474747", "#474747"])
+	 * 	.setNameColor(['rgb(133, 255, 189)', 'rgb(255, 251, 125)'])
+	 */
+	setNameColor(name_color) {
+		if (typeof name_color !== "string" && !Array.isArray(name_color))
+			throw new Error("Name color must be a string or an array of string");
+		checkFormatColor(name_color, false);
+		this.name_color = name_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} level_color
+	 * @description Color of the level text is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setLevelColor("#474747")
+	 * 	.setLevelColor("rgb(255, 255, 255)")
+	 * 	.setLevelColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setLevelColor(["#474747", "#474747"])
+	 * 	.setLevelColor(['rgb(133, 255, 189)', 'rgb(255, 251, 125)'])
+	 */
+	setLevelColor(level_color) {
+		if (typeof level_color !== "string" && !Array.isArray(level_color))
+			throw new Error("Level color must be a string or an array of string");
+		checkFormatColor(level_color, false);
+		this.level_color = level_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} exp_text_color
+	 * @description Color of the exp text is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setExpTextColor("#474747")
+	 * 	.setExpTextColor("rgb(255, 255, 255)")
+	 * 	.setExpTextColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setExpTextColor(["#474747", "#474747"])
+	 * 	.setExpTextColor(['rgb(133, 255, 189)', 'rgb(255, 251, 125)'])
+	 * 
+	 */
+	setExpTextColor(exp_text_color) {
+		if (typeof exp_text_color !== "string" && !Array.isArray(exp_text_color))
+			throw new Error("Exp text color must be a string or an array of string");
+		checkFormatColor(exp_text_color, false);
+		this.exp_text_color = exp_text_color;
+		return this;
+	}
+
+	/**
+	 * @param {string|string[]} rank_color
+	 * @description Color of the rank is a string or array that can be a `hex color`, `rgb` or `rgba`. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 */
+	setRankColor(rank_color) {
+		if (typeof rank_color !== "string" && !Array.isArray(rank_color))
+			throw new Error("Rank color must be a string or an array of string");
+		checkFormatColor(rank_color, false);
+		this.rank_color = rank_color;
+		return this;
+	}
+
+
+	/**
+	 * @param {string|string[]} line_color
+	 * @description Color of the line is a string or array that can be a `hex color`, `rgb`, `rgba` or url of image. If it's an array it will be a `gradient` color
+	 * @returns {RankCard}
+	 * @example 
+	 * 	.setLineColor("#474747")
+	 * 	.setLineColor("rgb(255, 255, 255)")
+	 * 	.setLineColor("rgba(255, 255, 255, 0.5)")
+	 * 	.setLineColor(['#00DBDE', '#FC00FF'])
+	 * 	.setLineColor(['rgb(133, 255, 189)', 'rgb(255, 251, 125)'])
+	 * 	.setLineColor(['rgba(133, 255, 189, 0.5)', 'rgba(255, 251, 125, 0.5)'])
+	 */
+	setLineColor(line_color) {
+		if (typeof line_color !== "string" && !Array.isArray(line_color))
+			throw new Error("Line color must be a string or an array of string");
+		this.line_color = line_color;
+		return this;
+	}
+
+	/**
+	 * @param {number} exp
+	 * @description Exp of the user
+	 * @returns {RankCard}
+	 */
+	setExp(exp) {
+		this.exp = exp;
+		return this;
+	}
+
+	/**
+	 * @param {number} expNextLevel
+	 * @description Exp next level of the user
+	 * @returns {RankCard}
+	 */
+	setExpNextLevel(expNextLevel) {
+		this.expNextLevel = expNextLevel;
+		return this;
+	}
+
+	/**
+	 * @param {number} level
+	 * @description Level of the user
+	 * @returns {RankCard}
+	 */
+	setLevel(level) {
+		this.level = level;
+		return this;
+	}
+
+	/**
+	 * @param {string} rank
+	 * @description Rank of the user
+	 * @returns {RankCard}
+	 * @example
+	 * 	.setRank("#1/100")
+	 */
+	setRank(rank) {
+		this.rank = rank;
+		return this;
+	}
+
+	/**
+	 * @param {string} name
+	 * @description Name of the user
+	 * @returns {RankCard}
+	 */
+	setName(name) {
+		this.name = name;
+		return this;
+	}
+
+	/**
+	 * @param {string} avatar
+	 * @description url or path of the avatar
+	 * @returns {RankCard}
+	 */
+	setAvatar(avatar) {
+		this.avatar = avatar;
+		return this;
+	}
+
+
+	async buildCard() {
+		let {
+			widthCard,
+			heightCard
+		} = this;
+		const {
+			main_color,
+			sub_color,
+			alpha_subcard,
+			exp_color,
+			expNextLevel_color,
+			text_color,
+			name_color,
+			level_color,
+			rank_color,
+			line_color,
+			exp_text_color,
+			exp,
+			expNextLevel,
+			name,
+			level,
+			rank,
+			avatar
+		} = this;
+
+		widthCard = Number(widthCard);
+		heightCard = Number(heightCard);
+
+		const canvas = Canvas.createCanvas(widthCard, heightCard);
+		const ctx = canvas.getContext("2d");
+
+		/*
+			+-----------------------+
+			|     DRAW SUBCARD      |	
+			+-----------------------+
+		*/
+
+		const alignRim = 3 * percentage(widthCard);
+		const Alpha = parseFloat(alpha_subcard || 0);
+
+		ctx.globalAlpha = Alpha;
+		await checkColorOrImageAndDraw(alignRim, alignRim, widthCard - alignRim * 2, heightCard - alignRim * 2, ctx, sub_color, 20, alpha_subcard);
+		ctx.globalAlpha = 1;
+
+		ctx.globalCompositeOperation = "destination-out";
+
+		const xyAvatar = heightCard / 2;
+		const resizeAvatar = 60 * percentage(heightCard);
+
+		// Kẽ đường ngang ở giữa
+		// Draw a horizontal line in the middle
+		const widthLineBetween = 58 * percentage(widthCard);
+		const heightLineBetween = 2 * percentage(heightCard);
+
+		const angleLineCenter = 40;
+		const edge = heightCard / 2 * Math.tan(angleLineCenter * Math.PI / 180);
+
+		if (line_color) {
+			if (!isUrl(line_color)) {
+				ctx.fillStyle = ctx.strokeStyle = checkGradientColor(ctx,
+					Array.isArray(line_color) ? line_color : [line_color],
+					xyAvatar - resizeAvatar / 2 - heightLineBetween,
+					0,
+					xyAvatar + resizeAvatar / 2 + widthLineBetween + edge,
+					0
+				);
+				ctx.globalCompositeOperation = "source-over";
+			}
+			else {
+				ctx.save();
+				const img = Canvas.loadImage(line_color);
+				ctx.globalCompositeOperation = "source-over";
+
+				ctx.beginPath();
+				ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
+				ctx.fill();
+
+				ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
+				ctx.fill();
+
+				ctx.translate(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
+				ctx.rotate(angleLineCenter * Math.PI / 180);
+				ctx.rect(0, 0, heightLineBetween, 1000);
+				ctx.fill();
+				ctx.rotate(-angleLineCenter * Math.PI / 180);
+				ctx.translate(-xyAvatar - resizeAvatar / 2 - widthLineBetween - edge, 0);
+
+				ctx.clip();
+				ctx.drawImage(await img, 0, 0, widthCard, heightCard);
+				ctx.restore();
+			}
+		}
+		ctx.beginPath();
+		if (!isUrl(line_color))
+			ctx.rect(xyAvatar + resizeAvatar / 2, heightCard / 2 - heightLineBetween / 2, widthLineBetween, heightLineBetween);
+		ctx.fill();
+
+		// Kẽ đường chéo ở cuối
+		// Draw a slant at the end
+		ctx.beginPath();
+		if (!isUrl(line_color)) {
+			ctx.moveTo(xyAvatar + resizeAvatar / 2 + widthLineBetween + edge, 0);
+			ctx.lineTo(xyAvatar + resizeAvatar / 2 + widthLineBetween - edge, heightCard);
+			ctx.lineWidth = heightLineBetween;
+			ctx.stroke();
+		}
+
+		// Xóa nền vị trí đặt avatar
+		// Remove background of avatar placement
+		ctx.beginPath();
+		if (!isUrl(line_color))
+			ctx.arc(xyAvatar, xyAvatar, resizeAvatar / 2 + heightLineBetween, 0, 2 * Math.PI);
+		ctx.fill();
+		ctx.globalCompositeOperation = "destination-out";
+
+		// Xóa xung quanh sub card
+		// Remove around sub card
+		ctx.fillRect(0, 0, widthCard, alignRim);
+		ctx.fillRect(0, heightCard - alignRim, widthCard, alignRim);
+
+		// Xóa nền tại vị trí đặt thanh Exp
+		// Remove the background at the location where the Exp bar is located
+		const radius = 6 * percentage(heightCard);
+		const xStartExp = (25 + 1.5) * percentage(widthCard),
+			yStartExp = 67 * percentage(heightCard),
+			widthExp = 40.5 * percentage(widthCard),
+			heightExp = radius * 2;
+		ctx.globalCompositeOperation = "source-over";
+		centerImage(ctx, await Canvas.loadImage(avatar), xyAvatar, xyAvatar, resizeAvatar, resizeAvatar);
+
+		// Vẽ thanh Exp
+		// Draw Exp bar
+		if (!isUrl(expNextLevel_color)) {
+			ctx.beginPath();
+			ctx.fillStyle = checkGradientColor(ctx, expNextLevel_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
+			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+			ctx.fill();
+			ctx.fillRect(xStartExp, yStartExp, widthExp, heightExp);
+			ctx.arc(xStartExp + widthExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
+			ctx.fill();
+		}
+		else {
+			ctx.save();
+			ctx.beginPath();
+
+			ctx.moveTo(xStartExp, yStartExp);
+			ctx.lineTo(xStartExp + widthExp, yStartExp);
+			ctx.arcTo(xStartExp + widthExp + radius, yStartExp, xStartExp + widthExp + radius, yStartExp + radius, radius);
+			ctx.lineTo(xStartExp + widthExp + radius, yStartExp + heightExp - radius);
+			ctx.arcTo(xStartExp + widthExp + radius, yStartExp + heightExp, xStartExp + widthExp, yStartExp + heightExp, radius);
+			ctx.lineTo(xStartExp, yStartExp + heightExp);
+			ctx.arcTo(xStartExp, yStartExp + heightExp, xStartExp - radius, yStartExp + heightExp - radius, radius);
+			ctx.lineTo(xStartExp - radius, yStartExp + radius);
+			ctx.arcTo(xStartExp, yStartExp, xStartExp, yStartExp, radius);
+
+			ctx.closePath();
+			ctx.clip();
+
+			ctx.drawImage(await Canvas.loadImage(expNextLevel_color), xStartExp, yStartExp, widthExp + radius, heightExp);
+			ctx.restore();
+		}
+
+
+		// Exp hiện tại
+		// Current Exp
+		const widthExpCurrent = (100 / expNextLevel * exp) * percentage(widthExp);
+		if (!isUrl(exp_color)) {
+			ctx.fillStyle = checkGradientColor(ctx, exp_color, xStartExp, yStartExp, xStartExp + widthExp, yStartExp);
+			ctx.beginPath();
+			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+			ctx.fill();
+
+			ctx.fillRect(xStartExp, yStartExp, widthExpCurrent, heightExp);
+
+			ctx.beginPath();
+			ctx.arc(xStartExp + widthExpCurrent - 1, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI);
+			ctx.fill();
+		}
+		else {
+			const imgExp = await Canvas.loadImage(exp_color);
+			ctx.save();
+			ctx.beginPath();
+			ctx.moveTo(xStartExp, yStartExp);
+			ctx.lineTo(xStartExp + widthExpCurrent, yStartExp);
+			ctx.arc(xStartExp + widthExpCurrent, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, false);
+			ctx.lineTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp - radius);
+			ctx.arcTo(xStartExp + widthExpCurrent + radius, yStartExp + heightExp, xStartExp + widthExpCurrent, yStartExp + heightExp, radius);
+			ctx.lineTo(xStartExp, yStartExp + heightExp);
+			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+			ctx.lineTo(xStartExp - radius, yStartExp + radius);
+			ctx.arc(xStartExp, yStartExp + radius, radius, 1.5 * Math.PI, 0.5 * Math.PI, true);
+			ctx.closePath();
+			ctx.clip();
+			ctx.drawImage(imgExp, xStartExp - radius, yStartExp, widthExp + radius * 2, heightExp);
+			ctx.restore();
+		}
+
+		const maxSizeFont_Name = 4 * percentage(widthCard) + this.textSize;
+		const maxSizeFont_Exp = 2 * percentage(widthCard) + this.textSize;
+		const maxSizeFont_Level = 3.25 * percentage(widthCard) + this.textSize;
+		const maxSizeFont_Rank = 4 * percentage(widthCard) + this.textSize;
+
+		ctx.textAlign = "end";
+
+		// Vẽ chữ Rank
+		// Draw rank text
+		ctx.font = autoSizeFont(18.4 * percentage(widthCard), maxSizeFont_Rank, rank, ctx, this.fontName);
+		const metricsRank = ctx.measureText(rank);
+		ctx.fillStyle = checkGradientColor(ctx, rank_color || text_color,
+			94 * percentage(widthCard) - metricsRank.width,
+			76 * percentage(heightCard) + metricsRank.emHeightDescent,
+			94 * percentage(widthCard),
+			76 * percentage(heightCard) - metricsRank.actualBoundingBoxAscent
+		);
+		ctx.fillText(rank, 94 * percentage(widthCard), 76 * percentage(heightCard));
+
+		// Draw Level text
+		const textLevel = `Lv ${level}`;
+		ctx.font = autoSizeFont(9.8 * percentage(widthCard), maxSizeFont_Level, textLevel, ctx, this.fontName);
+		const metricsLevel = ctx.measureText(textLevel);
+		const xStartLevel = 94 * percentage(widthCard);
+		const yStartLevel = 32 * percentage(heightCard);
+		ctx.fillStyle = checkGradientColor(ctx, level_color || text_color,
+			xStartLevel - ctx.measureText(textLevel).width,
+			yStartLevel + metricsLevel.emHeightDescent,
+			xStartLevel,
+			yStartLevel - metricsLevel.actualBoundingBoxAscent
+		);
+		ctx.fillText(textLevel, xStartLevel, yStartLevel);
+		ctx.font = autoSizeFont(52.1 * percentage(widthCard), maxSizeFont_Name, name, ctx, this.fontName);
+		ctx.textAlign = "center";
+
+		// Draw Name
+		const metricsName = ctx.measureText(name);
+		ctx.fillStyle = checkGradientColor(ctx, name_color || text_color,
+			47.5 * percentage(widthCard) - metricsName.width / 2,
+			40 * percentage(heightCard) + metricsName.emHeightDescent,
+			47.5 * percentage(widthCard) + metricsName.width / 2,
+			40 * percentage(heightCard) - metricsName.actualBoundingBoxAscent
+		);
+		ctx.fillText(name, 47.5 * percentage(widthCard), 40 * percentage(heightCard));
+
+		// Draw Exp text
+		const textExp = `Exp ${exp}/${expNextLevel}`;
+		ctx.font = autoSizeFont(49 * percentage(widthCard), maxSizeFont_Exp, textExp, ctx, this.fontName);
+		const metricsExp = ctx.measureText(textExp);
+		ctx.fillStyle = checkGradientColor(ctx, exp_text_color || text_color,
+			47.5 * percentage(widthCard) - metricsExp.width / 2,
+			61.4 * percentage(heightCard) + metricsExp.emHeightDescent,
+			47.5 * percentage(widthCard) + metricsExp.width / 2,
+			61.4 * percentage(heightCard) - metricsExp.actualBoundingBoxAscent
+		);
+		ctx.fillText(textExp, 47.5 * percentage(widthCard), 61.4 * percentage(heightCard));
+
+
+		/*
+			+------------------------------------+
+			|     DRAW MAINCARD (BACKGROUND)     |	
+			+------------------------------------+
+		*/
+		ctx.globalCompositeOperation = "destination-over";
+		if (main_color.match?.(/^https?:\/\//) || Buffer.isBuffer(main_color)) {
+			ctx.beginPath();
+			ctx.moveTo(radius, 0);
+			ctx.lineTo(widthCard - radius, 0);
+			ctx.quadraticCurveTo(widthCard, 0, widthCard, radius);
+			ctx.lineTo(widthCard, heightCard - radius);
+			ctx.quadraticCurveTo(widthCard, heightCard, widthCard - radius, heightCard);
+			ctx.lineTo(radius, heightCard);
+			ctx.quadraticCurveTo(0, heightCard, 0, heightCard - radius);
+			ctx.lineTo(0, radius);
+			ctx.quadraticCurveTo(0, 0, radius, 0);
+			ctx.closePath();
+			ctx.clip();
+			ctx.drawImage(await Canvas.loadImage(main_color), 0, 0, widthCard, heightCard);
+		}
+		else {
+			ctx.fillStyle = checkGradientColor(ctx, main_color, 0, 0, widthCard, heightCard);
+			drawSquareRounded(ctx, 0, 0, widthCard, heightCard, radius, main_color);
+		}
+		// return canvas.toBuffer();
+		// return stream
+		return canvas.createPNGStream();
+	}
+}
+
+async function checkColorOrImageAndDraw(xStart, yStart, width, height, ctx, colorOrImage, r) {
+	if (!colorOrImage.match?.(/^https?:\/\//)) {
+		if (Array.isArray(colorOrImage)) {
+			const gradient = ctx.createLinearGradient(xStart, yStart, xStart + width, yStart + height);
+			colorOrImage.forEach((color, index) => {
+				gradient.addColorStop(index / (colorOrImage.length - 1), color);
+			});
+			ctx.fillStyle = gradient;
+		}
+		drawSquareRounded(ctx, xStart, yStart, width, height, r, colorOrImage);
+	}
+	else {
+		const imageLoad = await Canvas.loadImage(colorOrImage);
+		ctx.save();
+		roundedImage(xStart, yStart, width, height, r, ctx);
+		ctx.clip();
+		ctx.drawImage(imageLoad, xStart, yStart, width, height);
+		ctx.restore();
+	}
+}
+
+function drawSquareRounded(ctx, x, y, w, h, r, color, defaultGlobalCompositeOperation, notChangeColor) {
+	ctx.save();
+	if (defaultGlobalCompositeOperation)
+		ctx.globalCompositeOperation = "source-over";
+	if (w < 2 * r)
+		r = w / 2;
+	if (h < 2 * r)
+		r = h / 2;
+	ctx.beginPath();
+	ctx.moveTo(x + r, y);
+	ctx.arcTo(x + w, y, x + w, y + h, r);
+	ctx.arcTo(x + w, y + h, x, y + h, r);
+	ctx.arcTo(x, y + h, x, y, r);
+	ctx.arcTo(x, y, x + w, y, r);
+	ctx.closePath();
+	if (!notChangeColor)
+		ctx.fillStyle = color;
+	ctx.fill();
+	ctx.restore();
+}
+
+function roundedImage(x, y, width, height, radius, ctx) {
+	ctx.beginPath();
+	ctx.moveTo(x + radius, y);
+	ctx.lineTo(x + width - radius, y);
+	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+	ctx.lineTo(x + width, y + height - radius);
+	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	ctx.lineTo(x + radius, y + height);
+	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+	ctx.lineTo(x, y + radius);
+	ctx.quadraticCurveTo(x, y, x + radius, y);
+	ctx.closePath();
+}
+
+function centerImage(ctx, img, xCenter, yCenter, w, h) {
+	const x = xCenter - w / 2;
+	const y = yCenter - h / 2;
+	ctx.save();
+	ctx.beginPath();
+	ctx.arc(xCenter, yCenter, w / 2, 0, 2 * Math.PI);
+	ctx.clip();
+	ctx.closePath();
+	ctx.drawImage(img, x, y, w, h);
+	ctx.restore();
+}
+
+function autoSizeFont(maxWidthText, maxSizeFont, text, ctx, fontName) {
+	let sizeFont = 0;
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		sizeFont += 1;
+		ctx.font = sizeFont + "px " + fontName;
+		const widthText = ctx.measureText(text).width;
+		if (widthText > maxWidthText || sizeFont > maxSizeFont) break;
+	}
+	return sizeFont + "px " + fontName;
+}
+
+function checkGradientColor(ctx, color, x1, y1, x2, y2) {
+	if (Array.isArray(color)) {
+		const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+		color.forEach((c, index) => {
+			gradient.addColorStop(index / (color.length - 1), c);
+		});
+		return gradient;
+	}
+	else {
+		return color;
+	}
+}
+
+function isUrl(string) {
+	try {
+		new URL(string);
+		return true;
+	}
+	catch (err) {
+		return false;
+	}
+}
+
+function checkFormatColor(color, enableUrl = true) {
+	if (
+		!/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(color) &&
+		!/^rgb\((\d{1,3}), (\d{1,3}), (\d{1,3})\)$/.test(color) &&
+		!/^rgba\((\d{1,3}), (\d{1,3}), (\d{1,3}), (\d{1,3})\)$/.test(color) &&
+		(enableUrl ? !isUrl(color) : true) &&
+		!Array.isArray(color)
+	)
+		throw new Error(`The color format must be a hex, rgb, rgba ${enableUrl ? ", url image" : ""} or an array of colors`);
+}
