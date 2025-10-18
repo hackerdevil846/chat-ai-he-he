@@ -1,251 +1,116 @@
-const fs = require("fs-extra");
-const path = require("path");
+const { config } = global.GoatBot;
+const { writeFileSync } = require("fs-extra");
 
 module.exports = {
-    config: {
-        name: "admin",
-        aliases: ["adm", "botadmin"],
-        version: "1.0.5",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        countDown: 5,
-        role: 2,
-        category: "admin",
-        shortDescription: {
-            en: "🤖 𝐵𝑜𝑡 𝑎𝑑𝑚𝑖𝑛 𝑚𝑎𝑛𝑎𝑔𝑒𝑚𝑒𝑛𝑡"
-        },
-        longDescription: {
-            en: "𝑀𝑎𝑛𝑎𝑔𝑒 𝑏𝑜𝑡 𝑎𝑑𝑚𝑖𝑛𝑖𝑠𝑡𝑟𝑎𝑡𝑜𝑟𝑠 𝑎𝑛𝑑 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠"
-        },
-        guide: {
-            en: "{p}admin [𝑙𝑖𝑠𝑡/𝑎𝑑𝑑/𝑟𝑒𝑚𝑜𝑣𝑒] [𝑢𝑠𝑒𝑟𝐼𝐷]"
-        },
-        dependencies: {
-            "fs-extra": ""
-        }
-    },
+	config: {
+		name: "admin",
+		version: "1.6",
+		author: "NTKhang",
+		countDown: 5,
+		role: 2,
+		description: {
+			vi: "Thêm, xóa, sửa quyền admin",
+			en: "Add, remove, edit admin role"
+		},
+		category: "box chat",
+		guide: {
+			vi: '   {pn} [add | -a] <uid | @tag>: Thêm quyền admin cho người dùng'
+				+ '\n	  {pn} [remove | -r] <uid | @tag>: Xóa quyền admin của người dùng'
+				+ '\n	  {pn} [list | -l]: Liệt kê danh sách admin',
+			en: '   {pn} [add | -a] <uid | @tag>: Add admin role for user'
+				+ '\n	  {pn} [remove | -r] <uid | @tag>: Remove admin role of user'
+				+ '\n	  {pn} [list | -l]: List all admins'
+		}
+	},
 
-    onStart: async function({ message, event, args, usersData }) {
-        try {
-            // 🛡️ Dependency check
-            try {
-                require("fs-extra");
-            } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
-            }
+	langs: {
+		vi: {
+			added: "✅ | Đã thêm quyền admin cho %1 người dùng:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 người dùng đã có quyền admin từ trước rồi:\n%2",
+			missingIdAdd: "⚠️ | Vui lòng nhập ID hoặc tag người dùng muốn thêm quyền admin",
+			removed: "✅ | Đã xóa quyền admin của %1 người dùng:\n%2",
+			notAdmin: "⚠️ | %1 người dùng không có quyền admin:\n%2",
+			missingIdRemove: "⚠️ | Vui lòng nhập ID hoặc tag người dùng muốn xóa quyền admin",
+			listAdmin: "👑 | Danh sách admin:\n%1"
+		},
+		en: {
+			added: "✅ | Added admin role for %1 users:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 users already have admin role:\n%2",
+			missingIdAdd: "⚠️ | Please enter ID or tag user to add admin role",
+			removed: "✅ | Removed admin role of %1 users:\n%2",
+			notAdmin: "⚠️ | %1 users don't have admin role:\n%2",
+			missingIdRemove: "⚠️ | Please enter ID or tag user to remove admin role",
+			listAdmin: "👑 | List of admins:\n%1"
+		}
+	},
 
-            const configPath = path.join(__dirname, '..', '..', 'config.json');
-            
-            // 🛡️ Load config with multiple safety checks
-            let config = {};
-            try {
-                if (fs.existsSync(configPath)) {
-                    const configContent = fs.readFileSync(configPath, 'utf8');
-                    if (configContent.trim() === '') {
-                        // Create default config if empty
-                        config = { ADMINBOT: [] };
-                        fs.writeFileSync(configPath, JSON.stringify(config, null, 4), 'utf8');
-                    } else {
-                        config = JSON.parse(configContent);
-                    }
-                } else {
-                    // Create config file if it doesn't exist
-                    config = { ADMINBOT: [] };
-                    fs.writeFileSync(configPath, JSON.stringify(config, null, 4), 'utf8');
-                }
-            } catch (configError) {
-                console.error("𝐶𝑜𝑛𝑓𝑖𝑔 𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", configError);
-                return message.reply("❌ 𝐶𝑜𝑛𝑓𝑖𝑔 𝑓𝑖𝑙𝑒 𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑐ℎ𝑒𝑐𝑘 𝑡ℎ𝑒 𝑐𝑜𝑛𝑓𝑖𝑔 𝑓𝑖𝑙𝑒.");
-            }
+	onStart: async function ({ message, args, usersData, event, getLang }) {
+		switch (args[0]) {
+			case "add":
+			case "-a": {
+				if (args[1]) {
+					let uids = [];
+					if (Object.keys(event.mentions).length > 0)
+						uids = Object.keys(event.mentions);
+					else if (event.messageReply)
+						uids.push(event.messageReply.senderID);
+					else
+						uids = args.filter(arg => !isNaN(arg));
+					const notAdminIds = [];
+					const adminIds = [];
+					for (const uid of uids) {
+						if (config.adminBot.includes(uid))
+							adminIds.push(uid);
+						else
+							notAdminIds.push(uid);
+					}
 
-            // 🛡️ Ensure ADMINBOT array exists in both configs
-            if (!config.ADMINBOT || !Array.isArray(config.ADMINBOT)) {
-                config.ADMINBOT = [];
-            }
-            
-            if (!global.config) global.config = {};
-            if (!global.config.ADMINBOT || !Array.isArray(global.config.ADMINBOT)) {
-                global.config.ADMINBOT = [];
-            }
-
-            const { mentions } = event;
-            const mention = Object.keys(mentions);
-            const action = args[0]?.toLowerCase();
-
-            // 🛡️ Helper function to save config safely
-            const saveConfig = () => {
-                try {
-                    fs.writeFileSync(configPath, JSON.stringify(config, null, 4), 'utf8');
-                    return true;
-                } catch (saveError) {
-                    console.error("𝐶𝑜𝑛𝑓𝑖𝑔 𝑠𝑎𝑣𝑒 𝑒𝑟𝑟𝑜𝑟:", saveError);
-                    return false;
-                }
-            };
-
-            // 🛡️ Helper function to check if user is bot admin
-            const isBotAdmin = (userId) => {
-                return config.ADMINBOT.includes(userId.toString());
-            };
-
-            // 🛡️ Helper function to get user info safely
-            const getUserInfo = async (userId) => {
-                try {
-                    const userInfo = await usersData.get(userId);
-                    return userInfo?.name || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-                } catch (error) {
-                    return "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-                }
-            };
-
-            switch (action) {
-                case "list":
-                case "all":
-                case "-a": {
-                    const listAdmin = config.ADMINBOT || [];
-                    
-                    if (listAdmin.length === 0) {
-                        return message.reply("📋 [ 𝐴𝐷𝑀𝐼𝑁 ] 𝑁𝑜 𝑎𝑑𝑚𝑖𝑛𝑠 𝑓𝑜𝑢𝑛𝑑");
-                    }
-
-                    const msg = [];
-                    for (const idAdmin of listAdmin) {
-                        if (idAdmin && idAdmin.toString().length >= 9) {
-                            const name = await getUserInfo(idAdmin);
-                            msg.push(`• ${name} (${idAdmin})`);
-                        }
-                    }
-
-                    const adminList = msg.join("\n") || "𝑁𝑜 𝑣𝑎𝑙𝑖𝑑 𝑎𝑑𝑚𝑖𝑛𝑠 𝑓𝑜𝑢𝑛𝑑";
-                    return message.reply(`📋 [ 𝐴𝐷𝑀𝐼𝑁 ] 𝐴𝑑𝑚𝑖𝑛 𝑙𝑖𝑠𝑡:\n\n${adminList}`);
-                }
-
-                case "add": {
-                    // 🛡️ Check if user is bot admin
-                    if (!isBotAdmin(event.senderID)) {
-                        return message.reply("❌ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝑌𝑜𝑢 𝑑𝑜𝑛'𝑡 ℎ𝑎𝑣𝑒 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑎𝑑𝑑 𝑎𝑑𝑚𝑖𝑛𝑠");
-                    }
-
-                    if (mention.length > 0) {
-                        const listAdd = [];
-
-                        for (const id of mention) {
-                            if (id && !isBotAdmin(id)) {
-                                config.ADMINBOT.push(id);
-                                global.config.ADMINBOT.push(id);
-                                const userName = mentions[id]?.replace("@", "") || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-                                listAdd.push(`• ${userName} (${id})`);
-                            }
-                        }
-
-                        if (listAdd.length === 0) {
-                            return message.reply("❌ 𝑁𝑜 𝑛𝑒𝑤 𝑢𝑠𝑒𝑟𝑠 𝑡𝑜 𝑎𝑑𝑑 𝑜𝑟 𝑎𝑙𝑙 𝑢𝑠𝑒𝑟𝑠 𝑎𝑟𝑒 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑎𝑑𝑚𝑖𝑛𝑠");
-                        }
-
-                        if (!saveConfig()) {
-                            return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛");
-                        }
-
-                        return message.reply(`✅ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝐴𝑑𝑑𝑒𝑑 ${listAdd.length} 𝑎𝑑𝑚𝑖𝑛𝑠:\n\n${listAdd.join("\n")}`);
-                    }
-                    else if (args[1] && !isNaN(args[1]) && args[1].length >= 9) {
-                        const targetID = args[1];
-                        
-                        if (isBotAdmin(targetID)) {
-                            return message.reply("❌ 𝑈𝑠𝑒𝑟 𝑖𝑠 𝑎𝑙𝑟𝑒𝑎𝑑𝑦 𝑎𝑛 𝑎𝑑𝑚𝑖𝑛");
-                        }
-
-                        config.ADMINBOT.push(targetID);
-                        global.config.ADMINBOT.push(targetID);
-                        
-                        const name = await getUserInfo(targetID);
-                        
-                        if (!saveConfig()) {
-                            return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛");
-                        }
-
-                        return message.reply(`✅ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝐴𝑑𝑑𝑒𝑑 𝑛𝑒𝑤 𝑎𝑑𝑚𝑖𝑛:\n\n• ${name} (${targetID})`);
-                    }
-                    else {
-                        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑎𝑔𝑒.\n💡 𝑈𝑠𝑒: 𝑎𝑑𝑚𝑖𝑛 𝑎𝑑𝑑 [@𝑡𝑎𝑔] 𝑂𝑅 𝑎𝑑𝑚𝑖𝑛 𝑎𝑑𝑑 [𝑢𝑠𝑒𝑟𝐼𝐷]");
-                    }
-                }
-
-                case "remove":
-                case "rm":
-                case "delete": {
-                    // 🛡️ Check if user is bot admin
-                    if (!isBotAdmin(event.senderID)) {
-                        return message.reply("❌ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝑌𝑜𝑢 𝑑𝑜𝑛'𝑡 ℎ𝑎𝑣𝑒 𝑝𝑒𝑟𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑡𝑜 𝑟𝑒𝑚𝑜𝑣𝑒 𝑎𝑑𝑚𝑖𝑛𝑠");
-                    }
-                    
-                    if (mention.length > 0) {
-                        const listRemove = [];
-
-                        for (const id of mention) {
-                            const index = config.ADMINBOT.indexOf(id);
-                            if (index !== -1) {
-                                config.ADMINBOT.splice(index, 1);
-                                global.config.ADMINBOT.splice(global.config.ADMINBOT.indexOf(id), 1);
-                                const userName = mentions[id]?.replace("@", "") || "𝑈𝑛𝑘𝑛𝑜𝑤𝑛 𝑈𝑠𝑒𝑟";
-                                listRemove.push(`• ${userName} (${id})`);
-                            }
-                        }
-
-                        if (listRemove.length === 0) {
-                            return message.reply("❌ 𝑁𝑜 𝑢𝑠𝑒𝑟𝑠 𝑤𝑒𝑟𝑒 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑡ℎ𝑒 𝑎𝑑𝑚𝑖𝑛 𝑙𝑖𝑠𝑡");
-                        }
-
-                        if (!saveConfig()) {
-                            return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛");
-                        }
-
-                        return message.reply(`🗑️ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝑅𝑒𝑚𝑜𝑣𝑒𝑑 ${listRemove.length} 𝑎𝑑𝑚𝑖𝑛𝑠:\n\n${listRemove.join("\n")}`);
-                    }
-                    else if (args[1] && !isNaN(args[1]) && args[1].length >= 9) {
-                        const targetID = args[1];
-                        const index = config.ADMINBOT.indexOf(targetID);
-                        
-                        if (index === -1) {
-                            return message.reply("❌ 𝑈𝑠𝑒𝑟 𝑖𝑠 𝑛𝑜𝑡 𝑎𝑛 𝑎𝑑𝑚𝑖𝑛");
-                        }
-
-                        config.ADMINBOT.splice(index, 1);
-                        global.config.ADMINBOT.splice(global.config.ADMINBOT.indexOf(targetID), 1);
-                        
-                        const name = await getUserInfo(targetID);
-                        
-                        if (!saveConfig()) {
-                            return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑠𝑎𝑣𝑒 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛");
-                        }
-
-                        return message.reply(`🗑️ [ 𝐴𝐷𝑀𝐼𝑁 ] 𝑅𝑒𝑚𝑜𝑣𝑒𝑑 𝑎𝑑𝑚𝑖𝑛:\n\n• ${name} (${targetID})`);
-                    }
-                    else {
-                        return message.reply("❌ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑎𝑔𝑒.\n💡 𝑈𝑠𝑒: 𝑎𝑑𝑚𝑖𝑛 𝑟𝑒𝑚𝑜𝑣𝑒 [@𝑡𝑎𝑔] 𝑂𝑅 𝑎𝑑𝑚𝑖𝑛 𝑟𝑒𝑚𝑜𝑣𝑒 [𝑢𝑠𝑒𝑟𝐼𝐷]");
-                    }
-                }
-
-                default: {
-                    const helpMessage = `🤖 𝐴𝑑𝑚𝑖𝑛 𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝐻𝑒𝑙𝑝:
-━━━━━━━━━━━━━━━━━━
-📋 » 𝑎𝑑𝑚𝑖𝑛 𝑙𝑖𝑠𝑡
-   𝑆ℎ𝑜𝑤 𝑎𝑙𝑙 𝑏𝑜𝑡 𝑎𝑑𝑚𝑖𝑛𝑖𝑠𝑡𝑟𝑎𝑡𝑜𝑟𝑠
-
-👥 » 𝑎𝑑𝑚𝑖𝑛 𝑎𝑑𝑑 [@𝑡𝑎𝑔/𝐼𝐷]
-   𝐴𝑑𝑑 𝑛𝑒𝑤 𝑏𝑜𝑡 𝑎𝑑𝑚𝑖𝑛
-
-🗑️ » 𝑎𝑑𝑚𝑖𝑛 𝑟𝑒𝑚𝑜𝑣𝑒 [@𝑡𝑎𝑔/𝐼𝐷]
-   𝑅𝑒𝑚𝑜𝑣𝑒 𝑏𝑜𝑡 𝑎𝑑𝑚𝑖𝑛
-
-⚠️  𝑁𝑜𝑡𝑒: 𝑂𝑛𝑙𝑦 𝑒𝑥𝑖𝑠𝑡𝑖𝑛𝑔 𝑎𝑑𝑚𝑖𝑛𝑠 𝑐𝑎𝑛 𝑚𝑎𝑛𝑎𝑔𝑒 𝑜𝑡ℎ𝑒𝑟 𝑎𝑑𝑚𝑖𝑛𝑠`;
-                        
-                    return message.reply(helpMessage);
-                }
-            }
-
-        } catch (error) {
-            console.error("𝐴𝑑𝑚𝑖𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-            return message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-        }
-    }
+					config.adminBot.push(...notAdminIds);
+					const getNames = await Promise.all(uids.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+					writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+					return message.reply(
+						(notAdminIds.length > 0 ? getLang("added", notAdminIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+						+ (adminIds.length > 0 ? getLang("alreadyAdmin", adminIds.length, adminIds.map(uid => `• ${uid}`).join("\n")) : "")
+					);
+				}
+				else
+					return message.reply(getLang("missingIdAdd"));
+			}
+			case "remove":
+			case "-r": {
+				if (args[1]) {
+					let uids = [];
+					if (Object.keys(event.mentions).length > 0)
+						uids = Object.keys(event.mentions)[0];
+					else
+						uids = args.filter(arg => !isNaN(arg));
+					const notAdminIds = [];
+					const adminIds = [];
+					for (const uid of uids) {
+						if (config.adminBot.includes(uid))
+							adminIds.push(uid);
+						else
+							notAdminIds.push(uid);
+					}
+					for (const uid of adminIds)
+						config.adminBot.splice(config.adminBot.indexOf(uid), 1);
+					const getNames = await Promise.all(adminIds.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+					writeFileSync(global.client.dirConfig, JSON.stringify(config, null, 2));
+					return message.reply(
+						(adminIds.length > 0 ? getLang("removed", adminIds.length, getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")) : "")
+						+ (notAdminIds.length > 0 ? getLang("notAdmin", notAdminIds.length, notAdminIds.map(uid => `• ${uid}`).join("\n")) : "")
+					);
+				}
+				else
+					return message.reply(getLang("missingIdRemove"));
+			}
+			case "list":
+			case "-l": {
+				const getNames = await Promise.all(config.adminBot.map(uid => usersData.getName(uid).then(name => ({ uid, name }))));
+				return message.reply(getLang("listAdmin", getNames.map(({ uid, name }) => `• ${name} (${uid})`).join("\n")));
+			}
+			default:
+				return message.SyntaxError();
+		}
+	}
 };
