@@ -1,259 +1,374 @@
 module.exports = {
-    config: {
-        name: "grouptag",
-        aliases: ["grtag"],
-        version: "1.6",
-        author: "Asif Mahmud",
-        countDown: 5,
-        role: 0,
-        category: "utility",
-        shortDescription: {
-            en: "Tag members by group"
-        },
-        longDescription: {
-            en: "Manage group tags for easy member mentioning"
-        },
-        guide: {
-            en: "{p}grouptag add/del/remove/list/info/rename/tag <groupTagName>"
-        }
-    },
+	config: {
+		name: "grouptag",
+		aliases: ["grtag"],
+		version: "1.5",
+		author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+		countDown: 5,
+		role: 0,
+		description: {
+			en: "𝖳𝖺𝗀 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝖻𝗒 𝗀𝗋𝗈𝗎𝗉"
+		},
+		category: "𝗶𝗻𝗳𝗼",
+		guide: {
+			en: "   {pn} 𝖺𝖽𝖽 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾> <@𝗍𝖺𝗀𝗌>: 𝗎𝗌𝖾 𝗍𝗈 𝖺𝖽𝖽 𝗇𝖾𝗐 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 𝗈𝗋 𝖺𝖽𝖽 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗍𝗈 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+				+ "\n   𝖤𝗑𝖺𝗆𝗉𝗅𝖾:"
+				+ "\n    {pn} 𝖺𝖽𝖽 𝖳𝖤𝖠𝖬𝟣 @𝗍𝖺𝗀𝟣 @𝗍𝖺𝗀𝟤"
+				+ "\n\n   {pn} 𝖽𝖾𝗅 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾> <@𝗍𝖺𝗀𝗌>: 𝗎𝗌𝖾 𝗍𝗈 𝗋𝖾𝗆𝗈𝗏𝖾 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝖿𝗋𝗈𝗆 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+				+ "\n   𝖤𝗑𝖺𝗆𝗉𝗅𝖾:"
+				+ "\n    {pn} 𝖽𝖾𝗅 𝖳𝖤𝖠𝖬𝟣 @𝗍𝖺𝗀𝟣 @𝗍𝖺𝗀𝟤"
+				+ "\n\n   {pn} 𝗋𝖾𝗆𝗈𝗏𝖾 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾>: 𝗎𝗌𝖾 𝗍𝗈 𝗋𝖾𝗆𝗈𝗏𝖾 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+				+ "\n   𝖤𝗑𝖺𝗆𝗉𝗅𝖾:"
+				+ "\n    {pn} 𝗋𝖾𝗆𝗈𝗏𝖾 𝖳𝖤𝖠𝖬𝟣"
+				+ "\n\n	 {pn} 𝗍𝖺𝗀 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾>: 𝗎𝗌𝖾 𝗍𝗈 𝗍𝖺𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+				+ "\n\n   {pn} 𝗋𝖾𝗇𝖺𝗆𝖾 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾> | <𝗇𝖾𝗐𝖦𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾>: 𝗎𝗌𝖾 𝗍𝗈 𝗋𝖾𝗇𝖺𝗆𝖾 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+				+ "\n\n   {pn} [𝗅𝗂𝗌𝗍 | 𝖺𝗅𝗅]: 𝗎𝗌𝖾 𝗍𝗈 𝗏𝗂𝖾𝗐 𝗅𝗂𝗌𝗍 𝗈𝖿 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 𝗂𝗇 𝗒𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉 𝖼𝗁𝖺𝗍"
+				+ "\n\n   {pn} 𝗂𝗇𝖿𝗈 <𝗀𝗋𝗈𝗎𝗉𝖳𝖺𝗀𝖭𝖺𝗆𝖾>: 𝗎𝗌𝖾 𝗍𝗈 𝗏𝗂𝖾𝗐 𝗂𝗇𝖿𝗈 𝗈𝖿 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀"
+		},
+		dependencies: {
+			"fs-extra": ""
+		}
+	},
 
-    onStart: async function({ api, event, args, threadsData, message }) {
-        try {
-            const threadID = event.threadID;
-            const threadData = await threadsData.get(threadID);
-            threadData.data = threadData.data || {};
-            const groupTags = threadData.data.groupTags || [];
+	langs: {
+		en: {
+			noGroupTagName: "❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 𝗇𝖺𝗆𝖾",
+			noMention: "❌ 𝖸𝗈𝗎 𝗁𝖺𝗏𝖾𝗇'𝗍 𝗍𝖺𝗀𝗀𝖾𝖽 𝖺𝗇𝗒 𝗆𝖾𝗆𝖻𝖾𝗋 𝗍𝗈 𝖺𝖽𝖽 𝗍𝗈 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀",
+			addedSuccess: "✅ 𝖠𝖽𝖽𝖾𝖽 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗍𝗈 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\":\n%2",
+			addedSuccess2: "✅ 𝖠𝖽𝖽𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\" 𝗐𝗂𝗍𝗁 𝗆𝖾𝗆𝖻𝖾𝗋𝗌:\n%2",
+			existedInGroupTag: "⚠️ 𝖬𝖾𝗆𝖻𝖾𝗋𝗌:\n%1\n𝖺𝗅𝗋𝖾𝖺𝖽𝗒 𝖾𝗑𝗂𝗌𝗍𝖾𝖽 𝗂𝗇 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%2\"",
+			notExistedInGroupTag: "❌ 𝖬𝖾𝗆𝖻𝖾𝗋𝗌:\n%1\n𝖽𝗈𝖾𝗌𝗇'𝗍 𝖾𝗑𝗂𝗌𝗍 𝗂𝗇 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%2\"",
+			noExistedGroupTag: "❌ 𝖦𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\" 𝖽𝗈𝖾𝗌𝗇'𝗍 𝖾𝗑𝗂𝗌𝗍 𝗂𝗇 𝗒𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉 𝖼𝗁𝖺𝗍",
+			noExistedGroupTag2: "❌ 𝖸𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉 𝖼𝗁𝖺𝗍 𝗁𝖺𝗌𝗇'𝗍 𝖺𝖽𝖽𝖾𝖽 𝖺𝗇𝗒 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀",
+			noMentionDel: "❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝖺𝗀 𝗆𝖾𝗆𝖻𝖾𝗋𝗌 𝗍𝗈 𝗋𝖾𝗆𝗈𝗏𝖾 𝖿𝗋𝗈𝗆 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\"",
+			deletedSuccess: "✅ 𝖣𝖾𝗅𝖾𝗍𝖾𝖽 𝗆𝖾𝗆𝖻𝖾𝗋𝗌:\n%1\n𝖿𝗋𝗈𝗆 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%2\"",
+			deletedSuccess2: "✅ 𝖣𝖾𝗅𝖾𝗍𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\"",
+			tagged: "🔔 𝖳𝖺𝗀 𝗀𝗋𝗈𝗎𝗉 \"%1\":\n%2",
+			noGroupTagName2: "❌ 𝖯𝗅𝖾𝖺𝗌𝖾 𝖾𝗇𝗍𝖾𝗋 𝗈𝗅𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 𝗇𝖺𝗆𝖾 𝖺𝗇𝖽 𝗇𝖾𝗐 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 𝗇𝖺𝗆𝖾, 𝗌𝖾𝗉𝖺𝗋𝖺𝗍𝖾𝖽 𝖻𝗒 \"|\"",
+			renamedSuccess: "✅ 𝖱𝖾𝗇𝖺𝗆𝖾𝖽 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀 \"%1\" 𝗍𝗈 \"%2\"",
+			infoGroupTag: "📑 | 𝖦𝗋𝗈𝗎𝗉 𝗇𝖺𝗆𝖾: %1\n👥 | 𝖭𝗎𝗆𝖻𝖾𝗋 𝗈𝖿 𝗆𝖾𝗆𝖻𝖾𝗋𝗌: %2\n👨‍👩‍👧‍👦 | 𝖫𝗂𝗌𝗍 𝗈𝖿 𝗆𝖾𝗆𝖻𝖾𝗋𝗌:\n %3",
+			dataError: "❌ 𝖣𝖺𝗍𝖺𝗌𝗍𝗈𝗋𝖾 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.",
+			noPermissions: "❌ 𝖨𝗇𝗌𝗎𝖿𝖿𝗂𝖼𝗂𝖾𝗇𝗍 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌."
+		}
+	},
 
-            const reply = async (msg) => {
-                return message.reply(msg);
-            };
+	onStart: async function ({ message, event, args, threadsData, getLang, api }) {
+		try {
+			// Dependency check
+			let fsAvailable = true;
+			try {
+				require("fs-extra");
+			} catch (e) {
+				fsAvailable = false;
+			}
 
-            const mentionsMap = {};
-            if (event.mentions) {
-                for (const uid in event.mentions) {
-                    mentionsMap[uid] = event.mentions[uid].replace(/^@/, "");
-                }
-            }
+			if (!fsAvailable) {
+				return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗒: 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺");
+			}
 
-            const cmd = args[0] ? args[0].toLowerCase() : "tag";
+			const { threadID, mentions, senderID } = event;
+			
+			// Clean mentions data
+			const cleanedMentions = {};
+			for (const uid in mentions) {
+				if (uid && mentions[uid]) {
+					cleanedMentions[uid] = mentions[uid].replace("@", "").trim();
+				}
+			}
 
-            switch (cmd) {
-                case 'add': {
-                    const mentionsID = Object.keys(event.mentions || {});
-                    const content = (args.slice(1) || []).join(' ');
-                    
-                    if (!mentionsID[0]) {
-                        return reply("❗ You haven't tagged any member to add to group tag");
-                    }
+			// Get group tags with error handling
+			let groupTags;
+			try {
+				groupTags = await threadsData.get(threadID, "data.groupTags") || [];
+				if (!Array.isArray(groupTags)) {
+					groupTags = [];
+				}
+			} catch (dataError) {
+				console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗀𝖾𝗍𝗍𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", dataError);
+				return message.reply(getLang("dataError"));
+			}
 
-                    const firstMentionName = event.mentions[mentionsID[0]];
-                    const idx = content.indexOf(firstMentionName);
-                    const groupTagName = (idx > 0) ? content.slice(0, idx - 1).trim() : content.slice(0, content.indexOf(firstMentionName)).trim();
-                    
-                    if (!groupTagName) {
-                        return reply("❗ Please enter group tag name");
-                    }
+			const command = args[0]?.toLowerCase() || "tag";
 
-                    const oldGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
-                    
-                    if (oldGroupTag) {
-                        const usersIDExist = [];
-                        const usersIDNotExist = [];
-                        
-                        for (const uid in mentionsMap) {
-                            if (oldGroupTag.users.hasOwnProperty(uid)) {
-                                usersIDExist.push(uid);
-                            } else {
-                                oldGroupTag.users[uid] = mentionsMap[uid];
-                                usersIDNotExist.push(uid);
-                            }
-                        }
-                        
-                        threadData.data.groupTags = groupTags;
-                        await threadsData.set(threadID, threadData);
+			switch (command) {
+				case "add": {
+					if (args.length < 2) {
+						return message.reply(getLang("noGroupTagName"));
+					}
 
-                        let msg = "";
-                        if (usersIDNotExist.length > 0) {
-                            msg += `✅ Added members to group tag "${oldGroupTag.name}":\n${usersIDNotExist.map(uid => mentionsMap[uid]).join('\n')}\n`;
-                        }
-                        if (usersIDExist.length > 0) {
-                            msg += `⚠️ Members:\n${usersIDExist.map(uid => mentionsMap[uid]).join('\n')}\nalready existed in group tag "${oldGroupTag.name}"`;
-                        }
-                        return reply(msg);
-                    } else {
-                        const newGroupTag = { 
-                            name: groupTagName, 
-                            users: { ...mentionsMap } 
-                        };
-                        groupTags.push(newGroupTag);
-                        threadData.data.groupTags = groupTags;
-                        await threadsData.set(threadID, threadData);
-                        return reply(`✅ Added group tag "${groupTagName}" with members:\n${Object.values(mentionsMap).join('\n')}`);
-                    }
-                }
+					const mentionsID = Object.keys(cleanedMentions);
+					if (mentionsID.length === 0) {
+						return message.reply(getLang("noMention"));
+					}
 
-                case 'list':
-                case 'all': {
-                    if (args[1]) {
-                        const groupTagName = args.slice(1).join(' ');
-                        if (!groupTagName) {
-                            return reply("❗ Please enter group tag name");
-                        }
-                        
-                        const groupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
-                        if (!groupTag) {
-                            return reply(`❌ Group tag "${groupTagName}" doesn't exist in your group chat`);
-                        }
-                        
-                        const body = `📑 | Group name: ${groupTag.name}\n👥 | Number of members: ${Object.keys(groupTag.users).length}\n👨‍👩‍👧‍👦 | List of members:\n ${Object.keys(groupTag.users).map(uid => groupTag.users[uid]).join('\n ')}`;
-                        return reply(body);
-                    }
-                    
-                    if (groupTags.length === 0) {
-                        return reply("📭 Your group chat hasn't added any group tag");
-                    }
-                    
-                    const msg = groupTags.map(group => 
-                        `\n📌 ${group.name}:\n ${Object.values(group.users).join('\n ')}`
-                    ).join('\n');
-                    
-                    return reply(msg);
-                }
+					// Extract group tag name (everything before the first mention)
+					const content = args.slice(1).join(" ");
+					let groupTagName = content;
+					
+					// Find the position of the first mention in the content
+					for (const uid of mentionsID) {
+						const mentionText = cleanedMentions[uid];
+						const mentionIndex = content.indexOf(mentionText);
+						if (mentionIndex !== -1) {
+							groupTagName = content.substring(0, mentionIndex).trim();
+							break;
+						}
+					}
 
-                case 'info': {
-                    const groupTagName = args.slice(1).join(' ');
-                    if (!groupTagName) {
-                        return reply("❗ Please enter group tag name");
-                    }
-                    
-                    const groupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
-                    if (!groupTag) {
-                        return reply(`❌ Group tag "${groupTagName}" doesn't exist in your group chat`);
-                    }
-                    
-                    const body = `📑 | Group name: ${groupTag.name}\n👥 | Number of members: ${Object.keys(groupTag.users).length}\n👨‍👩‍👧‍👦 | List of members:\n ${Object.keys(groupTag.users).map(uid => groupTag.users[uid]).join('\n ')}`;
-                    return reply(body);
-                }
+					if (!groupTagName) {
+						return message.reply(getLang("noGroupTagName"));
+					}
 
-                case 'del': {
-                    const content = (args.slice(1) || []).join(' ');
-                    const mentionsID = Object.keys(event.mentions || {});
-                    
-                    if (!mentionsID[0]) {
-                        return reply("❗ Please tag members to remove from group tag");
-                    }
+					const existingGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
+					
+					if (existingGroupTag) {
+						const usersExist = [];
+						const usersToAdd = [];
+						
+						for (const uid in cleanedMentions) {
+							if (existingGroupTag.users[uid]) {
+								usersExist.push(cleanedMentions[uid]);
+							} else {
+								existingGroupTag.users[uid] = cleanedMentions[uid];
+								usersToAdd.push(cleanedMentions[uid]);
+							}
+						}
 
-                    const firstMentionName = event.mentions[mentionsID[0]];
-                    const idx = content.indexOf(firstMentionName);
-                    const groupTagName = (idx > 0) ? content.slice(0, idx - 1).trim() : content.slice(0, content.indexOf(firstMentionName)).trim();
-                    
-                    if (!groupTagName) {
-                        return reply("❗ Please enter group tag name");
-                    }
+						try {
+							await threadsData.set(threadID, groupTags, "data.groupTags");
+						} catch (saveError) {
+							console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", saveError);
+							return message.reply(getLang("dataError"));
+						}
 
-                    const oldGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
-                    if (!oldGroupTag) {
-                        return reply(`❌ Group tag "${groupTagName}" doesn't exist in your group chat`);
-                    }
+						let response = "";
+						if (usersToAdd.length > 0) {
+							response += getLang("addedSuccess", existingGroupTag.name, usersToAdd.join("\n")) + "\n";
+						}
+						if (usersExist.length > 0) {
+							response += getLang("existedInGroupTag", usersExist.join("\n"), existingGroupTag.name);
+						}
+						return message.reply(response);
+					} else {
+						const newGroupTag = {
+							name: groupTagName,
+							users: { ...cleanedMentions }
+						};
+						groupTags.push(newGroupTag);
+						
+						try {
+							await threadsData.set(threadID, groupTags, "data.groupTags");
+						} catch (saveError) {
+							console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", saveError);
+							return message.reply(getLang("dataError"));
+						}
+						
+						return message.reply(getLang("addedSuccess2", groupTagName, Object.values(cleanedMentions).join("\n")));
+					}
+				}
 
-                    const usersIDExist = [];
-                    const usersIDNotExist = [];
-                    
-                    for (const uid in mentionsMap) {
-                        if (oldGroupTag.users.hasOwnProperty(uid)) {
-                            delete oldGroupTag.users[uid];
-                            usersIDExist.push(uid);
-                        } else {
-                            usersIDNotExist.push(uid);
-                        }
-                    }
+				case "list":
+				case "all": {
+					if (groupTags.length === 0) {
+						return message.reply(getLang("noExistedGroupTag2"));
+					}
 
-                    threadData.data.groupTags = groupTags;
-                    await threadsData.set(threadID, threadData);
+					if (args[1]) {
+						const groupTagName = args.slice(1).join(" ");
+						const groupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
+						if (!groupTag) {
+							return message.reply(getLang("noExistedGroupTag", groupTagName));
+						}
+						return showInfoGroupTag(message, groupTag, getLang);
+					}
 
-                    let msg = "";
-                    if (usersIDNotExist.length > 0) {
-                        msg += `❌ Members:\n${usersIDNotExist.map(uid => mentionsMap[uid]).join('\n')}\ndoesn't exist in group tag "${groupTagName}"\n`;
-                    }
-                    if (usersIDExist.length > 0) {
-                        msg += `🗑️ Deleted members:\n${usersIDExist.map(uid => mentionsMap[uid]).join('\n')}\nfrom group tag "${groupTagName}"`;
-                    }
-                    return reply(msg);
-                }
+					const groupList = groupTags.map(group => 
+						`\n\n📌 ${group.name}:\n ${Object.values(group.users).join("\n ")}`
+					).join("");
+					
+					return message.reply(`📋 𝖦𝗋𝗈𝗎𝗉 𝖳𝖺𝗀𝗌 𝖫𝗂𝗌𝗍:${groupList}`);
+				}
 
-                case 'remove':
-                case 'rm': {
-                    const groupTagName = (args.slice(1) || []).join(' ').trim();
-                    if (!groupTagName) {
-                        return reply("❗ Please enter group tag name");
-                    }
-                    
-                    const index = groupTags.findIndex(group => group.name.toLowerCase() === groupTagName.toLowerCase());
-                    if (index === -1) {
-                        return reply(`❌ Group tag "${groupTagName}" doesn't exist in your group chat`);
-                    }
-                    
-                    groupTags.splice(index, 1);
-                    threadData.data.groupTags = groupTags;
-                    await threadsData.set(threadID, threadData);
-                    return reply(`🗑️ Deleted group tag "${groupTagName}"`);
-                }
+				case "info": {
+					if (args.length < 2) {
+						return message.reply(getLang("noGroupTagName"));
+					}
+					
+					const groupTagName = args.slice(1).join(" ");
+					const groupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
+					if (!groupTag) {
+						return message.reply(getLang("noExistedGroupTag", groupTagName));
+					}
+					return showInfoGroupTag(message, groupTag, getLang);
+				}
 
-                case 'rename': {
-                    const content = (args.slice(1) || []).join(' ');
-                    const arr = content.split('|').map(str => str.trim());
-                    const oldGroupTagName = arr[0];
-                    const newGroupTagName = arr[1];
-                    
-                    if (!oldGroupTagName || !newGroupTagName) {
-                        return reply('❗ Please enter old group tag name and new group tag name, separated by "|"');
-                    }
-                    
-                    const oldGroupTag = groupTags.find(tag => tag.name.toLowerCase() === oldGroupTagName.toLowerCase());
-                    if (!oldGroupTag) {
-                        return reply(`❌ Group tag "${oldGroupTagName}" doesn't exist in your group chat`);
-                    }
-                    
-                    oldGroupTag.name = newGroupTagName;
-                    threadData.data.groupTags = groupTags;
-                    await threadsData.set(threadID, threadData);
-                    return reply(`✏️ Renamed group tag "${oldGroupTagName}" to "${newGroupTagName}"`);
-                }
+				case "del": {
+					if (args.length < 2) {
+						return message.reply(getLang("noGroupTagName"));
+					}
 
-                case 'tag':
-                default: {
-                    const content = (args.slice(cmd === 'tag' ? 1 : 0) || []).join(' ');
-                    const groupTagName = content.trim();
-                    
-                    if (!groupTagName) {
-                        return reply("❗ Please enter group tag name");
-                    }
-                    
-                    const oldGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
-                    if (!oldGroupTag) {
-                        return reply(`❌ Group tag "${groupTagName}" doesn't exist in your group chat`);
-                    }
+					const mentionsID = Object.keys(cleanedMentions);
+					if (mentionsID.length === 0) {
+						const groupTagName = args.slice(1).join(" ");
+						return message.reply(getLang("noMentionDel", groupTagName));
+					}
 
-                    const users = oldGroupTag.users;
-                    const mentions = [];
-                    let msg = "";
-                    
-                    for (const uid in users) {
-                        const userName = users[uid];
-                        mentions.push({ id: uid, tag: userName });
-                        msg += `${userName}\n`;
-                    }
+					const content = args.slice(1).join(" ");
+					let groupTagName = content;
+					
+					for (const uid of mentionsID) {
+						const mentionText = cleanedMentions[uid];
+						const mentionIndex = content.indexOf(mentionText);
+						if (mentionIndex !== -1) {
+							groupTagName = content.substring(0, mentionIndex).trim();
+							break;
+						}
+					}
 
-                    return message.reply({ 
-                        body: `🔔 Tag group "${groupTagName}":\n${msg}`, 
-                        mentions 
-                    });
-                }
-            }
-        } catch (error) {
-            console.error("GroupTag Error:", error);
-            message.reply("❌ An error occurred while processing the command. Please try again.");
-        }
-    }
+					if (!groupTagName) {
+						return message.reply(getLang("noGroupTagName"));
+					}
+
+					const existingGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
+					if (!existingGroupTag) {
+						return message.reply(getLang("noExistedGroupTag", groupTagName));
+					}
+
+					const usersRemoved = [];
+					const usersNotFound = [];
+					
+					for (const uid in cleanedMentions) {
+						if (existingGroupTag.users[uid]) {
+							delete existingGroupTag.users[uid];
+							usersRemoved.push(cleanedMentions[uid]);
+						} else {
+							usersNotFound.push(cleanedMentions[uid]);
+						}
+					}
+
+					// Remove group tag if no members left
+					if (Object.keys(existingGroupTag.users).length === 0) {
+						const index = groupTags.indexOf(existingGroupTag);
+						if (index !== -1) {
+							groupTags.splice(index, 1);
+						}
+					}
+
+					try {
+						await threadsData.set(threadID, groupTags, "data.groupTags");
+					} catch (saveError) {
+						console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", saveError);
+						return message.reply(getLang("dataError"));
+					}
+
+					let response = "";
+					if (usersRemoved.length > 0) {
+						response += getLang("deletedSuccess", usersRemoved.join("\n"), groupTagName) + "\n";
+					}
+					if (usersNotFound.length > 0) {
+						response += getLang("notExistedInGroupTag", usersNotFound.join("\n"), groupTagName);
+					}
+					return message.reply(response);
+				}
+
+				case "remove":
+				case "rm": {
+					if (args.length < 2) {
+						return message.reply(getLang("noGroupTagName"));
+					}
+
+					const groupTagName = args.slice(1).join(" ").trim();
+					const index = groupTags.findIndex(group => group.name.toLowerCase() === groupTagName.toLowerCase());
+					
+					if (index === -1) {
+						return message.reply(getLang("noExistedGroupTag", groupTagName));
+					}
+
+					groupTags.splice(index, 1);
+					
+					try {
+						await threadsData.set(threadID, groupTags, "data.groupTags");
+					} catch (saveError) {
+						console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", saveError);
+						return message.reply(getLang("dataError"));
+					}
+
+					return message.reply(getLang("deletedSuccess2", groupTagName));
+				}
+
+				case "rename": {
+					if (args.length < 2) {
+						return message.reply(getLang("noGroupTagName2"));
+					}
+
+					const content = args.slice(1).join(" ");
+					const parts = content.split("|").map(part => part.trim());
+					
+					if (parts.length < 2) {
+						return message.reply(getLang("noGroupTagName2"));
+					}
+
+					const [oldName, newName] = parts;
+					const existingGroupTag = groupTags.find(tag => tag.name.toLowerCase() === oldName.toLowerCase());
+					
+					if (!existingGroupTag) {
+						return message.reply(getLang("noExistedGroupTag", oldName));
+					}
+
+					existingGroupTag.name = newName;
+					
+					try {
+						await threadsData.set(threadID, groupTags, "data.groupTags");
+					} catch (saveError) {
+						console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝗀𝗋𝗈𝗎𝗉 𝗍𝖺𝗀𝗌:", saveError);
+						return message.reply(getLang("dataError"));
+					}
+
+					return message.reply(getLang("renamedSuccess", oldName, newName));
+				}
+
+				case "tag":
+				default: {
+					if (args.length < (command === "tag" ? 2 : 1)) {
+						return message.reply(getLang("noGroupTagName"));
+					}
+
+					const startIndex = command === "tag" ? 1 : 0;
+					const groupTagName = args.slice(startIndex).join(" ").trim();
+					const existingGroupTag = groupTags.find(tag => tag.name.toLowerCase() === groupTagName.toLowerCase());
+					
+					if (!existingGroupTag) {
+						return message.reply(getLang("noExistedGroupTag", groupTagName));
+					}
+
+					const { users } = existingGroupTag;
+					const mentionsList = [];
+					let messageText = "";
+					
+					for (const uid in users) {
+						const userName = users[uid];
+						mentionsList.push({
+							id: uid,
+							tag: userName
+						});
+						messageText += `• ${userName}\n`;
+					}
+
+					return message.reply({
+						body: getLang("tagged", existingGroupTag.name, messageText),
+						mentions: mentionsList
+					});
+				}
+			}
+
+		} catch (error) {
+			console.error("💥 𝖦𝗋𝗈𝗎𝗉𝖳𝖺𝗀 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
+			return message.reply("❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+		}
+	}
 };
+
+function showInfoGroupTag(message, groupTag, getLang) {
+	const memberList = Object.values(groupTag.users).map(name => `• ${name}`).join("\n ");
+	return message.reply(getLang("infoGroupTag", groupTag.name, Object.keys(groupTag.users).length, memberList));
+}
