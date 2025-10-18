@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 
-// Backup image URLs array (your existing array remains the same)
+// Backup image URLs array
 const backupImageUrls = ["https://i.postimg.cc/sDgT39w4/102945240-2620675894699462-149637297386229385-n.jpg",
 "https://i.postimg.cc/rm2hTBPD/103312516-277973596782825-5070442014201499477-n.jpg",
 "https://i.postimg.cc/vmVPpY3R/103363993-381405112820441-4473976351381983042-n.jpg",
@@ -1002,13 +1002,22 @@ const backupImageUrls = ["https://i.postimg.cc/sDgT39w4/102945240-26206758946994
 "https://i.postimg.cc/d3BN45nL/82485024-3361343340596382-3492839296869526895-n.jpg",
 "https://i.postimg.cc/QM2zt9Hx/82843073-708862923281467-4484830967021175440-n.jpg",
 "https://i.postimg.cc/W1tYw6Z1/83064441-305604394177812-1284583178468938915-n.jpg",
-"https://i.postimg.cc/MK9rBrvL/83776952-589841148576416-3351935912235405542-n.jpg"]; // your full array
+"https://i.postimg.cc/MK9rBrvL/83776952-589841148576416-3351935912235405542-n.jpg"];
 
 // Ensure cache directory exists
 const cacheDir = path.join(__dirname, 'cache');
 if (!fs.existsSync(cacheDir)) {
-    fs.mkdirSync(cacheDir, { recursive: true });
+    try {
+        fs.mkdirSync(cacheDir, { recursive: true });
+        console.log("✅ Cache directory created successfully");
+    } catch (dirError) {
+        console.error("❌ Failed to create cache directory:", dirError.message);
+    }
 }
+
+// Rate limiting
+const userCooldowns = new Map();
+const COOLDOWN_TIME = 5000; // 5 seconds
 
 module.exports = {
     config: {
@@ -1027,157 +1036,211 @@ module.exports = {
         },
         guide: {
             en: "🖤 𝐉𝐮𝐬𝐭 𝐭𝐲𝐩𝐞 '𝐥𝐨𝐥𝐢' 𝐭𝐨 𝐠𝐞𝐭 𝐜𝐮𝐭𝐞 𝐢𝐦𝐚𝐠𝐞𝐬"
-        },
-        dependencies: {
-            "axios": "",
-            "fs": "",
-            "path": ""
         }
     },
 
     onStart: async function ({ message }) {
-        await message.reply(`🖤 𝐉𝐮𝐬𝐭 𝐭𝐲𝐩𝐞 '𝐥𝐨𝐥𝐢' 𝐚𝐧𝐝 𝐈'𝐥𝐥 𝐬𝐞𝐧𝐝 𝐲𝐨𝐮 𝐬𝐨𝐦𝐞 𝐜𝐮𝐭𝐞 𝐢𝐦𝐚𝐠𝐞𝐬! 📸`);
+        try {
+            if (!message || typeof message.reply !== 'function') {
+                console.error("❌ Invalid message object in onStart");
+                return;
+            }
+            await message.reply(`🖤 𝐉𝐮𝐬𝐭 𝐭𝐲𝐩𝐞 '𝐥𝐨𝐥𝐢' 𝐚𝐧𝐝 𝐈'𝐥𝐥 𝐬𝐞𝐧𝐝 𝐲𝐨𝐮 𝐬𝐨𝐦𝐞 𝐜𝐮𝐭𝐞 𝐢𝐦𝐚𝐠𝐞𝐬! 📸`);
+        } catch (error) {
+            console.error("💥 Error in onStart:", error.message);
+        }
     },
 
     onChat: async function ({ event, message }) {
+        // ✅ COMPLETE ERROR PROOFING - Check EVERYTHING
         try {
-            const { body } = event;
-
-            // Check if body exists and is a string
-            if (!body || typeof body !== 'string') {
+            // 1. Check if event exists and has required properties
+            if (!event || typeof event !== 'object') {
+                console.log("⚠️ Event is undefined or not an object");
                 return;
             }
 
-            if (body.toLowerCase().trim() === "loli") {
-                const loliDataPath = path.resolve(__dirname, '../scripts/cmds/datajson/loli.json');
-                let imageUrls = [...backupImageUrls]; // Start with backup URLs
-                
-                // Try to load from JSON file if available
-                try {
-                    if (fs.existsSync(loliDataPath)) {
-                        const rawData = fs.readFileSync(loliDataPath, 'utf8');
-                        if (rawData && rawData.trim() !== '') {
-                            const imageData = JSON.parse(rawData);
-                            const fileUrls = Array.isArray(imageData) ? imageData : [imageData];
-                            const validFileUrls = fileUrls.filter(url => 
-                                url && typeof url === 'string' && url.trim() !== ''
-                            );
-                            if (validFileUrls.length > 0) {
-                                imageUrls = [...validFileUrls, ...backupImageUrls]; // Combine both sources
-                            }
-                        }
-                    }
-                } catch (fileError) {
-                    console.error("🖤 𝐄𝐫𝐫𝐨𝐫 𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐟𝐫𝐨𝐦 𝐉𝐒𝐎𝐍 𝐟𝐢𝐥𝐞:", fileError.message);
-                    // Continue with backup URLs
-                }
+            // 2. Check if message function exists
+            if (!message || typeof message.reply !== 'function') {
+                console.log("⚠️ Message function is not available");
+                return;
+            }
 
-                const validImageUrls = imageUrls.filter(url => 
-                    url && typeof url === 'string' && url.trim() !== ''
-                );
+            // 3. Check if body exists and is valid
+            if (!event.body || typeof event.body !== 'string') {
+                console.log("⚠️ Event body is invalid or missing");
+                return;
+            }
 
-                if (validImageUrls.length === 0) {
-                    return await message.reply("❌ 𝐍𝐨 𝐯𝐚𝐥𝐢𝐝 𝐢𝐦𝐚𝐠𝐞𝐬 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞.");
-                }
-
-                const numImages = Math.min(Math.floor(Math.random() * 5) + 1, 5);
-                const attachments = [];
-                const tempFiles = [];
-
-                // Shuffle and select unique images
-                const shuffledUrls = [...validImageUrls].sort(() => 0.5 - Math.random());
-                const selectedUrls = shuffledUrls.slice(0, numImages);
-
-                for (let i = 0; i < selectedUrls.length; i++) {
-                    try {
-                        const imageUrl = selectedUrls[i].trim();
-                        const imagePath = path.join(cacheDir, `loli_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}.jpg`);
-                        
-                        console.log(`🖤 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠: ${imageUrl}`);
-                        
-                        const response = await axios({
-                            method: 'GET',
-                            url: imageUrl,
-                            responseType: 'stream',
-                            timeout: 15000,
-                            headers: {
-                                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                                'Accept': 'image/*'
-                            }
-                        });
-
-                        // Write file with proper error handling
-                        const writer = fs.createWriteStream(imagePath);
-                        response.data.pipe(writer);
-
-                        await new Promise((resolve, reject) => {
-                            writer.on('finish', resolve);
-                            writer.on('error', (error) => {
-                                fs.unlinkSync(imagePath); // Delete partial file
-                                reject(error);
-                            });
-                            response.data.on('error', reject);
-                            
-                            // Set timeout
-                            setTimeout(() => reject(new Error('Download timeout')), 15000);
-                        });
-
-                        // Verify downloaded file
-                        if (fs.existsSync(imagePath)) {
-                            const stats = fs.statSync(imagePath);
-                            if (stats.size > 1024) { // At least 1KB
-                                attachments.push(fs.createReadStream(imagePath));
-                                tempFiles.push(imagePath);
-                                console.log(`✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬: ${path.basename(imagePath)} (${(stats.size / 1024).toFixed(1)}KB)`);
-                            } else {
-                                console.warn(`⚠️ 𝐒𝐦𝐚𝐥𝐥 𝐟𝐢𝐥𝐞: ${path.basename(imagePath)}`);
-                                fs.unlinkSync(imagePath);
-                            }
-                        }
-
-                    } catch (error) {
-                        console.error(`❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 ${i + 1}:`, error.message);
-                        // Clean up any partially downloaded file
-                        try {
-                            const failedPath = path.join(cacheDir, `loli_${Date.now()}_${i}_*.jpg`);
-                            const files = fs.readdirSync(cacheDir).filter(f => f.includes(`loli_${Date.now()}_${i}_`));
-                            files.forEach(file => {
-                                fs.unlinkSync(path.join(cacheDir, file));
-                            });
-                        } catch (cleanupError) {
-                            // Ignore cleanup errors
-                        }
-                    }
-                }
-
-                if (attachments.length > 0) {
-                    await message.reply({
-                        body: `🖤 𝐄𝐧𝐣𝐨𝐲 𝐭𝐡𝐞𝐬𝐞 𝐜𝐮𝐭𝐞 𝐢𝐦𝐚𝐠𝐞𝐬! 💕\n\n📸 ${attachments.length} 𝐢𝐦𝐚𝐠𝐞${attachments.length > 1 ? '𝐬' : ''} 𝐬𝐞𝐧𝐭`,
-                        attachment: attachments
-                    });
-                    console.log(`🎉 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐬𝐞𝐧𝐭 ${attachments.length} 𝐢𝐦𝐚𝐠𝐞𝐬`);
-                    
-                    // Clean up files after sending
-                    setTimeout(() => {
-                        tempFiles.forEach(filePath => {
-                            try {
-                                if (fs.existsSync(filePath)) {
-                                    fs.unlinkSync(filePath);
-                                    console.log(`🧹 𝐂𝐥𝐞𝐚𝐧𝐞𝐝: ${path.basename(filePath)}`);
-                                }
-                            } catch (e) {
-                                console.error(`❌ 𝐂𝐥𝐞𝐚𝐧𝐮𝐩 𝐟𝐚𝐢𝐥𝐞𝐝: ${path.basename(filePath)}`);
-                            }
-                        });
-                    }, 30000); // 30 seconds to ensure message is sent
-                    
-                } else {
-                    await message.reply("❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐧𝐲 𝐢𝐦𝐚𝐠𝐞𝐬. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+            // 4. Rate limiting check
+            const userId = event.senderID;
+            const now = Date.now();
+            
+            if (userId && userCooldowns.has(userId)) {
+                const lastTime = userCooldowns.get(userId);
+                if (now - lastTime < COOLDOWN_TIME) {
+                    console.log(`⏳ User ${userId} is in cooldown`);
+                    return;
                 }
             }
+
+            const body = event.body.trim();
+            
+            // 5. Check if command matches
+            if (body.toLowerCase() !== "loli") {
+                return;
+            }
+
+            // 6. Update cooldown
+            if (userId) {
+                userCooldowns.set(userId, now);
+            }
+
+            console.log(`🎯 Processing loli command for user: ${userId}`);
+
+            // Load image URLs
+            const loliDataPath = path.join(__dirname, 'datajson', 'loli.json');
+            let imageUrls = [...backupImageUrls]; // Start with backup URLs
+            
+            // Try to load from JSON file if available
+            try {
+                if (fs.existsSync(loliDataPath)) {
+                    const rawData = fs.readFileSync(loliDataPath, 'utf8');
+                    if (rawData && rawData.trim() !== '') {
+                        const imageData = JSON.parse(rawData);
+                        const fileUrls = Array.isArray(imageData) ? imageData : [imageData];
+                        const validFileUrls = fileUrls.filter(url => 
+                            url && typeof url === 'string' && url.trim() !== '' && url.startsWith('http')
+                        );
+                        if (validFileUrls.length > 0) {
+                            imageUrls = [...validFileUrls, ...backupImageUrls];
+                            console.log(`✅ Loaded ${validFileUrls.length} URLs from JSON file`);
+                        }
+                    }
+                }
+            } catch (fileError) {
+                console.log("ℹ️ Using backup URLs only:", fileError.message);
+            }
+
+            // Filter valid URLs
+            const validImageUrls = imageUrls.filter(url => 
+                url && typeof url === 'string' && url.trim() !== '' && url.startsWith('http')
+            );
+
+            if (validImageUrls.length === 0) {
+                await message.reply("❌ 𝐍𝐨 𝐯𝐚𝐥𝐢𝐝 𝐢𝐦𝐚𝐠𝐞 𝐮𝐫𝐥𝐬 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞.");
+                return;
+            }
+
+            // Determine number of images to send (1-5)
+            const numImages = Math.min(Math.floor(Math.random() * 5) + 1, 5);
+            const attachments = [];
+            const tempFiles = [];
+
+            // Shuffle and select unique images
+            const shuffledUrls = [...validImageUrls].sort(() => 0.5 - Math.random());
+            const selectedUrls = shuffledUrls.slice(0, Math.min(numImages, validImageUrls.length));
+
+            console.log(`📸 Attempting to download ${selectedUrls.length} images`);
+
+            // Download images
+            for (let i = 0; i < selectedUrls.length; i++) {
+                let imagePath = null;
+                try {
+                    const imageUrl = selectedUrls[i].trim();
+                    imagePath = path.join(cacheDir, `loli_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}.jpg`);
+                    
+                    console.log(`⬇️ Downloading [${i + 1}/${selectedUrls.length}]: ${imageUrl}`);
+                    
+                    const response = await axios({
+                        method: 'GET',
+                        url: imageUrl,
+                        responseType: 'stream',
+                        timeout: 20000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                            'Accept': 'image/*'
+                        }
+                    });
+
+                    // Write file with proper error handling
+                    const writer = fs.createWriteStream(imagePath);
+                    response.data.pipe(writer);
+
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                        response.data.on('error', reject);
+                        
+                        // Set timeout
+                        const timeout = setTimeout(() => reject(new Error('Download timeout')), 20000);
+                        writer.on('finish', () => clearTimeout(timeout));
+                    });
+
+                    // Verify downloaded file
+                    if (fs.existsSync(imagePath)) {
+                        const stats = fs.statSync(imagePath);
+                        if (stats.size > 1024) { // At least 1KB
+                            attachments.push(fs.createReadStream(imagePath));
+                            tempFiles.push(imagePath);
+                            console.log(`✅ Success: ${path.basename(imagePath)} (${(stats.size / 1024).toFixed(1)}KB)`);
+                        } else {
+                            console.warn(`⚠️ File too small: ${path.basename(imagePath)}`);
+                            try { fs.unlinkSync(imagePath); } catch (e) {}
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(`❌ Failed download [${i + 1}]:`, error.message);
+                    // Clean up failed download
+                    if (imagePath && fs.existsSync(imagePath)) {
+                        try { fs.unlinkSync(imagePath); } catch (e) {}
+                    }
+                }
+            }
+
+            // Send results
+            if (attachments.length > 0) {
+                await message.reply({
+                    body: `🖤 𝐄𝐧𝐣𝐨𝐲 𝐭𝐡𝐞𝐬𝐞 𝐜𝐮𝐭𝐞 𝐢𝐦𝐚𝐠𝐞𝐬! 💕\n\n📸 ${attachments.length} 𝐢𝐦𝐚𝐠𝐞${attachments.length > 1 ? '𝐬' : ''} 𝐬𝐞𝐧𝐭`,
+                    attachment: attachments
+                });
+                console.log(`🎉 Successfully sent ${attachments.length} images`);
+                
+                // Clean up files after sending
+                setTimeout(() => {
+                    tempFiles.forEach(filePath => {
+                        try {
+                            if (fs.existsSync(filePath)) {
+                                fs.unlinkSync(filePath);
+                                console.log(`🧹 Cleaned: ${path.basename(filePath)}`);
+                            }
+                        } catch (e) {
+                            console.error(`❌ Cleanup failed: ${path.basename(filePath)}`);
+                        }
+                    });
+                }, 30000); // 30 seconds
+                
+            } else {
+                await message.reply("❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐚𝐧𝐲 𝐢𝐦𝐚𝐠𝐞𝐬. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+            }
+
         } catch (error) {
-            console.error("💥 𝐋𝐨𝐥𝐢 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐞𝐫𝐫𝐨𝐫:", error);
-            await message.reply("❌ 𝐄𝐫𝐫𝐨𝐫 𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐢𝐦𝐚𝐠𝐞𝐬! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+            console.error("💥 CRITICAL Loli command error:", {
+                message: error.message,
+                stack: error.stack,
+                userId: event?.senderID || 'unknown',
+                timestamp: new Date().toISOString()
+            });
+            
+            // Try to send error message if possible
+            try {
+                if (message && typeof message.reply === 'function') {
+                    await message.reply("❌ 𝐒𝐨𝐦𝐞𝐭𝐡𝐢𝐧𝐠 𝐰𝐞𝐧𝐭 𝐰𝐫𝐨𝐧𝐠! 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+                }
+            } catch (replyError) {
+                console.error("💥 Even error reply failed:", replyError.message);
+            }
         }
     }
 };
