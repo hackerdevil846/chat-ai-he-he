@@ -1,203 +1,101 @@
-const { createCanvas, loadImage, registerFont } = require("canvas");
-const fs = require("fs-extra");
-const path = require("path");
-const axios = require("axios");
+const deltaNext = global.GoatBot.configCommands.envCommands.rank.deltaNext;
+const expToLevel = exp => Math.floor((1 + Math.sqrt(1 + 8 * exp / deltaNext)) / 2);
+const { drive } = global.utils;
 
 module.exports = {
-  config: {
-    name: "rankup",
-    aliases: ["levelnotify", "ranknotify"],
-    version: "7.3.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-    countDown: 2,
-    role: 1,
-    category: "system",
-    shortDescription: {
-      en: "🌺 Group and user rankup notification system 🌺"
-    },
-    longDescription: {
-      en: "🌺 Group and user rankup notification system with beautiful Bengali designs 🌺"
-    },
-    guide: {
-      en: "{p}rankup [on/off]"
-    },
-    dependencies: {
-      "fs-extra": "",
-      "canvas": "",
-      "axios": ""
-    }
-  },
+	config: {
+		name: "rankup",
+		version: "1.4",
+		author: "NTKhang",
+		countDown: 5,
+		role: 0,
+		description: {
+			vi: "Bật/tắt thông báo level up",
+			en: "Turn on/off level up notification"
+		},
+		category: "rank",
+		guide: {
+			en: "{pn} [on | off]"
+		},
+		envConfig: {
+			deltaNext: 5
+		}
+	},
 
-  onStart: async function({ api, event, threadsData, getText }) {
-    try {
-      // Check dependencies
-      try {
-        if (!fs || !createCanvas || !loadImage || !axios) {
-          throw new Error("Missing required dependencies");
-        }
-      } catch (err) {
-        return api.sendMessage("❌ | Required dependencies are missing. Please install fs-extra, canvas, and axios.", event.threadID, event.messageID);
-      }
+	langs: {
+		vi: {
+			syntaxError: "Sai cú pháp, chỉ có thể dùng {pn} on hoặc {pn} off",
+			turnedOn: "Đã bật thông báo level up",
+			turnedOff: "Đã tắt thông báo level up",
+			notiMessage: "🎉🎉 chúc mừng bạn đạt level %1"
+		},
+		en: {
+			syntaxError: "Syntax error, only use {pn} on or {pn} off",
+			turnedOn: "Turned on level up notification",
+			turnedOff: "Turned off level up notification",
+			notiMessage: "🎉🎉 Congratulations on reaching level %1"
+		}
+	},
 
-      const { threadID, messageID } = event;
-      let data = (await threadsData.get(threadID)).data;
-      
-      data["rankup"] = typeof data["rankup"] === "undefined" || !data["rankup"];
-      
-      await threadsData.set(threadID, { data });
-      global.data.threadData.set(threadID, data);
-      
-      api.sendMessage(
-        `${data["rankup"] ? "✅ 𝑪𝒉𝒂𝒍𝒖" : "🚫 𝑩𝒂𝒏𝒅𝒉𝒐"} | ✨ 𝑹𝒂𝒏𝒌𝒖𝒑 𝒏𝒐𝒕𝒊𝒇𝒊𝒄𝒂𝒕𝒊𝒐𝒏 𝒔𝒆𝒕𝒕𝒊𝒏𝒈 𝒖𝒑𝒅𝒂𝒕𝒆𝒅 𝒔𝒖𝒄𝒄𝒆𝒔𝒔𝒇𝒖𝒍𝒍𝒚!`,
-        threadID,
-        messageID
-      );
-    } catch (error) {
-      console.error("Rankup Command Error:", error);
-      api.sendMessage("❌ | Error in rankup command. Please try again later.", event.threadID, event.messageID);
-    }
-  },
+	onStart: async function ({ message, event, threadsData, args, getLang }) {
+		if (!["on", "off"].includes(args[0]))
+			return message.reply(getLang("syntaxError"));
+		await threadsData.set(event.threadID, args[0] == "on", "settings.sendRankupMessage");
+		return message.reply(args[0] == "on" ? getLang("turnedOn") : getLang("turnedOff"));
+	},
 
-  onChat: async function({ api, event, usersData, threadsData }) {
-    try {
-      const { threadID, senderID } = event;
-      
-      // Check if rankup is enabled for this thread
-      const thread = await threadsData.get(threadID) || {};
-      if (typeof thread.data?.rankup !== "undefined" && thread.data?.rankup === false) return;
+	onChat: async function ({ threadsData, usersData, event, message, getLang }) {
+		const threadData = await threadsData.get(event.threadID);
+		const sendRankupMessage = threadData.settings.sendRankupMessage;
+		if (!sendRankupMessage)
+			return;
+		const { exp } = await usersData.get(event.senderID);
+		const currentLevel = expToLevel(exp);
+		if (currentLevel > expToLevel(exp - 1)) {
+			let customMessage = await threadsData.get(event.threadID, "data.rankup.message");
+			let isTag = false;
+			let userData;
+			const formMessage = {};
 
-      // Create directories if not exists
-      const rankupDir = path.join(__dirname, "cache", "rankup");
-      if (!fs.existsSync(rankupDir)) fs.mkdirSync(rankupDir, { recursive: true });
-      
-      const pathImg = path.join(rankupDir, `rankup_${threadID}_${senderID}.png`);
-      const pathAvt = path.join(rankupDir, `avt_${senderID}.png`);
+			if (customMessage) {
+				userData = await usersData.get(event.senderID);
+				customMessage = customMessage
+					// .replace(/{userName}/g, userData.name)
+					.replace(/{oldRank}/g, currentLevel - 1)
+					.replace(/{currentRank}/g, currentLevel);
+				if (customMessage.includes("{userNameTag}")) {
+					isTag = true;
+					customMessage = customMessage.replace(/{userNameTag}/g, `@${userData.name}`);
+				}
+				else {
+					customMessage = customMessage.replace(/{userName}/g, userData.name);
+				}
 
-      let exp = (await usersData.get(senderID)).exp || 0;
-      exp += 1; // Default reward
+				formMessage.body = customMessage;
+			}
+			else {
+				formMessage.body = getLang("notiMessage", currentLevel);
+			}
 
-      const curLevel = Math.floor((Math.sqrt(1 + (4 * exp / 3) + 1) / 2));
-      const level = Math.floor((Math.sqrt(1 + (4 * (exp + 1) / 3) + 1) / 2));
+			if (threadData.data.rankup?.attachments?.length > 0) {
+				const files = threadData.data.rankup.attachments;
+				const attachments = files.reduce((acc, file) => {
+					acc.push(drive.getFile(file, "stream"));
+					return acc;
+				}, []);
+				formMessage.attachment = (await Promise.allSettled(attachments))
+					.filter(({ status }) => status == "fulfilled")
+					.map(({ value }) => value);
+			}
 
-      if (level <= curLevel || level === 1) return;
+			if (isTag) {
+				formMessage.mentions = [{
+					tag: `@${userData.name}`,
+					id: event.senderID
+				}];
+			}
 
-      // Updated working background images
-      const backgrounds = [
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1500&h=1000&fit=crop",
-        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1500&h=1000&fit=crop",
-        "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1500&h=1000&fit=crop",
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1500&h=1000&fit=crop",
-        "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1500&h=1000&fit=crop"
-      ];
-
-      try {
-        // Download profile picture
-        const avtResponse = await axios.get(
-          `https://graph.facebook.com/${senderID}/picture?width=1500&height=1500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-          { responseType: "arraybuffer" }
-        );
-        fs.writeFileSync(pathAvt, Buffer.from(avtResponse.data, "utf-8"));
-
-        // Select random background
-        const bgIndex = Math.floor(Math.random() * backgrounds.length);
-        const bgResponse = await axios.get(backgrounds[bgIndex], { responseType: "arraybuffer" });
-        fs.writeFileSync(pathImg, Buffer.from(bgResponse.data, "utf-8"));
-
-        // Process images with canvas
-        const baseImage = await loadImage(pathImg);
-        const avatar = await loadImage(pathAvt);
-        const canvas = createCanvas(baseImage.width, baseImage.height);
-        const ctx = canvas.getContext("2d");
-
-        // Draw background
-        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-
-        // Draw circular avatar frame
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(750, 300, 200, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.clip();
-        ctx.drawImage(avatar, 550, 100, 400, 400);
-        ctx.restore();
-
-        // Add decorative frame around avatar
-        ctx.strokeStyle = "#FFD700";
-        ctx.lineWidth = 15;
-        ctx.beginPath();
-        ctx.arc(750, 300, 215, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Add Bengali floral decorations
-        ctx.fillStyle = "rgba(255, 215, 0, 0.4)";
-        drawFloralPattern(ctx, 750, 300, 250, 8);
-
-        // Add level text with Bengali style
-        ctx.font = "bold 120px 'Arial'";
-        ctx.fillStyle = "#8B4513";
-        ctx.textAlign = "center";
-        ctx.fillText(`LEVEL ${level}`, 750, 650);
-
-        // Add user name
-        const userInfo = await api.getUserInfo(senderID);
-        const userName = userInfo[senderID]?.name || "Unknown User";
-        ctx.font = "bold 70px 'Arial'";
-        ctx.fillStyle = "#4B0082";
-        ctx.fillText(userName, 750, 750);
-
-        // Add congratulatory message in Bengali
-        ctx.font = "italic 50px 'Arial'";
-        ctx.fillStyle = "#006400";
-        ctx.fillText("অভিনন্দন! আপনি উন্নীত হয়েছেন", 750, 850);
-
-        // Save and send
-        const imageBuffer = canvas.toBuffer();
-        fs.writeFileSync(pathImg, imageBuffer);
-        
-        const messageBody = `🌸 𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 ${userName}, 𝒕𝒖𝒎𝒊 𝒆𝒃𝒂𝒓 𝒍𝒆𝒗𝒆𝒍 𝒃𝒂𝒓𝒉𝒍𝒂𝒎𝒐 ${level} 🌸`;
-
-        await api.sendMessage({
-          body: messageBody,
-          mentions: [{ tag: userName, id: senderID }],
-          attachment: fs.createReadStream(pathImg)
-        }, threadID);
-
-        // Update user experience
-        await usersData.set(senderID, { exp });
-
-      } catch (error) {
-        console.error("Rankup image processing error:", error);
-      } finally {
-        // Clean up temporary files
-        if (fs.existsSync(pathAvt)) fs.unlinkSync(pathAvt);
-        if (fs.existsSync(pathImg)) fs.unlinkSync(pathImg);
-      }
-
-    } catch (error) {
-      console.error("Rankup onChat error:", error);
-    }
-  }
+			message.reply(formMessage);
+		}
+	}
 };
-
-// Helper function to draw Bengali floral patterns
-function drawFloralPattern(ctx, x, y, radius, petals) {
-  ctx.save();
-  ctx.translate(x, y);
-  for (let i = 0; i < petals; i++) {
-    ctx.rotate((Math.PI * 2) / petals);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(
-      radius / 2, -radius / 3,
-      radius, 0,
-      0, radius
-    );
-    ctx.bezierCurveTo(
-      -radius, 0,
-      -radius / 2, -radius / 3,
-      0, 0
-    );
-    ctx.fill();
-  }
-  ctx.restore();
-}
