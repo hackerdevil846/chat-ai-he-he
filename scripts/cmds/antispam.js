@@ -1,5 +1,5 @@
-  /**const num = 3; // Number of times spam gets banned -1 (for example, 5 times means 6 times will get banned)
-const timee = 10; // During this time (in seconds), if someone spams `num` times, they will be banned
+  const num = 30000; // Number of times spam gets banned -1 (for example, 5 times means 6 times will get banned)
+const timee = 120; // During this time (in seconds), if someone spams `num` times, they will be banned
 
 module.exports = {
   config: {
@@ -114,4 +114,3 @@ module.exports = {
     }
   }
 };
-*/
