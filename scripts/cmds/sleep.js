@@ -1,3 +1,6 @@
+const fs = require("fs-extra");
+const path = require("path");
+
 module.exports = {
     config: {
         name: "sleep",
@@ -6,44 +9,61 @@ module.exports = {
         role: 0,
         category: "fun",
         shortDescription: {
-            en: "𝑆𝑙𝑒𝑒𝑝 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒"
+            en: "𝐒𝐥𝐞𝐞𝐩 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞"
         },
         longDescription: {
-            en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑟𝑒𝑠𝑝𝑜𝑛𝑑𝑠 𝑡𝑜 𝑠𝑙𝑒𝑒𝑝-𝑟𝑒𝑙𝑎𝑡𝑒𝑑 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑤𝑖𝑡ℎ 𝑎 𝑐𝑢𝑡𝑒 𝑔𝑖𝑓"
+            en: "𝐀𝐮𝐭𝐨𝐦𝐚𝐭𝐢𝐜𝐚𝐥𝐥𝐲 𝐫𝐞𝐬𝐩𝐨𝐧𝐝𝐬 𝐭𝐨 𝐬𝐥𝐞𝐞𝐩 𝐦𝐞𝐬𝐬𝐚𝐠𝐞𝐬"
         },
         guide: {
-            en: ""
+            en: "𝐉𝐮𝐬𝐭 𝐭𝐲𝐩𝐞: 𝐬𝐥𝐞𝐞𝐩, 𝐧𝐢𝐠𝐡𝐭, 𝐛𝐞𝐝, 𝐭𝐢𝐫𝐞𝐝, 𝐠𝐧"
         }
     },
 
     onStart: async function() {},
     
     onChat: async function({ event, message }) {
-        const fs = require("fs-extra");
-        
-        const sleepKeywords = ["sleep", "Sleep", "goodnight", "Goodnight", "night", "Night", "bed", "Bed", "tired", "Tired"];
-        
-        if (event.body && sleepKeywords.some(keyword => 
-            event.body.toLowerCase().includes(keyword.toLowerCase())
-        )) {
-            try {
-                const gifPath = __dirname + "/noprefix/sleep.gif";
+        try {
+            // 𝐕𝐞𝐫𝐲 𝐬𝐡𝐨𝐫𝐭 𝐭𝐫𝐢𝐠𝐠𝐞𝐫 𝐰𝐨𝐫𝐝𝐬 𝐨𝐧𝐥𝐲
+            const sleepKeywords = [
+                "sleep", "night", "bed", "tired", "gn"
+            ];
+            
+            // 𝐂𝐡𝐞𝐜𝐤 𝐢𝐟 𝐦𝐞𝐬𝐬𝐚𝐠𝐞 𝐜𝐨𝐧𝐭𝐚𝐢𝐧𝐬 𝐬𝐡𝐨𝐫𝐭 𝐤𝐞𝐲𝐰𝐨𝐫𝐝𝐬
+            if (event.body && sleepKeywords.some(keyword => 
+                event.body.toLowerCase().includes(keyword.toLowerCase())
+            )) {
+                console.log("🔍 𝐒𝐥𝐞𝐞𝐩 𝐤𝐞𝐲𝐰𝐨𝐫𝐝 𝐝𝐞𝐭𝐞𝐜𝐭𝐞𝐝:", event.body);
                 
-                // Check if file exists
-                if (fs.existsSync(gifPath)) {
+                const gifPath = path.join(__dirname, "noprefix", "sleep.gif");
+                
+                // 𝐂𝐡𝐞𝐜𝐤 𝐢𝐟 𝐆𝐈𝐅 𝐟𝐢𝐥𝐞 𝐞𝐱𝐢𝐬𝐭𝐬
+                let fileExists = false;
+                
+                try {
+                    fileExists = fs.existsSync(gifPath);
+                    if (fileExists) {
+                        const stats = fs.statSync(gifPath);
+                        fileExists = stats.size > 0;
+                    }
+                } catch (fileError) {
+                    console.error("❌ 𝐄𝐫𝐫𝐨𝐫 𝐜𝐡𝐞𝐜𝐤𝐢𝐧𝐠 𝐆𝐈𝐅:", fileError.message);
+                }
+
+                // 𝐒𝐞𝐧𝐝 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞
+                if (fileExists) {
                     await message.reply({
-                        body: "𝑆𝑙𝑒𝑒𝑝 𝑤𝑒𝑙𝑙, 𝑚𝑦 𝑑𝑒𝑎𝑟! 💤\n𝐼 𝑤𝑖𝑙𝑙 𝑚𝑖𝑠𝑠 𝑦𝑜𝑢 𝑠𝑜 𝑚𝑢𝑐ℎ!\n𝑆𝑒𝑒 𝑦𝑜𝑢 𝑖𝑛 𝑡ℎ𝑒 𝑚𝑜𝑟𝑛𝑖𝑛𝑔! 🦄💜",
+                        body: "𝐒𝐥𝐞𝐞𝐩 𝐰𝐞𝐥𝐥! 💤\n𝐒𝐰𝐞𝐞𝐭 𝐝𝐫𝐞𝐚𝐦𝐬! 🌙",
                         attachment: fs.createReadStream(gifPath)
                     });
                 } else {
                     await message.reply({
-                        body: "𝑆𝑙𝑒𝑒𝑝 𝑤𝑒𝑙𝑙, 𝑚𝑦 𝑑𝑒𝑎𝑟! 💤\n𝐼 𝑤𝑖𝑙𝑙 𝑚𝑖𝑠𝑠 𝑦𝑜𝑢 𝑠𝑜 𝑚𝑢𝑐ℎ!\n𝑆𝑒𝑒 𝑦𝑜𝑢 𝑖𝑛 𝑡ℎ𝑒 𝑚𝑜𝑟𝑛𝑖𝑛𝑔! 🦄💜\n\n🌙 𝑆𝑤𝑒𝑒𝑡 𝑑𝑟𝑒𝑎𝑚𝑠!"
+                        body: "𝐒𝐥𝐞𝐞𝐩 𝐰𝐞𝐥𝐥! 💤\n𝐒𝐰𝐞𝐞𝐭 𝐝𝐫𝐞𝐚𝐦𝐬! 🌙"
                     });
                 }
-            } catch (error) {
-                console.error("𝑆𝑙𝑒𝑒𝑝 𝑟𝑒𝑠𝑝𝑜𝑛𝑠𝑒 𝑒𝑟𝑟𝑜𝑟:", error);
-                await message.reply("𝐺𝑜𝑜𝑑𝑛𝑖𝑔ℎ𝑡! 𝑆𝑙𝑒𝑒𝑝 𝑤𝑒𝑙𝑙! 🌙");
             }
+        } catch (error) {
+            console.error("💥 𝐒𝐥𝐞𝐞𝐩 𝐞𝐫𝐫𝐨𝐫:", error);
+            await message.reply("𝐆𝐨𝐨𝐝𝐧𝐢𝐠𝐡𝐭! 🌙");
         }
     }
 };
