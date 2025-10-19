@@ -8,18 +8,18 @@ module.exports = {
         name: "kiss",
         aliases: [],
         version: "2.0.0",
-        author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+        author: "Asif Mahmud",
         countDown: 5,
         role: 0,
         category: "love",
         shortDescription: {
-            en: "💖 𝖨𝗌𝗁𝗊𝖾𝗋 𝗆𝗈𝗆𝖾𝗇𝗍! 𝖪𝗂𝗌𝗌 𝗌𝗈𝗆𝖾𝗈𝗇𝖾 𝖻𝗒 𝗍𝖺𝗀𝗀𝗂𝗇𝗀 𝗍𝗁𝖾𝗆 💌"
+            en: "💖 Romantic Kiss Moment! Kiss someone by tagging them 💌"
         },
         longDescription: {
-            en: "𝖢𝗋𝖾𝖺𝗍𝖾𝗌 𝖺 𝗋𝗈𝗆𝖺𝗇𝗍𝗂𝖼 𝗄𝗂𝗌𝗌 𝗂𝗆𝖺𝗀𝖾 𝗐𝗂𝗍𝗁 𝗍𝖺𝗀𝗀𝖾𝖽 𝗉𝖾𝗋𝗌𝗈𝗇"
+            en: "Creates a romantic kiss image with tagged person"
         },
         guide: {
-            en: "{p}kiss [𝗍𝖺𝗀]"
+            en: "{p}kiss @mention"
         },
         dependencies: {
             "axios": "",
@@ -31,176 +31,190 @@ module.exports = {
 
     onLoad: async function() {
         try {
-            const dirMaterial = __dirname + `/cache/`;
-            const pathFile = path.resolve(__dirname, 'cache', 'hon0.jpeg');
+            const cacheDir = path.join(__dirname, 'cache');
+            const templatePath = path.join(cacheDir, 'hon0.jpeg');
 
-            if (!fs.existsSync(dirMaterial)) {
-                fs.mkdirSync(dirMaterial, { recursive: true });
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+                console.log("✅ Created cache directory");
             }
             
-            if (!fs.existsSync(pathFile)) {
-                console.warn("💡 𝖯𝗅𝖾𝖺𝗌𝖾 𝗉𝗎𝗍 '𝗁𝗈𝗇𝟢.𝗃𝗉𝖾𝗀' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝖺𝖼𝗁𝖾 𝖿𝗈𝗅𝖽𝖾𝗋!");
+            if (!fs.existsSync(templatePath)) {
+                console.warn("⚠️ Please put 'hon0.jpeg' in the cache folder!");
+                console.log("📁 Template path:", templatePath);
+            } else {
+                console.log("✅ Kiss template found:", templatePath);
             }
         } catch (error) {
-            console.error("💥 𝖮𝗇𝖫𝗈𝖺𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
+            console.error("❌ OnLoad error:", error);
         }
     },
 
-    onStart: async function({ message, event, args, currenciesData }) {
+    onStart: async function({ message, event, args }) {
+        let generatedImagePath = null;
+        
         try {
             // Dependency check
-            let dependenciesAvailable = true;
             try {
                 require("axios");
                 require("fs-extra");
                 require("path");
                 require("jimp");
             } catch (e) {
-                dependenciesAvailable = false;
+                return message.reply("❌ Missing dependencies. Please install: axios, fs-extra, path, and jimp.");
             }
 
-            if (!dependenciesAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌, 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺, 𝗉𝖺𝗍𝗁, 𝖺𝗇𝖽 𝗃𝗂𝗆𝗉.");
+            const { senderID, mentions } = event;
+            const mentionedUsers = Object.keys(mentions);
+
+            if (mentionedUsers.length === 0) {
+                return message.reply("💌 Please tag someone to kiss! Example: /kiss @username");
             }
 
-            const { threadID, senderID } = event;
-            const mention = Object.keys(event.mentions);
+            const userOne = senderID;
+            const userTwo = mentionedUsers[0];
 
-            const one = senderID;
-            const two = mention[0];
+            // Generate random romance percentage and bonus
+            const romancePercent = Math.floor(Math.random() * 101);
+            const bonusAmount = romancePercent * 1000;
 
-            const hc = Math.floor(Math.random() * 101);
-            const rd = Math.floor(Math.random() * 100000) + 100000;
-
-            // Increase user's in-bot currency if available
-            try {
-                if (currenciesData && typeof currenciesData.increaseMoney === 'function') {
-                    await currenciesData.increaseMoney(senderID, parseInt(hc * rd));
-                }
-            } catch (currencyError) {
-                console.warn("𝖢𝗎𝗋𝗋𝖾𝗇𝖼𝗒 𝖾𝗋𝗋𝗈𝗋:", currencyError);
-            }
-
-            if (!two) {
-                return message.reply("💌 𝖣𝖺𝗒𝖺 𝖪𝗈𝗋𝖾 𝟣 𝗃𝗈𝗇 𝖪𝖾 𝗍𝖺𝗀 𝖪𝗈𝗋𝗎𝗇!");
-            } else {
-                const imagePath = await this.makeImage({ one, two });
+            // Generate the kiss image
+            generatedImagePath = await this.makeImage({ one: userOne, two: userTwo });
+            
+            if (generatedImagePath && fs.existsSync(generatedImagePath)) {
+                await message.reply({
+                    body: `💖 Romance Level: ${romancePercent}%\n💝 Bonus Blessing: ${bonusAmount} coins\n✨ May your bond grow stronger!`,
+                    attachment: fs.createReadStream(generatedImagePath)
+                });
                 
-                if (imagePath) {
-                    await message.reply({
-                        body: `💖 𝖨𝗌𝗁𝗊𝖾𝗋 𝖯𝗈𝗋𝗂𝗆𝖺𝗇: ${hc}%\n💸 𝖠𝗉𝗇𝖺𝖽𝖾𝗋 𝖩𝗈𝗇𝗇𝗈 𝖡𝗅𝖾𝗌𝗌𝗂𝗇𝗀: ${hc * rd} $ 💰\n🍀 𝖠𝗉𝗇𝖺𝖽𝖾𝗋 𝖩𝗈𝗇𝗇𝗈 𝖲𝗁𝗎𝖻𝖾𝖼𝖼𝗁𝖺 𝖱𝗈𝗄𝗁𝗎𝗇!`,
-                        attachment: fs.createReadStream(imagePath)
-                    });
-                    
-                    // Cleanup the generated image
-                    try {
-                        if (fs.existsSync(imagePath)) {
-                            fs.unlinkSync(imagePath);
-                        }
-                    } catch (cleanupError) {
-                        console.warn("𝖢𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", cleanupError);
-                    }
-                } else {
-                    await message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗄𝗂𝗌𝗌 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+                console.log("✅ Successfully sent kiss image");
+            } else {
+                await message.reply("❌ Failed to create kiss image. Please make sure the template 'hon0.jpeg' exists in cache folder.");
+            }
+            
+        } catch (error) {
+            console.error("💥 Kiss Command Error:", error);
+            await message.reply("❌ An error occurred while processing your request. Please try again later.");
+        } finally {
+            // Cleanup generated image
+            if (generatedImagePath && fs.existsSync(generatedImagePath)) {
+                try {
+                    fs.unlinkSync(generatedImagePath);
+                    console.log("🧹 Cleaned up generated image");
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", cleanupError.message);
                 }
             }
-        } catch (error) {
-            console.error("💥 𝖪𝗂𝗌𝗌 𝖤𝗋𝗋𝗈𝗋:", error);
-            // Don't send error message to avoid spam
         }
     },
 
     makeImage: async function({ one, two }) {
-        const __root = path.resolve(__dirname, "cache");
-        const pathImg = __root + `/hon0_${one}_${two}_${Date.now()}.png`;
-        const avatarOne = __root + `/avt_${one}_${Date.now()}.png`;
-        const avatarTwo = __root + `/avt_${two}_${Date.now()}.png`;
+        const cacheDir = path.resolve(__dirname, "cache");
+        const outputPath = path.join(cacheDir, `kiss_${one}_${two}_${Date.now()}.png`);
+        const avatarOnePath = path.join(cacheDir, `avt1_${one}_${Date.now()}.png`);
+        const avatarTwoPath = path.join(cacheDir, `avt2_${two}_${Date.now()}.png`);
 
         try {
             // Check if template exists
-            const templatePath = __root + "/hon0.jpeg";
+            const templatePath = path.join(cacheDir, "hon0.jpeg");
             if (!fs.existsSync(templatePath)) {
-                console.error("❌ 𝖳𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽:", templatePath);
+                console.error("❌ Template image not found:", templatePath);
                 return null;
             }
 
-            const hon_img = await jimp.read(templatePath);
+            console.log("📖 Reading template image...");
+            const template = await jimp.read(templatePath);
 
-            // Download avatars with error handling
-            let avatarOneBuffer, avatarTwoBuffer;
-            
+            // Download and process first avatar
+            console.log(`📥 Downloading avatar for user ${one}...`);
+            let avatarOne;
             try {
-                const avatarOneResponse = await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
-                    responseType: 'arraybuffer',
-                    timeout: 15000
-                });
-                avatarOneBuffer = Buffer.from(avatarOneResponse.data, 'utf-8');
-                fs.writeFileSync(avatarOne, avatarOneBuffer);
-            } catch (avatarOneError) {
-                console.error(`❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗈𝗋 ${one}:`, avatarOneError.message);
+                const avatarOneResponse = await axios.get(
+                    `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+                    { 
+                        responseType: 'arraybuffer',
+                        timeout: 15000
+                    }
+                );
+                fs.writeFileSync(avatarOnePath, avatarOneResponse.data);
+                avatarOne = await jimp.read(avatarOnePath);
+                console.log("✅ Downloaded first avatar");
+            } catch (error) {
+                console.error(`❌ Failed to download avatar for ${one}:`, error.message);
                 return null;
             }
 
+            // Download and process second avatar
+            console.log(`📥 Downloading avatar for user ${two}...`);
+            let avatarTwo;
             try {
-                const avatarTwoResponse = await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { 
-                    responseType: 'arraybuffer',
-                    timeout: 15000
-                });
-                avatarTwoBuffer = Buffer.from(avatarTwoResponse.data, 'utf-8');
-                fs.writeFileSync(avatarTwo, avatarTwoBuffer);
-            } catch (avatarTwoError) {
-                console.error(`❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗈𝗋 ${two}:`, avatarTwoError.message);
+                const avatarTwoResponse = await axios.get(
+                    `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+                    { 
+                        responseType: 'arraybuffer',
+                        timeout: 15000
+                    }
+                );
+                fs.writeFileSync(avatarTwoPath, avatarTwoResponse.data);
+                avatarTwo = await jimp.read(avatarTwoPath);
+                console.log("✅ Downloaded second avatar");
+            } catch (error) {
+                console.error(`❌ Failed to download avatar for ${two}:`, error.message);
                 return null;
             }
 
-            // Make circular avatars
-            let circleOne, circleTwo;
-            try {
-                circleOne = await jimp.read(await this.circle(avatarOne));
-                circleTwo = await jimp.read(await this.circle(avatarTwo));
-            } catch (circleError) {
-                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝖼𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝖼𝗂𝗋𝖼𝗎𝗅𝖺𝗋 𝖺𝗏𝖺𝗍𝖺𝗋𝗌:", circleError);
-                return null;
-            }
+            // Create circular avatars
+            console.log("⭕ Creating circular avatars...");
+            avatarOne.circle();
+            avatarTwo.circle();
 
-            // Composite avatars on template
-            try {
-                hon_img.resize(700, 440)
-                    .composite(circleOne.resize(150, 150), 390, 23)
-                    .composite(circleTwo.resize(150, 150), 115, 130);
+            // Resize avatars to fit the template
+            const avatarSize1 = 130; // Size for first avatar
+            const avatarSize2 = 120; // Size for second avatar
 
-                const raw = await hon_img.getBufferAsync("image/png");
-                fs.writeFileSync(pathImg, raw);
+            avatarOne.resize(avatarSize1, avatarSize1);
+            avatarTwo.resize(avatarSize2, avatarSize2);
 
-                console.log(`✅ 𝖪𝗂𝗌𝗌 𝗂𝗆𝖺𝗀𝖾 𝖼𝗋𝖾𝖺𝗍𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒: ${pathImg}`);
-                return pathImg;
-            } catch (compositeError) {
-                console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝖼𝗈𝗆𝗉𝗈𝗌𝗂𝗍𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾:", compositeError);
+            // Position avatars on template
+            // These positions need to be adjusted based on your template
+            const position1 = { x: 405, y: 25 };  // Right side position
+            const position2 = { x: 125, y: 135 }; // Left side position
+
+            console.log("🎨 Compositing avatars on template...");
+            template.composite(avatarOne, position1.x, position1.y);
+            template.composite(avatarTwo, position2.x, position2.y);
+
+            // Save final image
+            console.log("💾 Saving final image...");
+            await template.writeAsync(outputPath);
+
+            // Verify the image was created
+            if (fs.existsSync(outputPath)) {
+                const stats = fs.statSync(outputPath);
+                if (stats.size > 0) {
+                    console.log(`✅ Successfully created kiss image: ${outputPath}`);
+                    return outputPath;
+                } else {
+                    console.error("❌ Created image file is empty");
+                    return null;
+                }
+            } else {
+                console.error("❌ Failed to create output image");
                 return null;
             }
 
         } catch (error) {
-            console.error("💥 𝖬𝖺𝗄𝖾𝖨𝗆𝖺𝗀𝖾 𝖾𝗋𝗋𝗈𝗋:", error);
+            console.error("💥 makeImage Error:", error);
             return null;
         } finally {
-            // Cleanup temporary files
+            // Cleanup temporary avatar files
             try {
-                if (fs.existsSync(avatarOne)) fs.unlinkSync(avatarOne);
-                if (fs.existsSync(avatarTwo)) fs.unlinkSync(avatarTwo);
+                if (fs.existsSync(avatarOnePath)) fs.unlinkSync(avatarOnePath);
+                if (fs.existsSync(avatarTwoPath)) fs.unlinkSync(avatarTwoPath);
+                console.log("🧹 Cleaned up temporary avatar files");
             } catch (cleanupError) {
-                console.warn("𝖢𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", cleanupError);
+                console.warn("⚠️ Failed to clean up temp files:", cleanupError.message);
             }
-        }
-    },
-
-    circle: async function(imagePath) {
-        try {
-            const image = await jimp.read(imagePath);
-            image.circle();
-            return await image.getBufferAsync("image/png");
-        } catch (error) {
-            console.error("❌ 𝖤𝗋𝗋𝗈𝗋 𝖼𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝖼𝗂𝗋𝖼𝗎𝗅𝖺𝗋 𝗂𝗆𝖺𝗀𝖾:", error);
-            throw error;
         }
     }
 };
