@@ -1,152 +1,269 @@
 const fs = require("fs-extra");
 const path = require("path");
 const axios = require("axios");
-const jimp = require("jimp");
+const Jimp = require("jimp"); // Corrected to Jimp (capital J) for consistent usage
 
 module.exports = {
   config: {
     name: "love6",
-    aliases: ["romanticpic6", "loverframe6"], // ✅ Fixed aliases
+    aliases: [],
     version: "1.0.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "love",
     shortDescription: {
-      en: "💕 𝐶𝑟𝑒𝑎𝑡𝑒 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡𝑤𝑜 𝑢𝑠𝑒𝑟𝑠"
+      en: "💕 Create romantic love image with two users"
     },
     longDescription: {
-      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑠 𝑎 𝑟𝑜𝑚𝑎𝑛𝑡𝑖𝑐 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑡𝑤𝑜 𝑡𝑎𝑔𝑔𝑒𝑑 𝑢𝑠𝑒𝑟𝑠"
+      en: "Generates a romantic love image with two tagged users"
     },
     guide: {
-      en: "{p}love6 [@𝑡𝑎𝑔]"
+      en: "{p}love6 [@tag]"
     },
     dependencies: {
       "axios": "",
       "fs-extra": "",
       "path": "",
-      "jimp": ""
+      "jimp": "" // Dependency remains
     }
   },
 
+  // This function runs once when the bot loads the command
   onLoad: async function () {
+    const cacheDir = path.join(__dirname, "cache");
+    const baseImagePath = path.join(cacheDir, "love_template_6.png"); // Unique filename for this template
+
     try {
-      const cacheDir = path.join(__dirname, "cache");
-      const baseImagePath = path.join(cacheDir, "love_template.png");
-      
+      // Ensure the cache directory exists
       if (!fs.existsSync(cacheDir)) {
         await fs.mkdir(cacheDir, { recursive: true });
+        console.log("✅ Created cache directory");
       }
 
+      // Download the base template image if it's not already cached
       if (!fs.existsSync(baseImagePath)) {
+        console.log("📥 Downloading love6 base image template...");
         const url = 'https://drive.google.com/uc?export=download&id=1BZu-1GS5DMiuQHtcdZNmY4-ayiOwVyI3';
-        const response = await axios.get(url, { responseType: 'arraybuffer' });
-        await fs.writeFile(baseImagePath, response.data);
-        console.log("🌸 𝐵𝑎𝑠𝑒 𝑖𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦");
+        const response = await axios.get(url, {
+            responseType: 'arraybuffer', // Request binary data
+            timeout: 30000, // Set a 30-second timeout for the download
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' // Mimic a browser request
+            }
+        });
+        // Write the downloaded image data to the file system
+        await fs.writeFile(baseImagePath, Buffer.from(response.data, 'binary'));
+        console.log("✅ Base image template downloaded successfully for love6");
+      } else {
+        console.log("✅ Base image template already exists");
       }
     } catch (error) {
-      console.error("❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑛𝐿𝑜𝑎𝑑:", error);
+      // Log any errors during the template download process
+      console.error("❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑜𝑛𝐿𝑜𝑎𝑑 for love6:", error.message);
     }
   },
 
-  onStart: async function ({ event, api, args, message }) {
-    const { threadID, messageID, senderID, mentions } = event;
-
-    if (Object.keys(mentions).length === 0) {
-      return message.reply('💝 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑎𝑔 1 𝑝𝑒𝑟𝑠𝑜𝑛 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒');
-    }
-
-    const mentionedUserID = Object.keys(mentions)[0];
-    const mentionedName = mentions[mentionedUserID].replace(/@/g, '');
+  // This function runs when the command is called by a user
+  onStart: async function ({ event, message }) { // 'api' and 'args' are not used, so they are removed
+    const { senderID, mentions } = event;
+    let tempFiles = []; // Array to keep track of all temporary files created for cleanup
 
     try {
-      await message.reply("🔄 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒...");
-      
-      const imageBuffer = await generateLoveImage(senderID, mentionedUserID);
-      
+      // Check if a user was tagged in the message
+      if (Object.keys(mentions).length === 0) {
+        return message.reply('💝 Please tag 1 person to create love image');
+      }
+
+      const mentionedUserID = Object.keys(mentions)[0];
+      const mentionedName = mentions[mentionedUserID].replace(/@/g, '');
+
+      // Inform the user that the image is being created, and get the message ID to unsend later
+      const processingMsg = await message.reply("🔄 Creating love image... Please wait...");
+
+      // Call the helper function to generate the love image
+      const imageBufferPath = await generateLoveImage(senderID, mentionedUserID, tempFiles);
+
+      // Validate that an image path was returned and the file exists
+      if (!imageBufferPath || !fs.existsSync(imageBufferPath)) {
+        // If image generation failed or file is missing, reply with an error and exit
+        await message.reply("❌ Failed to create love image. The final image file could not be generated.");
+        return; 
+      }
+
+      // Add the final generated image path to the temporary files list for cleanup
+      tempFiles.push(imageBufferPath);
+
+      // Prepare the message object with the generated image and mentions
       const messageObj = {
-        body: `💞 ${mentionedName} 𝑙𝑜𝑣𝑒 𝑦𝑜𝑢 𝑠𝑜 𝑚𝑢𝑐ℎ! 💑\n\n- 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑑 𝑏𝑦: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
+        body: `💞 ${mentionedName} loves you so much! 💑\n\n- Generated by: Asif Mahmud`,
         mentions: [{
           tag: mentionedName,
           id: mentionedUserID
         }],
-        attachment: fs.createReadStream(imageBuffer)
+        attachment: fs.createReadStream(imageBufferPath) // Attach the generated image
       };
 
-      await message.reply(messageObj, () => {
-        if (fs.existsSync(imageBuffer)) {
-          fs.unlinkSync(imageBuffer);
+      // Send the message to the chat
+      await message.reply(messageObj);
+      
+      // Attempt to unsend the "Creating love image..." message for a cleaner chat
+      if (processingMsg && processingMsg.messageID) {
+        try {
+          await message.unsendMessage(processingMsg.messageID);
+        } catch (unsendError) {
+          console.warn("⚠️ Could not unsend processing message:", unsendError.message);
         }
-      });
+      }
+
+      console.log("✅ Love image sent successfully");
 
     } catch (error) {
-      console.error("❌ 𝐸𝑟𝑟𝑜𝑟:", error);
-      await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑙𝑜𝑣𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      // Catch any unhandled errors during the command execution and inform the user
+      console.error("❌ Error in onStart for love6:", error.message);
+      await message.reply("❌ An unexpected error occurred while creating the love image. Please try again later.");
+    } finally {
+      // This block ensures temporary files are cleaned up, regardless of success or failure
+      // Delay cleanup to ensure the image has enough time to be sent by the platform
+      setTimeout(() => {
+        cleanupTempFiles(tempFiles);
+      }, 30000); // 30-second delay for thorough cleanup
     }
   }
 };
 
-async function generateLoveImage(user1ID, user2ID) {
+// Helper function to generate the love image from avatars and template
+async function generateLoveImage(user1ID, user2ID, tempFiles) {
   const cacheDir = path.join(__dirname, 'cache');
-  const baseImagePath = path.join(cacheDir, 'love_template.png');
+  const baseImagePath = path.join(cacheDir, 'love_template_6.png'); // Path to the cached template
 
+  // Check if the base template image exists before proceeding
+  if (!fs.existsSync(baseImagePath)) {
+    throw new Error("Base template image not found. Please ensure it was downloaded successfully during onLoad.");
+  }
+
+  // Nested helper function to download a user's avatar
   const downloadAvatar = async (userID) => {
-    const avatarPath = path.join(cacheDir, `avatar_${userID}.png`);
+    // Create a unique path for the avatar to avoid conflicts during concurrent runs
+    const avatarPath = path.join(cacheDir, `avatar_${userID}_${Date.now()}.png`);
+    tempFiles.push(avatarPath); // Add this avatar file to the cleanup list
+
+    // List of potential Facebook Graph API picture sources to try in order
     const sources = [
-      `https://graph.facebook.com/${userID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-      `https://graph.facebook.com/${userID}/picture?width=512&height=512`,
-      `https://graph.facebook.com/v19.0/${userID}/picture?width=512&height=512`
+      `https://graph.facebook.com/${userID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, // With a hardcoded access token
+      `https://graph.facebook.com/${userID}/picture?width=512&height=512`, // Without an access token (often works for public profiles)
+      `https://graph.facebook.com/v19.0/${userID}/picture?width=512&height=512` // Another Graph API version, as a fallback
     ];
 
     for (const source of sources) {
       try {
-        const response = await axios.get(source, { responseType: 'arraybuffer' });
-        await fs.writeFile(avatarPath, response.data);
-        return await jimp.read(avatarPath);
+        console.log(`📥 Trying avatar source for user ${userID}: ${source}`);
+        const response = await axios.get(source, {
+          responseType: 'arraybuffer', // Request binary data
+          timeout: 15000, // 15-second timeout for each avatar download attempt
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        // Validate the downloaded data before saving and processing
+        if (response.data && response.data.length > 0) {
+          await fs.writeFile(avatarPath, Buffer.from(response.data, 'binary'));
+          
+          // Attempt to read the image with Jimp and perform a basic size check
+          const image = await Jimp.read(avatarPath);
+          if (image.bitmap.width > 10 && image.bitmap.height > 10) { // Ensure it's a valid, non-tiny image
+            console.log(`✅ Successfully downloaded avatar for user ${userID}`);
+            return image; // Return the Jimp object
+          } else {
+            console.warn(`⚠️ Downloaded avatar for user ${userID} is too small or invalid. Trying next source.`);
+          }
+        }
       } catch (error) {
-        continue;
+        console.warn(`⚠️ Failed avatar source for user ${userID} (${source}): ${error.message}`);
+        continue; // Try the next source in the list
       }
     }
-    throw new Error("𝐶𝑎𝑛𝑛𝑜𝑡 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑣𝑎𝑡𝑎𝑟");
+
+    // Fallback if all avatar download attempts fail
+    console.warn(`⚠️ All avatar sources failed for user ${userID}. Using fallback gray circle.`);
+    const fallbackImage = new Jimp(190, 190, 0x808080FF); // Create a gray square image
+    fallbackImage.circle(); // Make it circular
+    return fallbackImage; // Return the fallback Jimp object
   };
 
   try {
-    const baseImage = await jimp.read(baseImagePath);
+    console.log("📖 Reading base template image...");
+    const baseImage = await Jimp.read(baseImagePath); // Load the base template image into Jimp
+
+    console.log("📥 Downloading user avatars...");
+    // Download and load both users' avatars concurrently using Promise.all
     const [avatar1, avatar2] = await Promise.all([
-      downloadAvatar(user1ID),
-      downloadAvatar(user2ID)
+      downloadAvatar(user1ID), // Sender's avatar
+      downloadAvatar(user2ID)  // Mentioned user's avatar
     ]);
 
+    console.log("⭕ Processing avatars...");
+    // Nested helper function to process an avatar (crop to square, resize, make circular)
     const processAvatar = (avatar) => {
-      const size = Math.min(avatar.bitmap.width, avatar.bitmap.height);
+      // Calculate crop coordinates to make the avatar a perfect square, preserving aspect ratio
+      const minSize = Math.min(avatar.bitmap.width, avatar.bitmap.height);
+      const cropX = Math.floor((avatar.bitmap.width - minSize) / 2);
+      const cropY = Math.floor((avatar.bitmap.height - minSize) / 2);
+
       return avatar
-        .crop(0, 0, size, size)
-        .resize(200, 200)
-        .circle();
+        .clone() // Clone the Jimp object to avoid modifying the original
+        .crop(cropX, cropY, minSize, minSize) // Crop to the smallest dimension to form a square
+        .resize(190, 190) // Resize the square avatar to 190x190 pixels
+        .circle(); // Convert the square avatar into a circle
     };
 
-    const processedAvatar1 = processAvatar(avatar1);
-    const processedAvatar2 = processAvatar(avatar2);
+    // Process both avatars
+    const processedAvatar1 = processAvatar(avatar1); // Sender's processed avatar
+    const processedAvatar2 = processAvatar(avatar2); // Mentioned user's processed avatar
 
-    baseImage
-      .resize(1200, 800)
-      .composite(processedAvatar1, 300, 350)
-      .composite(processedAvatar2, 800, 350);
+    console.log("🎨 Compositing avatars on template...");
+    // Composite the processed avatars onto the base image
+    // Coordinates (x, y) are the top-left corner of the avatar relative to the base image.
+    // These values are meticulously calculated to center the 190x190 avatars within the gold circles.
+    baseImage.composite(processedAvatar1, 230, 295) // Sender's avatar (left circle)
+             .composite(processedAvatar2, 770, 295); // Mentioned user's avatar (right circle)
 
-    const outputPath = path.join(cacheDir, `love_${user1ID}_${user2ID}_${Date.now()}.png`);
+    // Generate a unique output path for the final image
+    const outputPath = path.join(cacheDir, `love_result_${user1ID}_${user2ID}_${Date.now()}.png`);
+    
+    console.log("💾 Saving final image...");
     await baseImage.writeAsync(outputPath);
 
-    // 𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑎𝑣𝑎𝑡𝑎𝑟𝑠
-    [user1ID, user2ID].forEach(id => {
-      const avatarPath = path.join(cacheDir, `avatar_${id}.png`);
-      if (fs.existsSync(avatarPath)) {
-        fs.unlinkSync(avatarPath);
-      }
-    });
+    // Final verification: Check if the output file exists and is not empty
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Failed to save output image: file not found after write operation.");
+    }
+    const stats = fs.statSync(outputPath);
+    if (stats.size === 0) {
+      throw new Error("Generated image file is empty (0 bytes).");
+    }
 
-    return outputPath;
+    console.log(`✅ Generated love image: ${outputPath} (${(stats.size / (1024 * 1024)).toFixed(2)} MB)`);
+    return outputPath; // Return the path to the generated image
+
   } catch (error) {
-    console.error("❌ 𝐼𝑚𝑎𝑔𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
-    throw error;
+    console.error("❌ Image generation error:", error.message);
+    throw error; // Re-throw the error for the onStart function to handle
   }
+}
+
+// Helper function to clean up temporary files
+function cleanupTempFiles(tempFiles) {
+  tempFiles.forEach(file => {
+    try {
+      if (fs.existsSync(file)) {
+        fs.unlinkSync(file); // Delete the temporary file
+        console.log(`🧹 Cleaned up temporary file: ${path.basename(file)}`);
+      }
+    } catch (cleanupError) {
+      // Log a warning if a file couldn't be deleted, but don't stop other cleanups
+      console.warn(`⚠️ Could not delete ${path.basename(file)}:`, cleanupError.message);
+    }
+  });
 }
