@@ -364,7 +364,7 @@ const imageLinks = [
 "https://i.imgur.com/TOLTEah.jpg",
 "https://i.imgur.com/wZLtGsf.jpg",
 "https://i.imgur.com/xTC1pyu.jpg",
-"phttps://i.imgur.com/uvAcIKL.jpg",
+"https://i.imgur.com/uvAcIKL.jpg",
 "https://i.imgur.com/b3ghnMi.jpg",
 "https://i.imgur.com/kRO4pIp.jpg",
 "https://i.imgur.com/q9CcPJF.jpg",
