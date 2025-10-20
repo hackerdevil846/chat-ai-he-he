@@ -5,7 +5,7 @@ module.exports = {
   config: {
     name: "girl2",
     aliases: [],
-    version: "1.0.1",
+    version: "1.0.2",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
     category: "image",
@@ -28,11 +28,18 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, args, message, usersData, getText }) {
+  onStart: async function ({ api, event, args, usersData, getText }) {
     try {
       const { threadID, senderID, messageID } = event;
+      const userData = await usersData.get(senderID);
+      const cost = 200;
 
-      // Premium collection of beautiful girl images
+      // Check if user has enough money
+      if (userData.money < cost) {
+        return api.sendMessage(getText("notEnoughMoney"), threadID, messageID);
+      }
+
+      // Premium collection of beautiful girl images (fixed array)
       const imageLinks = [
 "https://i.imgur.com/FNRRTy7.jpg",
 "https://i.imgur.com/GDEBTl2.jpg",
@@ -46638,80 +46645,59 @@ module.exports.onStart = async function({ message, event, usersData, getText }) 
 "https://i.imgur.com/eWG9X6R.jpg",
 "https://i.imgur.com/LujZ6gp.jpg",
 "https://i.imgur.com/xNOKINt.jpg",
-"https://i.imgur.com/5Sy0mk1.jpg",
-  ];
-      // Get user balance
-      const userData = await usersData.get(senderID);
-      const money = userData.money || 0;
+"https://i.imgur.com/5Sy0mk1.jpg"
+        ];
 
-      // Check balance
-      if (money < 200) {
-        return message.reply(getText("notEnoughMoney"));
+      // Remove duplicate URLs and invalid ones
+      const uniqueImageLinks = [...new Set(imageLinks)].filter(url => 
+        url.startsWith('https://') && !url.includes('phttps://')
+      );
+
+      // Get random images (1-10 images)
+      const numImages = Math.min(Math.max(parseInt(args[0]) || 1, 1), 10);
+      const selectedImages = [];
+      
+      for (let i = 0; i < numImages && i < uniqueImageLinks.length; i++) {
+        const randomIndex = Math.floor(Math.random() * uniqueImageLinks.length);
+        selectedImages.push(uniqueImageLinks[randomIndex]);
+      }
+
+      // Download and send images
+      const imageStreams = [];
+      
+      for (const imageUrl of selectedImages) {
+        try {
+          const response = await axios.get(imageUrl, { 
+            responseType: 'stream',
+            timeout: 30000
+          });
+          imageStreams.push(response.data);
+        } catch (error) {
+          console.error(`Error downloading image ${imageUrl}:`, error);
+        }
+      }
+
+      if (imageStreams.length === 0) {
+        return api.sendMessage("❌ 𝐸𝑟𝑟𝑜𝑟: 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
       }
 
       // Deduct money
-      await usersData.set(senderID, { 
-        money: money - 200,
-        data: userData.data 
+      await usersData.set(senderID, {
+        money: userData.money - cost,
+        data: userData.data
       });
 
-      // Pick random image
-      const randomImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
-      const timestamp = Date.now();
-      const imagePath = __dirname + "/cache/girl2_" + timestamp + ".jpg";
+      // Send success message with images
+      const msg = {
+        body: getText("success", imageStreams.length),
+        attachment: imageStreams
+      };
 
-      // Ensure cache directory exists
-      const cacheDir = __dirname + "/cache";
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
-      }
-
-      // Download image with proper error handling
-      const response = await axios({
-        method: "GET",
-        url: randomImage,
-        responseType: "arraybuffer",
-        timeout: 30000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-
-      // Write file with binary encoding
-      await fs.writeFile(imagePath, Buffer.from(response.data, "binary"));
-
-      // Send message with attachment
-      await message.reply({
-        body: getText("success", imageLinks.length),
-        attachment: fs.createReadStream(imagePath)
-      });
-
-      // Clean up with delay to ensure file is sent
-      setTimeout(() => {
-        try {
-          if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-          }
-        } catch (cleanupError) {
-          console.error("Cleanup error:", cleanupError);
-        }
-      }, 5000);
+      return api.sendMessage(msg, threadID, messageID);
 
     } catch (error) {
-      console.error("𝐺𝑖𝑟𝑙2 𝐸𝑟𝑟𝑜𝑟:", error);
-      
-      // Refund money if error occurred
-      try {
-        const userData = await usersData.get(event.senderID);
-        await usersData.set(event.senderID, { 
-          money: (userData.money || 0) + 200,
-          data: userData.data 
-        });
-      } catch (refundError) {
-        console.error("𝑅𝑒𝑓𝑢𝑛𝑑 𝐸𝑟𝑟𝑜𝑟:", refundError);
-      }
-      
-      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑙𝑜𝑎𝑑 𝑖𝑚𝑎𝑔𝑒. 200$ ℎ𝑎𝑠 𝑏𝑒𝑒𝑛 𝑟𝑒𝑓𝑢𝑛𝑑𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("Error in girl2 command:", error);
+      return api.sendMessage("❌ 𝐸𝑟𝑟𝑜𝑟: 𝑆𝑜𝑚𝑒𝑡ℎ𝑖𝑛𝑔 𝑤𝑒𝑛𝑡 𝑤𝑟𝑜𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.", threadID, messageID);
     }
   }
 };
