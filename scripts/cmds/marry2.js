@@ -6,19 +6,19 @@ const path = require("path");
 module.exports = {
     config: {
         name: "marry2",
-        aliases: ["proposal2", "wedding2"], // CHANGED: Unique aliases
+        aliases: [],
         version: "2.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         role: 0,
         category: "love",
         shortDescription: {
-            en: "💍 𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑝𝑟𝑜𝑝𝑜𝑠𝑎𝑙 𝑖𝑚𝑎𝑔𝑒𝑠"
+            en: "💍 Generate marriage proposal images"
         },
         longDescription: {
-            en: "𝑇𝑎𝑔 𝑦𝑜𝑢𝑟 𝑙𝑜𝑣𝑒𝑑 𝑜𝑛𝑒 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑝𝑟𝑜𝑝𝑜𝑠𝑎𝑙 𝑖𝑚𝑎𝑔𝑒𝑠 💖"
+            en: "Tag your loved one to create beautiful marriage proposal images 💖"
         },
         guide: {
-            en: "{p}marry2 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+            en: "{p}marry2 [@mention]"
         },
         countDown: 5,
         dependencies: {
@@ -29,6 +29,8 @@ module.exports = {
     },
 
     onStart: async function ({ message, event, args }) {
+        let outputPath = null;
+        
         try {
             // Dependency check
             try {
@@ -36,62 +38,151 @@ module.exports = {
                 require("jimp");
                 require("fs-extra");
             } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑗𝑖𝑚𝑝, 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎.");
+                return message.reply("❌ Missing dependencies. Please install: axios, jimp, and fs-extra.");
             }
 
             const mention = Object.keys(event.mentions);
             if (mention.length === 0) {
-                return message.reply("💌 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑡ℎ𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒! 💝");
+                return message.reply("💌 Please mention someone to generate the marriage image! 💝");
             }
 
             const one = event.senderID;
             const two = mention[0];
 
-            const outputPath = await this.generateImage(one, two);
+            // Validate user IDs
+            if (!one || !two) {
+                return message.reply("❌ Invalid user IDs detected.");
+            }
 
-            await message.reply({
-                body: "💖 𝑂𝑛𝑒 𝑑𝑎𝑦 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢 𝑓𝑜𝑟 𝑠𝑢𝑟𝑒... 💑\n\n- 𝐶𝑟𝑒𝑎𝑡𝑒𝑑 𝑏𝑦 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-                attachment: fs.createReadStream(outputPath)
-            });
+            console.log(`🎨 Generating marriage image for ${one} and ${two}...`);
 
-            // Clean up
-            if (fs.existsSync(outputPath)) {
-                fs.unlinkSync(outputPath);
+            outputPath = await this.generateImage(one, two);
+
+            if (outputPath && fs.existsSync(outputPath)) {
+                await message.reply({
+                    body: "💖 One day with you for sure... 💑\n\n- Created by Asif Mahmud",
+                    attachment: fs.createReadStream(outputPath)
+                });
+
+                console.log("✅ Successfully sent marriage image");
+            } else {
+                await message.reply("❌ Failed to create the marriage image. Please try again later.");
             }
 
         } catch (error) {
-            console.error("❌ 𝐸𝑟𝑟𝑜𝑟:", error);
-            message.reply("😢 𝑆𝑜𝑟𝑟𝑦! 𝐶𝑜𝑢𝑙𝑑𝑛'𝑡 𝑐𝑟𝑒𝑎𝑡𝑒 𝑡ℎ𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟!");
+            console.error("💥 Marry2 Command Error:", error);
+            await message.reply("😢 Sorry! Couldn't create the marriage image. Please try again later!");
+        } finally {
+            // Clean up generated image
+            if (outputPath && fs.existsSync(outputPath)) {
+                try {
+                    fs.unlinkSync(outputPath);
+                    console.log("🧹 Cleaned up generated image");
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", cleanupError.message);
+                }
+            }
         }
     },
 
     generateImage: async function(uid1, uid2) {
         const cachePath = path.join(__dirname, "cache");
-        const outputFile = path.join(cachePath, "marry2.png");
+        const outputFile = path.join(cachePath, `marry2_${uid1}_${uid2}_${Date.now()}.png`);
         
-        await fs.ensureDir(cachePath);
-
-        const fbToken = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
-
         try {
-            const [avatar1, avatar2, background] = await Promise.all([
-                jimp.read(`https://graph.facebook.com/${uid1}/picture?width=512&height=512&access_token=${fbToken}`),
-                jimp.read(`https://graph.facebook.com/${uid2}/picture?width=512&height=512&access_token=${fbToken}`),
-                jimp.read("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg")
-            ]);
+            // Ensure cache directory exists
+            await fs.ensureDir(cachePath);
+            console.log("✅ Cache directory verified");
 
+            const backgroundUrl = "https://i.ibb.co/L5w2h2B/ba6abadae46b5bdaa29cf6a64d762874.jpg";
+            
+            console.log("📥 Downloading images...");
+
+            // Download images with better error handling
+            let avatar1, avatar2, background;
+            
+            try {
+                const avatar1Url = `https://graph.facebook.com/${uid1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+                console.log(`📥 Downloading avatar 1: ${uid1}`);
+                avatar1 = await jimp.read(avatar1Url);
+                console.log("✅ Downloaded avatar 1");
+            } catch (avatar1Error) {
+                console.error(`❌ Failed to download avatar for ${uid1}:`, avatar1Error.message);
+                throw new Error("Could not download first user's avatar");
+            }
+
+            try {
+                const avatar2Url = `https://graph.facebook.com/${uid2}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+                console.log(`📥 Downloading avatar 2: ${uid2}`);
+                avatar2 = await jimp.read(avatar2Url);
+                console.log("✅ Downloaded avatar 2");
+            } catch (avatar2Error) {
+                console.error(`❌ Failed to download avatar for ${uid2}:`, avatar2Error.message);
+                throw new Error("Could not download second user's avatar");
+            }
+
+            try {
+                console.log("📥 Downloading background image...");
+                background = await jimp.read(backgroundUrl);
+                console.log("✅ Downloaded background image");
+            } catch (backgroundError) {
+                console.error("❌ Failed to download background:", backgroundError.message);
+                throw new Error("Could not download background image");
+            }
+
+            // Resize avatars to fit the circles in the template
+            const avatarSize = 105;
+            console.log("⭕ Processing avatars...");
+            
+            avatar1.resize(avatarSize, avatarSize);
             avatar1.circle();
+            
+            avatar2.resize(avatarSize, avatarSize);
             avatar2.circle();
 
-            background.resize(640, 535)
-                .composite(avatar1.resize(130, 130), 200, 70)
-                .composite(avatar2.resize(130, 130), 350, 150);
+            // Position avatars accurately on the template
+            const avatar1X = 185; 
+            const avatar1Y = 70;
+            const avatar2X = 330; 
+            const avatar2Y = 150;
 
+            console.log("🎨 Compositing images...");
+            
+            // Resize background to maintain consistency
+            background.resize(640, 535);
+            
+            // Composite avatars onto background
+            background.composite(avatar1, avatar1X, avatar1Y);
+            background.composite(avatar2, avatar2X, avatar2Y);
+
+            console.log("💾 Saving final image...");
             await background.writeAsync(outputFile);
-            return outputFile;
+
+            // Verify the image was created successfully
+            if (fs.existsSync(outputFile)) {
+                const stats = fs.statSync(outputFile);
+                if (stats.size > 0) {
+                    console.log(`✅ Successfully created marriage image: ${outputFile}`);
+                    return outputFile;
+                } else {
+                    throw new Error("Generated image file is empty");
+                }
+            } else {
+                throw new Error("Failed to create output file");
+            }
 
         } catch (error) {
-            console.error("𝐼𝑚𝑎𝑔𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝑒𝑟𝑟𝑜𝑟:", error);
+            console.error("💥 Image generation error:", error);
+            
+            // Clean up if output file was partially created
+            if (fs.existsSync(outputFile)) {
+                try {
+                    fs.unlinkSync(outputFile);
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up partial file:", cleanupError.message);
+                }
+            }
+            
             throw error;
         }
     }
