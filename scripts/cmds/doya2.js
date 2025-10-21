@@ -1,4 +1,6 @@
 const fs = require("fs-extra");
+const axios = require("axios");
+const path = require("path");
 
 module.exports = {
     config: {
@@ -19,7 +21,21 @@ module.exports = {
             en: "{p}doya2\n{p}doya2 [number]"
         },
         dependencies: {
-            "fs-extra": ""
+            "fs-extra": "",
+            "axios": "",
+            "path": ""
+        }
+    },
+
+    onLoad: async function() {
+        try {
+            const cacheDir = path.join(__dirname, 'cache', 'doya_images');
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+                console.log("✅ Doya images cache directory created");
+            }
+        } catch (error) {
+            console.error("❌ Cache directory creation error:", error);
         }
     },
 
@@ -28,8 +44,10 @@ module.exports = {
             // Dependency check
             try {
                 require("fs-extra");
+                require("axios");
+                require("path");
             } catch (e) {
-                return message.reply("❌ Missing dependency: fs-extra");
+                return message.reply("❌ Missing dependencies: fs-extra, axios, path");
             }
 
             const doyaContent = [
@@ -83,26 +101,9 @@ module.exports = {
                 }
             ];
 
-            if (args[0] && !isNaN(args[0])) {
-                const selection = parseInt(args[0]);
-                if (selection < 1 || selection > doyaContent.length) {
-                    return message.reply(`❌ অবৈধ নির্বাচন! দয়া করে ১-${doyaContent.length} এর মধ্যে একটি নম্বর লিখুন।`);
-                }
-                
-                const doya = doyaContent[selection - 1];
-                try {
-                    const imageStream = await global.utils.getStreamFromURL(doya.image);
-                    return message.reply({
-                        body: doya.text,
-                        attachment: imageStream
-                    });
-                } catch (error) {
-                    console.error("ছবি লোড করতে সমস্যা:", error);
-                    return message.reply(`${doya.text}\n\n⚠️ ছবি প্রদর্শনে সমস্যা হচ্ছে, শুধু পাঠ্য দেখানো হচ্ছে`);
-                }
-            }
-
-            const menuMessage = `
+            // Show menu if no number provided
+            if (!args[0] || isNaN(args[0])) {
+                const menuMessage = `
 🕌 ইসলামিক দোয়ার সংগ্রহ 🕌
 
 নিচের তালিকা থেকে দোয়া নির্বাচন করতে নম্বর লিখুন:
@@ -123,11 +124,151 @@ module.exports = {
 📝 ব্যবহার: doya2 [নম্বর] (উদাহরণ: doya2 5)
 `;
 
-            return message.reply(menuMessage);
+                // Auto-download all images in background when menu is shown
+                this.preDownloadImages(doyaContent);
+                
+                return message.reply(menuMessage);
+            }
+
+            // Handle number selection
+            const selection = parseInt(args[0]);
+            if (selection < 1 || selection > doyaContent.length) {
+                return message.reply(`❌ অবৈধ নির্বাচন! দয়া করে ১-${doyaContent.length} এর মধ্যে একটি নম্বর লিখুন।`);
+            }
+            
+            const doya = doyaContent[selection - 1];
+            const cacheDir = path.join(__dirname, 'cache', 'doya_images');
+            const imagePath = path.join(cacheDir, `doya_${selection}.jpeg`);
+            
+            try {
+                console.log(`🖼️ Attempting to send image for doya #${selection}`);
+                
+                // Check if image already exists in cache
+                if (fs.existsSync(imagePath)) {
+                    console.log(`✅ Image already exists in cache, sending...`);
+                    
+                    // Send cached image
+                    await message.reply({
+                        body: doya.text,
+                        attachment: fs.createReadStream(imagePath)
+                    });
+                    
+                    console.log(`✅ Successfully sent cached image for doya #${selection}`);
+                    
+                } else {
+                    console.log(`📥 Downloading image for doya #${selection}...`);
+                    
+                    // Download the image immediately
+                    const loadingMsg = await message.reply(`📥 দোয়া ${selection} এর ছবি ডাউনলোড হচ্ছে...\n\n⏳ অনুগ্রহ করে অপেক্ষা করুন...`);
+                    
+                    const response = await axios({
+                        method: 'GET',
+                        url: doya.image,
+                        responseType: 'stream',
+                        timeout: 30000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+
+                    // Create write stream
+                    const writer = fs.createWriteStream(imagePath);
+                    
+                    response.data.pipe(writer);
+                    
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+
+                    console.log(`✅ Successfully downloaded image for doya #${selection}`);
+                    
+                    // Delete loading message
+                    try {
+                        await message.unsendMessage(loadingMsg.messageID);
+                    } catch (e) {
+                        console.log("ℹ️ Could not delete loading message");
+                    }
+                    
+                    // Send the downloaded image
+                    await message.reply({
+                        body: doya.text,
+                        attachment: fs.createReadStream(imagePath)
+                    });
+                    
+                    console.log(`✅ Successfully sent downloaded image for doya #${selection}`);
+                }
+                
+            } catch (imageError) {
+                console.error("❌ Image error:", imageError);
+                
+                // Clean up failed download
+                try {
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                    }
+                } catch (cleanupError) {
+                    console.log("ℹ️ Could not clean up failed download");
+                }
+                
+                // Final fallback - send text only
+                await message.reply(`${doya.text}\n\n⚠️ ছবি প্রদর্শনে সমস্যা হচ্ছে, শুধু পাঠ্য দেখানো হচ্ছে`);
+            }
 
         } catch (error) {
             console.error("দোয়া লোড করতে সমস্যা:", error);
             await message.reply("❌ দোয়া লোড করতে ব্যর্থ হয়েছে। পরে আবার চেষ্টা করুন।");
+        }
+    },
+
+    // Auto-download all images in background
+    preDownloadImages: async function(doyaContent) {
+        try {
+            const cacheDir = path.join(__dirname, 'cache', 'doya_images');
+            
+            console.log("🔄 Starting auto-download of all images...");
+            
+            for (let i = 0; i < doyaContent.length; i++) {
+                const imagePath = path.join(cacheDir, `doya_${i + 1}.jpeg`);
+                
+                // Skip if already downloaded
+                if (fs.existsSync(imagePath)) {
+                    console.log(`✅ Image ${i + 1} already exists`);
+                    continue;
+                }
+                
+                try {
+                    console.log(`📥 Auto-downloading image ${i + 1}...`);
+                    
+                    const response = await axios({
+                        method: 'GET',
+                        url: doyaContent[i].image,
+                        responseType: 'stream',
+                        timeout: 30000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+
+                    const writer = fs.createWriteStream(imagePath);
+                    response.data.pipe(writer);
+                    
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+                    
+                    console.log(`✅ Successfully auto-downloaded image ${i + 1}`);
+                    
+                } catch (downloadError) {
+                    console.error(`❌ Failed to auto-download image ${i + 1}:`, downloadError.message);
+                }
+            }
+            
+            console.log("🎯 Auto-download completed");
+            
+        } catch (error) {
+            console.error("💥 Auto-download error:", error);
         }
     }
 };
