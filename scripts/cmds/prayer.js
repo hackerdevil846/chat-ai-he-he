@@ -6,53 +6,54 @@ const cron = require('node-cron');
 module.exports = {
   config: {
     name: "prayertime",
-    aliases: ["azan", "salat"],
+    aliases: [],
     version: "1.3.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     countDown: 0,
     role: 0,
     category: "utility",
     shortDescription: {
-      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑒𝑑 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛𝑠 𝑤𝑖𝑡ℎ 𝑎𝑢𝑑𝑖𝑜 𝑟𝑒𝑚𝑖𝑛𝑑𝑒𝑟𝑠"
+      en: "Automated prayer time notifications with audio reminders"
     },
     longDescription: {
-      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑒𝑑 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛𝑠 𝑤𝑖𝑡ℎ 𝐵𝑒𝑛𝑔𝑎𝑙𝑖 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜 𝑟𝑒𝑚𝑖𝑛𝑑𝑒𝑟𝑠"
+      en: "Automated prayer time notifications with messages and audio reminders"
     },
     guide: {
-      en: "𝑁/𝐴 (𝑎𝑢𝑡𝑜-𝑡𝑖𝑚𝑒𝑑)"
+      en: "N/A (auto-timed)"
     },
     dependencies: {
       "axios": "",
       "fs-extra": "",
+      "path": "",
       "node-cron": ""
     }
   },
 
-  // 𝑃𝑟𝑎𝑦𝑒𝑟 𝑐𝑜𝑛𝑓𝑖𝑔𝑢𝑟𝑎𝑡𝑖𝑜𝑛 𝑤𝑖𝑡ℎ 𝐵𝑒𝑛𝑔𝑎𝑙𝑖 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜 𝑈𝑅𝐿𝑠
+  // Prayer configuration with messages and audio URLs
   PRAYER_CONFIG: {
     "Fajr": {
-      message: "⏰ 𝐹𝑎𝑗𝑟 𝑎𝑧𝑎𝑛 𝑡𝑖𝑚𝑒\n\n𝑃𝑟𝑒𝑝𝑎𝑟𝑒 𝑓𝑜𝑟 𝑝𝑟𝑎𝑦𝑒𝑟\n𝐹𝑎𝑗𝑟 𝑝𝑟𝑎𝑦𝑒𝑟 𝑤𝑖𝑙𝑙 𝑠𝑡𝑎𝑟𝑡 𝑠𝑜𝑜𝑛",
+      message: "🕌 Fajr Azan Time\n\nPrepare for prayer\nFajr prayer will start soon\n\nMay Allah accept your prayers",
       audio: "https://drive.google.com/uc?id=1m5jiP4q9"
     },
     "Dhuhr": {
-      message: "⏰ 𝐷ℎ𝑢ℎ𝑟 𝑎𝑧𝑎𝑛 𝑡𝑖𝑚𝑒\n\n𝑃𝑟𝑒𝑝𝑎𝑟𝑒 𝑓𝑜𝑟 𝑝𝑟𝑎𝑦𝑒𝑟\n𝐷ℎ𝑢ℎ𝑟 𝑝𝑟𝑎𝑦𝑒𝑟 𝑤𝑖𝑙𝑙 𝑠𝑡𝑎𝑟𝑡 𝑠𝑜𝑜𝑛",
+      message: "🕌 Dhuhr Azan Time\n\nPrepare for prayer\nDhuhr prayer will start soon\n\nMay Allah accept your prayers",
       audio: "https://drive.google.com/uc?id=1mB8EpEEb"
     },
     "Asr": {
-      message: "⏰ 𝐴𝑠𝑟 𝑎𝑧𝑎𝑛 𝑡𝑖𝑚𝑒\n\n𝑃𝑟𝑒𝑝𝑎𝑟𝑒 𝑓𝑜𝑟 𝑝𝑟𝑎𝑦𝑒𝑟\n𝐴𝑠𝑟 𝑝𝑟𝑎𝑦𝑒𝑟 𝑤𝑖𝑙𝑙 𝑠𝑡𝑎𝑟𝑡 𝑠𝑜𝑜𝑛",
+      message: "🕌 Asr Azan Time\n\nPrepare for prayer\nAsr prayer will start soon\n\nMay Allah accept your prayers",
       audio: "https://drive.google.com/uc?id=1mkNnhFFv"
     },
     "Maghrib": {
-      message: "⏰ 𝑀𝑎𝑔ℎ𝑟𝑖𝑏 𝑎𝑧𝑎𝑛 𝑡𝑖𝑚𝑒\n\n𝑃𝑟𝑒𝑝𝑎𝑟𝑒 𝑓𝑜𝑟 𝑝𝑟𝑎𝑦𝑒𝑟\n𝑀𝑎𝑔ℎ𝑟𝑖𝑏 𝑝𝑟𝑎𝑦𝑒𝑟 𝑤𝑖𝑙𝑙 𝑠𝑡𝑎𝑟𝑡 𝑠𝑜𝑜𝑛",
+      message: "🕌 Maghrib Azan Time\n\nPrepare for prayer\nMaghrib prayer will start soon\n\nMay Allah accept your prayers",
       audio: "https://drive.google.com/uc?id=1mNVwfsTE"
     },
     "Isha": {
-      message: "⏰ 𝐼𝑠ℎ𝑎 𝑎𝑧𝑎𝑛 𝑡𝑖𝑚𝑒\n\n𝑃𝑟𝑒𝑝𝑎𝑟𝑒 𝑓𝑜𝑟 𝑝𝑟𝑎𝑦𝑒𝑟\n𝐼𝑠ℎ𝑎 𝑝𝑟𝑎𝑦𝑒𝑟 𝑤𝑖𝑙𝑙 𝑠𝑡𝑎𝑟𝑡 𝑠𝑜𝑜𝑛",
+      message: "🕌 Isha Azan Time\n\nPrepare for prayer\nIsha prayer will start soon\n\nMay Allah accept your prayers",
       audio: "https://drive.google.com/uc?id=1mP2HJlKR"
     }
   },
 
-  // 𝐹𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒𝑠 𝑓𝑜𝑟 𝐷ℎ𝑎𝑘𝑎, 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ
+  // Fallback prayer times for Dhaka, Bangladesh
   FALLBACK_TIMES: {
     Fajr: "05:35",
     Dhuhr: "13:00",
@@ -61,33 +62,50 @@ module.exports = {
     Isha: "20:15"
   },
 
+  // Store scheduled tasks
+  scheduledTasks: [],
+
   onStart: async function({ api }) {
     try {
-      // 𝐶ℎ𝑒𝑐𝑘 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠
+      console.log("🕌 Initializing prayer time reminders...");
+      
+      // Check dependencies
       try {
-        if (!axios || !fs || !path || !cron) {
-          throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑟𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠");
-        }
+        require("axios");
+        require("fs-extra");
+        require("path");
+        require("node-cron");
       } catch (err) {
-        return console.error("❌ | 𝑅𝑒𝑞𝑢𝑖𝑟𝑒𝑑 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠 𝑎𝑟𝑒 𝑚𝑖𝑠𝑠𝑖𝑛𝑔. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑎𝑛𝑑 𝑛𝑜𝑑𝑒-𝑐𝑟𝑜𝑛.");
+        console.error("❌ Missing dependencies. Please install: axios, fs-extra, path, node-cron");
+        return;
       }
 
-      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑐𝑎𝑐ℎ𝑒 𝑑𝑖𝑟𝑒𝑐𝑡𝑜𝑟𝑦
+      // Create cache directory
       const cacheDir = path.join(__dirname, 'prayer_cache');
-      if (!fs.existsSync(cacheDir)) {
-        fs.mkdirSync(cacheDir, { recursive: true });
+      try {
+        if (!fs.existsSync(cacheDir)) {
+          fs.mkdirSync(cacheDir, { recursive: true });
+          console.log("✅ Created prayer cache directory");
+        }
+      } catch (dirError) {
+        console.error("❌ Failed to create cache directory:", dirError.message);
       }
       
-      // 𝑃𝑟𝑒-𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑢𝑑𝑖𝑜 𝑓𝑖𝑙𝑒𝑠
+      // Pre-download audio files
+      console.log("📥 Pre-downloading audio files...");
       for (const [prayerName, config] of Object.entries(this.PRAYER_CONFIG)) {
         const audioPath = path.join(cacheDir, `${prayerName}.mp3`);
         if (!fs.existsSync(audioPath)) {
           try {
+            console.log(`📥 Downloading ${prayerName} audio...`);
             const response = await axios({
-              method: 'get',
+              method: 'GET',
               url: config.audio,
               responseType: 'stream',
-              timeout: 30000
+              timeout: 30000,
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+              }
             });
 
             const writer = fs.createWriteStream(audioPath);
@@ -97,110 +115,212 @@ module.exports = {
               writer.on('finish', resolve);
               writer.on('error', reject);
             });
-            console.log(`𝐷𝑜𝑤𝑛𝑙𝑜𝑎𝑑𝑒𝑑 ${prayerName} 𝑎𝑢𝑑𝑖𝑜`);
+            console.log(`✅ Downloaded ${prayerName} audio`);
           } catch (error) {
-            console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${prayerName} 𝑎𝑢𝑑𝑖𝑜:`, error.message);
+            console.error(`❌ Failed to download ${prayerName} audio:`, error.message);
           }
+        } else {
+          console.log(`✅ ${prayerName} audio already exists`);
         }
       }
       
-      // 𝑆𝑐ℎ𝑒𝑑𝑢𝑙𝑒 𝑝𝑟𝑎𝑦𝑒𝑟 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛𝑠
+      // Schedule prayer notifications
       await this.schedulePrayerNotifications(api);
       
-      // 𝑆𝑐ℎ𝑒𝑑𝑢𝑙𝑒 𝑑𝑎𝑖𝑙𝑦 𝑟𝑒𝑠𝑒𝑡 𝑎𝑡 𝑚𝑖𝑑𝑛𝑖𝑔ℎ𝑡 (𝐴𝑠𝑖𝑎/𝐷ℎ𝑎𝑘𝑎 𝑡𝑖𝑚𝑒)
-      cron.schedule('0 0 * * *', async () => {
-        console.log("𝑅𝑒𝑠𝑐ℎ𝑒𝑑𝑢𝑙𝑖𝑛𝑔 𝑝𝑟𝑎𝑦𝑒𝑟 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛𝑠 𝑓𝑜𝑟 𝑡ℎ𝑒 𝑛𝑒𝑤 𝑑𝑎𝑦...");
+      // Schedule daily reset at midnight (Asia/Dhaka time)
+      const resetTask = cron.schedule('0 0 * * *', async () => {
+        console.log("🔄 Rescheduling prayer notifications for the new day...");
         await this.schedulePrayerNotifications(api);
       }, {
         scheduled: true,
         timezone: "Asia/Dhaka"
       });
 
-      console.log("𝑃𝑟𝑎𝑦𝑒𝑟 𝑟𝑒𝑚𝑖𝑛𝑑𝑒𝑟𝑠 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦");
+      this.scheduledTasks.push(resetTask);
+
+      console.log("✅ Prayer reminders initialized successfully");
       
     } catch (error) {
-      console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑝𝑟𝑎𝑦𝑒𝑟 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛:", error);
+      console.error("💥 Error in prayer command initialization:", error);
     }
   },
 
   schedulePrayerNotifications: async function(api) {
     try {
-      // 𝐺𝑒𝑡 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒𝑠
+      console.log("📅 Scheduling prayer notifications...");
+      
+      // Clear existing schedules
+      this.scheduledTasks.forEach(task => {
+        try {
+          if (task && typeof task.stop === 'function') {
+            task.stop();
+          }
+        } catch (error) {
+          console.error("❌ Error stopping task:", error.message);
+        }
+      });
+      this.scheduledTasks = [];
+      
+      // Get prayer times
       const timings = await this.getPrayerTimes();
       
-      // 𝑆𝑐ℎ𝑒𝑑𝑢𝑙𝑒 𝑒𝑎𝑐ℎ 𝑝𝑟𝑎𝑦𝑒𝑟
+      // Schedule each prayer
       for (const [prayerName, config] of Object.entries(this.PRAYER_CONFIG)) {
         const time = timings[prayerName];
-        if (!time) continue;
+        if (!time) {
+          console.log(`❌ No time found for ${prayerName}`);
+          continue;
+        }
         
-        // 𝐶𝑜𝑛𝑣𝑒𝑟𝑡 𝑡𝑜 𝑐𝑟𝑜𝑛 𝑓𝑜𝑟𝑚𝑎𝑡 (𝐻𝐻:𝑚𝑚 -> 𝑚𝑚 𝐻𝐻 * * *)
-        const [hours, minutes] = time.split(':');
-        const cronTime = `${minutes} ${hours} * * *`;
-        
-        cron.schedule(cronTime, async () => {
-          console.log(`𝑆𝑒𝑛𝑑𝑖𝑛𝑔 ${prayerName} 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛 𝑎𝑡 ${time}`);
-          await this.sendPrayerNotification(api, prayerName);
-        }, {
-          scheduled: true,
-          timezone: "Asia/Dhaka"
-        });
-        
-        console.log(`𝑆𝑐ℎ𝑒𝑑𝑢𝑙𝑒𝑑 ${prayerName} 𝑎𝑡 ${time}`);
+        try {
+          // Convert to cron format (HH:mm -> mm HH * * *)
+          const [hours, minutes] = time.split(':');
+          const cronTime = `${minutes} ${hours} * * *`;
+          
+          const task = cron.schedule(cronTime, async () => {
+            console.log(`🕌 Sending ${prayerName} notification at ${time}`);
+            await this.sendPrayerNotification(api, prayerName);
+          }, {
+            scheduled: true,
+            timezone: "Asia/Dhaka"
+          });
+          
+          this.scheduledTasks.push(task);
+          console.log(`✅ Scheduled ${prayerName} at ${time}`);
+          
+        } catch (scheduleError) {
+          console.error(`❌ Failed to schedule ${prayerName}:`, scheduleError.message);
+        }
       }
+      
+      console.log("✅ All prayer notifications scheduled");
     } catch (error) {
-      console.error("𝐸𝑟𝑟𝑜𝑟 𝑠𝑐ℎ𝑒𝑑𝑢𝑙𝑖𝑛𝑔 𝑝𝑟𝑎𝑦𝑒𝑟 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛𝑠:", error);
+      console.error("💥 Error scheduling prayer notifications:", error);
     }
   },
 
   getPrayerTimes: async function() {
     try {
-      // 𝐹𝑒𝑡𝑐ℎ 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒𝑠 𝑓𝑜𝑟 𝐷ℎ𝑎𝑘𝑎, 𝐵𝑎𝑛𝑔𝑙𝑎𝑑𝑒𝑠ℎ
+      console.log("🕐 Fetching prayer times...");
+      
+      // Fetch prayer times for Dhaka, Bangladesh
       const response = await axios.get(
         `https://api.aladhan.com/v1/timingsByCity?city=Dhaka&country=Bangladesh&method=1`,
-        { timeout: 5000 }
+        { 
+          timeout: 15000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        }
       );
       
-      // 𝑅𝑒𝑡𝑢𝑟𝑛 𝑜𝑛𝑙𝑦 𝑡ℎ𝑒 𝑝𝑟𝑎𝑦𝑒𝑟𝑠 𝑤𝑒 𝑛𝑒𝑒𝑑
-      const { Fajr, Dhuhr, Asr, Maghrib, Isha } = response.data.data.timings;
-      return { Fajr, Dhuhr, Asr, Maghrib, Isha };
+      if (response.data && response.data.data && response.data.data.timings) {
+        const { Fajr, Dhuhr, Asr, Maghrib, Isha } = response.data.data.timings;
+        console.log(`✅ Got prayer times: Fajr(${Fajr}), Dhuhr(${Dhuhr}), Asr(${Asr}), Maghrib(${Maghrib}), Isha(${Isha})`);
+        return { Fajr, Dhuhr, Asr, Maghrib, Isha };
+      } else {
+        throw new Error("Invalid response format");
+      }
       
     } catch (error) {
-      console.error('𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑝𝑟𝑎𝑦𝑒𝑟 𝑡𝑖𝑚𝑒𝑠, 𝑢𝑠𝑖𝑛𝑔 𝑓𝑎𝑙𝑙𝑏𝑎𝑐𝑘:', error.message);
+      console.error('❌ Failed to fetch prayer times, using fallback:', error.message);
       return this.FALLBACK_TIMES;
     }
   },
 
   sendPrayerNotification: async function(api, prayerName) {
     const config = this.PRAYER_CONFIG[prayerName];
-    if (!config) return;
+    if (!config) {
+      console.error(`❌ No config found for ${prayerName}`);
+      return;
+    }
     
     try {
       const cacheDir = path.join(__dirname, 'prayer_cache');
       const audioPath = path.join(cacheDir, `${prayerName}.mp3`);
       
-      // 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒
-      const messageData = {
-        body: config.message,
-        attachment: fs.existsSync(audioPath) 
-          ? fs.createReadStream(audioPath)
-          : undefined
-      };
+      console.log(`📢 Sending ${prayerName} notification...`);
+      
+      // Check if audio file exists
+      let attachment = null;
+      if (fs.existsSync(audioPath)) {
+        try {
+          attachment = fs.createReadStream(audioPath);
+          console.log(`✅ Audio file found for ${prayerName}`);
+        } catch (audioError) {
+          console.error(`❌ Failed to read audio file:`, audioError.message);
+        }
+      } else {
+        console.log(`⚠️ No audio file found for ${prayerName}`);
+      }
 
-      // 𝑆𝑒𝑛𝑑 𝑡𝑜 𝑎𝑙𝑙 𝑎𝑐𝑡𝑖𝑣𝑒 𝑡ℎ𝑟𝑒𝑎𝑑𝑠
-      if (global.data && global.data.allThreadID) {
-        global.data.allThreadID.forEach(threadID => {
-          api.sendMessage(messageData, threadID);
-        });
+      // Create message data
+      const messageData = {
+        body: config.message
+      };
+      
+      if (attachment) {
+        messageData.attachment = attachment;
+      }
+
+      // Send to all active threads
+      if (global.data && global.data.allThreadID && Array.isArray(global.data.allThreadID)) {
+        const threads = global.data.allThreadID;
+        console.log(`📤 Sending to ${threads.length} threads...`);
+        
+        for (const threadID of threads) {
+          try {
+            await api.sendMessage(messageData, threadID);
+            console.log(`✅ Sent ${prayerName} notification to thread: ${threadID}`);
+            
+            // Add small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+          } catch (threadError) {
+            console.error(`❌ Failed to send to thread ${threadID}:`, threadError.message);
+          }
+        }
+      } else {
+        console.log("⚠️ No threads found to send notifications");
       }
 
     } catch (error) {
-      console.error(`𝐸𝑟𝑟𝑜𝑟 𝑠𝑒𝑛𝑑𝑖𝑛𝑔 ${prayerName} 𝑛𝑜𝑡𝑖𝑓𝑖𝑐𝑎𝑡𝑖𝑜𝑛:`, error);
-      // 𝐹𝑎𝑙𝑙𝑏𝑎𝑐𝑘 𝑡𝑜 𝑡𝑒𝑥𝑡-𝑜𝑛𝑙𝑦 𝑚𝑒𝑠𝑠𝑎𝑔𝑒
-      if (global.data && global.data.allThreadID) {
-        global.data.allThreadID.forEach(threadID => {
-          api.sendMessage(config.message, threadID);
-        });
+      console.error(`💥 Error sending ${prayerName} notification:`, error);
+      
+      // Fallback to text-only message
+      try {
+        if (global.data && global.data.allThreadID && Array.isArray(global.data.allThreadID)) {
+          for (const threadID of global.data.allThreadID) {
+            try {
+              await api.sendMessage(config.message, threadID);
+              await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (fallbackError) {
+              console.error(`❌ Fallback failed for thread ${threadID}:`, fallbackError.message);
+            }
+          }
+        }
+      } catch (finalError) {
+        console.error("💥 Final fallback failed:", finalError);
       }
+    }
+  },
+
+  onExit: function() {
+    try {
+      // Clean up scheduled tasks when bot stops
+      this.scheduledTasks.forEach(task => {
+        try {
+          if (task && typeof task.stop === 'function') {
+            task.stop();
+          }
+        } catch (error) {
+          console.error("❌ Error stopping task on exit:", error.message);
+        }
+      });
+      this.scheduledTasks = [];
+      console.log("🧹 Cleaned up prayer reminder tasks");
+    } catch (error) {
+      console.error("💥 Error during cleanup:", error);
     }
   }
 };
