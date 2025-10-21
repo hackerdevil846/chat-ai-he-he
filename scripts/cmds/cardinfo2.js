@@ -1,5 +1,5 @@
 const sendWaiting = true;
-const textWaiting = "⏳ 𝐼𝑚𝑎𝑔𝑒 𝑖𝑛𝑖𝑡𝑖𝑎𝑙𝑖𝑧𝑎𝑡𝑖𝑜𝑛, 𝑝𝑙𝑒𝑎𝑠𝑒 𝑤𝑎𝑖𝑡 𝑎 𝑚𝑜𝑚𝑒𝑛𝑡...";
+const textWaiting = "⏳ Image initialization, please wait a moment...";
 const fonts = "/cache/Play-Bold.ttf";
 const downfonts = "https://drive.google.com/u/0/uc?id=1uni8AiYk7prdrC7hgAmezaGTMH5R8gW8&export=download";
 const fontsLink = 20;
@@ -8,20 +8,20 @@ const fontsInfo = 28;
 module.exports = {
   config: {
     name: "cardinfo2",
-    aliases: ["profilecard2", "infocard2"],
-    version: "1.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    aliases: [],
+    version: "1.2",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
     category: "logo",
     shortDescription: {
-      en: "📇 𝑀𝑎𝑘𝑒 𝑎 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑"
+      en: "📇 Make a stylish Facebook profile card"
     },
     longDescription: {
-      en: "📇 𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝐹𝑎𝑐𝑒𝑏𝑜𝑜𝑘 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛"
+      en: "📇 Create a stylish Facebook profile card with user information"
     },
     guide: {
-      en: "{p}cardinfo2 <𝑁𝑎𝑚𝑒> <𝑆𝑒𝑥> <𝐹𝑜𝑙𝑙𝑜𝑤𝑒𝑟𝑠> <𝐿𝑜𝑣𝑒> <𝐷𝑂𝐵> <𝐿𝑜𝑐𝑎𝑡𝑖𝑜𝑛> <𝐹𝐵 𝐿𝑖𝑛𝑘>"
+      en: "{p}cardinfo2 [reply to user or mention]"
     },
     dependencies: {
       "canvas": "",
@@ -32,115 +32,205 @@ module.exports = {
   },
 
   onStart: async function({ api, event, args, message }) {
+    let pathImg = null;
+    let pathAvata = null;
+    
     try {
-      const { loadImage, createCanvas } = require("canvas");
+      const { loadImage, createCanvas, registerFont } = require("canvas");
       const fs = require("fs-extra");
       const axios = require("axios");
-      const Canvas = require("canvas");
+      const jimp = require("jimp");
 
-      let pathImg = __dirname + `/cache/1.png`;
-      let pathAvata = __dirname + `/cache/2.png`;
+      pathImg = __dirname + `/cache/card_background_${Date.now()}.png`;
+      pathAvata = __dirname + `/cache/card_avatar_${Date.now()}.png`;
 
       if (sendWaiting) {
         await message.reply(textWaiting);
       }
 
       let uid;
-      if (event.type === "message_reply") {
+      if (event.type === "message_reply" && event.messageReply && event.messageReply.senderID) {
         uid = event.messageReply.senderID;
+      } else if (Object.keys(event.mentions).length > 0) {
+        uid = Object.keys(event.mentions)[0];
       } else {
         uid = event.senderID;
       }
 
-      const res = await api.getUserInfo(uid);
+      // Fetch user info
+      let userInfo = {};
+      try {
+        const userInfoData = await api.getUserInfo(uid);
+        userInfo = userInfoData[uid] || {};
+      } catch (apiError) {
+        console.error("Error fetching user info:", apiError);
+        userInfo = {
+          name: "Unknown User",
+          gender: "Not Specified",
+          follow: "N/A",
+          relationship_status: "N/A", 
+          birthday: "N/A",
+          location: { name: "N/A" },
+          link: `https://www.facebook.com/${uid}`
+        };
+      }
 
-      // Avatar & Background
-      let getAvatarOne = (await axios.get(
-        `https://graph.facebook.com/${uid}/picture?height=1500&width=1500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
-        { responseType: "arraybuffer" }
-      )).data;
+      // Download avatar
+      try {
+        const getAvatarOne = await axios.get(
+          `https://graph.facebook.com/${uid}/picture?width=1500&height=1500&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+          { responseType: "arraybuffer", timeout: 15000 }
+        );
+        await fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne.data, "binary"));
+      } catch (avatarError) {
+        console.error("Error fetching avatar:", avatarError);
+        // Create a simple fallback avatar
+        const fallbackCanvas = createCanvas(1500, 1500);
+        const ctx = fallbackCanvas.getContext("2d");
+        ctx.fillStyle = "#3498db";
+        ctx.fillRect(0, 0, 1500, 1500);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 200px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("?", 750, 750);
+        const buffer = fallbackCanvas.toBuffer();
+        await fs.writeFileSync(pathAvata, buffer);
+      }
 
-      let bg = (await axios.get(
-        encodeURI(`https://i.imgur.com/tW6nSDm.png`),
-        { responseType: "arraybuffer" }
-      )).data;
+      // Create circular avatar
+      let avatarBuffer;
+      try {
+        avatarBuffer = await this.circle(pathAvata);
+      } catch (circleError) {
+        console.error("Error creating circular avatar:", circleError);
+        avatarBuffer = await fs.readFileSync(pathAvata);
+      }
 
-      fs.writeFileSync(pathAvata, Buffer.from(getAvatarOne, "utf-8"));
-      const avataruser = await this.circle(pathAvata);
-      fs.writeFileSync(pathImg, Buffer.from(bg, "utf-8"));
+      // Download background
+      try {
+        const bg = await axios.get(
+          "https://i.imgur.com/tW6nSDm.png",
+          { responseType: "arraybuffer", timeout: 15000 }
+        );
+        await fs.writeFileSync(pathImg, Buffer.from(bg.data, "binary"));
+      } catch (bgError) {
+        console.error("Error fetching background:", bgError);
+        await message.reply("❌ Failed to load background image. Please try again later.");
+        return;
+      }
 
-      // Download Fonts if not exists
-      if (!fs.existsSync(__dirname + `${fonts}`)) {
-        let getfont = (await axios.get(`${downfonts}`, { responseType: "arraybuffer" })).data;
-        fs.writeFileSync(__dirname + `${fonts}`, Buffer.from(getfont, "utf-8"));
+      // Download and register font
+      const fontPath = __dirname + fonts;
+      let fontRegistered = false;
+      
+      if (!fs.existsSync(fontPath)) {
+        try {
+          const getfont = await axios.get(downfonts, { responseType: "arraybuffer", timeout: 30000 });
+          await fs.writeFileSync(fontPath, Buffer.from(getfont.data, "binary"));
+          registerFont(fontPath, { family: "Play-Bold" });
+          fontRegistered = true;
+        } catch (fontError) {
+          console.error("Error downloading font:", fontError);
+        }
+      } else {
+        try {
+          registerFont(fontPath, { family: "Play-Bold" });
+          fontRegistered = true;
+        } catch (registerError) {
+          console.error("Error registering font:", registerError);
+        }
       }
 
       // Draw Canvas
-      let baseImage = await loadImage(pathImg);
-      let baseAvata = await loadImage(avataruser);
-      let canvas = createCanvas(baseImage.width, baseImage.height);
-      let ctx = canvas.getContext("2d");
+      const baseImage = await loadImage(pathImg);
+      const baseAvata = await loadImage(avatarBuffer);
+      const canvas = createCanvas(baseImage.width, baseImage.height);
+      const ctx = canvas.getContext("2d");
 
       ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
       ctx.drawImage(baseAvata, 80, 73, 285, 285);
 
-      // Default Fallbacks
-      if (!res[uid].name) res[uid].name = args[0] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].gender) res[uid].gender = args[1] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].follow) res[uid].follow = args[2] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].relationship_status) res[uid].relationship_status = args[3] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].birthday) res[uid].birthday = args[4] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].location) res[uid].location = args[5] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
-      if (!res[uid].link) res[uid].link = args[6] || "𝑁𝑜𝑡 𝐹𝑜𝑢𝑛𝑑";
+      // Prepare user data with fallbacks
+      const name = userInfo.name || "Unknown User";
+      const gender = userInfo.gender === 'MALE' ? 'Male' : userInfo.gender === 'FEMALE' ? 'Female' : 'Not Specified';
+      const follow = userInfo.followers ? userInfo.followers.toLocaleString() : "N/A";
+      const love = userInfo.relationship_status || "N/A";
+      const birthday = userInfo.birthday || "N/A";
+      const location = (userInfo.location && userInfo.location.name) ? userInfo.location.name : "N/A";
+      const link = `https://www.facebook.com/${uid}`;
 
-      var name = res[uid].name || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var gender = res[uid].gender || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var follow = res[uid].follow || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var love = res[uid].relationship_status || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var birthday = res[uid].birthday || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var location = res[uid].location || "𝑁𝑜 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
-      var link = res[uid].link || "𝑁𝑜 �𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑓𝑜𝑢𝑛𝑑";
+      // Set font family based on registration success
+      const fontFamily = fontRegistered ? "Play-Bold" : "Arial";
 
-      Canvas.registerFont(__dirname + `${fonts}`, { family: "Play-Bold" });
-      ctx.font = `${fontsInfo}px Play-Bold`;
+      // Draw user information
       ctx.fillStyle = "#000000";
-      ctx.textAlign = "start";
+      ctx.textAlign = "left";
 
-      ctx.fillText(`${name}`, 480, 172);
-      ctx.fillText(`${gender}`, 550, 208);
-      ctx.fillText(`${follow}`, 550, 244);
-      ctx.fillText(`${love}`, 550, 281);
-      ctx.fillText(`${birthday}`, 550, 320);
-      ctx.fillText(`${location}`, 550, 357);
-      ctx.fillText(`${uid}`, 550, 399);
+      // Name
+      ctx.font = `bold ${fontsInfo}px "${fontFamily}"`;
+      ctx.fillText(name, 480, 172);
 
-      ctx.font = `${fontsLink}px Play-Bold`;
-      ctx.fillStyle = "#0000FF";
-      ctx.textAlign = "start";
-      ctx.fillText(`${link}`, 175, 470);
+      // Gender
+      ctx.font = `${fontsInfo}px "${fontFamily}"`;
+      ctx.fillText(gender, 550, 208);
 
-      // Export Final Image
-      const imageBuffer = canvas.toBuffer();
-      fs.writeFileSync(pathImg, imageBuffer);
-      fs.removeSync(pathAvata);
+      // Followers
+      ctx.fillText(follow, 550, 244);
+
+      // Relationship
+      ctx.fillText(love, 550, 281);
+
+      // Birthday
+      ctx.fillText(birthday, 550, 320);
+
+      // Location
+      ctx.fillText(location, 550, 357);
+
+      // UID
+      ctx.fillText(uid, 550, 399);
+
+      // Facebook Link
+      ctx.font = `${fontsLink}px "${fontFamily}"`;
+      ctx.fillStyle = "#1877f2";
+      ctx.fillText(link, 175, 470);
+
+      // Save and send final image
+      const imageBuffer = canvas.toBuffer("image/png");
+      await fs.writeFileSync(pathImg, imageBuffer);
 
       await message.reply({
-        body: `✨ 𝐻𝑒𝑟𝑒 𝑖𝑠 𝑦𝑜𝑢𝑟 𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑 ✨`,
+        body: `✨ Here is your stylish profile card ✨\n\n📛 Name: ${name}\n👤 Gender: ${gender}\n🔗 Profile: ${link}`,
         attachment: fs.createReadStream(pathImg)
       });
 
-      fs.unlinkSync(pathImg);
-
     } catch (error) {
-      console.error("𝐶𝑎𝑟𝑑𝐼𝑛𝑓𝑜 𝐸𝑟𝑟𝑜𝑟:", error);
-      await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+      console.error("CardInfo2 Error:", error);
+      await message.reply("❌ Failed to create profile card. Please try again later.");
+    } finally {
+      // Cleanup temporary files
+      try {
+        if (pathImg && fs.existsSync(pathImg)) {
+          fs.unlinkSync(pathImg);
+        }
+        if (pathAvata && fs.existsSync(pathAvata)) {
+          fs.unlinkSync(pathAvata);
+        }
+      } catch (cleanupError) {
+        console.warn("Cleanup warning:", cleanupError.message);
+      }
     }
   },
 
-  circle: async function (image) {
-    const jimp = require("jimp");
-    image = await jimp.read(image);
-    image.circle();
-    return await image.getBufferAsync("image/png");
+  circle: async function (imagePath) {
+    try {
+      const jimp = require("jimp");
+      const image = await jimp.read(imagePath);
+      image.circle();
+      return await image.getBufferAsync("image/png");
+    } catch (error) {
+      console.error("Circle function error:", error);
+      throw error;
+    }
   }
 };
