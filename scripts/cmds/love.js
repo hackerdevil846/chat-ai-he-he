@@ -8,18 +8,18 @@ module.exports = {
         name: "love",
         aliases: [],
         version: "2.6.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         countDown: 5,
         role: 0,
-        category: "𝑙𝑜𝑣𝑒",
+        category: "love",
         shortDescription: {
-            en: "𝖯𝗋𝖾𝗆 𝖾𝗋 𝗂𝗆𝖺𝗀𝖾 𝖻𝖺𝗇𝖺𝗈"
+            en: "Create romantic love image"
         },
         longDescription: {
-            en: "𝖢𝗋𝖾𝖺𝗍𝖾𝗌 𝖺 𝗅𝗈𝗏𝖾 𝗂𝗆𝖺𝗀𝖾 𝗐𝗂𝗍𝗁 𝗍𝖺𝗀𝗀𝖾𝖽 𝗎𝗌𝖾𝗋"
+            en: "Creates a beautiful love image with tagged user"
         },
         guide: {
-            en: "{p}love [𝗍𝖺𝗀]"
+            en: "{p}love @mention"
         },
         dependencies: {
             "axios": "",
@@ -29,203 +29,279 @@ module.exports = {
         }
     },
 
-    onLoad: async () => {
+    onLoad: async function() {
         try {
-            const dirMaterial = path.resolve(__dirname, 'cache', 'canvas');
+            const canvasDir = path.join(__dirname, 'cache', 'canvas');
             
-            // Create directory if it doesn't exist
-            if (!fs.existsSync(dirMaterial)) {
-                fs.mkdirSync(dirMaterial, { recursive: true });
-                console.log("✅ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖼𝖺𝖼𝗁𝖾/𝖼𝖺𝗇𝗏𝖺𝗌 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒");
+            if (!fs.existsSync(canvasDir)) {
+                fs.mkdirSync(canvasDir, { recursive: true });
+                console.log("✅ Created cache/canvas directory");
             }
 
-            const templatePath = path.resolve(dirMaterial, 'love2.jpg');
+            const templatePath = path.join(canvasDir, 'love2.jpg');
             if (!fs.existsSync(templatePath)) {
-                console.warn("⚠️ 𝖶𝖺𝗋𝗇𝗂𝗇𝗀: 𝖼𝖺𝖼𝗁𝖾/𝖼𝖺𝗇𝗏𝖺𝗌/𝗅𝗈𝗏𝖾𝟤.𝗃𝗉𝗀 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖺𝖽𝖽 𝗅𝗈𝗏𝖾𝟤.𝗃𝗉𝗀 𝗍𝗈 𝖼𝖺𝖼𝗁𝖾/𝖼𝖺𝗇𝗏𝖺𝗌/");
+                console.warn("⚠️ Template not found: Please add 'love2.jpg' to cache/canvas/ folder");
+            } else {
+                console.log("✅ Love template found:", templatePath);
             }
         } catch (error) {
-            console.error("💥 𝖤𝗋𝗋𝗈𝗋 𝗂𝗇 𝗈𝗇𝖫𝗈𝖺𝖽:", error);
+            console.error("❌ onLoad Error:", error.message);
         }
     },
 
-    onStart: async function ({ event, message, usersData }) {
+    onStart: async function ({ event, message, usersData, api }) {
+        let generatedImagePath = null;
+        let avatarOneTempPath = null;
+        let avatarTwoTempPath = null;
+
         try {
-            // Dependency check
-            let dependenciesAvailable = true;
-            try {
-                require("axios");
-                require("fs-extra");
-                require("path");
-                require("jimp");
-            } catch (e) {
-                dependenciesAvailable = false;
+            const { senderID, mentions } = event;
+
+            // Check if someone is tagged
+            if (!mentions || Object.keys(mentions).length === 0) {
+                return message.reply("💌 Please tag someone to create a love image!\n\nExample: /love @username");
             }
 
-            if (!dependenciesAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌, 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺, 𝗉𝖺𝗍𝗁, 𝖺𝗇𝖽 𝗃𝗂𝗆𝗉.");
-            }
-
-            const { senderID } = event;
-
-            if (!event.mentions || Object.keys(event.mentions).length === 0) {
-                return message.reply("⚠️ 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝖺𝗀 𝗌𝗈𝗆𝖾𝗈𝗇𝖾 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖺 𝗅𝗈𝗏𝖾 𝗂𝗆𝖺𝗀𝖾. 💕");
-            }
-
-            const mentionedIDs = Object.keys(event.mentions);
+            const mentionedIDs = Object.keys(mentions);
             const targetID = mentionedIDs[0];
-            
-            // Get user names properly
-            let displayName;
+            const userOne = senderID;
+            const userTwo = targetID;
+
+            // Get display name for the message
+            let displayName = "Your Love";
             try {
                 const userInfo = await usersData.get(targetID);
-                displayName = userInfo?.name || event.mentions[targetID] || "𝖴𝗌𝖾𝗋";
+                displayName = userInfo?.name || mentions[targetID]?.replace('@', '') || "Your Love";
             } catch (error) {
-                displayName = event.mentions[targetID] || "𝖴𝗌𝖾𝗋";
+                displayName = mentions[targetID]?.replace('@', '') || "Your Love";
             }
-            
-            // Clean the display name
-            displayName = String(displayName).replace(/@/g, "").trim();
 
-            const one = senderID;
-            const two = targetID;
-
-            // Check if template exists
-            const templatePath = path.resolve(__dirname, "cache", "canvas", "love2.jpg");
+            // Check template exists
+            const templatePath = path.join(__dirname, "cache", "canvas", "love2.jpg");
             if (!fs.existsSync(templatePath)) {
-                return message.reply("❌ 𝖳𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖺𝖽𝖽 𝗅𝗈𝗏𝖾𝟤.𝗃𝗉𝗀 𝗍𝗈 𝖼𝖺𝖼𝗁𝖾/𝖼𝖺𝗇𝗏𝖺𝗌/ 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒.");
+                return message.reply("❌ Template missing!\n\nPlease add 'love2.jpg' to the cache/canvas/ folder.");
             }
 
-            const loadingMsg = await message.reply("⏳ 𝖢𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝗅𝗈𝗏𝖾 𝗂𝗆𝖺𝗀𝖾... 💖");
+            // Send loading message
+            const loadingMsg = await message.reply("🔄 Creating your romantic love image... 💖");
 
             try {
-                const imagePath = await this.makeImage({ one, two });
+                // Generate the love image
+                const result = await this.makeImage({ one: userOne, two: userTwo });
                 
+                if (!result || !result.outputPath || !fs.existsSync(result.outputPath)) {
+                    throw new Error("Failed to generate image file");
+                }
+
+                generatedImagePath = result.outputPath;
+                avatarOneTempPath = result.avatarOneTempPath;
+                avatarTwoTempPath = result.avatarTwoTempPath;
+
+                // Verify the generated image is valid
+                const stats = fs.statSync(generatedImagePath);
+                if (stats.size === 0) {
+                    throw new Error("Generated image is empty");
+                }
+
                 // Unsend loading message
                 try {
                     await message.unsend(loadingMsg.messageID);
                 } catch (unsendError) {
-                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                    console.warn("Could not unsend loading message:", unsendError.message);
                 }
 
+                // Send the final result
                 await message.reply({
-                    body: `💖 ${displayName} 𝗍𝗎𝗆𝗂 𝖺𝗆𝖺𝗋 𝗏𝖺𝗅𝗈𝖻𝖺𝗌𝖺 𝖾𝗄𝗍𝗎 𝖻𝖾𝗌𝗁𝗂 💕\n━━━━━━━━━━━━━━━━`,
+                    body: `💕 ${displayName}, you mean the world to me! 💖\n━━━━━━━━━━━━━━━━━━━━`,
                     mentions: [{ tag: displayName, id: targetID }],
-                    attachment: fs.createReadStream(imagePath)
+                    attachment: fs.createReadStream(generatedImagePath)
                 });
 
-                // Clean up image file
-                try {
-                    if (fs.existsSync(imagePath)) {
-                        fs.unlinkSync(imagePath);
-                    }
-                } catch (cleanupError) {
-                    console.warn("𝖢𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", cleanupError.message);
-                }
+                console.log("✅ Successfully created and sent love image");
 
-            } catch (err) {
-                console.error("💥 𝖨𝗆𝖺𝗀𝖾 𝖼𝗋𝖾𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:", err);
+            } catch (imageError) {
+                console.error("❌ Image creation failed:", imageError.message);
                 
                 try {
                     await message.unsend(loadingMsg.messageID);
                 } catch (unsendError) {
-                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                    console.warn("Could not unsend loading message:", unsendError.message);
                 }
                 
-                return message.reply("❌ 𝖤𝗋𝗋𝗈𝗋 𝖼𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝗅𝗈𝗏𝖾 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+                return message.reply("❌ Failed to create love image. Please try again later.");
             }
+
         } catch (error) {
-            console.error("💥 𝖫𝗈𝗏𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
-            await message.reply("❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+            console.error("💥 Love command error:", error);
+            await message.reply("❌ An unexpected error occurred. Please try again.");
+        } finally {
+            // Cleanup all temporary files
+            this.cleanupFiles([generatedImagePath, avatarOneTempPath, avatarTwoTempPath]);
         }
     },
 
     makeImage: async function({ one, two }) {
-        const __root = path.resolve(__dirname, "cache", "canvas");
-        const templatePath = path.join(__root, "love2.jpg");
+        const canvasDir = path.join(__dirname, "cache", "canvas");
+        const templatePath = path.join(canvasDir, "love2.jpg");
 
         if (!fs.existsSync(templatePath)) {
-            throw new Error("𝖳𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝗅𝗈𝗏𝖾𝟤.𝗃𝗉𝗀 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝖼𝖺𝖼𝗁𝖾/𝖼𝖺𝗇𝗏𝖺𝗌/");
+            throw new Error("Template love2.jpg not found in cache/canvas/");
         }
 
-        const outputPath = path.join(__root, `love2_${one}_${two}_${Date.now()}.png`);
-        const avatarOnePath = path.join(__root, `avt_${one}_${Date.now()}.png`);
-        const avatarTwoPath = path.join(__root, `avt_${two}_${Date.now()}.png`);
+        // Create unique file paths
+        const timestamp = Date.now();
+        const outputPath = path.join(canvasDir, `love_${one}_${two}_${timestamp}.png`);
+        const avatarOnePath = path.join(canvasDir, `avt1_${one}_${timestamp}.png`);
+        const avatarTwoPath = path.join(canvasDir, `avt2_${two}_${timestamp}.png`);
 
         let template;
         try {
             template = await jimp.read(templatePath);
+            console.log("✅ Template loaded successfully");
         } catch (templateError) {
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝗍𝖾𝗆𝗉𝗅𝖺𝗍𝖾: ${templateError.message}`);
+            throw new Error(`Failed to load template: ${templateError.message}`);
         }
 
-        const fbTokenPart = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
-        const urlOne = `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=${fbTokenPart}`;
-        const urlTwo = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=${fbTokenPart}`;
+        // Facebook access token for avatar downloads
+        const fbToken = "6628568379%7Cc1e620fa708a1d5696fb991c1bde5662";
+        const avatarOneUrl = `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=${fbToken}`;
+        const avatarTwoUrl = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=${fbToken}`;
 
-        let avatarOneBuffer, avatarTwoBuffer;
-
+        // Download first avatar
+        console.log(`📥 Downloading avatar for user ${one}...`);
         try {
-            const responseOne = await axios.get(urlOne, { 
+            const responseOne = await axios.get(avatarOneUrl, {
                 responseType: 'arraybuffer',
-                timeout: 15000 
+                timeout: 20000,
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "image/*"
+                }
             });
-            avatarOneBuffer = responseOne.data;
-            fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneBuffer, 'binary'));
+
+            if (!responseOne.data || responseOne.data.length < 1000) {
+                throw new Error("Invalid avatar data received");
+            }
+
+            fs.writeFileSync(avatarOnePath, Buffer.from(responseOne.data, 'binary'));
+            console.log("✅ First avatar downloaded successfully");
         } catch (avatarOneError) {
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗈𝗋 𝗎𝗌𝖾𝗋 ${one}: ${avatarOneError.message}`);
+            throw new Error(`Failed to download first avatar: ${avatarOneError.message}`);
         }
 
+        // Download second avatar
+        console.log(`📥 Downloading avatar for user ${two}...`);
         try {
-            const responseTwo = await axios.get(urlTwo, { 
+            const responseTwo = await axios.get(avatarTwoUrl, {
                 responseType: 'arraybuffer',
-                timeout: 15000 
+                timeout: 20000,
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                    "Accept": "image/*"
+                }
             });
-            avatarTwoBuffer = responseTwo.data;
-            fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoBuffer, 'binary'));
+
+            if (!responseTwo.data || responseTwo.data.length < 1000) {
+                throw new Error("Invalid avatar data received");
+            }
+
+            fs.writeFileSync(avatarTwoPath, Buffer.from(responseTwo.data, 'binary'));
+            console.log("✅ Second avatar downloaded successfully");
         } catch (avatarTwoError) {
             // Clean up first avatar if second fails
-            try { if (fs.existsSync(avatarOnePath)) fs.unlinkSync(avatarOnePath); } catch (e) {}
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗈𝗋 𝗎𝗌𝖾𝗋 ${two}: ${avatarTwoError.message}`);
+            if (fs.existsSync(avatarOnePath)) {
+                try { fs.unlinkSync(avatarOnePath); } catch (e) {}
+            }
+            throw new Error(`Failed to download second avatar: ${avatarTwoError.message}`);
         }
 
+        // Process avatars into circles
         let circleOne, circleTwo;
         try {
-            const circleOneBuf = await this.circle(avatarOnePath);
-            const circleTwoBuf = await this.circle(avatarTwoPath);
-            circleOne = await jimp.read(circleOneBuf);
-            circleTwo = await jimp.read(circleTwoBuf);
+            console.log("⭕ Creating circular avatars...");
+            const circleOneBuffer = await this.createCircularAvatar(avatarOnePath);
+            const circleTwoBuffer = await this.createCircularAvatar(avatarTwoPath);
+            
+            circleOne = await jimp.read(circleOneBuffer);
+            circleTwo = await jimp.read(circleTwoBuffer);
+            console.log("✅ Circular avatars created successfully");
         } catch (circleError) {
-            // Clean up avatar files
-            try { if (fs.existsSync(avatarOnePath)) fs.unlinkSync(avatarOnePath); } catch (e) {}
-            try { if (fs.existsSync(avatarTwoPath)) fs.unlinkSync(avatarTwoPath); } catch (e) {}
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝗂𝗋𝖼𝗎𝗅𝖺𝗋 𝖺𝗏𝖺𝗍𝖺𝗋𝗌: ${circleError.message}`);
+            // Clean up downloaded avatars
+            if (fs.existsSync(avatarOnePath)) { try { fs.unlinkSync(avatarOnePath); } catch (e) {} }
+            if (fs.existsSync(avatarTwoPath)) { try { fs.unlinkSync(avatarTwoPath); } catch (e) {} }
+            throw new Error(`Failed to create circular avatars: ${circleError.message}`);
         }
 
+        // Composite avatars onto template
         try {
-            template
-                .composite(circleOne.resize(270, 270), 800, 100)
-                .composite(circleTwo.resize(300, 300), 205, 300);
+            console.log("🎨 Compositing avatars onto template...");
+            
+            // Avatar positions for love2.jpg template
+            // Left avatar (user one) - Groom position
+            const avatarOneSize = 150;
+            const avatarOneX = 290;
+            const avatarOneY = 185;
 
-            const raw = await template.getBufferAsync("image/png");
-            fs.writeFileSync(outputPath, raw);
+            // Right avatar (user two) - Bride position  
+            const avatarTwoSize = 120;
+            const avatarTwoX = 525;
+            const avatarTwoY = 270;
+
+            // Resize and place avatars
+            template.composite(
+                circleOne.resize(avatarOneSize, avatarOneSize),
+                avatarOneX,
+                avatarOneY
+            );
+
+            template.composite(
+                circleTwo.resize(avatarTwoSize, avatarTwoSize),
+                avatarTwoX, 
+                avatarTwoY
+            );
+
+            // Save final image
+            await template.writeAsync(outputPath);
+            console.log("✅ Love image created successfully:", outputPath);
+
+            return {
+                outputPath,
+                avatarOneTempPath: avatarOnePath,
+                avatarTwoTempPath: avatarTwoPath
+            };
+
         } catch (compositeError) {
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗈𝗆𝗉𝗈𝗌𝗂𝗍𝖾 𝗂𝗆𝖺𝗀𝖾: ${compositeError.message}`);
+            throw new Error(`Failed to composite image: ${compositeError.message}`);
         }
-
-        // Clean up temporary avatar files
-        try { if (fs.existsSync(avatarOnePath)) fs.unlinkSync(avatarOnePath); } catch (e) {}
-        try { if (fs.existsSync(avatarTwoPath)) fs.unlinkSync(avatarTwoPath); } catch (e) {}
-
-        return outputPath;
     },
 
-    circle: async function(imagePath) {
+    createCircularAvatar: async function(imagePath) {
         try {
             let image = await jimp.read(imagePath);
+            
+            // Crop to square for perfect circle
+            const size = Math.min(image.bitmap.width, image.bitmap.height);
+            image.crop(0, 0, size, size);
+            
+            // Create circle
             image.circle();
+            
             return await image.getBufferAsync("image/png");
         } catch (error) {
-            throw new Error(`𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝗂𝗋𝖼𝗎𝗅𝖺𝗋 𝗂𝗆𝖺𝗀𝖾: ${error.message}`);
+            throw new Error(`Failed to create circular avatar: ${error.message}`);
         }
+    },
+
+    cleanupFiles: function(filePaths) {
+        filePaths.forEach(filePath => {
+            if (filePath && fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                    console.log("🧹 Cleaned up:", path.basename(filePath));
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", path.basename(filePath), cleanupError.message);
+                }
+            }
+        });
     }
 };
