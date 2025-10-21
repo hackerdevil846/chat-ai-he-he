@@ -5,7 +5,7 @@ const path = require("path");
 module.exports = {
     config: {
         name: "islamic",
-        aliases: ["islamick", "icc"],
+        aliases: [],
         version: "1.0.0",
         role: 0,
         author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
@@ -27,6 +27,8 @@ module.exports = {
     },
 
     onStart: async function({ message }) {
+        let imagePath = null;
+        
         try {
             // Dependency check
             try {
@@ -82,41 +84,91 @@ module.exports = {
             const cacheDir = path.join(__dirname, "cache");
             await fs.ensureDir(cacheDir);
             
-            const imagePath = path.join(cacheDir, "islamic_image.jpg");
+            imagePath = path.join(cacheDir, `islamic_${Date.now()}.jpg`);
 
             try {
-                // Download image
+                console.log(`📥 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐢𝐦𝐚𝐠𝐞: ${randomImage}`);
+                
+                // Download image with timeout and headers
                 const response = await axios.get(randomImage, { 
                     responseType: "arraybuffer",
-                    timeout: 30000
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
                 });
                 
+                // Verify image data
+                if (!response.data || response.data.length === 0) {
+                    throw new Error("Empty image data received");
+                }
+                
                 await fs.writeFile(imagePath, Buffer.from(response.data, "binary"));
+                
+                // Verify file was written
+                const stats = await fs.stat(imagePath);
+                if (stats.size === 0) {
+                    throw new Error("Empty file written");
+                }
 
+                console.log(`✅ 𝐈𝐦𝐚𝐠𝐞 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐞𝐝 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲: ${stats.size} bytes`);
+                
                 // Send message with image
                 await message.reply({
                     body: randomMessage,
                     attachment: fs.createReadStream(imagePath)
                 });
 
-            } catch (imageError) {
-                console.error("𝐼𝑚𝑎𝑔𝑒 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑒𝑟𝑟𝑜𝑟:", imageError);
-                // Fallback: send text only if image fails
-                await message.reply(randomMessage);
-            }
+                console.log("✅ 𝐈𝐬𝐥𝐚𝐦𝐢𝐜 𝐩𝐨𝐬𝐭 𝐬𝐞𝐧𝐭 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲");
 
-            // Clean up image file if it exists
-            try {
-                if (await fs.pathExists(imagePath)) {
-                    await fs.unlink(imagePath);
+            } catch (imageError) {
+                console.error("❌ 𝐈𝐦𝐚𝐠𝐞 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐞𝐫𝐫𝐨𝐫:", imageError.message);
+                
+                // Try alternative image if first one fails
+                try {
+                    const altImage = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+                    console.log(`🔄 𝐓𝐫𝐲𝐢𝐧𝐠 𝐚𝐥𝐭𝐞𝐫𝐧𝐚𝐭𝐢𝐯𝐞 𝐢𝐦𝐚𝐠𝐞: ${altImage}`);
+                    
+                    const altResponse = await axios.get(altImage, { 
+                        responseType: "arraybuffer",
+                        timeout: 20000
+                    });
+                    
+                    await fs.writeFile(imagePath, Buffer.from(altResponse.data, "binary"));
+                    
+                    await message.reply({
+                        body: randomMessage,
+                        attachment: fs.createReadStream(imagePath)
+                    });
+                    
+                    console.log("✅ 𝐀𝐥𝐭𝐞𝐫𝐧𝐚𝐭𝐢𝐯𝐞 𝐢𝐦𝐚𝐠𝐞 𝐬𝐞𝐧𝐭 𝐬𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲");
+                    
+                } catch (altError) {
+                    console.error("❌ 𝐀𝐥𝐭𝐞𝐫𝐧𝐚𝐭𝐢𝐯𝐞 𝐢𝐦𝐚𝐠𝐞 𝐟𝐚𝐢𝐥𝐞𝐝:", altError.message);
+                    
+                    // Final fallback: send text only
+                    await message.reply(randomMessage + "\n\n🖼️ 𝐈𝐦𝐚𝐠𝐞 𝐜𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐛𝐞 𝐥𝐨𝐚𝐝𝐞𝐝");
                 }
-            } catch (cleanupError) {
-                console.error("𝐶𝑙𝑒𝑎𝑛𝑢𝑝 𝑒𝑟𝑟𝑜𝑟:", cleanupError);
             }
 
         } catch (error) {
-            console.error("𝐼𝑠𝑙𝑎𝑚𝑖𝑐 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑡ℎ𝑒 𝑝𝑜𝑠𝑡.");
+            console.error("💥 𝐈𝐬𝐥𝐚𝐦𝐢𝐜 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐞𝐫𝐫𝐨𝐫:", error);
+            
+            try {
+                await message.reply("❌ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝 𝐰𝐡𝐢𝐥𝐞 𝐠𝐞𝐧𝐞𝐫𝐚𝐭𝐢𝐧𝐠 𝐭𝐡𝐞 𝐩𝐨𝐬𝐭. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.");
+            } catch (finalError) {
+                console.error("💥 𝐅𝐢𝐧𝐚𝐥 𝐞𝐫𝐫𝐨𝐫 𝐡𝐚𝐧𝐝𝐥𝐢𝐧𝐠 𝐟𝐚𝐢𝐥𝐞𝐝:", finalError);
+            }
+        } finally {
+            // Clean up image file if it exists
+            try {
+                if (imagePath && await fs.pathExists(imagePath)) {
+                    await fs.unlink(imagePath);
+                    console.log("🧹 𝐂𝐥𝐞𝐚𝐧𝐞𝐝 𝐮𝐩 𝐭𝐞𝐦𝐩𝐨𝐫𝐚𝐫𝐲 𝐢𝐦𝐚𝐠𝐞");
+                }
+            } catch (cleanupError) {
+                console.warn("⚠️ 𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐜𝐥𝐞𝐚𝐧 𝐮𝐩 𝐭𝐞𝐦𝐩 𝐟𝐢𝐥𝐞:", cleanupError.message);
+            }
         }
     }
 };
