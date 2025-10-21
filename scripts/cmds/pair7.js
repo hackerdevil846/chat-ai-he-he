@@ -3,23 +3,27 @@ const path = require("path");
 const axios = require("axios");
 const jimp = require("jimp");
 
+// Paths for cache and background image
+const dirMaterial = path.join(__dirname, "cache", "canvas");
+const bgPath = path.join(dirMaterial, "pairing.jpg");
+
 module.exports = {
   config: {
     name: "pair7",
     aliases: [],
-    version: "1.0.1",
-    author: "𝑨𝒔𝒊𝒇 𝑴𝒂𝒉𝒎𝒖𝒅",
+    version: "1.0.3",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 0,
-    category: "💖 𝑹𝒐𝒎𝒂𝒏𝒄𝒆",
+    category: "Love",
     shortDescription: {
-      en: "💖 𝑬𝒌𝒕𝒖 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂"
+      en: "💖 Pair with people in the group"
     },
     longDescription: {
-      en: "💖 𝑬𝒌𝒕𝒖 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒂𝒓 𝒌𝒉𝒆𝒍𝒂 𝒘𝒊𝒕𝒉 𝒃𝒆𝒂𝒖𝒕𝒊𝒇𝒖𝒍 𝒊𝒎𝒂𝒈𝒆𝒔 𝒂𝒏𝒅 𝒄𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚 𝒑𝒆𝒓𝒄𝒆𝒏𝒕𝒂𝒈𝒆"
+      en: "💖 Pair with random people in the group with cute images"
     },
     guide: {
-      en: "{𝑝}pair7"
+      en: "{p}pair1"
     },
     dependencies: {
       "axios": "",
@@ -30,142 +34,242 @@ module.exports = {
 
   onLoad: async function() {
     try {
-      const dirMaterial = path.join(__dirname, "cache", "canvas");
-      const filePath = path.join(dirMaterial, 'pairing.jpg');
-      
+      console.log("🔄 Initializing pair1 command...");
+
+      // Ensure cache directory exists
       if (!fs.existsSync(dirMaterial)) {
         fs.mkdirSync(dirMaterial, { recursive: true });
+        console.log(`✅ Created cache directory: ${dirMaterial}`);
       }
-      
-      if (!fs.existsSync(filePath)) {
-        const response = await axios.get(
-          "https://i.pinimg.com/736x/15/fa/9d/15fa9d71cdd07486bb6f728dae2fb264.jpg", 
-          { responseType: 'arraybuffer' }
-        );
-        fs.writeFileSync(filePath, Buffer.from(response.data, 'binary'));
+
+      // Download background image if not exists
+      if (!fs.existsSync(bgPath)) {
+        console.log("📥 Downloading background image...");
+        try {
+          const response = await axios.get(
+            "https://i.pinimg.com/736x/15/fa/9d/15fa9d71cdd07486bb6f728dae2fb264.jpg",
+            {
+              responseType: "arraybuffer",
+              timeout: 30000,
+              headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+              }
+            }
+          );
+          
+          if (response.data && response.data.length > 1000) {
+            fs.writeFileSync(bgPath, Buffer.from(response.data));
+            console.log(`✅ Background image downloaded successfully`);
+          } else {
+            throw new Error("Invalid image data received");
+          }
+        } catch (downloadError) {
+          console.error("❌ Failed to download background image:", downloadError.message);
+          // Continue without background - will fail gracefully later
+        }
+      } else {
+        console.log(`✅ Background image already exists`);
       }
     } catch (error) {
-      console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒊𝒏 𝒐𝒏𝑳𝒐𝒂𝒅:", error);
+      console.error("❌ Error in onLoad:", error.message);
     }
   },
 
-  onStart: async function({ api, event, usersData }) {
-    try {
-      // Dependency check
-      if (!axios) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑎𝑥𝑖𝑜𝑠");
-      if (!fs) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎");
-      if (!jimp) throw new Error("𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑦: 𝑗𝑖𝑚𝑝");
+  onStart: async function({ api, event }) {
+    let generatedImagePath = null;
 
+    try {
       const { threadID, messageID, senderID } = event;
-      const __root = path.join(__dirname, "cache", "canvas");
-      
-      // Random compatibility percentages
-      const tl = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
-      const tle = tl[Math.floor(Math.random() * tl.length)];
-      
+
+      // Random pair percentage
+      const pairPercentages = ['21%', '67%', '19%', '37%', '17%', '96%', '52%', '62%', '76%', '83%', '100%', '99%', "0%", "48%"];
+      const pairRate = pairPercentages[Math.floor(Math.random() * pairPercentages.length)];
+
       // Get sender info
-      const senderInfo = await api.getUserInfo(senderID);
-      const senderName = senderInfo[senderID]?.name || "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑼𝒔𝒆𝒓";
-      
-      // Get thread info
-      const threadInfo = await api.getThreadInfo(threadID);
-      const participantIDs = threadInfo.participantIDs || [];
-      
-      // Filter out sender and bot
-      const botID = api.getCurrentUserID();
-      const eligibleParticipants = participantIDs.filter(id => 
-        id !== senderID && id !== botID && !id.includes("100000")
-      );
-      
-      if (eligibleParticipants.length === 0) {
-        return api.sendMessage("😢 𝑵𝒂𝒌𝒉𝒂𝒃𝒆 𝒋𝒐𝒅𝒊 𝒌𝒐𝒓𝒂𝒓 𝒎𝒐𝒕𝒐 𝒑𝒂𝒊𝒍𝒂𝒎 𝒏𝒂𝒊!", threadID, messageID);
+      let senderName = "Unknown User";
+      try {
+        const senderInfo = await api.getUserInfo(senderID);
+        senderName = senderInfo[senderID]?.name || senderName;
+      } catch (e) {
+        console.warn("Could not fetch sender info:", e.message);
       }
+
+      // Get thread participants
+      let participants = [];
+      try {
+        const threadInfo = await api.getThreadInfo(threadID);
+        participants = threadInfo.participantIDs || [];
+      } catch (e) {
+        console.error("Could not fetch thread participants:", e.message);
+        return api.sendMessage("❌ Failed to get group members. Please try again later.", threadID, messageID);
+      }
+
+      // Filter out sender and bot
+      const eligibleParticipants = participants.filter(id =>
+        id !== senderID &&
+        id !== api.getCurrentUserID()
+      );
+
+      if (eligibleParticipants.length === 0) {
+        return api.sendMessage("😢 No other members found for pairing!", threadID, messageID);
+      }
+
+      // Select random partner
+      const randomID = eligibleParticipants[Math.floor(Math.random() * eligibleParticipants.length)];
       
-      // Select random participant
-      const participantID = eligibleParticipants[Math.floor(Math.random() * eligibleParticipants.length)];
-      const participantInfo = await api.getUserInfo(participantID);
-      const participantName = participantInfo[participantID]?.name || "𝑼𝒏𝒌𝒏𝒐𝒘𝒏 𝑼𝒔𝒆𝒓";
-      
-      // Create image
-      const resultPath = await this.createPairImage(senderID, participantID);
-      
-      // Send result
-      api.sendMessage({
-        body: `💞 𝑳𝒐𝒗𝒆 𝑪𝒐𝒏𝒏𝒆𝒄𝒕𝒊𝒐𝒏 💞\n\n╭───────────────◉\n│ ✨ ${senderName}\n│ 💘 𝑨𝑵𝑫\n│ ✨ ${participantName}\n╰───────────────◉\n\n𝑪𝒐𝒎𝒑𝒂𝒕𝒊𝒃𝒊𝒍𝒊𝒕𝒚: 🧪 ${tle}\n\n"𝑨𝒃𝒉𝒊𝒏𝒂𝒏𝒅𝒂𝒏 𝒕𝒖𝒎𝒊 𝒋𝒖𝒕𝒊 𝒃𝒂𝒏𝒅𝒉𝒍𝒆 𝒆𝒓 𝒔𝒂𝒕𝒉𝒆 ✨"`,
+      let partnerName = "Unknown User";
+      try {
+        const userInfo = await api.getUserInfo(randomID);
+        partnerName = userInfo[randomID]?.name || partnerName;
+      } catch (e) {
+        console.warn("Could not fetch partner info:", e.message);
+      }
+
+      // Send loading message
+      await api.sendMessage("💖 Creating your pairing image...", threadID, messageID);
+
+      // Generate pairing image
+      generatedImagePath = await this.makePairImage(senderID, randomID);
+
+      if (!generatedImagePath || !fs.existsSync(generatedImagePath)) {
+        throw new Error("Failed to generate pairing image");
+      }
+
+      // Prepare message with mentions
+      const messageText = `💖 𝐂𝐨𝐧𝐠𝐫𝐚𝐭𝐮𝐥𝐚𝐭𝐢𝐨𝐧𝐬! ${senderName} was paired with ${partnerName}!\n✨ 𝐏𝐚𝐢𝐫 𝐨𝐝𝐝𝐬: ${pairRate}`;
+
+      await api.sendMessage({
+        body: messageText,
         mentions: [
           { id: senderID, tag: senderName },
-          { id: participantID, tag: participantName }
+          { id: randomID, tag: partnerName }
         ],
-        attachment: fs.createReadStream(resultPath)
-      }, threadID, () => {
+        attachment: fs.createReadStream(generatedImagePath)
+      }, threadID);
+
+      console.log("✅ Successfully sent pairing image");
+
+    } catch (error) {
+      console.error("❌ Pair command error:", error);
+      await api.sendMessage(
+        "❌ An error occurred while processing the pairing command. Please try again later!",
+        event.threadID,
+        event.messageID
+      );
+    } finally {
+      // Cleanup temporary image
+      if (generatedImagePath && fs.existsSync(generatedImagePath)) {
         try {
-          if (fs.existsSync(resultPath)) fs.unlinkSync(resultPath);
+          fs.unlinkSync(generatedImagePath);
+          console.log("🧹 Cleaned up temporary pairing image");
         } catch (cleanupError) {
-          console.error("🧹 𝑪𝒍𝒆𝒂𝒏𝒖𝒑 𝒆𝒓𝒓𝒐𝒓:", cleanupError);
+          console.warn("⚠️ Cleanup error:", cleanupError.message);
         }
-      }, messageID);
-      
-    } catch (error) {
-      console.error("❌ 𝑷𝒂𝒊𝒓 𝒄𝒐𝒎𝒎𝒂𝒏𝒅 𝒆𝒓𝒓𝒐𝒓:", error);
-      api.sendMessage("❌ 𝑺𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈 𝒊𝒏 𝒑𝒂𝒊𝒓𝒊𝒏𝒈!", threadID, messageID);
+      }
     }
   },
 
-  createPairImage: async function(uid1, uid2) {
+  makePairImage: async function(user1, user2) {
+    const outputPath = path.join(dirMaterial, `pairing_${user1}_${user2}_${Date.now()}.png`);
+    const avatar1Path = path.join(dirMaterial, `avt_${user1}_${Date.now()}.png`);
+    const avatar2Path = path.join(dirMaterial, `avt_${user2}_${Date.now()}.png`);
+
     try {
-      const __root = path.join(__dirname, "cache", "canvas");
-      const outputPath = path.join(__root, `pairing_${uid1}_${uid2}.png`);
-      const bgPath = path.join(__root, 'pairing.jpg');
+      // Check if background exists
+      if (!fs.existsSync(bgPath)) {
+        throw new Error("Background image not found. Please restart the bot to download it.");
+      }
+
+      console.log("📥 Downloading avatars...");
+
+      // Download avatars with better error handling
+      let avatar1Buffer, avatar2Buffer;
       
-      // Download avatars
-      const [avatar1Path, avatar2Path] = await Promise.all([
-        this.downloadAvatar(uid1, path.join(__root, `avt_${uid1}.png`)),
-        this.downloadAvatar(uid2, path.join(__root, `avt_${uid2}.png`))
+      try {
+        const avatar1Response = await axios.get(
+          `https://graph.facebook.com/${user1}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+          { 
+            responseType: "arraybuffer",
+            timeout: 15000
+          }
+        );
+        avatar1Buffer = Buffer.from(avatar1Response.data);
+      } catch (error) {
+        console.error(`❌ Failed to download avatar for ${user1}:`, error.message);
+        throw new Error(`Could not get avatar for first user`);
+      }
+
+      try {
+        const avatar2Response = await axios.get(
+          `https://graph.facebook.com/${user2}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+          { 
+            responseType: "arraybuffer",
+            timeout: 15000
+          }
+        );
+        avatar2Buffer = Buffer.from(avatar2Response.data);
+      } catch (error) {
+        console.error(`❌ Failed to download avatar for ${user2}:`, error.message);
+        throw new Error(`Could not get avatar for second user`);
+      }
+
+      // Save avatar files
+      fs.writeFileSync(avatar1Path, avatar1Buffer);
+      fs.writeFileSync(avatar2Path, avatar2Buffer);
+
+      // Read all images
+      console.log("🎨 Processing images...");
+      const [background, avatar1, avatar2] = await Promise.all([
+        jimp.read(bgPath),
+        jimp.read(avatar1Path),
+        jimp.read(avatar2Path)
       ]);
-      
-      // Process images
-      const bg = await jimp.read(bgPath);
-      const circularAvatar1 = await this.createCircularImage(avatar1Path);
-      const circularAvatar2 = await this.createCircularImage(avatar2Path);
-      
-      bg.composite(await jimp.read(circularAvatar1).then(img => img.resize(85, 85)), 355, 100)
-        .composite(await jimp.read(circularAvatar2).then(img => img.resize(75, 75)), 250, 140);
-      
-      await bg.writeAsync(outputPath);
-      
-      // Cleanup temp files
-      [avatar1Path, avatar2Path].forEach(filePath => {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      });
-      
-      return outputPath;
-      
-    } catch (error) {
-      console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒑𝒂𝒊𝒓 𝒊𝒎𝒂𝒈𝒆:", error);
-      throw error;
-    }
-  },
 
-  downloadAvatar: async function(uid, savePath) {
-    try {
-      const url = `https://graph.facebook.com/${uid}/picture?width=512&height=512`;
-      const response = await axios.get(url, { responseType: 'arraybuffer' });
-      fs.writeFileSync(savePath, Buffer.from(response.data, 'binary'));
-      return savePath;
-    } catch (error) {
-      console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒅𝒐𝒘𝒏𝒍𝒐𝒂𝒅𝒊𝒏𝒈 𝒂𝒗𝒂𝒕𝒂𝒓:", error);
-      throw error;
-    }
-  },
+      // Create circular avatars
+      avatar1.circle();
+      avatar2.circle();
 
-  createCircularImage: async function(imagePath) {
-    try {
-      const image = await jimp.read(imagePath);
-      image.circle();
-      return await image.getBufferAsync("image/png");
+      // Avatar sizes and positions (based on your template)
+      const avatarSizeGirl = 85;  // Left side - larger
+      const avatarSizeBoy = 75;   // Right side - smaller
+
+      const girlAvatarX = 244;    // Left position X
+      const girlAvatarY = 106;    // Left position Y
+      const boyAvatarX = 333;     // Right position X  
+      const boyAvatarY = 63;      // Right position Y
+
+      // Composite avatars onto background
+      background.composite(avatar1.resize(avatarSizeGirl, avatarSizeGirl), girlAvatarX, girlAvatarY);
+      background.composite(avatar2.resize(avatarSizeBoy, avatarSizeBoy), boyAvatarX, boyAvatarY);
+
+      // Save final image
+      console.log("💾 Saving final image...");
+      await background.writeAsync(outputPath);
+
+      // Verify the image was created
+      if (fs.existsSync(outputPath)) {
+        const stats = fs.statSync(outputPath);
+        if (stats.size > 0) {
+          console.log(`✅ Successfully created pair image: ${outputPath}`);
+          return outputPath;
+        } else {
+          throw new Error("Generated image file is empty");
+        }
+      } else {
+        throw new Error("Failed to create output image file");
+      }
+
     } catch (error) {
-      console.error("❌ 𝑬𝒓𝒓𝒐𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒄𝒊𝒓𝒄𝒖𝒍𝒂𝒓 𝒊𝒎𝒂𝒈𝒆:", error);
+      console.error("❌ Error creating pair image:", error.message);
       throw error;
+    } finally {
+      // Cleanup temporary avatar files
+      try {
+        if (fs.existsSync(avatar1Path)) fs.unlinkSync(avatar1Path);
+        if (fs.existsSync(avatar2Path)) fs.unlinkSync(avatar2Path);
+      } catch (cleanupError) {
+        console.warn("⚠️ Failed to clean up avatar files:", cleanupError.message);
+      }
     }
   }
 };
