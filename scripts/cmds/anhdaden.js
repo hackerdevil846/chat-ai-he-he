@@ -6,20 +6,20 @@ const path = require("path");
 module.exports = {
     config: {
         name: "anhdaden",
-        aliases: ["whitememe", "daden"],
+        aliases: [],
         version: "1.0.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         countDown: 10,
         role: 0,
         category: "edit-img",
         shortDescription: {
-            en: "𝑊ℎ𝑖𝑡𝑒 𝑏𝑟𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑜𝑟"
+            en: "White brother meme creator"
         },
         longDescription: {
-            en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎 𝑤ℎ𝑖𝑡𝑒 𝑏𝑟𝑜𝑡ℎ𝑒𝑟 𝑚𝑒𝑚𝑒 𝑤𝑖𝑡ℎ 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
+            en: "Creates a white brother meme with custom text"
         },
         guide: {
-            en: "{p}anhdaden [𝑡𝑒𝑥𝑡 1] | [𝑡𝑒𝑥𝑡 2]"
+            en: "{p}anhdaden [text 1] | [text 2]"
         },
         dependencies: {
             "axios": "",
@@ -29,32 +29,60 @@ module.exports = {
     },
 
     onStart: async function({ message, event, args }) {
+        let pathImg = null;
+        
         try {
-            const text = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|");
-            
-            if (!text[0] || !text[1]) {
-                return message.reply("𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑡𝑤𝑜 𝑡𝑒𝑥𝑡𝑠 𝑠𝑒𝑝𝑎𝑟𝑎𝑡𝑒𝑑 𝑏𝑦 \"|\" 𝑠𝑦𝑚𝑏𝑜𝑙\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}anhdaden 𝑇𝑒𝑥𝑡 1 | 𝑇𝑒𝑥𝑡 2");
+            // Validate input
+            if (!args.length) {
+                return message.reply("Please enter two texts separated by \"|\" symbol\nExample: /anhdaden Text 1 | Text 2");
             }
 
-            // Create cache directory if it doesn't exist
+            const fullText = args.join(" ");
+            const textParts = fullText.split("|").map(part => part.trim());
+            
+            if (textParts.length < 2 || !textParts[0] || !textParts[1]) {
+                return message.reply("Please enter two texts separated by \"|\" symbol\nExample: /anhdaden Text 1 | Text 2");
+            }
+
+            const text1 = textParts[0];
+            const text2 = textParts[1];
+
+            // Create cache directory
             const cacheDir = path.join(__dirname, 'cache');
             if (!fs.existsSync(cacheDir)) {
                 fs.mkdirSync(cacheDir, { recursive: true });
             }
             
-            const pathImg = path.join(cacheDir, 'anhdaden.png');
+            pathImg = path.join(cacheDir, `anhdaden_${Date.now()}.png`);
 
-            // Download the base image
+            console.log("📥 Downloading base image...");
+            
+            // Download the base image with better error handling
             const imageResponse = await axios.get("https://i.imgur.com/2ggq8wM.png", {
-                responseType: 'arraybuffer'
+                responseType: 'arraybuffer',
+                timeout: 30000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                    'Accept': 'image/png,image/*;q=0.8,*/*;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate, br'
+                }
             });
-            fs.writeFileSync(pathImg, Buffer.from(imageResponse.data));
 
-            // Load and process the image with jimp
+            if (!imageResponse.data) {
+                throw new Error("Failed to download image: Empty response");
+            }
+
+            fs.writeFileSync(pathImg, Buffer.from(imageResponse.data));
+            console.log("✅ Base image downloaded");
+
+            // Load and process the image
+            console.log("🎨 Processing image...");
             const image = await jimp.read(pathImg);
+            
+            // Use bold font (jimp doesn't have built-in bold sans-serif, but we can use larger size)
             const font = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
 
-            // Simple text wrapping function for jimp
+            // Text wrapping function
             function wrapText(text, maxWidth) {
                 const words = text.split(' ');
                 const lines = [];
@@ -62,9 +90,11 @@ module.exports = {
 
                 for (let i = 1; i < words.length; i++) {
                     const word = words[i];
-                    const width = jimp.measureText(font, currentLine + " " + word);
+                    const testLine = currentLine + " " + word;
+                    const width = jimp.measureText(font, testLine);
+                    
                     if (width < maxWidth) {
-                        currentLine += " " + word;
+                        currentLine = testLine;
                     } else {
                         lines.push(currentLine);
                         currentLine = word;
@@ -74,35 +104,76 @@ module.exports = {
                 return lines;
             }
 
-            // Draw the text on image
-            const line1 = wrapText(text[0], 464);
-            const line2 = wrapText(text[1], 464);
+            // Calculate text positions
+            const maxWidth = 464;
+            const lines1 = wrapText(text1, maxWidth);
+            const lines2 = wrapText(text2, maxWidth);
 
-            // First text position
-            line1.forEach((line, index) => {
-                image.print(font, 170 - (jimp.measureText(font, line) / 2), 100 + (index * 40), line);
+            // Draw first text (top position)
+            const startY1 = 100;
+            lines1.forEach((line, index) => {
+                const textWidth = jimp.measureText(font, line);
+                const x = 170 - (textWidth / 2);
+                const y = startY1 + (index * 40);
+                image.print(font, x, y, line);
             });
 
-            // Second text position
-            line2.forEach((line, index) => {
-                image.print(font, 170 - (jimp.measureText(font, line) / 2), 410 + (index * 40), line);
+            // Draw second text (bottom position)
+            const startY2 = 410;
+            lines2.forEach((line, index) => {
+                const textWidth = jimp.measureText(font, line);
+                const x = 170 - (textWidth / 2);
+                const y = startY2 + (index * 40);
+                image.print(font, x, y, line);
             });
 
             // Save the modified image
             await image.writeAsync(pathImg);
+            console.log("✅ Image processed successfully");
+
+            // Verify the file was created
+            if (!fs.existsSync(pathImg)) {
+                throw new Error("Failed to create output image");
+            }
+
+            const stats = fs.statSync(pathImg);
+            if (stats.size === 0) {
+                throw new Error("Output image is empty");
+            }
 
             // Send the result
             await message.reply({
-                body: "𝑀𝑒𝑚𝑒 𝑐𝑟𝑒𝑎𝑡𝑒𝑑 𝑠𝑢𝑐𝑐𝑒𝑠𝑠𝑓𝑢𝑙𝑙𝑦! 🎨",
+                body: "Meme created successfully! 🎨",
                 attachment: fs.createReadStream(pathImg)
             });
 
-            // Clean up
-            fs.unlinkSync(pathImg);
+            console.log("✅ Meme sent successfully");
 
         } catch (error) {
-            console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑎𝑛ℎ𝑑𝑎𝑑𝑒𝑛 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
-            // Don't send error message to avoid spam
+            console.error("❌ Error in anhdaden command:", error);
+            
+            // Provide specific error messages
+            if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
+                await message.reply("❌ Network error: Could not download the image. Please try again later.");
+            } else if (error.response && error.response.status === 429) {
+                await message.reply("❌ Rate limit exceeded: Please wait a few minutes before trying again.");
+            } else if (error.message.includes('download image')) {
+                await message.reply("❌ Failed to download the base image. Please try again later.");
+            } else if (error.message.includes('wrapText')) {
+                await message.reply("❌ Text processing error. Please try with shorter text.");
+            } else {
+                await message.reply("❌ Failed to create meme. Please check your text format and try again.");
+            }
+        } finally {
+            // Clean up the temporary file
+            if (pathImg && fs.existsSync(pathImg)) {
+                try {
+                    fs.unlinkSync(pathImg);
+                    console.log("🧹 Cleaned up temporary file");
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", cleanupError.message);
+                }
+            }
         }
     }
 };
