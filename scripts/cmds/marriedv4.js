@@ -6,125 +6,203 @@ const jimp = require("jimp");
 module.exports = {
     config: {
         name: "marriedv4",
-        aliases: ["couplev4", "weddingv4"], // Changed to unique aliases
-        version: "3.1.1",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        aliases: [],
+        version: "3.1.2",
+        author: "𝐀𝐬𝐢𝐟 𝐌𝐚𝐡𝐦𝐮𝐝",
         countDown: 5,
         role: 0,
         category: "image",
         shortDescription: {
-            en: "💍 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑟 𝑐𝑜𝑢𝑝𝑙𝑒𝑠"
+            en: "💍 Create marriage images for couples"
         },
         longDescription: {
-            en: "💑 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒𝑠 𝑓𝑜𝑟 𝑐𝑜𝑢𝑝𝑙𝑒𝑠"
+            en: "💑 Create marriage images for couples with their profile pictures"
         },
         guide: {
-            en: "{p}marriedv4 [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+            en: "{p}marriedv4 [@mention]"
+        },
+        dependencies: {
+            "axios": "",
+            "fs-extra": "",
+            "path": "",
+            "jimp": ""
         }
     },
 
     onStart: async function({ message, event, args, usersData }) {
-        try {
-            const { threadID, messageID, senderID } = event;
-            const mention = Object.keys(event.mentions);
+        let finalImagePath = null;
+        let avatarOnePath = null;
+        let avatarTwoPath = null;
 
-            if (!mention[0]) {
-                return message.reply("💍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒!");
+        try {
+            // Dependency check
+            try {
+                require("axios");
+                require("fs-extra");
+                require("path");
+                require("jimp");
+            } catch (e) {
+                return message.reply("❌ Missing dependencies. Please install: axios, fs-extra, path, and jimp.");
             }
 
-            // Helper function to create circular image
-            const circleImage = async (imagePath) => {
+            const { senderID, mentions } = event;
+            const mentionedUsers = Object.keys(mentions);
+
+            if (mentionedUsers.length === 0) {
+                return message.reply("💍 Please mention someone to marry!");
+            }
+
+            const userOne = senderID;
+            const userTwo = mentionedUsers[0];
+
+            // Create cache directory
+            const cacheDir = path.join(__dirname, "cache", "canvas");
+            if (!fs.existsSync(cacheDir)) {
+                fs.mkdirSync(cacheDir, { recursive: true });
+            }
+
+            // Set file paths with unique names
+            finalImagePath = path.join(cacheDir, `married_${userOne}_${userTwo}_${Date.now()}.png`);
+            avatarOnePath = path.join(cacheDir, `avt1_${userOne}_${Date.now()}.png`);
+            avatarTwoPath = path.join(cacheDir, `avt2_${userTwo}_${Date.now()}.png`);
+
+            // Download background image if not exists
+            const bgPath = path.join(cacheDir, 'marriedv4.png');
+            if (!fs.existsSync(bgPath)) {
+                console.log("📥 Downloading background image...");
+                try {
+                    const bgResponse = await axios.get("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", {
+                        responseType: 'arraybuffer',
+                        timeout: 30000
+                    });
+                    fs.writeFileSync(bgPath, Buffer.from(bgResponse.data, 'binary'));
+                    console.log("✅ Background image downloaded");
+                } catch (bgError) {
+                    console.error("❌ Failed to download background:", bgError.message);
+                    return message.reply("❌ Failed to download background image. Please try again later.");
+                }
+            }
+
+            // Download avatars with error handling
+            console.log("📥 Downloading user avatars...");
+            const avatarOneUrl = `https://graph.facebook.com/${userOne}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+            const avatarTwoUrl = `https://graph.facebook.com/${userTwo}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+
+            let avatarOneBuffer, avatarTwoBuffer;
+
+            try {
+                const avatarOneResponse = await axios.get(avatarOneUrl, {
+                    responseType: 'arraybuffer',
+                    timeout: 15000
+                });
+                avatarOneBuffer = Buffer.from(avatarOneResponse.data, 'binary');
+                fs.writeFileSync(avatarOnePath, avatarOneBuffer);
+                console.log("✅ First avatar downloaded");
+            } catch (avatarOneError) {
+                console.error(`❌ Failed to download avatar for ${userOne}:`, avatarOneError.message);
+                return message.reply("❌ Failed to download your profile picture.");
+            }
+
+            try {
+                const avatarTwoResponse = await axios.get(avatarTwoUrl, {
+                    responseType: 'arraybuffer',
+                    timeout: 15000
+                });
+                avatarTwoBuffer = Buffer.from(avatarTwoResponse.data, 'binary');
+                fs.writeFileSync(avatarTwoPath, avatarTwoBuffer);
+                console.log("✅ Second avatar downloaded");
+            } catch (avatarTwoError) {
+                console.error(`❌ Failed to download avatar for ${userTwo}:`, avatarTwoError.message);
+                return message.reply("❌ Failed to download mentioned user's profile picture.");
+            }
+
+            // Create circular avatars
+            console.log("⭕ Creating circular avatars...");
+            const createCircularAvatar = async (imagePath) => {
                 try {
                     const image = await jimp.read(imagePath);
                     image.circle();
                     return await image.getBufferAsync(jimp.MIME_PNG);
                 } catch (error) {
-                    console.error("𝐸𝑟𝑟𝑜𝑟 𝑐𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑐𝑖𝑟𝑐𝑢𝑙𝑎𝑟 𝑖𝑚𝑎𝑔𝑒:", error);
-                    return null;
+                    console.error("Error creating circular image:", error);
+                    throw error;
                 }
             };
 
-            const one = senderID;
-            const two = mention[0];
-            const __root = path.join(__dirname, "cache", "canvas");
-            const marriedImgPath = path.join(__root, `married_${one}_${two}.png`);
-            
-            // Ensure cache directory exists
-            if (!fs.existsSync(__root)) {
-                fs.mkdirSync(__root, { recursive: true });
-            }
+            const circleOneBuffer = await createCircularAvatar(avatarOnePath);
+            const circleTwoBuffer = await createCircularAvatar(avatarTwoPath);
 
-            // Download background image if not exists
-            const bgPath = path.join(__root, 'marriedv4.png');
-            if (!fs.existsSync(bgPath)) {
-                const { data } = await axios.get("https://i.ibb.co/9ZZCSzR/ba6abadae46b5bdaa29cf6a64d762874.jpg", {
-                    responseType: 'arraybuffer'
-                });
-                fs.writeFileSync(bgPath, Buffer.from(data, 'binary'));
-            }
+            // Composite the final image
+            console.log("🎨 Creating final marriage image...");
+            const background = await jimp.read(bgPath);
+            const avatarOne = await jimp.read(circleOneBuffer);
+            const avatarTwo = await jimp.read(circleTwoBuffer);
 
-            // Download avatars
-            const avatarOnePath = path.join(__root, `avt_${one}.png`);
-            const avatarTwoPath = path.join(__root, `avt_${two}.png`);
-            
-            const avatarOneUrl = `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-            const avatarTwoUrl = `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-            
-            const [avatarOneRes, avatarTwoRes] = await Promise.all([
-                axios.get(avatarOneUrl, { responseType: 'arraybuffer' }),
-                axios.get(avatarTwoUrl, { responseType: 'arraybuffer' })
-            ]);
-            
-            fs.writeFileSync(avatarOnePath, Buffer.from(avatarOneRes.data, 'binary'));
-            fs.writeFileSync(avatarTwoPath, Buffer.from(avatarTwoRes.data, 'binary'));
-            
-            // Create circular avatars
-            const circleOne = await circleImage(avatarOnePath);
-            const circleTwo = await circleImage(avatarTwoPath);
-            
-            if (!circleOne || !circleTwo) {
-                throw new Error("𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑐𝑖𝑟𝑐𝑢𝑙𝑎𝑟 𝑎𝑣𝑎𝑡𝑎𝑟𝑠");
-            }
-            
-            // Composite image
-            const marriedImg = await jimp.read(bgPath);
-            const circleOneImg = await jimp.read(circleOne);
-            const circleTwoImg = await jimp.read(circleTwo);
-            
-            circleOneImg.resize(130, 130);
-            circleTwoImg.resize(130, 130);
-            
-            marriedImg.composite(circleOneImg, 200, 70);
-            marriedImg.composite(circleTwoImg, 350, 150);
-            
+            // Resize avatars to fit the template
+            const avatarSizeMale = 110;   // Male character avatar size
+            const avatarSizeFemale = 90;  // Female character avatar size
+
+            avatarOne.resize(avatarSizeMale, avatarSizeMale);
+            avatarTwo.resize(avatarSizeFemale, avatarSizeFemale);
+
+            // Position avatars on the template
+            // Male character position (left side)
+            const malePositionX = 153;
+            const malePositionY = 50;
+
+            // Female character position (right side)  
+            const femalePositionX = 420;
+            const femalePositionY = 100;
+
+            background.composite(avatarOne, malePositionX, malePositionY);
+            background.composite(avatarTwo, femalePositionX, femalePositionY);
+
             // Save final image
-            const buffer = await marriedImg.getBufferAsync(jimp.MIME_PNG);
-            fs.writeFileSync(marriedImgPath, buffer);
+            const finalBuffer = await background.getBufferAsync(jimp.MIME_PNG);
+            fs.writeFileSync(finalImagePath, finalBuffer);
+
+            // Verify the image was created
+            if (!fs.existsSync(finalImagePath)) {
+                throw new Error("Failed to create final image file");
+            }
+
+            // Get user names for the message
+            let userNameOne = "User 1";
+            let userNameTwo = "User 2";
             
-            // Cleanup temp files
-            [avatarOnePath, avatarTwoPath].forEach(path => {
-                if (fs.existsSync(path)) fs.unlinkSync(path);
-            });
-            
-            // Get user names
-            const userOneInfo = await usersData.get(one);
-            const userTwoInfo = await usersData.get(two);
-            const userNameOne = userOneInfo.name || "User 1";
-            const userNameTwo = userTwoInfo.name || "User 2";
-            
+            try {
+                const userOneData = await usersData.get(userOne);
+                const userTwoData = await usersData.get(userTwo);
+                userNameOne = userOneData?.name || "User 1";
+                userNameTwo = userTwoData?.name || "User 2";
+            } catch (nameError) {
+                console.warn("Could not get user names:", nameError.message);
+            }
+
+            // Send the final image
             await message.reply({
-                body: `💑 ${userNameOne} 𝑎𝑛𝑑 ${userNameTwo}'𝑠 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒!\n━━━━━━━━━━━━━━━\n💍 𝐷𝑒𝑣𝑒𝑙𝑜𝑝𝑒𝑟: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
-                attachment: fs.createReadStream(marriedImgPath)
+                body: `💑 ${userNameOne} and ${userNameTwo}'s Marriage Image!\n━━━━━━━━━━━━━━━━━━━━\n💍 Developer: 𝐀𝐬𝐢𝐟 𝐌𝐚𝐡𝐦𝐮𝐝`,
+                attachment: fs.createReadStream(finalImagePath)
             });
 
-            // Cleanup final image
-            if (fs.existsSync(marriedImgPath)) {
-                fs.unlinkSync(marriedImgPath);
-            }
-            
+            console.log("✅ Marriage image successfully created and sent");
+
         } catch (error) {
-            console.error("𝐶𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑒𝑥𝑒𝑐𝑢𝑡𝑖𝑛𝑔 𝑐𝑜𝑚𝑚𝑎𝑛𝑑!");
+            console.error("💥 Command Error:", error);
+            await message.reply("❌ An error occurred while creating the marriage image. Please try again later.");
+        } finally {
+            // Cleanup temporary files
+            const filesToClean = [avatarOnePath, avatarTwoPath, finalImagePath];
+            for (const filePath of filesToClean) {
+                if (filePath && fs.existsSync(filePath)) {
+                    try {
+                        fs.unlinkSync(filePath);
+                        console.log("🧹 Cleaned up:", filePath);
+                    } catch (cleanupError) {
+                        console.warn("⚠️ Failed to clean up file:", cleanupError.message);
+                    }
+                }
+            }
         }
     }
 };
