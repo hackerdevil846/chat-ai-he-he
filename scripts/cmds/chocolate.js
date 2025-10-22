@@ -1,4 +1,6 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 
 module.exports = {
     config: {
@@ -25,7 +27,6 @@ module.exports = {
 
     onStart: async function({ message }) {
         try {
-            // Dependency check
             let dependenciesAvailable = true;
             try {
                 require("axios");
@@ -40,13 +41,11 @@ module.exports = {
             return message.reply("🍫 𝖳𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝗋𝖾𝗌𝗉𝗈𝗇𝖽𝗌 𝗐𝗁𝖾𝗇 𝗌𝗈𝗆𝖾𝗈𝗇𝖾 𝗍𝗒𝗉𝖾𝗌 '𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾' 𝗈𝗋 '𝗍𝗈𝖿𝖿𝖾𝖾' 𝗂𝗇 𝗍𝗁𝖾 𝖼𝗁𝖺𝗍!");
         } catch (error) {
             console.error("💥 𝖢𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖮𝗇𝖲𝗍𝖺𝗋𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
-            // Don't send error message to avoid spam
         }
     },
 
     onChat: async function({ event, message, api }) {
         try {
-            // Dependency check
             let dependenciesAvailable = true;
             try {
                 require("axios");
@@ -80,21 +79,22 @@ module.exports = {
             );
 
             if (shouldTrigger) {
-                const chocolateImageURL = "https://i.imgur.com/8B3r2Q9.jpeg";
+                const chocolateImagePath = path.join(__dirname, "cache", "chocolate.jpg");
                 
                 console.log(`🍫 𝖳𝗋𝗂𝗀𝗀𝖾𝗋𝖾𝖽 𝖻𝗒: "${body}"`);
 
                 try {
-                    const imageStream = await global.utils.getStreamFromURL(chocolateImageURL);
-
-                    if (!imageStream) {
-                        throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+                    // Check if the local image file exists
+                    if (fs.existsSync(chocolateImagePath)) {
+                        // Use local file
+                        await message.reply({
+                            body: "🍫 𝗅𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖽𝖺𝗋𝗅𝗂𝗇𝗀! 💝",
+                            attachment: fs.createReadStream(chocolateImagePath)
+                        });
+                    } else {
+                        console.log("❌ 𝖫𝗈𝖼𝖺𝗅 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾.𝗃𝗉𝗀 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒");
+                        return;
                     }
-
-                    await message.reply({
-                        body: "🍫 𝖸𝖾 𝗅𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖽𝖺𝗋𝗅𝗂𝗇𝗀! 💝",
-                        attachment: imageStream
-                    });
                     
                     console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗇𝗍 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾`);
 
@@ -107,25 +107,10 @@ module.exports = {
                     
                 } catch (streamError) {
                     console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖾𝗋𝗋𝗈𝗋:", streamError);
-                    
-                    // Fallback: send text-only response
-                    try {
-                        await message.reply("🍫 𝖸𝖾 𝗅𝗈 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖽𝖺𝗋𝗅𝗂𝗇𝗀! 💝\n\n❌ 𝖨𝗆𝖺𝗀𝖾 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾, 𝖻𝗎𝗍 𝗁𝖾𝗋𝖾'𝗌 𝗒𝗈𝗎𝗋 𝖼𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝗅𝗈𝗏𝖾!");
-                        
-                        // Add reaction for text-only response
-                        try {
-                            await api.setMessageReaction("🍫", messageID, () => {}, true);
-                        } catch (reactionError) {
-                            console.warn("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖾𝗍 𝗋𝖾𝖺𝖼𝗍𝗂𝗈𝗇:", reactionError.message);
-                        }
-                    } catch (fallbackError) {
-                        console.error("❌ 𝖥𝖺𝗅𝗅𝖻𝖺𝖼𝗄 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾 𝖿𝖺𝗂𝗅𝖾𝖽:", fallbackError);
-                    }
                 }
             }
         } catch (error) {
             console.error("💥 𝖢𝗁𝗈𝖼𝗈𝗅𝖺𝗍𝖾 𝖮𝗇𝖢𝗁𝖺𝗍 𝖤𝗋𝗋𝗈𝗋:", error);
-            // Don't send error message to avoid spam
         }
     }
 };
