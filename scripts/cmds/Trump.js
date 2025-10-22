@@ -8,18 +8,18 @@ module.exports = {
         name: "trump",
         aliases: [],
         version: "1.0.1",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         countDown: 10,
         role: 0,
         category: "edit-img",
         shortDescription: {
-            en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒 𝑎 𝑇𝑟𝑢𝑚𝑝 𝑡𝑤𝑒𝑒𝑡 𝑖𝑚𝑎𝑔𝑒"
+            en: "Generate a Trump tweet image"
         },
         longDescription: {
-            en: "𝐶𝑟𝑒𝑎𝑡𝑒𝑠 𝑎𝑛 𝑖𝑚𝑎𝑔𝑒 𝑜𝑓 𝑎 𝑇𝑟𝑢𝑚𝑝 𝑡𝑤𝑒𝑒𝑡 𝑤𝑖𝑡ℎ 𝑦𝑜𝑢𝑟 𝑐𝑢𝑠𝑡𝑜𝑚 𝑡𝑒𝑥𝑡"
+            en: "Creates an image of a Trump tweet with your custom text"
         },
         guide: {
-            en: "{p}trump [𝑡𝑒𝑥𝑡]"
+            en: "{p}trump [text]"
         },
         dependencies: {
             "axios": "",
@@ -29,11 +29,13 @@ module.exports = {
     },
 
     onStart: async function({ message, event, args }) {
+        let imagePath = null;
+        
         try {
             const text = args.join(" ");
             
             if (!text) {
-                return message.reply("❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑦𝑜𝑢𝑟 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑓𝑜𝑟 𝑇𝑟𝑢𝑚𝑝'𝑠 𝑡𝑤𝑒𝑒𝑡 📝");
+                return message.reply("❌ Please enter your message for Trump's tweet 📝");
             }
 
             // Create cache directory if it doesn't exist
@@ -42,68 +44,128 @@ module.exports = {
                 fs.mkdirSync(cacheDir, { recursive: true });
             }
             
-            const pathImg = path.join(cacheDir, 'trump.png');
+            imagePath = path.join(cacheDir, `trump_${Date.now()}.png`);
             
-            // Download the Trump tweet template
+            // Download the Trump tweet template with better error handling
+            console.log("📥 Downloading Trump template...");
             try {
-                const { data } = await axios.get("https://i.imgur.com/ZtWfHHx.png", {
-                    responseType: 'arraybuffer'
+                const response = await axios.get("https://i.imgur.com/ZtWfHHx.png", {
+                    responseType: 'arraybuffer',
+                    timeout: 30000,
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
                 });
-                fs.writeFileSync(pathImg, Buffer.from(data, 'binary'));
+
+                if (!response.data || response.data.length === 0) {
+                    throw new Error("Empty response data");
+                }
+
+                fs.writeFileSync(imagePath, Buffer.from(response.data, 'binary'));
+                console.log("✅ Template downloaded successfully");
+                
             } catch (downloadError) {
-                return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑡𝑒𝑚𝑝𝑙𝑎𝑡𝑒 𝑖𝑚𝑎𝑔𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+                console.error("❌ Template download failed:", downloadError.message);
+                return message.reply("❌ Failed to download template image. Please try again later.");
             }
 
             // Load the image with jimp
-            const image = await jimp.read(pathImg);
+            console.log("🖼️ Loading image with Jimp...");
+            const image = await jimp.read(imagePath);
+            
+            // Use bold font - Jimp's built-in bold font
             const font = await jimp.loadFont(jimp.FONT_SANS_32_BLACK);
+            console.log("✅ Font loaded successfully");
 
-            // Simple text wrapping function for jimp
+            // Enhanced text wrapping function for jimp
             function wrapText(text, maxWidth) {
                 const words = text.split(' ');
                 const lines = [];
-                let currentLine = words[0];
+                let currentLine = '';
 
-                for (let i = 1; i < words.length; i++) {
+                for (let i = 0; i < words.length; i++) {
                     const word = words[i];
-                    const width = jimp.measureText(font, currentLine + " " + word);
-                    if (width < maxWidth) {
-                        currentLine += " " + word;
-                    } else {
+                    const testLine = currentLine ? currentLine + ' ' + word : word;
+                    const testWidth = jimp.measureText(font, testLine);
+                    
+                    if (testWidth > maxWidth && currentLine !== '') {
                         lines.push(currentLine);
                         currentLine = word;
+                    } else {
+                        currentLine = testLine;
                     }
                 }
-                lines.push(currentLine);
+                
+                if (currentLine) {
+                    lines.push(currentLine);
+                }
                 return lines;
             }
 
             // Wrap text and draw on image
-            const lines = wrapText(text, 500);
+            const maxWidth = 500;
+            const lines = wrapText(text, maxWidth);
             const x = 60;
             const y = 165;
             const lineHeight = 35;
 
+            console.log(`📝 Drawing ${lines.length} lines of text...`);
+
             // Draw each line of text
             lines.forEach((line, index) => {
-                image.print(font, x, y + (index * lineHeight), line);
+                const currentY = y + (index * lineHeight);
+                // Ensure text stays within image bounds
+                if (currentY < image.bitmap.height - 50) {
+                    image.print(font, x, currentY, line);
+                }
             });
 
             // Save the modified image
-            await image.writeAsync(pathImg);
+            console.log("💾 Saving modified image...");
+            await image.writeAsync(imagePath);
 
-            // Send the image
-            await message.reply({
-                body: "✅ 𝐻𝑒𝑟𝑒'𝑠 𝑦𝑜𝑢𝑟 𝑇𝑟𝑢𝑚𝑝 𝑚𝑒𝑠𝑠𝑎𝑔𝑒! 🇺🇸",
-                attachment: fs.createReadStream(pathImg)
-            });
-
-            // Clean up
-            fs.unlinkSync(pathImg);
+            // Verify the image was saved
+            if (fs.existsSync(imagePath)) {
+                const stats = fs.statSync(imagePath);
+                if (stats.size > 0) {
+                    // Send the image
+                    await message.reply({
+                        body: "✅ Here's your Trump message! 🇺🇸",
+                        attachment: fs.createReadStream(imagePath)
+                    });
+                    console.log("✅ Trump tweet sent successfully");
+                } else {
+                    throw new Error("Generated image file is empty");
+                }
+            } else {
+                throw new Error("Failed to save generated image");
+            }
             
         } catch (error) {
-            console.error("𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑡𝑟𝑢𝑚𝑝 𝑐𝑜𝑚𝑚𝑎𝑛𝑑:", error);
-            // Don't send error message to avoid spam
+            console.error("💥 Error in trump command:", error);
+            
+            let errorMessage = "❌ Failed to generate Trump tweet. Please try again.";
+            
+            if (error.message.includes('ENOENT')) {
+                errorMessage = "❌ File system error. Please check permissions.";
+            } else if (error.message.includes('timeout')) {
+                errorMessage = "❌ Request timeout. Please try again later.";
+            } else if (error.message.includes('font')) {
+                errorMessage = "❌ Font loading error. Using default font.";
+            }
+            
+            await message.reply(errorMessage);
+            
+        } finally {
+            // Clean up generated image
+            if (imagePath && fs.existsSync(imagePath)) {
+                try {
+                    fs.unlinkSync(imagePath);
+                    console.log("🧹 Cleaned up temporary image");
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", cleanupError.message);
+                }
+            }
         }
     }
 };
