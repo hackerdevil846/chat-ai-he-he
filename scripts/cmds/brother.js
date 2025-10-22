@@ -8,18 +8,18 @@ module.exports = {
         name: "brother",
         aliases: [],
         version: "1.0.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         countDown: 5,
         role: 0,
         category: "edit-img",
         shortDescription: {
-            en: "👫 𝖬𝖾𝗇𝗍𝗂𝗈𝗇 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾"
+            en: "👫 Create sibling image with mentioned user"
         },
         longDescription: {
-            en: "𝖢𝗋𝖾𝖺𝗍𝖾 𝖺 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗉𝖺𝗂𝗋 𝗂𝗆𝖺𝗀𝖾 𝗐𝗂𝗍𝗁 𝗆𝖾𝗇𝗍𝗂𝗈𝗇𝖾𝖽 𝗎𝗌𝖾𝗋"
+            en: "Create a sibling pair image with mentioned user"
         },
         guide: {
-            en: "{p}brother [@𝗆𝖾𝗇𝗍𝗂𝗈𝗇]"
+            en: "{p}brother [@mention]"
         },
         dependencies: {
             "axios": "",
@@ -31,209 +31,251 @@ module.exports = {
 
     onLoad: async function () {
         try {
-            // Dependency check
-            let dependenciesAvailable = true;
-            try {
-                require("axios");
-                require("fs-extra");
-                require("path");
-                require("jimp");
-            } catch (e) {
-                dependenciesAvailable = false;
-            }
-
-            if (!dependenciesAvailable) {
-                console.error("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌 𝖿𝗈𝗋 𝖻𝗋𝗈𝗍𝗁𝖾𝗋 𝖼𝗈𝗆𝗆𝖺𝗇𝖽");
-                return;
-            }
-
+            console.log("🔄 Initializing brother command...");
+            
             const canvasPath = path.join(__dirname, "cache", "canvas");
-            try {
-                if (!fs.existsSync(canvasPath)) {
-                    fs.mkdirSync(canvasPath, { recursive: true });
-                    console.log("✅ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒");
-                }
-            } catch (dirError) {
-                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒:", dirError);
-                return;
+            
+            // Create cache directory
+            if (!fs.existsSync(canvasPath)) {
+                fs.mkdirSync(canvasPath, { recursive: true });
+                console.log("✅ Created cache directory");
             }
 
             const templatePath = path.join(canvasPath, "sibling_template.jpg");
+            
+            // Download template if it doesn't exist
             if (!fs.existsSync(templatePath)) {
+                console.log("📥 Downloading template image...");
                 try {
-                    console.log("📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗍𝖾𝗆𝗉𝗅𝖺𝗍𝖾...");
-                    const { data } = await axios.get("https://i.imgur.com/n2FGJFe.jpg", {
+                    const response = await axios.get("https://i.imgur.com/n2FGJFe.jpg", {
                         responseType: "arraybuffer",
-                        timeout: 30000
+                        timeout: 30000,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
                     });
-                    fs.writeFileSync(templatePath, Buffer.from(data, "binary"));
-                    console.log("✅ 𝖡𝗋𝗈𝗍𝗁𝖾𝗋 𝗍𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝖾𝖽 𝗌𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒");
+                    
+                    // Verify the downloaded data
+                    if (response.data && response.data.byteLength > 1000) {
+                        fs.writeFileSync(templatePath, Buffer.from(response.data, "binary"));
+                        console.log("✅ Template downloaded successfully");
+                    } else {
+                        throw new Error("Downloaded file is too small or empty");
+                    }
                 } catch (downloadError) {
-                    console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝗍𝖾𝗆𝗉𝗅𝖺𝗍𝖾:", downloadError.message);
+                    console.error("❌ Failed to download template:", downloadError.message);
+                    // Template will be downloaded on first use if it fails here
                 }
+            } else {
+                console.log("✅ Template already exists");
             }
+            
         } catch (error) {
-            console.error("💥 𝖡𝗋𝗈𝗍𝗁𝖾𝗋.𝗃𝗌 𝖳𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝖫𝗈𝖺𝖽𝗂𝗇𝗀 𝖤𝗋𝗋𝗈𝗋:", error);
+            console.error("💥 Brother.js Template Loading Error:", error);
         }
     },
 
     onStart: async function ({ event, message, api }) {
+        let generatedImagePath = null;
+        
         try {
-            // Dependency check
-            let dependenciesAvailable = true;
-            try {
-                require("axios");
-                require("fs-extra");
-                require("path");
-                require("jimp");
-            } catch (e) {
-                dependenciesAvailable = false;
+            const { senderID, mentions } = event;
+            const mentionedUsers = Object.keys(mentions);
+
+            if (mentionedUsers.length === 0) {
+                return message.reply("🔹 Please mention someone to create a sibling pair");
             }
 
-            if (!dependenciesAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌, 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺, 𝗉𝖺𝗍𝗁, 𝖺𝗇𝖽 𝗃𝗂𝗆𝗉.");
-            }
-
-            const { senderID, threadID } = event;
-            const mention = Object.keys(event.mentions)[0];
-            
-            if (!mention) {
-                return message.reply("🔹 𝖯𝗅𝖾𝖺𝗌𝖾 𝗆𝖾𝗇𝗍𝗂𝗈𝗇 𝗌𝗈𝗆𝖾𝗈𝗇𝖾 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖺 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗉𝖺𝗂𝗋");
-            }
+            const userOne = senderID;
+            const userTwo = mentionedUsers[0];
 
             // Don't allow self-mention
-            if (mention === senderID) {
-                return message.reply("❌ 𝖸𝗈𝗎 𝖼𝖺𝗇𝗇𝗈𝗍 𝖼𝗋𝖾𝖺𝗍𝖾 𝖺 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗉𝖺𝗂𝗋 𝗐𝗂𝗍𝗁 𝗒𝗈𝗎𝗋𝗌𝖾𝗅𝖿!");
+            if (userTwo === senderID) {
+                return message.reply("❌ You cannot create a sibling pair with yourself!");
             }
 
-            const targetName = event.mentions[mention].replace("@", "");
+            const targetName = event.mentions[userTwo].replace("@", "");
             const cachePath = path.join(__dirname, "cache", "canvas");
             
-            // Create cache directory if it doesn't exist
-            try {
-                if (!fs.existsSync(cachePath)) {
-                    fs.mkdirSync(cachePath, { recursive: true });
-                }
-            } catch (dirError) {
-                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝖼𝖺𝖼𝗁𝖾 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒:", dirError);
-                return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗍𝖾𝗆𝗉𝗈𝗋𝖺𝗋𝗒 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
+            // Ensure cache directory exists
+            if (!fs.existsSync(cachePath)) {
+                fs.mkdirSync(cachePath, { recursive: true });
             }
 
-            const processingMsg = await message.reply("⏳ 𝖢𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾...");
+            const processingMsg = await message.reply("⏳ Creating sibling image...");
 
             try {
-                const imagePath = await makeSiblingImage(senderID, mention, cachePath);
-
-                await message.reply({
-                    body: `👫 𝖲𝗂𝖻𝗅𝗂𝗇𝗀 𝗉𝖺𝗂𝗋 𝖼𝗋𝖾𝖺𝗍𝖾𝖽!\n\n✨ 𝖸𝗈𝗎 𝖺𝗇𝖽 ${targetName} 𝗅𝗈𝗈𝗄 𝖺𝗐𝖾𝗌𝗈𝗆𝖾 𝗍𝗈𝗀𝖾𝗍𝗁𝖾𝗋!`,
-                    mentions: [{ tag: targetName, id: mention }],
-                    attachment: fs.createReadStream(imagePath)
-                });
-
-                // Clean up temporary file
-                try {
-                    if (fs.existsSync(imagePath)) {
-                        fs.unlinkSync(imagePath);
-                    }
-                } catch (cleanupError) {
-                    console.warn("⚠️ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝗍𝖾𝗆𝗉𝗈𝗋𝖺𝗋𝗒 𝖿𝗂𝗅𝖾:", cleanupError.message);
+                // Generate the sibling image
+                generatedImagePath = await this.makeSiblingImage(userOne, userTwo, cachePath);
+                
+                if (generatedImagePath && fs.existsSync(generatedImagePath)) {
+                    await message.reply({
+                        body: `👫 Sibling pair created!\n\n✨ You and ${targetName} look awesome together!`,
+                        mentions: [{ tag: targetName, id: userTwo }],
+                        attachment: fs.createReadStream(generatedImagePath)
+                    });
+                    
+                    console.log("✅ Successfully sent sibling image");
+                } else {
+                    throw new Error("Failed to create image file");
                 }
 
             } catch (imageError) {
-                console.error("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾:", imageError);
-                await message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
+                console.error("❌ Failed to create image:", imageError);
+                await message.reply("❌ Failed to create sibling image. Please try again later.");
             }
 
             // Clean up processing message
             try {
                 await api.unsendMessage(processingMsg.messageID);
             } catch (unsendError) {
-                console.warn("⚠️ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                console.warn("⚠️ Could not unsend processing message:", unsendError.message);
             }
 
         } catch (error) {
-            console.error("💥 𝖡𝗋𝗈𝗍𝗁𝖾𝗋.𝗃𝗌 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
-            // Don't send error message to avoid spam
+            console.error("💥 Brother.js Command Error:", error);
+            await message.reply("❌ An error occurred while processing your request.");
+        } finally {
+            // Clean up generated image
+            if (generatedImagePath && fs.existsSync(generatedImagePath)) {
+                try {
+                    fs.unlinkSync(generatedImagePath);
+                    console.log("🧹 Cleaned up generated image");
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean up:", cleanupError.message);
+                }
+            }
+        }
+    },
+
+    makeSiblingImage: async function(user1, user2, cacheDir) {
+        const templatePath = path.join(cacheDir, "sibling_template.jpg");
+        const outputPath = path.join(cacheDir, `siblings_${user1}_${user2}_${Date.now()}.png`);
+
+        try {
+            console.log("🔍 Checking template existence...");
+            
+            // Check if template exists, download if not
+            if (!fs.existsSync(templatePath)) {
+                console.log("📥 Template not found, downloading...");
+                try {
+                    const response = await axios.get("https://i.imgur.com/n2FGJFe.jpg", {
+                        responseType: "arraybuffer",
+                        timeout: 30000
+                    });
+                    
+                    if (response.data && response.data.byteLength > 1000) {
+                        fs.writeFileSync(templatePath, Buffer.from(response.data, "binary"));
+                        console.log("✅ Template downloaded successfully");
+                    } else {
+                        throw new Error("Downloaded template is invalid");
+                    }
+                } catch (downloadError) {
+                    console.error("❌ Failed to download template:", downloadError.message);
+                    throw new Error("Template file not found and could not be downloaded");
+                }
+            }
+
+            // Verify template is readable
+            try {
+                await jimp.read(templatePath);
+                console.log("✅ Template verified and readable");
+            } catch (templateError) {
+                console.error("❌ Template file is corrupted:", templateError.message);
+                // Delete corrupted template and try to download again (this will be handled by the next check)
+                fs.unlinkSync(templatePath); 
+                throw new Error("Template file is corrupted. Deleted corrupted file. Please try again.");
+            }
+
+            console.log("📥 Processing avatars...");
+            const [avatar1, avatar2] = await Promise.all([
+                this.processAvatar(user1, cacheDir),
+                this.processAvatar(user2, cacheDir)
+            ]);
+
+            console.log("🎨 Creating final image...");
+            const template = await jimp.read(templatePath);
+
+            // Composite avatars onto template
+            // Position 1: Left side avatar (Sister)
+            // Analysis confirms these coordinates and size provide a good fit for the left circle in the reference image.
+            template.composite(avatar1.resize(191, 191), 93, 111);
+            
+            // Position 2: Right side avatar (Brother)
+            // Analysis confirms these coordinates and size provide a good fit for the right circle in the reference image.
+            template.composite(avatar2.resize(190, 190), 434, 107);
+
+            // Save final image
+            await template.writeAsync(outputPath);
+            
+            // Verify the output file was created
+            if (fs.existsSync(outputPath)) {
+                const stats = fs.statSync(outputPath);
+                if (stats.size > 0) {
+                    console.log("✅ Successfully created sibling image");
+                    return outputPath;
+                } else {
+                    throw new Error("Created image file is empty");
+                }
+            } else {
+                throw new Error("Failed to create output image file");
+            }
+
+        } catch (error) {
+            console.error("❌ Brother.js Image Creation Error:", error);
+            
+            // Clean up output file if it was partially created
+            if (fs.existsSync(outputPath)) {
+                try {
+                    fs.unlinkSync(outputPath);
+                } catch (cleanupError) {
+                    console.warn("⚠️ Could not clean up failed image:", cleanupError.message);
+                }
+            }
+            
+            throw error;
+        }
+    },
+
+    processAvatar: async function(userID, cacheDir) {
+        const avatarPath = path.join(cacheDir, `avt_${userID}_${Date.now()}.png`);
+        
+        try {
+            console.log(`📥 Downloading avatar for user ${userID}...`);
+            
+            const url = `https://graph.facebook.com/${userID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+            const response = await axios.get(url, { 
+                responseType: "arraybuffer",
+                timeout: 15000,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+            });
+
+            // Verify avatar data
+            if (!response.data || response.data.byteLength < 1000) {
+                throw new Error("Invalid avatar data received");
+            }
+
+            fs.writeFileSync(avatarPath, Buffer.from(response.data, "binary"));
+
+            const avatar = await jimp.read(avatarPath);
+            avatar.circle();
+
+            return avatar;
+
+        } catch (error) {
+            console.error(`❌ Failed to process avatar for user ${userID}:`, error.message);
+            throw error;
+        } finally {
+            // Clean up temporary avatar file
+            if (fs.existsSync(avatarPath)) {
+                try {
+                    fs.unlinkSync(avatarPath);
+                } catch (cleanupError) {
+                    console.warn("⚠️ Could not clean up avatar file:", cleanupError.message);
+                }
+            }
         }
     }
 };
-
-// ========== 𝖧𝖾𝗅𝗉𝖾𝗋 𝖥𝗎𝗇𝖼𝗍𝗂𝗈𝗇𝗌 ==========
-
-async function makeSiblingImage(user1, user2, cacheDir) {
-    const templatePath = path.join(cacheDir, "sibling_template.jpg");
-    const outputPath = path.join(cacheDir, `siblings_${user1}_${user2}_${Date.now()}.png`);
-
-    try {
-        // Check if template exists
-        if (!fs.existsSync(templatePath)) {
-            throw new Error("𝖳𝖾𝗆𝗉𝗅𝖺𝗍𝖾 𝖿𝗂𝗅𝖾 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽");
-        }
-
-        const [avatar1, avatar2] = await Promise.all([
-            processAvatar(user1, cacheDir),
-            processAvatar(user2, cacheDir)
-        ]);
-
-        const template = await jimp.read(templatePath);
-
-        template.composite(avatar1.resize(191, 191), 93, 111)
-                .composite(avatar2.resize(190, 190), 434, 107);
-
-        await template.writeAsync(outputPath);
-        console.log("✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝖼𝗋𝖾𝖺𝗍𝖾𝖽 𝗌𝗂𝖻𝗅𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾");
-        return outputPath;
-    } catch (error) {
-        console.error("❌ 𝖡𝗋𝗈𝗍𝗁𝖾𝗋.𝗃𝗌 𝖨𝗆𝖺𝗀𝖾 𝖢𝗋𝖾𝖺𝗍𝗂𝗈𝗇 𝖤𝗋𝗋𝗈𝗋:", error);
-        
-        // Clean up output file if it was partially created
-        try {
-            if (fs.existsSync(outputPath)) {
-                fs.unlinkSync(outputPath);
-            }
-        } catch (cleanupError) {
-            console.warn("⚠️ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖿𝖺𝗂𝗅𝖾𝖽 𝗂𝗆𝖺𝗀𝖾:", cleanupError.message);
-        }
-        
-        throw error;
-    }
-}
-
-async function processAvatar(userID, cacheDir) {
-    const avatarPath = path.join(cacheDir, `avt_${userID}_${Date.now()}.png`);
-    try {
-        const url = `https://graph.facebook.com/${userID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-        const { data } = await axios.get(url, { 
-            responseType: "arraybuffer",
-            timeout: 15000 
-        });
-        fs.writeFileSync(avatarPath, Buffer.from(data, "binary"));
-
-        const avatar = await jimp.read(avatarPath);
-        avatar.circle();
-
-        // Clean up temporary avatar file
-        try {
-            if (fs.existsSync(avatarPath)) {
-                fs.unlinkSync(avatarPath);
-            }
-        } catch (cleanupError) {
-            console.warn("⚠️ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗂𝗅𝖾:", cleanupError.message);
-        }
-
-        return avatar;
-    } catch (error) {
-        console.error(`❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗉𝗋𝗈𝖼𝖾𝗌𝗌 𝖺𝗏𝖺𝗍𝖺𝗋 𝖿𝗈𝗋 𝗎𝗌𝖾𝗋 ${userID}:`, error.message);
-        
-        // Clean up temporary avatar file
-        try {
-            if (fs.existsSync(avatarPath)) {
-                fs.unlinkSync(avatarPath);
-            }
-        } catch (cleanupError) {
-            console.warn("⚠️ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖼𝗅𝖾𝖺𝗇 𝗎𝗉 𝖿𝖺𝗂𝗅𝖾𝖽 𝖺𝗏𝖺𝗍𝖺𝗋:", cleanupError.message);
-        }
-        
-        throw error;
-    }
-}
