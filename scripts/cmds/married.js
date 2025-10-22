@@ -6,20 +6,20 @@ const jimp = require("jimp");
 module.exports = {
     config: {
         name: "married",
-        aliases: ["marry", "wedding"],
+        aliases: [],
         version: "3.1.1",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Asif Mahmud",
         countDown: 5,
         role: 0,
-        category: "𝑒𝑑𝑖𝑡-𝑖𝑚𝑎𝑔𝑒",
+        category: "edit-image",
         shortDescription: {
-            en: "💍 𝐶𝑟𝑒𝑎𝑡𝑒 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑖𝑚𝑎𝑔𝑒𝑠"
+            en: "💍 Create marriage images"
         },
         longDescription: {
-            en: "𝐶𝑟𝑒𝑎𝑡𝑒 𝑎 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒 𝑎𝑛𝑛𝑜𝑢𝑛𝑐𝑒𝑚𝑒𝑛𝑡 𝑖𝑚𝑎𝑔𝑒 𝑤𝑖𝑡ℎ 𝑚𝑒𝑛𝑡𝑖𝑜𝑛𝑒𝑑 𝑢𝑠𝑒𝑟"
+            en: "Create a marriage announcement image with mentioned user"
         },
         guide: {
-            en: "{p}married [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛]"
+            en: "{p}married [@mention]"
         },
         dependencies: {
             "axios": "",
@@ -30,11 +30,20 @@ module.exports = {
     },
 
     onLoad: function() {
-        const dirMaterial = __dirname + `/cache/canvas/`;
-        if (!fs.existsSync(dirMaterial)) fs.mkdirSync(dirMaterial, { recursive: true });
+        try {
+            const canvasDir = path.join(__dirname, "cache", "canvas");
+            if (!fs.existsSync(canvasDir)) {
+                fs.mkdirSync(canvasDir, { recursive: true });
+                console.log("✅ Created canvas directory:", canvasDir);
+            }
+        } catch (error) {
+            console.error("❌ Error creating canvas directory:", error);
+        }
     },
 
     onStart: async function({ message, event }) {
+        let tempFiles = [];
+        
         try {
             // Dependency check
             try {
@@ -43,75 +52,162 @@ module.exports = {
                 require("path");
                 require("jimp");
             } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑖𝑛𝑠𝑡𝑎𝑙𝑙 𝑎𝑥𝑖𝑜𝑠, 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎, 𝑝𝑎𝑡ℎ, 𝑎𝑛𝑑 𝑗𝑖𝑚𝑝.");
+                return message.reply("❌ Missing dependencies. Please install: axios, fs-extra, path, and jimp.");
             }
 
-            const { threadID, messageID, senderID } = event;
-            const mention = Object.keys(event.mentions);
+            const { senderID, mentions } = event;
+            const mentionedUsers = Object.keys(mentions);
 
-            if (!mention[0]) {
-                return message.reply("💍 𝑃𝑙𝑒𝑎𝑠𝑒 𝑚𝑒𝑛𝑡𝑖𝑜𝑛 𝑠𝑜𝑚𝑒𝑜𝑛𝑒 𝑡𝑜 𝑚𝑎𝑟𝑟𝑦!");
+            if (mentionedUsers.length === 0) {
+                return message.reply("💍 Please mention someone to marry! Example: /married @username");
             }
 
-            const one = senderID;
-            const two = mention[0];
-            
-            // Circle crop function
-            async function circle(image) {
-                image = await jimp.read(image);
-                image.circle();
-                return await image.getBufferAsync("image/png");
+            const userOne = senderID;
+            const userTwo = mentionedUsers[0];
+
+            // Validate user IDs
+            if (!userOne || !userTwo) {
+                return message.reply("❌ Invalid user IDs detected.");
             }
 
-            const __root = path.resolve(__dirname, "cache", "canvas");
-            const bgPath = path.join(__root, "married.png");
+            const canvasDir = path.join(__dirname, "cache", "canvas");
+            const bgPath = path.join(canvasDir, "married.png");
 
-            // Check if background exists
+            // Check if background image exists
             if (!fs.existsSync(bgPath)) {
-                throw new Error("𝐵𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑 𝑖𝑚𝑎𝑔𝑒 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑠𝑢𝑟𝑒 𝑚𝑎𝑟𝑟𝑖𝑒𝑑.𝑝𝑛𝑔 𝑒𝑥𝑖𝑠𝑡𝑠 𝑖𝑛 𝑐𝑎𝑐ℎ𝑒/𝑐𝑎𝑛𝑣𝑎𝑠");
+                console.error("❌ Background image not found at:", bgPath);
+                return message.reply("❌ Background image not found. Please ensure 'married.png' exists in the cache/canvas folder.");
             }
 
-            let pathImg = path.join(__root, `married_${one}_${two}.png`);
-            let avatarOne = path.join(__root, `avt_${one}.png`);
-            let avatarTwo = path.join(__root, `avt_${two}.png`);
+            // Create unique file paths
+            const timestamp = Date.now();
+            const outputPath = path.join(canvasDir, `married_${userOne}_${userTwo}_${timestamp}.png`);
+            const avatarOnePath = path.join(canvasDir, `avt1_${userOne}_${timestamp}.png`);
+            const avatarTwoPath = path.join(canvasDir, `avt2_${userTwo}_${timestamp}.png`);
+            
+            tempFiles.push(outputPath, avatarOnePath, avatarTwoPath);
 
-            // Get Avatars
-            let [avatar1, avatar2] = await Promise.all([
-                axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" }),
-                axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
-            ]);
+            console.log("📥 Downloading avatars...");
+            
+            // Download avatars with error handling
+            let avatar1Buffer, avatar2Buffer;
+            
+            try {
+                const avatar1Response = await axios.get(
+                    `https://graph.facebook.com/${userOne}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+                    { 
+                        responseType: "arraybuffer",
+                        timeout: 15000
+                    }
+                );
+                avatar1Buffer = Buffer.from(avatar1Response.data);
+                fs.writeFileSync(avatarOnePath, avatar1Buffer);
+                console.log("✅ Downloaded first avatar");
+            } catch (error) {
+                console.error("❌ Failed to download first avatar:", error.message);
+                return message.reply("❌ Failed to download your avatar. Please try again.");
+            }
 
-            fs.writeFileSync(avatarOne, Buffer.from(avatar1.data));
-            fs.writeFileSync(avatarTwo, Buffer.from(avatar2.data));
+            try {
+                const avatar2Response = await axios.get(
+                    `https://graph.facebook.com/${userTwo}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`,
+                    { 
+                        responseType: "arraybuffer",
+                        timeout: 15000
+                    }
+                );
+                avatar2Buffer = Buffer.from(avatar2Response.data);
+                fs.writeFileSync(avatarTwoPath, avatar2Buffer);
+                console.log("✅ Downloaded second avatar");
+            } catch (error) {
+                console.error("❌ Failed to download second avatar:", error.message);
+                return message.reply("❌ Failed to download mentioned user's avatar. Please try again.");
+            }
 
             // Process images
-            const [bg, circleOne, circleTwo] = await Promise.all([
-                jimp.read(bgPath),
-                jimp.read(await circle(avatarOne)),
-                jimp.read(await circle(avatarTwo))
-            ]);
+            console.log("🎨 Processing images...");
+            
+            let bg, circleOne, circleTwo;
+            
+            try {
+                // Load background image
+                bg = await jimp.read(bgPath);
+                console.log("✅ Loaded background image");
 
-            // Composite on background
-            bg.composite(circleOne.resize(170, 170), 1520, 210)
-              .composite(circleTwo.resize(170, 170), 980, 300);
+                // Create circular avatars
+                const avatar1 = await jimp.read(avatarOnePath);
+                avatar1.circle();
+                circleOne = avatar1;
+                
+                const avatar2 = await jimp.read(avatarTwoPath);
+                avatar2.circle();
+                circleTwo = avatar2;
+                
+                console.log("✅ Created circular avatars");
+            } catch (error) {
+                console.error("❌ Error processing images:", error);
+                return message.reply("❌ Error processing images. Please try again.");
+            }
 
-            await bg.writeAsync(pathImg);
+            // Define avatar size and positions
+            const avatarSize = 70;
+            
+            // Coordinates for avatar placement
+            const groomX = 700; 
+            const groomY = 16;   
+            const brideX = 278;  
+            const brideY = 28;   
 
-            // Cleanup temp avatars
-            fs.unlinkSync(avatarOne);
-            fs.unlinkSync(avatarTwo);
+            console.log("🖼️ Compositing images...");
+            
+            try {
+                // Composite avatars onto background
+                bg.composite(circleOne.resize(avatarSize, avatarSize), groomX, groomY)
+                  .composite(circleTwo.resize(avatarSize, avatarSize), brideX, brideY);
 
+                // Save final image
+                await bg.writeAsync(outputPath);
+                console.log("✅ Saved final image:", outputPath);
+
+                // Verify the image was created
+                if (!fs.existsSync(outputPath)) {
+                    throw new Error("Final image was not created");
+                }
+
+                const stats = fs.statSync(outputPath);
+                if (stats.size === 0) {
+                    throw new Error("Final image is empty");
+                }
+
+            } catch (error) {
+                console.error("❌ Error compositing images:", error);
+                return message.reply("❌ Error creating final image. Please try again.");
+            }
+
+            // Send the final image
             await message.reply({
-                body: `💖 𝐶𝑜𝑛𝑔𝑟𝑎𝑡𝑢𝑙𝑎𝑡𝑖𝑜𝑛𝑠 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑚𝑎𝑟𝑟𝑖𝑎𝑔𝑒! 💑\n━━━━━━━━━━━━━━━━\n💐 𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑏𝑦: 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑`,
-                attachment: fs.createReadStream(pathImg)
+                body: `💖 Congratulations for your marriage! 💑\n━━━━━━━━━━━━━━━━\n💐 Powered by: Asif Mahmud`,
+                attachment: fs.createReadStream(outputPath)
             });
 
-            // Cleanup final image
-            fs.unlinkSync(pathImg);
-            
+            console.log("✅ Successfully sent marriage image");
+
         } catch (error) {
-            console.error("𝑀𝑎𝑟𝑟𝑖𝑒𝑑 𝐸𝑟𝑟𝑜𝑟:", error);
-            await message.reply(`❌ 𝐸𝑟𝑟𝑜𝑟 𝑖𝑛 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 𝑖𝑚𝑎𝑔𝑒: ${error.message}`);
+            console.error("💥 Married Command Error:", error);
+            await message.reply("❌ An unexpected error occurred. Please try again later.");
+        } finally {
+            // Cleanup temporary files
+            console.log("🧹 Cleaning up temporary files...");
+            tempFiles.forEach(filePath => {
+                try {
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                        console.log("✅ Cleaned:", filePath);
+                    }
+                } catch (cleanupError) {
+                    console.warn("⚠️ Failed to clean:", filePath, cleanupError.message);
+                }
+            });
         }
     }
 };
