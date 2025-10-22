@@ -5,19 +5,19 @@ const path = require('path');
 module.exports = {
     config: {
         name: "quransurah",
-        aliases: ["qsurah", "quranverse", "surahinfo"],
-        version: "1.0.0",
+        aliases: [],
+        version: "1.0.1",
         role: 0,
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
-        category: "𝑖𝑠𝑙𝑎𝑚",
+        author: "Asif Mahmud",
+        category: "islamic",
         shortDescription: {
-            en: "𝐺𝑒𝑡 𝑄𝑢𝑟𝑎𝑛 𝑠𝑢𝑟𝑎ℎ 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑛𝑑 𝑟𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛"
+            en: "Get Quran surah information and recitation"
         },
         longDescription: {
-            en: "𝐹𝑒𝑡𝑐ℎ 𝑄𝑢𝑟𝑎𝑛 𝑠𝑢𝑟𝑎ℎ 𝑑𝑒𝑡𝑎𝑖𝑙𝑠, 𝑣𝑒𝑟𝑠𝑒𝑠 𝑎𝑛𝑑 𝑎𝑢𝑑𝑖𝑜 𝑟𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛𝑠"
+            en: "Fetch Quran surah details, verses and audio recitations"
         },
         guide: {
-            en: "{p}quransurah [𝑠𝑢𝑟𝑎ℎ_𝑛𝑢𝑚𝑏𝑒𝑟]"
+            en: "{p}quransurah [surah_number]"
         },
         countDown: 5,
         dependencies: {
@@ -26,38 +26,45 @@ module.exports = {
         }
     },
 
-    onStart: async function({ message, args }) {
+    onStart: async function({ message, args, global }) {
         try {
             // Dependency check
             try {
                 require("axios");
                 require("fs-extra");
             } catch (e) {
-                return message.reply("❌ 𝑀𝑖𝑠𝑠𝑖𝑛𝑔 𝑑𝑒𝑝𝑒𝑛𝑑𝑒𝑛𝑐𝑖𝑒𝑠: 𝑎𝑥𝑖𝑜𝑠 𝑎𝑛𝑑 𝑓𝑠-𝑒𝑥𝑡𝑟𝑎");
+                return message.reply("❌ Missing dependencies: axios and fs-extra");
             }
 
             const surahNumber = parseInt(args[0]);
             
             if (!surahNumber || surahNumber < 1 || surahNumber > 114) {
-                return message.reply("⚠️ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑒𝑛𝑡𝑒𝑟 𝑎 𝑣𝑎𝑙𝑖𝑑 𝑠𝑢𝑟𝑎ℎ 𝑛𝑢𝑚𝑏𝑒𝑟 (1-114)\n💡 𝑈𝑠𝑎𝑔𝑒: {p}quransurah [𝑠𝑢𝑟𝑎ℎ_𝑛𝑢𝑚𝑏𝑒𝑟]");
+                return message.reply("⚠️ Please enter a valid surah number (1-114)\n💡 Guide: {p}quransurah [surah_number]");
             }
 
             let surahData = null;
+            let apiUsed = false;
+
+            await message.react("⏳");
 
             try {
                 // Try to fetch from API first
+                console.log(`📡 Attempting to fetch surah ${surahNumber} from API...`);
                 const response = await axios.get(`https://quranapi.pages.dev/api/${surahNumber}.json`, {
-                    timeout: 10000
+                    timeout: 15000
                 });
                 surahData = response.data;
+                apiUsed = true;
+                console.log(`✅ Successfully fetched surah ${surahNumber} from API`);
             } catch (apiError) {
-                console.log("𝐴𝑃𝐼 𝑓𝑎𝑖𝑙𝑒𝑑, 𝑢𝑠𝑖𝑛𝑔 𝑏𝑎𝑐𝑘𝑢𝑝 𝑑𝑎𝑡𝑎...");
+                console.log(`❌ API failed for surah ${surahNumber}, using backup data...`);
                 
                 // Use backup data from local file
                 try {
                     const backupPath = path.join(__dirname, 'data', 'islamic', 'surah', 'allsura.json');
                     
                     if (fs.existsSync(backupPath)) {
+                        console.log(`📁 Loading backup data from: ${backupPath}`);
                         const backupData = fs.readJsonSync(backupPath);
                         
                         if (Array.isArray(backupData)) {
@@ -65,51 +72,166 @@ module.exports = {
                         } else if (backupData[surahNumber]) {
                             surahData = backupData[surahNumber];
                         }
+                    } else {
+                        console.log(`❌ Backup file not found: ${backupPath}`);
                     }
                     
                     if (!surahData) {
-                        return message.reply("❌ 𝑆𝑢𝑟𝑎ℎ 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑 𝑖𝑛 𝑏𝑎𝑐𝑘𝑢𝑝 𝑑𝑎𝑡𝑎. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+                        throw new Error("Surah not found in backup data");
                     }
+                    
+                    console.log(`✅ Successfully loaded surah ${surahNumber} from backup data`);
                 } catch (backupError) {
-                    console.error("𝐵𝑎𝑐𝑘𝑢𝑝 𝑑𝑎𝑡𝑎 𝑒𝑟𝑟𝑜𝑟:", backupError);
-                    return message.reply("❌ 𝐵𝑜𝑡ℎ 𝐴𝑃𝐼 𝑎𝑛𝑑 𝑏𝑎𝑐𝑘𝑢𝑝 𝑑𝑎𝑡𝑎 𝑓𝑎𝑖𝑙𝑒𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+                    console.error("💥 Backup data error:", backupError);
+                    await message.react("❌");
+                    return message.reply("❌ Both API and backup data failed. Please try again later.");
                 }
             }
 
             if (!surahData) {
-                return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑠𝑢𝑟𝑎ℎ 𝑑𝑎𝑡𝑎. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+                await message.react("❌");
+                return message.reply("❌ Failed to fetch surah data. Please try again later.");
             }
 
-            let messageBody = `📖 *${surahData.name} (${surahData.name_translations?.en || ''})*\n`;
-            messageBody += `🔢 𝑆𝑢𝑟𝑎ℎ: ${surahData.number_of_surah}\n`;
-            messageBody += `📋 𝑉𝑒𝑟𝑠𝑒𝑠: ${surahData.number_of_ayah}\n`;
-            messageBody += `📍 𝑃𝑙𝑎𝑐𝑒: ${surahData.place}\n`;
-            messageBody += `📚 𝑇𝑦𝑝𝑒: ${surahData.type}\n\n`;
+            // Build message body
+            let messageBody = `📖 *${surahData.name || 'Unknown Surah'}*`;
+            
+            if (surahData.name_translations?.en) {
+                messageBody += ` (${surahData.name_translations.en})`;
+            }
+            messageBody += `\n\n`;
+            
+            messageBody += `🔢 Surah Number: ${surahData.number_of_surah || surahData.number || 'N/A'}\n`;
+            messageBody += `📋 Total Verses: ${surahData.number_of_ayah || surahData.verses_count || 'N/A'}\n`;
+            messageBody += `📍 Revelation Place: ${surahData.place || 'N/A'}\n`;
+            messageBody += `📚 Type: ${surahData.type || 'N/A'}\n\n`;
 
             // Add first 3 verses if available
-            if (surahData.verses && surahData.verses.length > 0) {
-                messageBody += "📜 𝑉𝑒𝑟𝑠𝑒𝑠:\n";
+            if (surahData.verses && Array.isArray(surahData.verses) && surahData.verses.length > 0) {
+                messageBody += "📜 Sample Verses:\n";
                 for (let i = 0; i < Math.min(3, surahData.verses.length); i++) {
                     const verse = surahData.verses[i];
-                    messageBody += `${verse.number}. ${verse.text}\n`;
-                    messageBody += `➡️ ${verse.translation_en}\n\n`;
+                    if (verse.text) {
+                        messageBody += `${verse.number || i + 1}. ${verse.text}\n`;
+                        if (verse.translation_en) {
+                            messageBody += `   ➡️ ${verse.translation_en}\n`;
+                        }
+                        messageBody += `\n`;
+                    }
                 }
+            } else if (surahData.arabic_text) {
+                messageBody += `📜 Arabic Text: ${surahData.arabic_text.substring(0, 100)}...\n\n`;
             }
 
             // Add recitations info if available
-            if (surahData.recitations && surahData.recitations.length > 0) {
-                messageBody += "🎧 𝑅𝑒𝑐𝑖𝑡𝑎𝑡𝑖𝑜𝑛𝑠:\n";
+            if (surahData.recitations && Array.isArray(surahData.recitations) && surahData.recitations.length > 0) {
+                messageBody += "🎧 Available Recitations:\n";
                 surahData.recitations.forEach((recitation, index) => {
-                    messageBody += `${index + 1}. ${recitation.name}\n`;
+                    messageBody += `${index + 1}. ${recitation.name || recitation.reciter || 'Unknown Reciter'}\n`;
                 });
-                messageBody += `\n💡 𝑈𝑠𝑒: {p}surahaudio ${surahNumber} [𝑟𝑒𝑐𝑖𝑡𝑒𝑟_𝑛𝑢𝑚𝑏𝑒𝑟]`;
+                messageBody += `\n💡 Guide: {p}surahaudio ${surahNumber} [reciter_number]`;
+
+                // Store recitations globally for reply handler
+                global.quranSurahAudioOptions = {
+                    reciters: surahData.recitations,
+                    surahInfo: `${surahData.name} (${surahData.number_of_surah || surahNumber})`,
+                    eventID: message.messageID
+                };
+            } else {
+                messageBody += `\n💡 Guide: {p}surahaudio ${surahNumber} to listen to recitations`;
             }
 
+            // Add source info
+            messageBody += `\n\n📡 Source: ${apiUsed ? 'Quran API' : 'Local Backup'}`;
+
+            await message.react("✅");
             await message.reply(messageBody);
 
         } catch (error) {
-            console.error("𝑄𝑢𝑟𝑎𝑛𝑆𝑢𝑟𝑎ℎ 𝑐𝑜𝑚𝑚𝑎𝑛𝑑 𝑒𝑟𝑟𝑜𝑟:", error);
-            await message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑓𝑒𝑡𝑐ℎ 𝑠𝑢𝑟𝑎ℎ 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
+            console.error("💥 QuranSurah command error:", error);
+            await message.react("❌");
+            
+            let errorMessage = "❌ Failed to fetch surah information. Please try again later.";
+            
+            if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ Network error: Cannot connect to server.";
+            } else if (error.code === 'ETIMEDOUT') {
+                errorMessage = "❌ Timeout error: Server is taking too long to respond.";
+            } else if (error.message.includes('ENOENT')) {
+                errorMessage = "❌ Backup data file not found. Please check the data folder.";
+            }
+            
+            await message.reply(errorMessage);
+        }
+    },
+
+    onReply: async function({ message, event, global }) {
+        try {
+            // Check if this reply is for our surah audio request
+            if (!global.quranSurahAudioOptions || global.quranSurahAudioOptions.eventID !== event.messageReply.messageID) {
+                return;
+            }
+
+            const selectedNumber = parseInt(event.body);
+            const { reciters, surahInfo } = global.quranSurahAudioOptions;
+
+            if (isNaN(selectedNumber)) {
+                return message.reply("❌ Please reply with a valid number (e.g., 1, 2, etc.) for the reciter.");
+            }
+            
+            if (selectedNumber < 1 || selectedNumber > reciters.length) {
+                return message.reply(`❌ Invalid selection. Please reply with a number between 1-${reciters.length}.`);
+            }
+
+            const selectedReciter = reciters[selectedNumber - 1];
+            const audioUrl = selectedReciter.url || selectedReciter.link;
+            
+            if (!audioUrl) {
+                return message.reply("❌ Audio URL not available for the selected reciter. Please try another one.");
+            }
+
+            await message.react("🎧");
+
+            console.log(`🎧 Attempting to stream audio from: ${audioUrl}`);
+            
+            if (!global.utils || typeof global.utils.getStreamFromURL !== 'function') {
+                throw new Error("Global utilities for streaming audio are not available.");
+            }
+
+            const stream = await global.utils.getStreamFromURL(audioUrl);
+
+            if (!stream) {
+                throw new Error("Failed to create audio stream.");
+            }
+
+            await message.reply({
+                body: `🎧 Playing ${surahInfo} by *${selectedReciter.reciter || selectedReciter.name || 'Unknown Reciter'}*`,
+                attachment: stream
+            });
+
+            await message.react("✅");
+
+            // Clean up global audio options
+            delete global.quranSurahAudioOptions;
+
+        } catch (error) {
+            console.error('💥 QuranSurah reply handler error:', error);
+            await message.react("❌");
+            
+            let errorMessage = "❌ An error occurred while trying to play the recitation. Please try again later.";
+            
+            if (error.message.includes('getStreamFromURL')) {
+                errorMessage = "❌ Failed to load audio stream. Please check the audio URL.";
+            } else if (error.code === 'ECONNREFUSED') {
+                errorMessage = "❌ Network error: Cannot connect to audio server.";
+            }
+            
+            await message.reply(errorMessage);
+            
+            // Clean up on error
+            if (global.quranSurahAudioOptions) {
+                delete global.quranSurahAudioOptions;
+            }
         }
     }
 };
