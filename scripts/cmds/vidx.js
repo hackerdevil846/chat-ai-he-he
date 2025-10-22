@@ -1,32 +1,22 @@
 const axios = require("axios");
 
-// Helper function to convert text into bold italic math font
-function toFancy(text) {
-  const normal = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const fancy = '𝑎𝑏𝑐𝑑𝑒𝑓𝑔ℎ𝑖𝑗𝑘𝑙𝑚𝑛𝑜𝑝𝑞𝑟𝑠𝑡𝑢𝑣𝑤𝑥𝑦𝑧𝐴𝐵𝐶𝐷𝐸𝐹𝐺𝐻𝐼𝐽𝐾𝐿𝑀𝑁𝑂𝑃𝑄𝑅𝑆𝑇𝑈𝑉𝑊𝑋𝑌𝑍𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿';
-  return text.split("").map(c => {
-    const i = normal.indexOf(c);
-    return i !== -1 ? fancy[i] : c;
-  }).join("");
-}
-
 module.exports = {
   config: {
     name: "vidx",
     aliases: [],
-    version: "1.0",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    version: "2.0",
+    author: "Asif Mahmud",
     countDown: 5,
     role: 2,
     category: "adult",
     shortDescription: {
-      en: toFancy("Search adult videos")
+      en: "🔍 Search adult videos"
     },
     longDescription: {
-      en: toFancy("Search and display adult videos using search keywords")
+      en: "Search and get adult videos with direct download links"
     },
     guide: {
-      en: toFancy("{p}vidx [search term]")
+      en: "{p}vidx [search term]"
     },
     dependencies: {
       "axios": ""
@@ -35,102 +25,179 @@ module.exports = {
 
   onStart: async function ({ message, args, event }) {
     const query = args.join(" ");
-    if (!query) return message.reply(toFancy("❌ | Please provide a search term.\nExample: {p}vidx teen"));
-
-    const apiUrl = `https://www.eporner.com/api/v2/video/search/?query=${encodeURIComponent(query)}&format=json`;
+    if (!query) {
+      return message.reply("❌ | Please provide a search term.\nExample: /vidx teen");
+    }
 
     try {
-      const res = await axios.get(apiUrl);
+      // Show searching message
+      const searchingMsg = await message.reply(`🔍 | Searching videos for: "${query}"...`);
+
+      const apiUrl = `https://www.eporner.com/api/v2/video/search/?query=${encodeURIComponent(query)}&per_page=10&format=json`;
+
+      const res = await axios.get(apiUrl, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+      
       const data = res.data;
 
       if (!data?.videos?.length) {
-        return message.reply(toFancy(`❌ | No videos found for: ${query}`));
+        await message.unsend(searchingMsg.messageID);
+        return message.reply(`❌ | No videos found for: "${query}"`);
       }
 
-      const topVideos = data.videos.slice(0, 10);
-      let output = toFancy(`🔍 Results for: ${query}\n\n`);
-      const attachments = [];
+      const videos = data.videos.slice(0, 5);
+      let output = `🔍 Search Results for: "${query}"\n\n`;
+      
+      // Add video list
+      videos.forEach((video, index) => {
+        output += `${index + 1}. ${video.title}\n`;
+        output += `   ⏰ ${video.length_min} min | 👍 ${video.rating}/5\n`;
+        output += `   📊 Quality: ${video.quality}\n\n`;
+      });
 
-      for (let i = 0; i < Math.min(5, topVideos.length); i++) {
-        const video = topVideos[i];
-        output += toFancy(
-          `📼 ${i + 1}. ${video.title}\n⏱️ ${video.length_min} min | 👍 ${video.rating}/5\n🌐 Url: https://www.eporner.com/video-${video.id}/${video.slug}/\n\n`
-        );
+      output += `💬 Reply with number (1-${videos.length}) to get the video download link.`;
 
-        try {
-          const thumbResponse = await axios.get(video.default_thumb.src, { responseType: "stream" });
-          attachments.push(thumbResponse.data);
-        } catch {
-          console.error(`Failed to get thumbnail for video ${i + 1}`);
-        }
-      }
-
-      output += toFancy(`\nReply with the number (1-${Math.min(5, topVideos.length)}) to get the video URL.`);
-
+      // Send thumbnail of first video as preview
+      const previewThumb = videos[0].default_thumb.src;
+      
+      await message.unsend(searchingMsg.messageID);
       await message.reply({
         body: output,
-        attachment: attachments
+        attachment: await global.utils.getStreamFromURL(previewThumb)
       });
 
       // Store video data for reply handling
       global.vidxData = global.vidxData || {};
       global.vidxData[event.messageID] = {
-        videos: topVideos,
+        videos: videos,
+        query: query,
         timestamp: Date.now()
       };
 
-    } catch (e) {
-      console.error(e);
-      return message.reply(toFancy("❌ | Failed to fetch video data. Please try again later."));
+      // Auto cleanup after 5 minutes
+      setTimeout(() => {
+        if (global.vidxData && global.vidxData[event.messageID]) {
+          delete global.vidxData[event.messageID];
+        }
+      }, 5 * 60 * 1000);
+
+    } catch (error) {
+      console.error("Vidx Search Error:", error);
+      return message.reply("❌ | Failed to search videos. Please try again later.");
     }
   },
 
-  onReply: async function ({ message, event }) {
-    if (!global.vidxData || !global.vidxData[event.messageID]) return;
-    
-    const { videos } = global.vidxData[event.messageID];
-    const selectedNum = parseInt(event.body);
-    
-    if (isNaN(selectedNum)) {
-      return message.reply(toFancy("❌ | Please reply with a number from the list."));
-    }
-
-    const videoIndex = selectedNum - 1;
-    if (videoIndex < 0 || videoIndex >= Math.min(5, videos.length)) {
-      return message.reply(toFancy("❌ | Invalid selection. Please choose a number from the list."));
-    }
-
-    const selectedVideo = videos[videoIndex];
-
+  onReply: async function ({ message, event, Reply }) {
     try {
-      const embedUrl = `https://www.eporner.com/embed/${selectedVideo.id}`;
-      const embedResponse = await axios.get(embedUrl);
-      const embedHtml = embedResponse.data;
+      if (!global.vidxData || !global.vidxData[event.messageID]) {
+        return message.reply("❌ | Session expired. Please start a new search.");
+      }
 
-      const videoUrlMatch = embedHtml.match(/src="(https:\/\/[^"]+\.mp4)"/i);
-      const videoUrl = videoUrlMatch ? videoUrlMatch[1] : null;
+      const { videos, query } = global.vidxData[event.messageID];
+      const selectedNum = parseInt(event.body.trim());
 
-      if (!videoUrl) throw new Error("Could not extract video URL");
+      if (isNaN(selectedNum) || selectedNum < 1 || selectedNum > videos.length) {
+        return message.reply(`❌ | Please reply with a number between 1 and ${videos.length}.`);
+      }
 
-      await message.reply({
-        body: toFancy(
-          `🎥 ${selectedVideo.title}\n⏱️ ${selectedVideo.length_min} min | 👍 ${selectedVideo.rating}/5\n\n🔗 Direct video URL:\n${videoUrl}`
-        ),
-        attachment: await global.utils.getStreamFromURL(selectedVideo.default_thumb.src)
-      });
+      const videoIndex = selectedNum - 1;
+      const selectedVideo = videos[videoIndex];
 
-    } catch (e) {
-      console.error(e);
-      const fallbackUrl = `https://www.eporner.com/video-${selectedVideo.id}/${selectedVideo.slug}/`;
-      await message.reply({
-        body: toFancy(
-          `🎥 ${selectedVideo.title}\n⏱️ ${selectedVideo.length_min} min | 👍 ${selectedVideo.rating}/5\n\n❌ Couldn't get direct video URL. Here's the page link:\n${fallbackUrl}`
-        ),
-        attachment: await global.utils.getStreamFromURL(selectedVideo.default_thumb.src)
-      });
+      // Show processing message
+      const processingMsg = await message.reply(`⏳ | Processing video: "${selectedVideo.title}"...`);
+
+      try {
+        // Get video page to extract download links
+        const videoPageUrl = `https://www.eporner.com/video-${selectedVideo.id}/x/`;
+        const pageResponse = await axios.get(videoPageUrl, {
+          timeout: 15000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        const pageHtml = pageResponse.data;
+        
+        // Try to find download links in the page
+        let downloadUrl = null;
+        
+        // Method 1: Look for download links in HTML
+        const downloadLinkMatch = pageHtml.match(/href="(https:\/\/[^"]*\.mp4[^"]*)"/i);
+        if (downloadLinkMatch) {
+          downloadUrl = downloadLinkMatch[1];
+        }
+        
+        // Method 2: Try to construct download URL from video ID
+        if (!downloadUrl) {
+          // Common eporner download URL pattern
+          downloadUrl = `https://www.eporner.com/download/${selectedVideo.id}/`;
+        }
+
+        // Method 3: Use embed page to get video source
+        if (!downloadUrl) {
+          try {
+            const embedUrl = `https://www.eporner.com/embed/${selectedVideo.id}`;
+            const embedResponse = await axios.get(embedUrl, { timeout: 10000 });
+            const embedHtml = embedResponse.data;
+            
+            const sourceMatch = embedHtml.match(/src="(https:\/\/[^"]*\.mp4[^"]*)"/i);
+            if (sourceMatch) {
+              downloadUrl = sourceMatch[1];
+            }
+          } catch (embedError) {
+            console.error("Embed page error:", embedError);
+          }
+        }
+
+        await message.unsend(processingMsg.messageID);
+
+        if (downloadUrl) {
+          // Send the video directly
+          try {
+            await message.reply({
+              body: `🎥 ${selectedVideo.title}\n⏰ ${selectedVideo.length_min} min | 👍 ${selectedVideo.rating}/5\n📊 Quality: ${selectedVideo.quality}\n\n✅ Here's your video:`,
+              attachment: await global.utils.getStreamFromURL(downloadUrl)
+            });
+          } catch (streamError) {
+            console.error("Stream error:", streamError);
+            // If stream fails, send the download link
+            await message.reply({
+              body: `🎥 ${selectedVideo.title}\n⏰ ${selectedVideo.length_min} min | 👍 ${selectedVideo.rating}/5\n📊 Quality: ${selectedVideo.quality}\n\n🔗 Download Link:\n${downloadUrl}\n\n❌ Could not send video directly. Use the link above.`,
+              attachment: await global.utils.getStreamFromURL(selectedVideo.default_thumb.src)
+            });
+          }
+        } else {
+          // Fallback: Send video page link
+          await message.reply({
+            body: `🎥 ${selectedVideo.title}\n⏰ ${selectedVideo.length_min} min | 👍 ${selectedVideo.rating}/5\n📊 Quality: ${selectedVideo.quality}\n\n🔗 Video Page:\n${videoPageUrl}\n\n❌ Could not extract direct download link. Visit the page to watch.`,
+            attachment: await global.utils.getStreamFromURL(selectedVideo.default_thumb.src)
+          });
+        }
+
+      } catch (videoError) {
+        console.error("Video processing error:", videoError);
+        await message.unsend(processingMsg.messageID);
+        await message.reply({
+          body: `❌ | Failed to process video: "${selectedVideo.title}"\n\nPlease try another video or search again.`,
+          attachment: await global.utils.getStreamFromURL(selectedVideo.default_thumb.src)
+        });
+      }
+
+      // Clean up stored data
+      delete global.vidxData[event.messageID];
+
+    } catch (error) {
+      console.error("Vidx Reply Error:", error);
+      await message.reply("❌ | An error occurred while processing your selection.");
+      
+      // Clean up on error
+      if (global.vidxData && global.vidxData[event.messageID]) {
+        delete global.vidxData[event.messageID];
+      }
     }
-
-    // Clean up stored data
-    delete global.vidxData[event.messageID];
   }
 };
