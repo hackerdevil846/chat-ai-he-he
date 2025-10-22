@@ -52,11 +52,11 @@ module.exports = {
                 
                 if (fs.existsSync(videoPath)) {
                     await message.reply({
-                        body: "Boss Dk, Gali keno deo? nunu katke hath er modhe rakhbo 😤",
+                        body: "Boss Dk, Gali keno deo?Tomar nunu katke hath er modhe dhoriya dibo 😤",
                         attachment: fs.createReadStream(videoPath)
                     });
                 } else {
-                    await message.reply("Boss Dk, Gali keno deo? nunu katke hath er modhe rakhbo 😤");
+                    await message.reply("Boss Dk, Gali keno deo?Tomar nunu katke hath er modhe dhoriya dibo 😤");
                 }
                 
                 // Add reaction if possible
