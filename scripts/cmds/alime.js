@@ -5,18 +5,18 @@ module.exports = {
         name: "alime",
         aliases: [],
         version: "1.0.0",
-        author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+        author: "Asif Mahmud",
         countDown: 5,
         role: 0,
-        category: "𝖺𝗇𝗂𝗆𝖾",
+        category: "anime",
         shortDescription: {
-            en: "𝖠𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾𝗌 - 𝖻𝗈𝗍𝗁 𝖲𝖥𝖶 𝖺𝗇𝖽 𝖭𝖲𝖥𝖶"
+            en: "𝐀𝐧𝐢𝐦𝐞 𝐢𝐦𝐚𝐠𝐞𝐬 - 𝐛𝐨𝐭𝐡 𝐒𝐅𝐖 𝐚𝐧𝐝 𝐍𝐒𝐅𝐖"
         },
         longDescription: {
-            en: "𝖦𝖾𝗍 𝖺𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾𝗌 𝖿𝗋𝗈𝗆 𝗏𝖺𝗋𝗂𝗈𝗎𝗌 𝖼𝖺𝗍𝖾𝗀𝗈𝗋𝗂𝖾𝗌"
+            en: "𝐆𝐞𝐭 𝐚𝐧𝐢𝐦𝐞 𝐢𝐦𝐚𝐠𝐞𝐬 𝐟𝐫𝐨𝐦 𝐯𝐚𝐫𝐢𝐨𝐮𝐬 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐢𝐞𝐬"
         },
         guide: {
-            en: "{p}alime [𝗍𝖺𝗀]\n{p}alime 𝗅𝗂𝗌𝗍 - 𝖲𝗁𝗈𝗐 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝗍𝖺𝗀𝗌"
+            en: "{p}alime [tag]\n{p}alime list - 𝐒𝐡𝐨𝐰 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐭𝐚𝐠𝐬"
         },
         dependencies: {
             "axios": ""
@@ -26,15 +26,10 @@ module.exports = {
     onStart: async function({ message, event, args, api }) {
         try {
             // Dependency check
-            let axiosAvailable = true;
             try {
                 require("axios");
             } catch (e) {
-                axiosAvailable = false;
-            }
-
-            if (!axiosAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
+                return message.reply("❌ 𝐌𝐢𝐬𝐬𝐢𝐧𝐠 𝐝𝐞𝐩𝐞𝐧𝐝𝐞𝐧𝐜𝐢𝐞𝐬. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐢𝐧𝐬𝐭𝐚𝐥𝐥 𝐚𝐱𝐢𝐨𝐬.");
             }
 
             // All API endpoints
@@ -86,10 +81,10 @@ module.exports = {
                 const sfwTags = Object.keys(apiEndpoints.sfw).join(", ");
                 const nsfwTags = Object.keys(apiEndpoints.nsfw).join(", ");
                 
-                const tagList = `🎨 𝖠𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖠𝗇𝗂𝗆𝖾 𝖳𝖺𝗀𝗌:\n\n` +
-                               `🌈 𝖲𝖥𝖶 𝖳𝖺𝗀𝗌:\n${sfwTags}\n\n` +
-                               `🔞 𝖭𝖲𝖥𝖶 𝖳𝖺𝗀𝗌:\n${nsfwTags}\n\n` +
-                               `💡 𝖴𝗌𝖾: ${global.config.PREFIX || '/'}alime [𝗍𝖺𝗀]`;
+                const tagList = `🎨 𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐀𝐧𝐢𝐦𝐞 𝐓𝐚𝐠𝐬:\n\n` +
+                               `🌈 𝐒𝐅𝐖 𝐓𝐚𝐠𝐬:\n${sfwTags}\n\n` +
+                               `🔞 𝐍𝐒𝐅𝐖 𝐓𝐚𝐠𝐬:\n${nsfwTags}\n\n` +
+                               `💡 𝐔𝐬𝐞: /alime [tag]`;
                 
                 return message.reply(tagList);
             }
@@ -104,21 +99,17 @@ module.exports = {
             } else if (apiEndpoints.nsfw.hasOwnProperty(tag)) {
                 apiUrl = apiEndpoints.nsfw[tag];
             } else {
-                // If no valid tag provided, choose random from all categories
-                const allTags = { ...apiEndpoints.sfw, ...apiEndpoints.nsfw };
-                const randomTags = Object.keys(allTags);
-                selectedTag = randomTags[Math.floor(Math.random() * randomTags.length)];
-                apiUrl = allTags[selectedTag];
+                return message.reply(`❌ 𝐈𝐧𝐯𝐚𝐥𝐢𝐝 𝐭𝐚𝐠: ${tag}\n💡 𝐔𝐬𝐞 '/alime list' 𝐭𝐨 𝐬𝐞𝐞 𝐚𝐥𝐥 𝐚𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐭𝐚𝐠𝐬.`);
             }
 
-            console.log(`🎨 𝖱𝖾𝗊𝗎𝖾𝗌𝗍𝗂𝗇𝗀 𝖺𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾: ${selectedTag} (${apiUrl})`);
+            console.log(`🎨 𝐑𝐞𝐪𝐮𝐞𝐬𝐭𝐢𝐧𝐠 𝐚𝐧𝐢𝐦𝐞 𝐢𝐦𝐚𝐠𝐞: ${selectedTag} (${apiUrl})`);
 
             // Show processing message
             let processingMsg;
             try {
-                processingMsg = await message.reply("🔄 𝖫𝗈𝖺𝖽𝗂𝗇𝗀 𝖺𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾...");
+                processingMsg = await message.reply("🔄 𝐋𝐨𝐚𝐝𝐢𝐧𝐠 𝐚𝐧𝐢𝐦𝐞 𝐢𝐦𝐚𝐠𝐞...");
             } catch (msgError) {
-                console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", msgError.message);
+                console.warn("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐬𝐞𝐧𝐝 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐦𝐞𝐬𝐬𝐚𝐠𝐞:", msgError.message);
             }
 
             try {
@@ -141,72 +132,66 @@ module.exports = {
                 }
                 
                 if (!imageUrl) {
-                    throw new Error("𝖭𝗈 𝗂𝗆𝖺𝗀𝖾 𝖴𝖱𝖫 𝖿𝗈𝗎𝗇𝖽 𝗂𝗇 𝖠𝖯𝖨 𝗋𝖾𝗌𝗉𝗈𝗇𝗌𝖾");
+                    throw new Error("𝐍𝐨 𝐢𝐦𝐚𝐠𝐞 𝐔𝐑𝐋 𝐟𝐨𝐮𝐧𝐝 𝐢𝐧 𝐀𝐏𝐈 𝐫𝐞𝐬𝐩𝐨𝐧𝐬𝐞");
                 }
 
-                console.log(`📥 𝖣𝗈𝗐𝗇𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗂𝗆𝖺𝗀𝖾: ${imageUrl}`);
+                console.log(`📥 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝𝐢𝐧𝐠 𝐢𝐦𝐚𝐠𝐞: ${imageUrl}`);
 
                 // Get image stream with error handling
                 let imageStream;
                 try {
                     imageStream = await global.utils.getStreamFromURL(imageUrl);
                     if (!imageStream) {
-                        throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆");
+                        throw new Error("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐜𝐫𝐞𝐚𝐭𝐞 𝐢𝐦𝐚𝐠𝐞 𝐬𝐭𝐫𝐞𝐚𝐦");
                     }
                 } catch (streamError) {
-                    console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖾𝗋𝗋𝗈𝗋:", streamError.message);
-                    throw new Error("𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝗂𝗆𝖺𝗀𝖾");
+                    console.error("❌ 𝐈𝐦𝐚𝐠𝐞 𝐬𝐭𝐫𝐞𝐚𝐦 𝐞𝐫𝐫𝐨𝐫:", streamError.message);
+                    throw new Error("𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐢𝐦𝐚𝐠𝐞");
                 }
 
-                const messageBody = `🎨 𝖠𝗇𝗂𝗆𝖾 𝖨𝗆𝖺𝗀𝖾\n━━━━━━━━━━━━━━\n✨ 𝖳𝖺𝗀: ${selectedTag}\n💫 𝖲𝗈𝗎𝗋𝖼𝖾: 𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽`;
+                const messageBody = `🎨 𝐀𝐧𝐢𝐦𝐞 𝐈𝐦𝐚𝐠𝐞\n━━━━━━━━━━━━━━\n✨ 𝐓𝐚𝐠: ${selectedTag}\n💫 𝐒𝐨𝐮𝐫𝐜𝐞: 𝐀𝐬𝐢𝐟 𝐌𝐚𝐡𝐦𝐮𝐝`;
 
+                // Send the image
                 await message.reply({
                     body: messageBody,
                     attachment: imageStream
                 });
 
-                console.log(`✅ 𝖲𝗎𝖼𝖼𝖾𝗌𝗌𝖿𝗎𝗅𝗅𝗒 𝗌𝖾𝗇𝗍 𝖺𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾: ${selectedTag}`);
+                console.log(`✅ 𝐒𝐮𝐜𝐜𝐞𝐬𝐬𝐟𝐮𝐥𝐥𝐲 𝐬𝐞𝐧𝐭 𝐚𝐧𝐢𝐦𝐞 𝐢𝐦𝐚𝐠𝐞: ${selectedTag}`);
 
-                // Clean up processing message with correct function name
+                // Clean up processing message with correct API function
                 if (processingMsg && processingMsg.messageID) {
                     try {
                         await api.unsendMessage(processingMsg.messageID);
                     } catch (unsendError) {
-                        console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                        console.warn("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐮𝐧𝐬𝐞𝐧𝐝 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐦𝐞𝐬𝐬𝐚𝐠𝐞:", unsendError.message);
                     }
                 }
 
             } catch (error) {
-                console.error("❌ 𝖨𝗆𝖺𝗀𝖾 𝖽𝗈𝗐𝗇𝗅𝗈𝖺𝖽 𝖾𝗋𝗋𝗈𝗋:", error.message);
+                console.error("❌ 𝐈𝐦𝐚𝐠𝐞 𝐝𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐞𝐫𝐫𝐨𝐫:", error.message);
                 
                 // Clean up processing message on error
                 if (processingMsg && processingMsg.messageID) {
                     try {
                         await api.unsendMessage(processingMsg.messageID);
                     } catch (unsendError) {
-                        console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗉𝗋𝗈𝖼𝖾𝗌𝗌𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+                        console.warn("𝐂𝐨𝐮𝐥𝐝 𝐧𝐨𝐭 𝐮𝐧𝐬𝐞𝐧𝐝 𝐩𝐫𝐨𝐜𝐞𝐬𝐬𝐢𝐧𝐠 𝐦𝐞𝐬𝐬𝐚𝐠𝐞:", unsendError.message);
                     }
                 }
                 
-                const errorMessages = [
-                    "❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗅𝗈𝖺𝖽 𝗂𝗆𝖺𝗀𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.",
-                    "❌ 𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝖿𝖾𝗍𝖼𝗁 𝖺𝗇𝗂𝗆𝖾 𝗂𝗆𝖺𝗀𝖾. 𝖳𝗋𝗒 𝖺 𝗂𝗇𝗏𝖺𝗅𝗂𝖽 𝗍𝖺𝗀.",
-                    "❌ 𝖨𝗆𝖺𝗀𝖾 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝖿𝖺𝗂𝗅𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝗅𝖺𝗍𝖾𝗋."
-                ];
-                
-                const randomError = errorMessages[Math.floor(Math.random() * errorMessages.length)];
-                await message.reply(randomError);
+                await message.reply(`❌ 𝐅𝐚𝐢𝐥𝐞𝐝 𝐭𝐨 𝐥𝐨𝐚𝐝 𝐢𝐦𝐚𝐠𝐞 𝐟𝐨𝐫 𝐭𝐚𝐠: ${selectedTag}\n💡 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐧𝐨𝐭𝐡𝐞𝐫 𝐭𝐚𝐠 𝐨𝐫 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.`);
             }
 
         } catch (error) {
-            console.error("💥 𝖠𝗅𝗂𝗆𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
+            console.error("💥 𝐀𝐥𝐢𝐦𝐞 𝐜𝐨𝐦𝐦𝐚𝐧𝐝 𝐞𝐫𝐫𝐨𝐫:", error);
             
-            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
+            let errorMessage = "❌ 𝐀𝐧 𝐞𝐫𝐫𝐨𝐫 𝐨𝐜𝐜𝐮𝐫𝐫𝐞𝐝. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧 𝐥𝐚𝐭𝐞𝐫.";
             
             if (error.code === 'ECONNREFUSED') {
-                errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗒𝗈𝗎𝗋 𝖼𝗈𝗇𝗇𝖾𝖼𝗍𝗂𝗈𝗇.";
+                errorMessage = "❌ 𝐍𝐞𝐭𝐰𝐨𝐫𝐤 𝐞𝐫𝐫𝐨𝐫. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐜𝐡𝐞𝐜𝐤 𝐲𝐨𝐮𝐫 𝐜𝐨𝐧𝐧𝐞𝐜𝐭𝐢𝐨𝐧.";
             } else if (error.code === 'ETIMEDOUT') {
-                errorMessage = "❌ 𝖱𝖾𝗊𝗎𝖾𝗌𝗍 𝗍𝗂𝗆𝖾𝖽 𝗈𝗎𝗍. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
+                errorMessage = "❌ 𝐑𝐞𝐪𝐮𝐞𝐬𝐭 𝐭𝐢𝐦𝐞𝐝 𝐨𝐮𝐭. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐭𝐫𝐲 𝐚𝐠𝐚𝐢𝐧.";
             }
             
             await message.reply(errorMessage);
