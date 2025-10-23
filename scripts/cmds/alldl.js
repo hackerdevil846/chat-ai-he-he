@@ -6,7 +6,7 @@ module.exports = {
   config: {
     name: "alldl",
     version: "1.6",
-    author: "Samir Œ",
+    author: "Samir Œ fix by asif",
     countDown: 5,
     role: 0,
     shortDescription: "download content by link",
@@ -18,18 +18,18 @@ module.exports = {
   onStart: async function ({ message, args }) {
     const link = args.join(" ");
     if (!link)
-      return message.reply(Please provide the link.);
+      return message.reply("Please provide the link.");
     else {
       let BASE_URL;
 
       if (link.includes("facebook.com")) {
-        BASE_URL = https://samirxpikachuio.onrender.com/fbdl?vid_url=${encodeURIComponent(link)};
+        BASE_URL = `https://samirxpikachuio.onrender.com/fbdl?vid_url=${encodeURIComponent(link)}`;
       } else if (link.includes("twitter.com")) {
-        BASE_URL = https://samirxpikachuio.onrender.com/twitter?url=${encodeURIComponent(link)};
+        BASE_URL = `https://samirxpikachuio.onrender.com/twitter?url=${encodeURIComponent(link)}`;
       } else if (link.includes("tiktok.com")) {
-        BASE_URL = https://samirxpikachuio.onrender.com/tiktok?url=${encodeURIComponent(link)};
+        BASE_URL = `https://samirxpikachuio.onrender.com/tiktok?url=${encodeURIComponent(link)}`;
       } else if (link.includes("open.spotify.com")) {
-        BASE_URL = https://samirxpikachuio.onrender.com/spotifydl?url=${encodeURIComponent(link)};
+        BASE_URL = `https://samirxpikachuio.onrender.com/spotifydl?url=${encodeURIComponent(link)}`;
 
         try {
           const apiResponse = await axios.get(BASE_URL);
@@ -42,10 +42,16 @@ module.exports = {
 
             const audioResponse = await axios.get(audioUrl, { responseType: 'arraybuffer' });
             const filePath = path.join(__dirname, 'tmp', 'spotify.mp3');
+            
+            // Ensure tmp directory exists
+            if (!fs.existsSync(path.dirname(filePath))) {
+              fs.mkdirSync(path.dirname(filePath), { recursive: true });
+            }
+            
             fs.writeFileSync(filePath, Buffer.from(audioResponse.data));
 
             message.reply({
-              body: • Title: ${metadata.title}\n• Album: ${metadata.album}\n• Artist: ${metadata.artists}\n• Released: ${metadata.releaseDate},
+              body: `• Title: ${metadata.title}\n• Album: ${metadata.album}\n• Artist: ${metadata.artists}\n• Released: ${metadata.releaseDate}`,
               attachment: fs.createReadStream(filePath)
             });
 
@@ -61,15 +67,15 @@ module.exports = {
 
         return;
       } else if (link.includes("youtu.be") || link.includes("youtube.com")) {
-        const providedURL = https://samirxpikachuio.onrender.com/ytdl?url=${link};
+        const providedURL = `https://samirxpikachuio.onrender.com/ytdl?url=${link}`;
         message.reply({
           attachment: await global.utils.getStreamFromURL(providedURL),
         });
         return;
       } else if (link.includes("instagram.com")) {
-        BASE_URL = https://samirxpikachuio.onrender.com/igdl?url=${encodeURIComponent(link)};
+        BASE_URL = `https://samirxpikachuio.onrender.com/igdl?url=${encodeURIComponent(link)}`;
       } else {
-        return message.reply(Unsupported source.);
+        return message.reply("Unsupported source.");
       }
 
       message.reply("Processing your request... Please wait.");
@@ -101,7 +107,7 @@ module.exports = {
 
         await message.reply(response);
       } catch (e) {
-        message.reply(Sorry, the content could not be downloaded.);
+        message.reply("Sorry, the content could not be downloaded.");
       }
     }
   }
