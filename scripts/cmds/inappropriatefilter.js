@@ -12,10 +12,10 @@ module.exports = {
     role: 1,
     category: "protection",
     shortDescription: {
-      en: "🛡️ 𝐴𝑢𝑡𝑜-𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡"
+      en: "🛡️ Auto-detects inappropriate content"
     },
     longDescription: {
-      en: "𝐴𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑐𝑎𝑙𝑙𝑦 𝑑𝑒𝑡𝑒𝑐𝑡𝑠 𝑖𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑤𝑜𝑟𝑑𝑠 𝑎𝑛𝑑 𝑠𝑒𝑛𝑑𝑠 𝑤𝑎𝑟𝑛𝑖𝑛𝑔𝑠"
+      en: "Automatically detects inappropriate words and sends warnings"
     },
     guide: {
       en: "{p}inappropriatefilter on/off"
@@ -32,33 +32,37 @@ module.exports = {
       const subCmd = args[0]?.toLowerCase();
 
       if (!subCmd) {
-        const status = globalData[key] === true ? "🟢 𝑂𝑁" : "🔴 𝑂𝐹𝐹";
-        return message.reply(`🔐 𝐼𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝐶𝑜𝑛𝑡𝑒𝑛𝑡 𝐹𝑖𝑙𝑡𝑒𝑟 𝑀𝑜𝑑𝑒 𝑖𝑠 𝑐𝑢𝑟𝑟𝑒𝑛𝑡𝑙𝑦: ${status}`);
+        const status = globalData[key] === true ? "🟢 ON" : "🔴 OFF";
+        return message.reply(`🔐 Inappropriate Content Filter Mode is currently: ${status}`);
       }
 
       if (subCmd === "on") {
         globalData[key] = true;
-        return message.reply("✅ 𝐼𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑑𝑒𝑡𝑒𝑐𝑡𝑖𝑜𝑛 𝑖𝑠 𝑛𝑜𝑤 𝑂𝑁.");
+        return message.reply("✅ Inappropriate content detection is now ON.");
       }
 
       if (subCmd === "off") {
         globalData[key] = false;
-        return message.reply("❌ 𝐼𝑛𝑎𝑝𝑝𝑟𝑜𝑝𝑟𝑖𝑎𝑡𝑒 𝑐𝑜𝑛𝑡𝑒𝑛𝑡 𝑑𝑒𝑡𝑒𝑐𝑡𝑖𝑜𝑛 𝑖𝑠 𝑛𝑜𝑤 𝑂𝐹𝐹.");
+        return message.reply("❌ Inappropriate content detection is now OFF.");
       }
 
-      return message.reply("⚠️ 𝐼𝑛𝑣𝑎𝑙𝑖𝑑 𝑢𝑠𝑎𝑔𝑒. 𝑈𝑠𝑒: {𝑝}inappropriatefilter on/off");
+      return message.reply("⚠️ Invalid usage. Use: {p}inappropriatefilter on/off");
 
     } catch (error) {
-      console.error("𝐹𝑖𝑙𝑡𝑒𝑟 𝑂𝑛𝑆𝑡𝑎𝑟𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
-      message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑝𝑟𝑜𝑐𝑒𝑠𝑠 𝑐𝑜𝑚𝑚𝑎𝑛𝑑.");
+      console.error("Filter OnStart Error:", error);
+      message.reply("❌ Failed to process command.");
     }
   },
 
   onChat: async function({ event, message, globalData }) {
     try {
+      // Check if filter is enabled
       if (globalData["inappropriatefilter_enabled"] !== true) return;
+      
+      // Check if message has body
       if (!event.body) return;
 
+      // Image links for warnings
       const imageLinks = [
         "https://i.imgur.com/B6G3NlF.jpeg",
         "https://i.imgur.com/T7RtKlp.gif",
@@ -101,20 +105,22 @@ module.exports = {
         "https://i.imgur.com/VAf5Eue.gif"
       ];
 
+      // Warning messages in Bengali
       const warningMessages = [
-        "𝐵𝑜𝑛𝑑ℎ𝑢😭 𝑏ℎ𝑎𝑙𝑜 ℎ𝑜𝑦𝑒 𝑗𝑎!😞",
-        "𝐵𝑜𝑠𝑒 𝑗𝑎 𝑏ℎ𝑎𝑖🥲 𝑙𝑜𝑗𝑗𝑎 𝑘𝑜𝑟!🫣",
-        "𝐵ℎ𝑎𝑖 𝑒𝑡𝑎 𝑘𝑖 𝑏𝑜𝑙𝑙𝑖!😓 𝑒𝑘𝑡𝑢 𝑠ℎ𝑎𝑛𝑡𝑜 ℎ𝑜🙏",
-        "𝑇𝑜𝑘𝑒 𝑘𝑖 𝑒𝑠𝑜𝑏 𝑠ℎ𝑒𝑘ℎ𝑎𝑦 𝑘𝑒𝑢?😠 𝑑𝑜𝑦𝑎 𝑘𝑜𝑟𝑒 𝑡ℎ𝑎𝑚𝑜🙏",
-        "𝐵ℎ𝑎𝑙𝑜 𝑘𝑜𝑡ℎ𝑎 𝑏𝑜𝑙 🙃 𝑛𝑜𝑦𝑡𝑜 𝑏𝑙𝑜𝑐𝑘 𝑘𝑜𝑟𝑏𝑜🚫",
-        "𝐵ℎ𝑎𝑖 𝑝𝑙𝑖𝑧 𝑒𝑠𝑜𝑏 𝑏𝑎𝑑 𝑑𝑒𝑜😭 𝑠𝑜𝑚𝑚𝑜𝑛 𝑟𝑎𝑘ℎ𝑜😞",
-        "𝑇𝑜𝑘𝑒 𝑛𝑖𝑦𝑒 𝑚𝑎𝑦𝑎 𝑙𝑎𝑔𝑒 𝑟𝑒 𝑏ℎ𝑎𝑖🥺 𝑏ℎ𝑜𝑑𝑟𝑜 𝑟𝑎𝑘ℎ𝑜🥲",
-        "𝐷𝑜𝑠𝑡𝑜, 𝑒𝑠𝑜𝑏 𝑏𝑜𝑙𝑎 𝑙𝑎𝑔𝑒?😐 𝑒𝑘𝑡𝑢 𝑏ℎ𝑜𝑑𝑟𝑜𝑡𝑎 𝑠ℎ𝑖𝑘ℎ𝑜🧠",
-        "𝑇𝑢𝑖 𝑘𝑖 𝑟𝑖𝑦𝑒𝑙 𝑙𝑎𝑖𝑓𝑒𝑜 𝑒𝑚𝑜𝑛?😑",
-        "𝐵𝑎ℎ! 𝑉𝑜𝑐𝑎𝑏𝑢𝑙𝑎𝑟𝑦 𝟭𝟴+ 𝑐ℎ𝑎𝑟𝑎 𝑘ℎ𝑎𝑙𝑖?🤦",
-        "𝐷𝑜𝑦𝑎 𝑘𝑜𝑟𝑒 𝑒𝑘𝑡𝑢 𝑏ℎ𝑜𝑑𝑟𝑜 ℎ𝑜𝑜🙏 𝑎𝑚𝑖 𝑘𝑜𝑠𝑡ℎ𝑜 𝑝𝑎𝑖😢"
+        "বন্ধু😭 ভালো হয়ে যা!😞",
+        "বোসে যা ভাই🥲 লজ্জা কর!🫣",
+        "ভাই এটা কি বললি!😓 একটু শান্ত হও🙏",
+        "তোকেই কি এসব শিখায় কেউ?😠 দয়া করে থামো🙏",
+        "ভালো কথা বল 🙃 নইলে ব্লক করবো🚫",
+        "ভাই প্লিজ এসব বাদ দাও😭 শান্তি রাখো😞",
+        "তোকেই নিয়ে মায়া লাগে রে ভাই🥺 ভদ্র হও🥲",
+        "দোস্ত, এসব বলা লাগে?😐 একটু ভদ্রতা শিখো🧠",
+        "তুই কি রিয়েল লাইফেও এমন?😑",
+        "বাহ! ভোকাবুলারি ১৮+ ছাড়া খালি?🤦",
+        "দয়া করে একটু ভদ্র হও🙏 আমি কষ্ট পাই😢"
       ];
 
+      // Inappropriate words list
       const badWords = [
         "fuck", "fuk", "f*ck", "phuck", "phuk", "fawk",
         "sex", "s3x", "s ex", "seggs", "sxx", "sx",
@@ -133,17 +139,17 @@ module.exports = {
         "কাম", "ঝার", "হস্তমৈথুন", "সেক্স", "চুষ"
       ];
 
-      // Normalize text for matching
+      // Normalize text for better matching
       const normalize = (str) => str.toLowerCase().replace(/[^\w\s\u0980-\u09FF]/g, '');
       const text = normalize(event.body);
 
-      // Check for bad words
-      const matched = badWords.some(word => {
+      // Check for inappropriate words
+      const foundBadWord = badWords.some(word => {
         const normalizedWord = normalize(word);
         return text.includes(normalizedWord);
       });
 
-      if (!matched) return;
+      if (!foundBadWord) return;
 
       // Create cache directory
       const cacheFolder = path.join(__dirname, "cache", "inappropriatefilter");
@@ -151,50 +157,79 @@ module.exports = {
         fs.mkdirSync(cacheFolder, { recursive: true });
       }
 
-      // Download and cache images
-      const downloadedImages = [];
-      
-      for (let url of imageLinks) {
+      // Select random image URL
+      const randomImageUrl = imageLinks[Math.floor(Math.random() * imageLinks.length)];
+      const fileName = path.basename(randomImageUrl);
+      const imagePath = path.join(cacheFolder, fileName);
+
+      let imageStream = null;
+
+      // Try to use cached image first
+      if (fs.existsSync(imagePath)) {
         try {
-          const fileName = path.basename(url);
-          const fullPath = path.join(cacheFolder, fileName);
-          
-          if (!fs.existsSync(fullPath)) {
-            const response = await axios({
-              method: 'GET',
-              url: url,
-              responseType: 'arraybuffer',
-              timeout: 30000
-            });
-            await fs.writeFile(fullPath, Buffer.from(response.data));
-          }
-          
-          if (fs.existsSync(fullPath)) {
-            downloadedImages.push(fullPath);
-          }
-        } catch (error) {
-          console.error(`𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 ${url}:`, error.message);
-          continue;
+          imageStream = fs.createReadStream(imagePath);
+        } catch (fileError) {
+          console.error("Error reading cached image:", fileError.message);
         }
       }
 
-      if (downloadedImages.length === 0) {
-        console.error("𝑁𝑜 𝑖𝑚𝑎𝑔𝑒𝑠 𝑎𝑣𝑎𝑖𝑙𝑎𝑏𝑙𝑒 𝑓𝑜𝑟 𝑤𝑎𝑟𝑛𝑖𝑛𝑔");
-        return;
+      // If cached image not available, download it
+      if (!imageStream) {
+        try {
+          console.log(`📥 Downloading warning image: ${randomImageUrl}`);
+          const response = await axios({
+            method: 'GET',
+            url: randomImageUrl,
+            responseType: 'stream',
+            timeout: 30000,
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          // Save to cache for future use
+          const writer = fs.createWriteStream(imagePath);
+          response.data.pipe(writer);
+          
+          await new Promise((resolve, reject) => {
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+          });
+
+          imageStream = fs.createReadStream(imagePath);
+          console.log("✅ Image downloaded and cached successfully");
+
+        } catch (downloadError) {
+          console.error("❌ Failed to download image:", downloadError.message);
+          // Try to use any existing cached image as fallback
+          const cachedFiles = fs.readdirSync(cacheFolder).filter(file => 
+            file.match(/\.(jpeg|jpg|gif|png)$/i)
+          );
+          
+          if (cachedFiles.length > 0) {
+            const randomCachedFile = cachedFiles[Math.floor(Math.random() * cachedFiles.length)];
+            imageStream = fs.createReadStream(path.join(cacheFolder, randomCachedFile));
+            console.log("🔄 Using cached image as fallback");
+          } else {
+            console.error("❌ No images available for warning");
+            return;
+          }
+        }
       }
 
-      // Select random warning and image
-      const randomImage = downloadedImages[Math.floor(Math.random() * downloadedImages.length)];
+      // Select random warning message
       const randomWarning = warningMessages[Math.floor(Math.random() * warningMessages.length)];
 
       // Send warning message with image
       await message.reply({
         body: randomWarning,
-        attachment: fs.createReadStream(randomImage)
+        attachment: imageStream
       });
 
+      console.log("✅ Warning sent for inappropriate content");
+
     } catch (error) {
-      console.error("𝐹𝑖𝑙𝑡𝑒𝑟 𝑂𝑛𝐶ℎ𝑎𝑡 𝐸𝑟𝑟𝑜𝑟:", error);
+      console.error("💥 Filter OnChat Error:", error);
     }
   }
 };
