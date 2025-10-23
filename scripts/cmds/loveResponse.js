@@ -10,7 +10,7 @@ module.exports = {
         role: 0
     },
 
-    onChat: async function({ event, message, getLang }) {
+    onChat: async function({ event, message }) {
         try {
             const { body, senderID } = event;
             
