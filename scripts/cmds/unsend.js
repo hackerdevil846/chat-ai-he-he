@@ -1,48 +1,56 @@
 module.exports = {
   config: {
     name: "unsend",
-    aliases: ["removemsg", "delete"],
+    aliases: [],
     version: "1.0.1",
-    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+    author: "Asif Mahmud",
     role: 0,
     category: "system",
     shortDescription: {
-      en: "🗑️ 𝐵𝑜𝑡 𝑤𝑖𝑙𝑙 𝑢𝑛𝑠𝑒𝑛𝑑 𝑖𝑡𝑠 𝑜𝑤𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠"
+      en: "🗑️ Bot will unsend its own messages"
     },
     longDescription: {
-      en: "𝐴𝑙𝑙𝑜𝑤𝑠 𝑢𝑠𝑒𝑟𝑠 𝑡𝑜 𝑚𝑎𝑘𝑒 𝑡ℎ𝑒 𝑏𝑜𝑡 𝑑𝑒𝑙𝑒𝑡𝑒 𝑖𝑡𝑠 𝑜𝑤𝑛 𝑚𝑒𝑠𝑠𝑎𝑔𝑒𝑠 𝑏𝑦 𝑟𝑒𝑝𝑙𝑦𝑖𝑛𝑔 𝑡𝑜 𝑡ℎ𝑒𝑚"
+      en: "Allows users to make the bot delete its own messages by replying to them"
     },
     guide: {
-      en: "{p}unsend [𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑏𝑜𝑡'𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒]"
+      en: "{p}unsend [reply to bot's message]"
     },
     countDown: 0
   },
 
-  langs: {
-    "en": {
-      "returnCant": "❌ 𝐼 𝑐𝑎𝑛𝑛𝑜𝑡 𝑢𝑛𝑠𝑒𝑛𝑑 𝑡ℎ𝑖𝑠 𝑚𝑒𝑠𝑠𝑎𝑔𝑒",
-      "missingReply": "❌ 𝑃𝑙𝑒𝑎𝑠𝑒 𝑟𝑒𝑝𝑙𝑦 𝑡𝑜 𝑎 𝑚𝑒𝑠𝑠𝑎𝑔𝑒 𝑡𝑜 𝑢𝑛𝑠𝑒𝑛𝑑 𝑖𝑡"
-    }
-  },
-
-  onStart: async function ({ api, event, message, getText }) {
+  onStart: async function ({ api, event, message }) {
     try {
-      // ensure it's a reply
+      // Check if it's a reply message
       if (event.type !== "message_reply" || !event.messageReply) {
-        return message.reply(getText("missingReply"));
+        return message.reply("❌ Please reply to a message to unsend it");
       }
 
-      // only allow unsend if the replied message was sent by the bot itself
-      if (event.messageReply.senderID !== api.getCurrentUserID()) {
-        return message.reply(getText("returnCant"));
+      // Get the bot's user ID
+      const botUserID = api.getCurrentUserID();
+      
+      // Check if the replied message was sent by the bot
+      if (event.messageReply.senderID.toString() !== botUserID.toString()) {
+        return message.reply("❌ I can only unsend my own messages");
       }
 
-      // perform unsend
-      await api.unsendMessage(event.messageReply.messageID);
+      // Get the message ID to unsend
+      const messageIDToUnsend = event.messageReply.messageID;
+
+      // Verify the message exists and belongs to bot before unsending
+      if (!messageIDToUnsend) {
+        return message.reply("❌ Invalid message ID");
+      }
+
+      // Perform unsend operation
+      await api.unsendMessage(messageIDToUnsend);
+      
+      console.log(`✅ Successfully unsent message: ${messageIDToUnsend}`);
       
     } catch (error) {
-      console.error("Unsend Error:", error);
-      message.reply("❌ 𝐴𝑛 𝑒𝑟𝑟𝑜𝑟 𝑜𝑐𝑐𝑢𝑟𝑟𝑒𝑑 𝑤ℎ𝑖𝑙𝑒 𝑡𝑟𝑦𝑖𝑛𝑔 𝑡𝑜 𝑢𝑛𝑠𝑒𝑛𝑑 𝑡ℎ𝑒 𝑚𝑒𝑠𝑠𝑎𝑔𝑒");
+      console.error("💥 Unsend Command Error:", error);
+      
+      // Don't send error message to avoid spam if unsend fails
+      // The error is already logged for debugging
     }
   }
 };
