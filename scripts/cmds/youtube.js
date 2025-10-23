@@ -1,9 +1,15 @@
+const axios = require("axios");
+const fs = require("fs-extra");
+const ytdl = require("ytdl-core");
+const request = require("request");
+const yts = require("yt-search");
+
 module.exports = {
   config: {
     name: "youtube",
     version: "1.0",
     role: 0,
-    author: "kshitiz",
+    author: "kshitiz fix by asif",
     cooldowns: 40,
     shortdescription: "send YouTube video",
     longdescription: "",
@@ -19,12 +25,6 @@ module.exports = {
   },
 
   onStart: async ({ api, event }) => {
-    const axios = require("axios");
-    const fs = require("fs-extra");
-    const ytdl = require("ytdl-core");
-    const request = require("request");
-    const yts = require("yt-search");
-
     const input = event.body;
     const text = input.substring(12);
     const data = input.split(" ");
@@ -37,7 +37,7 @@ module.exports = {
     const videoName = data.join(" ");
 
     try {
-      api.sendMessage(✅ | Searching video for "${videoName}".\n⏳ | Please wait..., event.threadID);
+      api.sendMessage(`✅ | Searching video for "${videoName}".\n⏳ | Please wait...`, event.threadID);
 
       const searchResults = await yts(videoName);
       if (!searchResults.videos.length) {
@@ -49,8 +49,8 @@ module.exports = {
 
       const stream = ytdl(videoUrl, { filter: "audioandvideo" });
 
-      const fileName = ${event.senderID}.mp4;
-      const filePath = __dirname + /cache/${fileName};
+      const fileName = `${event.senderID}.mp4`;
+      const filePath = __dirname + `/cache/${fileName}`;
 
       stream.pipe(fs.createWriteStream(filePath));
 
@@ -59,7 +59,7 @@ module.exports = {
       });
 
       stream.on('info', (info) => {
-        console.info('[DOWNLOADER]', Downloading video: ${info.videoDetails.title});
+        console.info('[DOWNLOADER]', `Downloading video: ${info.videoDetails.title}`);
       });
 
       stream.on('end', () => {
@@ -71,7 +71,7 @@ module.exports = {
         }
 
         const message = {
-          body: 📹 | Here's your video\n\n🔮 | Title: ${video.title}\n⏰ | Duration: ${video.duration.timestamp},
+          body: `📹 | Here's your video\n\n🔮 | Title: ${video.title}\n⏰ | Duration: ${video.duration.timestamp}`,
           attachment: fs.createReadStream(filePath)
         };
 
@@ -79,9 +79,15 @@ module.exports = {
           fs.unlinkSync(filePath);
         });
       });
+
+      stream.on('error', (error) => {
+        console.error('[DOWNLOAD ERROR]', error);
+        api.sendMessage('Error downloading the video. Please try again later.', event.threadID);
+      });
+
     } catch (error) {
       console.error('[ERROR]', error);
-      api.sendMessage(' An error occurred while processing the command.', event.threadID);
+      api.sendMessage('An error occurred while processing the command.', event.threadID);
     }
   }
 };
