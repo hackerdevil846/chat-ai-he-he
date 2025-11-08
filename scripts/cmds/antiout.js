@@ -1,182 +1,183 @@
+const fs = require("fs-extra");
+const path = require("path");
+
+// Store antiout settings globally
+const antioutSettings = new Map();
+
 module.exports = {
     config: {
         name: "antiout",
         aliases: [],
-        version: "1.0",
+        version: "5.0",
         author: "Asif Mahmud",
         countDown: 5,
-        role: 1,
+        role: 0,
         shortDescription: {
-            en: "𝖤𝗇𝖺𝖻𝗅𝖾 𝗈𝗋 𝖽𝗂𝗌𝖺𝖻𝗅𝖾 𝖺𝗇𝗍𝗂𝗈𝗎𝗍"
+            en: "Auto enable antiout in all groups"
         },
         longDescription: {
-            en: "𝖯𝗋𝖾𝗏𝖾𝗇𝗍𝗌 𝗎𝗌𝖾𝗋𝗌 𝖿𝗋𝗈𝗆 𝗅𝖾𝖺𝗏𝗂𝗇𝗀 𝗍𝗁𝖾 𝗀𝗋𝗈𝗎𝗉 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒"
+            en: "Prevents users from leaving the group by automatically adding them back. Always ON system."
         },
         category: "group",
         guide: {
-            en: "{p}antiout [𝗈𝗇 | 𝗈𝖿𝖿]"
+            en: "{p}antiout [on | off]"
         },
         dependencies: {
             "fs-extra": ""
         }
     },
 
-    onStart: async function({ message, event, args, threadsData, api }) {
+    // 🟢 When bot starts, enable antiout in all groups
+    onLoad: async function({ threadsData }) {
         try {
-            // Dependency check
-            let fsAvailable = true;
-            try {
-                require("fs-extra");
-            } catch (e) {
-                fsAvailable = false;
-            }
-
-            if (!fsAvailable) {
-                return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.");
-            }
-
-            const { threadID, senderID } = event;
-
-            // Check if user provided argument
-            if (!args[0]) {
-                return message.reply(
-                    "𝖯𝗅𝖾𝖺𝗌𝖾 𝗌𝗉𝖾𝖼𝗂𝖿𝗒 '𝗈𝗇' 𝗈𝗋 '𝗈𝖿𝖿':\n\n" +
-                    "• {p}antiout 𝗈𝗇 - 𝖤𝗇𝖺𝖻𝗅𝖾 𝖺𝗇𝗍𝗂-𝗅𝖾𝖺𝗏𝖾\n" +
-                    "• {p}antiout 𝗈𝖿𝖿 - 𝖣𝗂𝗌𝖺𝖻𝗅𝖾 𝖺𝗇𝗍𝗂-𝗅𝖾𝖺𝗏𝖾"
-                );
-            }
-
-            const action = args[0].toLowerCase().trim();
+            console.log("🔄 Auto-enabling antiout in ALL groups...");
             
-            if (action !== 'on' && action !== 'off') {
-                return message.reply("❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝗈𝗉𝗍𝗂𝗈𝗇. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗎𝗌𝖾 '𝗈𝗇' 𝗈𝗋 '𝗈𝖿𝖿'");
-            }
+            const allThreads = await threadsData.getAll();
+            let enabledCount = 0;
 
-            try {
-                // Get thread info to check admin status
-                const threadInfo = await api.getThreadInfo(threadID);
-                const botID = api.getCurrentUserID();
-                
-                // Check if bot is admin
-                const isBotAdmin = threadInfo.adminIDs?.some(admin => admin.id === botID);
-                if (!isBotAdmin) {
-                    return message.reply("❌ 𝖡𝗈𝗍 𝗇𝖾𝖾𝖽𝗌 𝖺𝖽𝗆𝗂𝗇 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌 𝗍𝗈 𝗆𝖺𝗇𝖺𝗀𝖾 𝖺𝗇𝗍𝗂𝗈𝗎𝗍 𝗌𝖾𝗍𝗍𝗂𝗇𝗀𝗌");
-                }
-
-                // Check if user is admin
-                const isUserAdmin = threadInfo.adminIDs?.some(admin => admin.id === senderID);
-                if (!isUserAdmin) {
-                    return message.reply("❌ 𝖮𝗇𝗅𝗒 𝖺𝖽𝗆𝗂𝗇𝗌 𝖼𝖺𝗇 𝗎𝗌𝖾 𝗍𝗁𝗂𝗌 𝖼𝗈𝗆𝗆𝖺𝗇𝖽");
-                }
-
-                const isEnabled = action === 'on';
-                
-                // Save the setting with error handling
+            for (const thread of allThreads) {
                 try {
-                    await threadsData.set(threadID, isEnabled, "settings.antiout");
-                    console.log(`✅ 𝖠𝗇𝗍𝗂𝗈𝗎𝗍 ${action} 𝖿𝗈𝗋 𝗍𝗁𝗋𝖾𝖺𝖽 ${threadID}`);
-                } catch (saveError) {
-                    console.error("𝖤𝗋𝗋𝗈𝗋 𝗌𝖺𝗏𝗂𝗇𝗀 𝖺𝗇𝗍𝗂𝗈𝗎𝗍 𝗌𝖾𝗍𝗍𝗂𝗇𝗀:", saveError);
-                    return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝗌𝖾𝗍𝗍𝗂𝗇𝗀𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.");
+                    if (thread && thread.id) {
+                        await threadsData.set(thread.id, true, "settings.antiout");
+                        antioutSettings.set(thread.id, true);
+                        console.log(`✅ Auto-enabled antiout for group: ${thread.id}`);
+                        enabledCount++;
+                    }
+                } catch (error) {
+                    console.error(`❌ Failed to auto-enable antiout for thread ${thread?.id}:`, error.message);
                 }
-
-                const statusMessage = `𝖠𝗇𝗍𝗂𝗈𝗎𝗍 𝗁𝖺𝗌 𝖻𝖾𝖾𝗇 ${isEnabled ? '✅ 𝖾𝗇𝖺𝖻𝗅𝖾𝖽' : '❌ 𝖽𝗂𝗌𝖺𝖻𝗅𝖾𝖽'} 𝖿𝗈𝗋 𝗍𝗁𝗂𝗌 𝗀𝗋𝗈𝗎𝗉.`;
-
-                return message.reply(statusMessage);
-                
-            } catch (apiError) {
-                console.error("𝖠𝖯𝖨 𝖤𝗋𝗋𝗈𝗋:", apiError);
-                return message.reply("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖺𝖼𝖼𝖾𝗌𝗌 𝗀𝗋𝗈𝗎𝗉 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.");
             }
-
+            console.log(`✅ Antiout auto-enabled in ${enabledCount} groups`);
         } catch (error) {
-            console.error("💥 𝖠𝗇𝗍𝗂𝗈𝗎𝗍 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", error);
-            
-            let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
-            
-            if (error.message.includes('threadsData')) {
-                errorMessage = "❌ 𝖣𝖺𝗍𝖺𝗌𝗍𝗈𝗋𝖾 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝗍𝗁𝖾 𝖻𝗈𝗍'𝗌 𝖼𝗈𝗇𝖿𝗂𝗀𝗎𝗋𝖺𝗍𝗂𝗈𝗇.";
-            } else if (error.message.includes('permission')) {
-                errorMessage = "❌ 𝖯𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖼𝗁𝖾𝖼𝗄 𝖻𝗈𝗍 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌.";
-            }
-            
-            await message.reply(errorMessage);
+            console.error("❌ Error initializing antiout:", error);
         }
     },
 
+    onStart: async function({ message, event, args, threadsData, api }) {
+        try {
+            const { threadID } = event;
+
+            // Manual control option
+            if (args[0]) {
+                const action = args[0].toLowerCase().trim();
+                
+                if (action === 'off') {
+                    await threadsData.set(threadID, false, "settings.antiout");
+                    antioutSettings.set(threadID, false);
+                    return message.reply("❌ Antiout has been disabled for this group.");
+                }
+                else if (action === 'on') {
+                    await threadsData.set(threadID, true, "settings.antiout");
+                    antioutSettings.set(threadID, true);
+                    return message.reply("✅ Antiout has been enabled for this group.");
+                }
+            }
+
+            const isEnabled = antioutSettings.get(threadID) || true;
+            const status = isEnabled ? "✅ Enabled" : "❌ Disabled";
+            
+            return message.reply(
+                `🔒 Antiout Status: ${status}\n\n` +
+                "Usage:\n" +
+                "• {p}antiout on - Enable anti-leave\n" +
+                "• {p}antiout off - Disable anti-leave\n" +
+                "Note: Antiout is automatically enabled in all groups by default."
+            );
+
+        } catch (error) {
+            console.error("💥 Antiout command error:", error);
+            await message.reply("❌ An error occurred. Please try again later.");
+        }
+    },
+
+    // ⚡ Main event listener - FIXED PERMISSION HANDLING
     onEvent: async function({ api, event, threadsData }) {
         try {
-            // Only process unsubscribe events
-            if (event.logMessageType !== "log:unsubscribe") {
-                return;
-            }
+            // Only run when someone leaves group
+            if (event.logMessageType !== "log:unsubscribe") return;
 
             const { threadID, logMessageData } = event;
-
-            // Check if antiout is enabled for this thread
-            let antioutEnabled = false;
-            try {
-                antioutEnabled = await threadsData.get(threadID, "settings.antiout");
-            } catch (dataError) {
-                console.error("𝖤𝗋𝗋𝗈𝗋 𝗀𝖾𝗍𝗍𝗂𝗇𝗀 𝖺𝗇𝗍𝗂𝗈𝗎𝗍 𝗌𝖾𝗍𝗍𝗂𝗇𝗀:", dataError);
-                return;
-            }
-
-            if (!antioutEnabled || !logMessageData || !logMessageData.leftParticipantFbId) {
-                return;
-            }
+            if (!logMessageData || !logMessageData.leftParticipantFbId) return;
 
             const userId = logMessageData.leftParticipantFbId;
             const botID = api.getCurrentUserID();
 
-            // Don't process if bot is the one who left
-            if (userId === botID) {
-                return;
+            // Skip if bot itself left
+            if (userId === botID) return;
+
+            // Check if antiout is enabled
+            let antioutEnabled = antioutSettings.get(threadID);
+            if (antioutEnabled === undefined) {
+                antioutEnabled = await threadsData.get(threadID, "settings.antiout");
+                antioutSettings.set(threadID, antioutEnabled);
             }
+            
+            if (!antioutEnabled) return;
 
-            console.log(`🚫 𝖴𝗌𝖾𝗋 ${userId} 𝗅𝖾𝖿𝗍 𝗀𝗋𝗈𝗎𝗉 ${threadID}, 𝖺𝗍𝗍𝖾𝗆𝗉𝗍𝗂𝗇𝗀 𝗍𝗈 𝖺𝖽𝖽 𝖻𝖺𝖼𝗄...`);
-
+            // Get user name
+            let userName = "এই আবাল";
             try {
-                // Check if bot is still admin
-                const threadInfo = await api.getThreadInfo(threadID);
-                const isBotAdmin = threadInfo.adminIDs?.some(admin => admin.id === botID);
-                
-                if (!isBotAdmin) {
-                    console.log("❌ 𝖡𝗈𝗍 𝗂𝗌 𝗇𝗈 𝗅𝗈𝗇𝗀𝖾𝗋 𝖺𝖽𝗆𝗂𝗇, 𝖼𝖺𝗇𝗇𝗈𝗍 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋 𝖻𝖺𝖼𝗄");
-                    return;
-                }
+                const userInfo = await api.getUserInfo(userId);
+                userName = userInfo[userId]?.name || "এই আবাল";
+            } catch (e) {
+                console.warn("⚠️ Couldn't fetch user name:", e.message);
+            }
 
-                // Add a small delay to ensure clean state
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                // Try to add the user back
+            console.log(`🚫 User ${userName} left group ${threadID}, attempting to add back...`);
+
+            // Small delay before processing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 🎯 FIXED: ALWAYS TRY TO ADD BACK REGARDLESS OF PERMISSIONS
+            try {
+                // Try to add user back directly without checking permissions first
                 await api.addUserToGroup(userId, threadID);
-                console.log(`✅ 𝖴𝗌𝖾𝗋 ${userId} 𝗐𝖺𝗌 𝖺𝖽𝖽𝖾𝖽 𝖻𝖺𝖼𝗄 𝗍𝗈 𝗍𝗁𝖾 𝗀𝗋𝗈𝗎𝗉`);
-                
-                // Send a notification message
-                try {
-                    await api.sendMessage(
-                        `⚠️ 𝖴𝗌𝖾𝗋 𝗍𝗋𝗂𝖾𝖽 𝗍𝗈 𝗅𝖾𝖺𝗏𝖾 𝖻𝗎𝗍 𝗐𝖺𝗌 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼𝖺𝗅𝗅𝗒 𝖺𝖽𝖽𝖾𝖽 𝖻𝖺𝖼𝗄!\n🔒 𝖠𝗇𝗍𝗂𝗈𝗎𝗍 𝖲𝗒𝗌𝗍𝖾𝗆: 𝖠𝖼𝗍𝗂𝗏𝖺𝗍𝖾𝖽`,
-                        threadID
-                    );
-                } catch (messageError) {
-                    console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗌𝖾𝗇𝖽 𝗇𝗈𝗍𝗂𝖿𝗂𝖼𝖺𝗍𝗂𝗈𝗇 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", messageError);
-                }
-                
+                console.log(`✅ Successfully added back ${userName} to group ${threadID}`);
+
+                // Send success message
+                await api.sendMessage(
+                    `শোন, ${userName} এই গ্রুপ হইলো গ্যাং! 🔥\n` +
+                    `এখান থেকে যাইতে হইলে এডমিনের ক্লিয়ারেন্স লাগে!\n` +
+                    `তুই পারমিশন ছাড়া লিভ নিছোস – তোকে আবার মাফিয়া স্টাইলে এড দিলাম। 🔫`,
+                    threadID
+                );
+
             } catch (addError) {
-                console.error(`❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋 ${userId} 𝖻𝖺𝖼𝗄:`, addError.message);
+                console.log(`❌ Failed to add ${userName}: ${addError.message}`);
                 
-                // Check specific error types
-                if (addError.message.includes('not friends') || addError.message.includes('friend')) {
-                    console.log(`❌ 𝖢𝖺𝗇𝗇𝗈𝗍 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋 ${userId} - 𝗇𝗈𝗍 𝖿𝗋𝗂𝖾𝗇𝖽𝗌 𝗐𝗂𝗍𝗁 𝖻𝗈𝗍`);
-                } else if (addError.message.includes('block') || addError.message.includes('restrict')) {
-                    console.log(`❌ 𝖢𝖺𝗇𝗇𝗈𝗍 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋 ${userId} - 𝗎𝗌𝖾𝗋 𝗁𝖺𝗌 𝖻𝗅𝗈𝖼𝗄𝖾𝖽 𝖻𝗈𝗍`);
-                } else if (addError.message.includes('admin') || addError.message.includes('permission')) {
-                    console.log(`❌ 𝖢𝖺𝗇𝗇𝗈𝗍 𝖺𝖽𝖽 𝗎𝗌𝖾𝗋 ${userId} - 𝗂𝗇𝗌𝗎𝖿𝖿𝗂𝖼𝗂𝖾𝗇𝗍 𝗉𝖾𝗋𝗆𝗂𝗌𝗌𝗂𝗈𝗇𝗌`);
+                // Get thread info to understand why it failed
+                try {
+                    const threadInfo = await api.getThreadInfo(threadID);
+                    const isBotAdmin = threadInfo.adminIDs?.some(a => a.id === botID);
+                    
+                    if (isBotAdmin) {
+                        // Bot is admin but still failed - send error message
+                        await api.sendMessage(
+                            `সরি বস ${userName} এই আবালরে এড করতে পারলাম না😞`,
+                            threadID
+                        );
+                    }
+                    // If bot is not admin, stay silent (no message)
+                    
+                } catch (infoError) {
+                    console.log("⚠️ Could not get thread info:", infoError.message);
+                    // Stay silent if we can't get thread info
                 }
             }
+
         } catch (error) {
-            console.error("💥 𝖠𝗇𝗍𝗂𝗈𝗎𝗍 𝖾𝗏𝖾𝗇𝗍 𝗁𝖺𝗇𝖽𝗅𝖾𝗋 𝖾𝗋𝗋𝗈𝗋:", error);
+            console.error("💥 Antiout event handler error:", error);
+        }
+    },
+
+    // 🔄 Auto-enable antiout when bot joins new group
+    handleBotJoin: async function({ threadID, threadsData }) {
+        try {
+            await threadsData.set(threadID, true, "settings.antiout");
+            antioutSettings.set(threadID, true);
+            console.log(`✅ Antiout auto-enabled for new group: ${threadID}`);
+        } catch (error) {
+            console.error("❌ Error auto-enabling antiout for new group:", error);
         }
     }
 };
