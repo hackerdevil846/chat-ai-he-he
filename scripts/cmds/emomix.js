@@ -30,7 +30,7 @@ module.exports = {
             }
 
             // Split the string into two emojis using semicolon as separator
-            const emojis = args.join(' ').split(';');
+            const emojis = args.join(' ').split('');
 
             if (emojis.length !== 2) {
                 return message.reply("❌ | 𝑃𝑙𝑒𝑎𝑠𝑒 𝑠𝑝𝑒𝑐𝑖𝑓𝑦 𝑡𝑤𝑜 𝑒𝑚𝑜𝑗𝑖𝑠 𝑢𝑠𝑖𝑛𝑔 𝑎 ';' 𝑎𝑠 𝑎 𝑠𝑒𝑝𝑎𝑟𝑎𝑡𝑜𝑟.");
