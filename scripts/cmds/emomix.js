@@ -16,7 +16,7 @@ module.exports = {
             en: "𝐶𝑜𝑚𝑏𝑖𝑛𝑒 𝑡𝑤𝑜 𝑒𝑚𝑜𝑗𝑖𝑠 𝑡𝑜 𝑐𝑟𝑒𝑎𝑡𝑒 𝑎 𝑢𝑛𝑖𝑞𝑢𝑒 𝑚𝑖𝑥𝑒𝑑 𝑒𝑚𝑜𝑗𝑖 𝑖𝑚𝑎𝑔𝑒"
         },
         guide: {
-            en: "{p}emomix <𝑒𝑚𝑜𝑗𝑖1>;<𝑒𝑚𝑜𝑗𝑖2>\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}emomix 😀;🥰"
+            en: "{p}emomix <𝑒𝑚𝑜𝑗𝑖1>;<𝑒𝑚𝑜𝑗𝑖2>\n𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}emomix 😀🥰"
         },
         dependencies: {
             "axios": ""
@@ -26,7 +26,7 @@ module.exports = {
     onStart: async function({ message, event, args }) {
         try {
             if (!args[0] || args.length !== 1) {
-                return message.reply("❌ | 𝐼𝑛𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑢𝑠𝑒. 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}emomix 😀;🥰");
+                return message.reply("❌ | 𝐼𝑛𝑐𝑜𝑟𝑟𝑒𝑐𝑡 𝑢𝑠𝑒. 𝐸𝑥𝑎𝑚𝑝𝑙𝑒: {p}emomix 😀🥰");
             }
 
             // Split the string into two emojis using semicolon as separator
