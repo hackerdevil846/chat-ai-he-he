@@ -16,7 +16,7 @@ function verifyTagline(text) {
 module.exports = {
   config: {
     name: "pintrest",
-    aliases: [],
+    aliases: ["pin"],
     version: "2.0.0",
     author: lockedCredits,
     countDown: 3,
