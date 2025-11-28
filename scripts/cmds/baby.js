@@ -9,7 +9,7 @@ module.exports = {
         name: "bby",
         aliases: ["baby", "bbe", "babe", "jan", "bow", "bbu", "pookie", "sona", "bot", "hinata", "hania"],
         version: "6.9.0",
-        author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
+        author: "Dipto modify by 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
         countDown: 0,
         role: 0,
         category: "ai",
