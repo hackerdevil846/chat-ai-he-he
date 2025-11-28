@@ -4,49 +4,38 @@ const { createCanvas, loadImage, registerFont } = require("canvas");
 const axios = require("axios");
 const moment = require("moment-timezone");
 
-// Register custom fonts if available
-try {
-  registerFont(path.join(__dirname, 'fonts', 'ArialBlack.ttf'), { family: 'Arial Black' });
-  registerFont(path.join(__dirname, 'fonts', 'Montserrat-Bold.ttf'), { family: 'Montserrat', weight: 'bold' });
-} catch (e) {
-  console.log("ℹ️ Custom fonts not found, using system fonts");
-}
+// 1. Font Loading (Safe Mode) - Tries to load fonts, ignores if missing
+const fontFiles = [
+  { path: path.join(__dirname, 'fonts', 'ArialBlack.ttf'), family: 'Arial Black' },
+  { path: path.join(__dirname, 'fonts', 'Montserrat-Bold.ttf'), family: 'Montserrat' }
+];
 
-// Add roundRect method to canvas context
-function addRoundRectMethod(ctx) {
-  if (!ctx.roundRect) {
-    ctx.roundRect = function(x, y, width, height, radius) {
-      if (width < 2 * radius) radius = width / 2;
-      if (height < 2 * radius) radius = height / 2;
-      
-      this.beginPath();
-      this.moveTo(x + radius, y);
-      this.arcTo(x + width, y, x + width, y + height, radius);
-      this.arcTo(x + width, y + height, x, y + height, radius);
-      this.arcTo(x, y + height, x, y, radius);
-      this.arcTo(x, y, x + width, y, radius);
-      this.closePath();
-      return this;
-    };
+fontFiles.forEach(font => {
+  try {
+    if (fs.existsSync(font.path)) {
+      registerFont(font.path, { family: font.family });
+    }
+  } catch (e) {
+    // Silently fall back to system fonts if custom ones aren't found
   }
-}
+});
 
 module.exports = {
   config: {
     name: "pfp",
     aliases: [],
-    version: "3.5",
+    version: "5.0.0",
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     role: 0,
     category: "fun",
     shortDescription: {
-      en: "✨ 𝑈𝑙𝑡𝑟𝑎-𝑠𝑡𝑦𝑙𝑖𝑠ℎ 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑜𝑟 𝑤𝑖𝑡ℎ 𝑎𝑛𝑖𝑚𝑎𝑡𝑒𝑑 𝑒𝑓𝑓𝑒𝑐𝑡𝑠"
+      en: "✨ 3D Neon Profile Card"
     },
     longDescription: {
-      en: "𝐺𝑒𝑛𝑒𝑟𝑎𝑡𝑒𝑠 𝑎 𝑏𝑒𝑎𝑢𝑡𝑖𝑓𝑢𝑙 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑 𝑤𝑖𝑡ℎ 𝑔𝑟𝑎𝑑𝑖𝑒𝑛𝑡 𝑏𝑎𝑐𝑘𝑔𝑟𝑜𝑢𝑛𝑑𝑠, 𝑔𝑙𝑜𝑤 𝑒𝑓𝑓𝑒𝑐𝑡𝑠, 𝑎𝑛𝑑 𝑑𝑒𝑡𝑎𝑖𝑙𝑒𝑑 𝑢𝑠𝑒𝑟 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛"
+      en: "Generates a 3D-render style neon profile card with volumetric lighting and HUD effects."
     },
     guide: {
-      en: "{p}pfp [@𝑚𝑒𝑛𝑡𝑖𝑜𝑛|𝑈𝐼𝐷]"
+      en: "{p}pfp [@mention | UID]"
     },
     countDown: 5,
     dependencies: {
@@ -58,228 +47,271 @@ module.exports = {
   },
 
   onLoad: async function() {
-    const TMP_DIR = path.join(__dirname, "cache");
-    await fs.ensureDir(TMP_DIR);
-    console.log("✅ Profile card generator loaded successfully!");
+    const cacheDir = path.join(__dirname, "cache");
+    if (!fs.existsSync(cacheDir)) {
+      fs.mkdirSync(cacheDir, { recursive: true });
+    }
   },
 
   onStart: async function({ api, event, args, message, usersData }) {
+    const { senderID, mentions, type, messageReply } = event;
+    const cacheDir = path.join(__dirname, "cache");
+    
+    // Unique filenames to prevent conflicts
+    const timestamp = Date.now();
+    const avatarPath = path.join(cacheDir, `avatar_${timestamp}.jpg`);
+    const cardPath = path.join(cacheDir, `card_${timestamp}.png`);
+
     try {
-      const { senderID, threadID, mentions, messageReply } = event;
-
+      // --- 1. IDENTIFY TARGET USER ---
       let targetID = senderID;
-      if (mentions && Object.keys(mentions).length > 0) {
-        targetID = Object.keys(mentions)[0];
-      } else if (messageReply && messageReply.senderID) {
+      if (type === "message_reply") {
         targetID = messageReply.senderID;
-      } else if (args && args.length > 0 && args[0].match(/\d+/)) {
-        targetID = args[0].replace(/[^0-9]/g, "");
+      } else if (Object.keys(mentions).length > 0) {
+        targetID = Object.keys(mentions)[0];
+      } else if (args.length > 0) {
+        const input = args.join("");
+        if (!isNaN(input)) targetID = input;
       }
 
-      const processingMsg = await message.reply("🎨 𝐶𝑟𝑒𝑎𝑡𝑖𝑛𝑔 𝑦𝑜𝑢𝑟 𝑝𝑟𝑜𝑓𝑖𝑙𝑒 𝑐𝑎𝑟𝑑...");
+      // --- 2. SEND LOADING STATUS ---
+      const processingMsg = await message.reply("🔮 | 𝑅𝑒𝑛𝑑𝑒𝑟𝑖𝑛𝑔 3𝐷 𝑃𝑟𝑜𝑓𝑖𝑙𝑒...");
 
-      // Get user info
+      // --- 3. FETCH USER DATA ---
       const userInfo = await api.getUserInfo(targetID);
-      if (!userInfo || !userInfo[targetID]) {
-        await api.unsendMessage(processingMsg.messageID);
-        return message.reply("❌ 𝑈𝑠𝑒𝑟 𝑛𝑜𝑡 𝑓𝑜𝑢𝑛𝑑. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
-      }
-
       const user = userInfo[targetID];
-      
-      // Download avatar with better error handling
-      const avatarURL = `https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
-      const avatarPath = path.join(__dirname, "cache", `avatar_${targetID}_${Date.now()}.jpg`);
-      
-      try {
-        const resp = await axios.get(avatarURL, { 
-          responseType: "arraybuffer",
-          timeout: 10000 
-        });
-        await fs.writeFile(avatarPath, Buffer.from(resp.data));
-      } catch (error) {
-        await api.unsendMessage(processingMsg.messageID);
-        return message.reply("❌ 𝐹𝑎𝑖𝑙𝑒𝑑 𝑡𝑜 𝑑𝑜𝑤𝑛𝑙𝑜𝑎𝑑 𝑎𝑣𝑎𝑡𝑎𝑟. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛 𝑙𝑎𝑡𝑒𝑟.");
-      }
 
-      // Get additional user data
-      let userData = {};
-      try {
-        if (usersData && typeof usersData.getData === 'function') {
-          userData = await usersData.getData(targetID);
-        }
-      } catch (e) {
-        console.log("ℹ️ Could not fetch additional user data");
-      }
-
-      // Format user information
-      const formatData = {
-        joinDate: userData?.createdAt ? moment(userData.createdAt).format("DD MMM YYYY") : "𝑈𝑛𝑘𝑛𝑜𝑤𝑛",
-        lastActive: userData?.lastUpdated ? moment(userData.lastUpdated).fromNow() : "𝑅𝑒𝑐𝑒𝑛𝑡𝑙𝑦",
-        gender: userData?.gender === 1 ? "👨 𝑀𝑎𝑙𝑒" : userData?.gender === 2 ? "👩 𝐹𝑒𝑚𝑎𝑙𝑒" : "⚧️ 𝑈𝑛𝑘𝑛𝑜𝑤𝑛",
-        followers: user?.follow || userData?.followers || "0",
-        relationship: user?.relationship_status || "𝑆𝑖𝑛𝑔𝑙𝑒"
+      // Safe Data Handling
+      const name = user.name || "User";
+      
+      // Gender Map (Facebook API Standard: 1=Female, 2=Male)
+      const genderMap = { 
+        1: "♀️ Female", 
+        2: "♂️ Male" 
       };
+      const gender = genderMap[user.gender] || "⚧️ Not Specified";
 
-      // Create enhanced canvas
-      const canvas = createCanvas(800, 450);
+      // Followers Logic (API + DB Fallback)
+      let followersCount = user.subscribers?.total_count || user.follow || 0;
+      
+      // If API returns 0, try checking the bot's database
+      if (followersCount === 0 && usersData) {
+        try {
+            const dbData = await usersData.getData(targetID);
+            if (dbData && dbData.followers) {
+                followersCount = dbData.followers;
+            }
+        } catch(e) {}
+      }
+      const followersDisplay = followersCount > 0 ? followersCount.toLocaleString() : "🔒 Hidden";
+
+      // Join Date Logic
+      let joinDate = "Recently";
+      if (usersData) {
+        try {
+            const dbData = await usersData.getData(targetID);
+            if (dbData && dbData.createdAt) {
+                joinDate = moment(dbData.createdAt).format("DD MMM YYYY");
+            }
+        } catch(e) {}
+      }
+
+      // --- 4. DOWNLOAD AVATAR ---
+      // Using the specific access token URL to get high-res image
+      const avatarUrl = `https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
+      
+      const imageResponse = await axios.get(avatarUrl, { responseType: "arraybuffer" });
+      fs.writeFileSync(avatarPath, Buffer.from(imageResponse.data));
+
+      // --- 5. CANVAS RENDER ENGINE ---
+      const width = 1000;
+      const height = 600;
+      const canvas = createCanvas(width, height);
       const ctx = canvas.getContext("2d");
 
-      // Add roundRect method to this context
-      addRoundRectMethod(ctx);
+      // --- LAYER A: BACKGROUND & VOLUMETRIC LIGHTING ---
+      ctx.fillStyle = "#050505"; // Deep black background
+      ctx.fillRect(0, 0, width, height);
 
-      // Enhanced gradient background
-      const gradients = [
-        ["#667eea", "#764ba2"],
-        ["#f093fb", "#f5576c"],
-        ["#4facfe", "#00f2fe"],
-        ["#43e97b", "#38f9d7"],
-        ["#fa709a", "#fee140"]
-      ];
+      const centerX = width / 2;
+      const centerY = height / 2;
       
-      const selectedGradient = gradients[Math.floor(Math.random() * gradients.length)];
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      gradient.addColorStop(0, selectedGradient[0]);
-      gradient.addColorStop(1, selectedGradient[1]);
+      ctx.save();
+      ctx.translate(centerX, centerY);
       
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Add subtle pattern overlay
-      ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-      for (let i = 0; i < 100; i++) {
-        const size = Math.random() * 15 + 5;
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
+      // Render Light Rays (The 3D Backlight Effect)
+      for (let i = 0; i < 12; i++) {
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Draw avatar with enhanced effects
-      try {
-        const avatarImg = await loadImage(avatarPath);
-        const avatarSize = 180;
-        const avatarX = 60;
-        const avatarY = 60;
-
-        // Avatar glow effect
-        ctx.shadowColor = "#ffffff";
-        ctx.shadowBlur = 30;
-        ctx.beginPath();
-        ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2 + 15, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Circular avatar with border
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.clip();
+        // Create rays radiating from center
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, 800, (i * 30) * Math.PI / 180, (i * 30 + 15) * Math.PI / 180);
+        ctx.lineTo(0, 0);
         
-        // Add subtle shadow
-        ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
-        ctx.shadowBlur = 15;
-        ctx.shadowOffsetX = 5;
-        ctx.shadowOffsetY = 5;
-        ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
-        ctx.restore();
-
-        // Avatar border
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
-        ctx.stroke();
-
-      } catch (error) {
-        console.error("Avatar loading error:", error);
+        // Gradient for depth (Green/Blue mix)
+        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, 600);
+        grad.addColorStop(0, "rgba(0, 255, 136, 0.0)"); // Transparent core
+        grad.addColorStop(0.5, "rgba(0, 204, 255, 0.15)"); // Glowing mid-section
+        grad.addColorStop(1, "rgba(0, 0, 0, 0)"); // Fade out
+        
+        ctx.fillStyle = grad;
+        ctx.fill();
       }
+      ctx.restore();
 
-      // User information panel
-      const panelX = 280;
-      const panelY = 50;
-      const panelWidth = 500;
-      const panelHeight = 350;
+      // --- LAYER B: THE GLASS CARD ---
+      const cardW = 850;
+      const cardH = 450;
+      const cardX = (width - cardW) / 2;
+      const cardY = (height - cardH) / 2;
+      const radius = 40;
 
-      // Panel background with blur effect
-      ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
-      ctx.roundRect(panelX, panelY, panelWidth, panelHeight, 20);
+      ctx.save();
+      // Draw Card Shape
+      ctx.beginPath();
+      // Custom rounded rect implementation for compatibility
+      if (ctx.roundRect) {
+        ctx.roundRect(cardX, cardY, cardW, cardH, radius);
+      } else {
+        // Fallback for older canvas versions
+        ctx.moveTo(cardX + radius, cardY);
+        ctx.lineTo(cardX + cardW - radius, cardY);
+        ctx.quadraticCurveTo(cardX + cardW, cardY, cardX + cardW, cardY + radius);
+        ctx.lineTo(cardX + cardW, cardY + cardH - radius);
+        ctx.quadraticCurveTo(cardX + cardW, cardY + cardH, cardX + cardW - radius, cardY + cardH);
+        ctx.lineTo(cardX + radius, cardY + cardH);
+        ctx.quadraticCurveTo(cardX, cardY + cardH, cardX, cardY + cardH - radius);
+        ctx.lineTo(cardX, cardY + radius);
+        ctx.quadraticCurveTo(cardX, cardY, cardX + radius, cardY);
+        ctx.closePath();
+      }
+      
+      // Glass Fill
+      ctx.fillStyle = "rgba(10, 15, 20, 0.65)";
       ctx.fill();
-
-      // Panel border
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      
+      // Neon Border Stroke (Green to Blue Gradient)
+      const borderGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+      borderGrad.addColorStop(0, "#00ff88"); 
+      borderGrad.addColorStop(1, "#00ccff"); 
+      
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = borderGrad;
+      ctx.shadowColor = "#00ff88"; // Neon Glow
+      ctx.shadowBlur = 40; 
+      ctx.stroke();
+      
+      // Inner White Highlight (For 3D Bevel effect)
+      ctx.shadowBlur = 0;
       ctx.lineWidth = 2;
-      ctx.roundRect(panelX, panelY, panelWidth, panelHeight, 20);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.stroke();
+      ctx.restore();
+
+      // --- LAYER C: AVATAR & HUD RING ---
+      const avatarSize = 220;
+      const avatarX = cardX + 80;
+      const avatarY = centerY - (avatarSize / 2);
+
+      ctx.save();
+      // Clip Avatar to Circle
+      ctx.beginPath();
+      ctx.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI * 2);
+      ctx.clip();
+      const avatarImg = await loadImage(avatarPath);
+      ctx.drawImage(avatarImg, avatarX, avatarY, avatarSize, avatarSize);
+      ctx.restore();
+
+      // Draw HUD Tech Ring
+      const ringX = avatarX + avatarSize/2;
+      const ringY = avatarY + avatarSize/2;
+      const ringRadius = (avatarSize/2) + 15;
+
+      ctx.shadowColor = "#00ccff";
+      ctx.shadowBlur = 20;
+      
+      // Arc Segment 1 (Green)
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, ringRadius, 0.2 * Math.PI, 0.8 * Math.PI);
+      ctx.strokeStyle = "#00ff88";
+      ctx.lineWidth = 6;
       ctx.stroke();
 
-      // User name with glow effect
-      ctx.font = "bold 38px 'Arial Black', sans-serif";
+      // Arc Segment 2 (Blue)
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, ringRadius, 1.2 * Math.PI, 1.8 * Math.PI);
+      ctx.strokeStyle = "#00ccff";
+      ctx.stroke();
+      
+      // Thin decorative circle
+      ctx.beginPath();
+      ctx.arc(ringX, ringY, ringRadius + 15, 0, 2 * Math.PI);
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+      ctx.lineWidth = 1;
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+
+      // --- LAYER D: TEXT INFORMATION ---
+      const textX = avatarX + avatarSize + 60;
+      const textYStart = cardY + 100;
+
+      // Helper for data rows
+      const drawField = (label, value, y) => {
+        // Label
+        ctx.font = "24px Arial"; // Simple font for label
+        ctx.fillStyle = "#aaaaaa";
+        ctx.fillText(label, textX, y);
+
+        // Value
+        ctx.font = "bold 34px Arial"; // Bold font for value
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0, 255, 136, 0.5)"; // Slight glow text
+        ctx.shadowBlur = 10;
+        ctx.fillText(value, textX, y + 35);
+        ctx.shadowBlur = 0;
+      };
+
+      // Header: Name
+      ctx.font = "bold 50px Arial";
       ctx.fillStyle = "#ffffff";
-      ctx.shadowColor = "#ff6b6b";
-      ctx.shadowBlur = 20;
-      ctx.fillText(user.name, panelX + 20, panelY + 50);
+      ctx.shadowColor = "#00ccff";
+      ctx.shadowBlur = 15;
+      ctx.fillText(name, textX, textYStart - 10);
       ctx.shadowBlur = 0;
 
-      // User info items
-      const infoItems = [
-        { icon: "🆔", text: `UID: ${targetID}` },
-        { icon: "👤", text: `Gender: ${formatData.gender}` },
-        { icon: "❤️", text: `Relationship: ${formatData.relationship}` },
-        { icon: "👥", text: `Followers: ${formatData.followers}` },
-        { icon: "📅", text: `Joined: ${formatData.joinDate}` },
-        { icon: "🕒", text: `Last Active: ${formatData.lastActive}` }
-      ];
+      // Divider Line
+      ctx.fillStyle = borderGrad;
+      ctx.fillRect(textX, textYStart + 10, 400, 3);
 
-      ctx.font = "22px 'Montserrat', sans-serif";
-      ctx.fillStyle = "#e0e0e0";
+      // Info Rows
+      drawField("UID", targetID, textYStart + 60);
+      drawField("Followers", followersDisplay, textYStart + 150);
+      drawField("Gender", gender, textYStart + 240);
       
-      infoItems.forEach((item, index) => {
-        const yPos = panelY + 90 + (index * 40);
-        ctx.fillText(`${item.icon} ${item.text}`, panelX + 30, yPos);
-      });
+      // Footer: Join Date
+      ctx.font = "italic 20px Arial";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+      ctx.textAlign = "right";
+      ctx.fillText(`Joined: ${joinDate}`, cardX + cardW - 40, cardY + cardH - 30);
 
-      // Add decorative elements
-      ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
-      for (let i = 0; i < 8; i++) {
-        const size = Math.random() * 8 + 4;
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      // --- 6. SAVE & SEND ---
+      const buffer = canvas.toBuffer("image/png");
+      fs.writeFileSync(cardPath, buffer);
 
-      // Footer text
-      ctx.font = "16px 'Montserrat', sans-serif";
-      ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-      ctx.fillText("✨ Created by 𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑 ✨", canvas.width - 300, canvas.height - 20);
-
-      // Save and send the image
-      const outputPath = path.join(__dirname, "cache", `profile_card_${targetID}_${Date.now()}.png`);
-      const buffer = canvas.toBuffer();
-      await fs.writeFile(outputPath, buffer);
+      const msgBody = `✨ 𝗣𝗿𝗼𝗳𝗶𝗹𝗲 \n━━━━━━━━━━━━━━━━━━\n👤 𝗡𝗮𝗺𝗲: ${name}\n🆔 𝗨𝗜𝗗: ${targetID}\n━━━━━━━━━━━━━━━━━━`;
 
       await message.reply({
-        body: `🎉 𝑷𝒓𝒐𝒇𝒊𝒍𝒆 𝑪𝒂𝒓𝒅 𝑮𝒆𝒏𝒆𝒓𝒂𝒕𝒆𝒅!\n━━━━━━━━━━━━━━━━━━\n✨ 𝑵𝒂𝒎𝒆: ${user.name}\n🆔 𝑼𝑰𝑫: ${targetID}\n📊 𝑭𝒐𝒍𝒍𝒐𝒘𝒆𝒓𝒔: ${formatData.followers}\n━━━━━━━━━━━━━━━━━━\n💫 𝑬𝒏𝒋𝒐𝒚 𝒚𝒐𝒖𝒓 𝒔𝒕𝒚𝒍𝒊𝒔𝒉 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒄𝒂𝒓𝒅!`,
-        attachment: fs.createReadStream(outputPath)
+        body: msgBody,
+        attachment: fs.createReadStream(cardPath)
       });
 
-      // Clean up
-      await api.unsendMessage(processingMsg.messageID);
-      if (fs.existsSync(avatarPath)) await fs.unlink(avatarPath);
-      if (fs.existsSync(outputPath)) await fs.unlink(outputPath);
+      // --- 7. CLEANUP ---
+      api.unsendMessage(processingMsg.messageID);
+      fs.unlinkSync(avatarPath);
+      fs.unlinkSync(cardPath);
 
     } catch (error) {
-      console.error("Profile card error:", error);
-      try {
-        if (processingMsg && processingMsg.messageID) {
-          await api.unsendMessage(processingMsg.messageID);
-        }
-      } catch {}
-      message.reply("❌ 𝑺𝒐𝒓𝒓𝒚, 𝒕𝒉𝒆𝒓𝒆 𝒘𝒂𝒔 𝒂𝒏 𝒆𝒓𝒓𝒐𝒓 𝒄𝒓𝒆𝒂𝒕𝒊𝒏𝒈 𝒚𝒐𝒖𝒓 𝒑𝒓𝒐𝒇𝒊𝒍𝒆 𝒄𝒂𝒓𝒅. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏 𝒍𝒂𝒕𝒆𝒓.");
+      console.error("3D PFP Error:", error);
+      message.reply("❌ 𝐸𝑟𝑟𝑜𝑟 𝑔𝑒𝑛𝑒𝑟𝑎𝑡𝑖𝑛𝑔 3𝐷 𝑝𝑟𝑜𝑓𝑖𝑙𝑒. 𝑃𝑙𝑒𝑎𝑠𝑒 𝑡𝑟𝑦 𝑎𝑔𝑎𝑖𝑛.");
     }
   }
 };
