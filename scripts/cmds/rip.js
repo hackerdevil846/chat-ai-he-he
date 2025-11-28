@@ -2,23 +2,36 @@ const DIG = require("discord-image-generation");
 const fs = require("fs-extra");
 const path = require("path");
 
+// ✨ Helper: Convert text to Dark Stylish Font (Bold Serif)
+const toStylish = (text) => {
+  const map = {
+    A: "𝐀", B: "𝐁", C: "𝐂", D: "𝐃", E: "𝐄", F: "𝐅", G: "𝐆", H: "𝐇", I: "𝐈", J: "𝐉", K: "𝐊", L: "𝐋", M: "𝐌",
+    N: "𝐍", O: "𝐎", P: "𝐏", Q: "𝐐", R: "𝐑", S: "𝐒", T: "𝐓", U: "𝐔", V: "𝐕", W: "𝐖", X: "𝐗", Y: "𝐘", Z: "𝐙",
+    a: "𝐚", b: "𝐛", c: "𝐜", d: "𝐝", e: "𝐞", f: "𝐟", g: "𝐠", h: "𝐡", i: "𝐢", j: "𝐣", k: "𝐤", l: "𝐥", m: "𝐦",
+    n: "𝐧", o: "𝐨", p: "𝐩", q: "𝐪", r: "𝐫", s: "𝐬", t: "𝐭", u: "𝐮", v: "𝐯", w: "𝐰", x: "𝐱", y: "𝐲", z: "𝐳",
+    0: "𝟎", 1: "𝟏", 2: "𝟐", 3: "𝟑", 4: "𝟒", 5: "𝟓", 6: "𝟔", 7: "𝟕", 8: "𝟖", 9: "𝟗",
+    "?": "❓", "!": "❗"
+  };
+  return text.split("").map(c => map[c] || c).join("");
+};
+
 module.exports = {
   config: {
     name: "rip",
     aliases: [],
-    version: "2.0",
-    author: "𝖠𝗌𝗂𝖿 𝖬𝖺𝗁𝗆𝗎𝖽",
+    version: "2.5.0", // Updated version
+    author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
     category: "fun",
     shortDescription: {
-      en: "🪦 𝖢𝗋𝖾𝖺𝗍𝖾 𝖱𝖨𝖯 𝗍𝗈𝗆𝖻𝗌𝗍𝗈𝗇𝖾 𝗐𝗂𝗍𝗁 𝗎𝗌𝖾𝗋'𝗌 𝖺𝗏𝖺𝗍𝖺𝗋"
+      en: toStylish("Create a RIP Tombstone")
     },
     longDescription: {
-      en: "🪦 𝖢𝗋𝖾𝖺𝗍𝖾 𝖺 𝖱𝖨𝖯 𝗍𝗈𝗆𝖻𝗌𝗍𝗈𝗇𝖾 𝗂𝗆𝖺𝗀𝖾 𝗐𝗂𝗍𝗁 𝗎𝗌𝖾𝗋'𝗌 𝗉𝗋𝗈𝖿𝗂𝗅𝖾 𝗉𝗂𝖼𝗍𝗎𝗋𝖾"
+      en: toStylish("Generates a funny RIP tombstone meme with the user's profile picture.")
     },
     guide: {
-      en: "{𝗉}rip [@𝗆𝖾𝗇𝗍𝗂𝗈𝗇]"
+      en: "{p}rip [@mention]"
     },
     dependencies: {
       "discord-image-generation": "",
@@ -26,131 +39,63 @@ module.exports = {
     }
   },
 
-  onStart: async function ({ api, event, args, usersData }) {
+  onStart: async function ({ api, event, args }) {
+    const { threadID, messageID, senderID, mentions } = event;
+    const cacheDir = path.join(__dirname, "cache");
+    const filePath = path.join(cacheDir, `rip_${Date.now()}.png`);
+
     try {
-      // Dependency check
-      let dependenciesAvailable = true;
+      // 1. Dependency Check
       try {
         require("discord-image-generation");
         require("fs-extra");
-        require("path");
       } catch (e) {
-        dependenciesAvailable = false;
+        return api.sendMessage("❌ | Missing 'discord-image-generation'. Please install it.", threadID, messageID);
       }
 
-      if (!dependenciesAvailable) {
-        return api.sendMessage("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝗋𝖾𝗊𝗎𝗂𝗋𝖾𝖽 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖽𝗂𝗌𝖼𝗈𝗋𝖽-𝗂𝗆𝖺𝗀𝖾-𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖺𝗇𝖽 𝖿𝗌-𝖾𝗑𝗍𝗋𝖺.", event.threadID, event.messageID);
+      // 2. Identify Target User
+      let targetID = senderID;
+      if (Object.keys(mentions).length > 0) {
+        targetID = Object.keys(mentions)[0];
       }
 
-      const { threadID, messageID, senderID, mentions } = event;
-      const mentionID = Object.keys(mentions)[0] || senderID;
-      const targetName = mentions[mentionID] || "𝗒𝗈𝗎";
+      // 3. Get User Name for Message
+      const userInfo = await api.getUserInfo(targetID);
+      const name = userInfo[targetID]?.name || "User";
 
-      // Get user info with error handling
-      let userInfo;
-      try {
-        userInfo = await api.getUserInfo(mentionID);
-      } catch (userError) {
-        console.error("𝖤𝗋𝗋𝗈𝗋 𝖿𝖾𝗍𝖼𝗁𝗂𝗇𝗀 𝗎𝗌𝖾𝗋 𝗂𝗇𝖿𝗈:", userError);
-        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝗎𝗌𝖾𝗋 𝗂𝗇𝖿𝗈𝗋𝗆𝖺𝗍𝗂𝗈𝗇!", threadID, messageID);
+      // 4. Send Processing Message
+      const processingMsg = await api.sendMessage(`⚰️ | ${toStylish("Engraving the tombstone...")}`, threadID);
+
+      // 5. Ensure Cache Directory Exists
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
       }
 
-      if (!userInfo || !userInfo[mentionID]) {
-        return api.sendMessage("❌ 𝖴𝗌𝖾𝗋 𝗇𝗈𝗍 𝖿𝗈𝗎𝗇𝖽!", threadID, messageID);
-      }
+      // 6. Get Avatar URL (Using Graph API for reliability)
+      // This is the FIX: Using a direct token link ensures the image generator doesn't fail.
+      const avatarURL = `https://graph.facebook.com/${targetID}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`;
 
-      const avatarURL = userInfo[mentionID].profileUrl;
+      // 7. Generate Image
+      const imgBuffer = await new DIG.Rip().getImage(avatarURL);
+
+      // 8. Save File
+      await fs.writeFile(filePath, imgBuffer);
+
+      // 9. Send Result
+      const msgBody = `🪦 ${toStylish("Rest In Peace")} ${name}...\n\n🥀 ${toStylish("You will be missed.")}`;
       
-      if (!avatarURL) {
-        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖿𝖾𝗍𝖼𝗁 𝗉𝗋𝗈𝖿𝗂𝗅𝖾 𝗉𝗂𝖼𝗍𝗎𝗋𝖾!", threadID, messageID);
-      }
+      await api.sendMessage({
+        body: msgBody,
+        attachment: fs.createReadStream(filePath)
+      }, threadID, messageID);
 
-      // Validate avatar URL
-      if (!avatarURL.startsWith('http')) {
-        return api.sendMessage("❌ 𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝖺𝗏𝖺𝗍𝖺𝗋 𝖴𝖱𝖫!", threadID, messageID);
-      }
+      // 10. Cleanup
+      api.unsendMessage(processingMsg.messageID);
+      fs.unlinkSync(filePath);
 
-      const processingMsg = await api.sendMessage("🪦 𝖢𝗋𝖾𝖺𝗍𝗂𝗇𝗀 𝗍𝗈𝗆𝖻𝗌𝗍𝗈𝗇𝖾...", threadID, messageID);
-
-      // Generate RIP image with error handling
-      let imgBuffer;
-      try {
-        imgBuffer = await new DIG.Rip().getImage(avatarURL);
-        
-        // Validate image buffer
-        if (!imgBuffer || imgBuffer.length < 1000) {
-          throw new Error("𝖨𝗇𝗏𝖺𝗅𝗂𝖽 𝗂𝗆𝖺𝗀𝖾 𝖻𝗎𝖿𝖿𝖾𝗋 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾𝖽");
-        }
-      } catch (imageError) {
-        console.error("𝖨𝗆𝖺𝗀𝖾 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:", imageError);
-        await api.unsendMessage(processingMsg.messageID);
-        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝖾 𝗂𝗆𝖺𝗀𝖾! 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.", threadID, messageID);
-      }
-
-      // Create temporary directory
-      const tmpDir = path.join(__dirname, "tmp");
-      try {
-        await fs.ensureDir(tmpDir);
-      } catch (dirError) {
-        console.error("𝖣𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒 𝖼𝗋𝖾𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:", dirError);
-        await api.unsendMessage(processingMsg.messageID);
-        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝖼𝗋𝖾𝖺𝗍𝖾 𝗍𝖾𝗆𝗉𝗈𝗋𝖺𝗋𝗒 𝖽𝗂𝗋𝖾𝖼𝗍𝗈𝗋𝗒!", threadID, messageID);
-      }
-
-      const filePath = path.join(tmpDir, `${mentionID}_rip_${Date.now()}.png`);
-
-      try {
-        // Write file with validation
-        await fs.writeFile(filePath, imgBuffer);
-        
-        // Verify file was written
-        const stats = await fs.stat(filePath);
-        if (stats.size < 1000) {
-          throw new Error("𝖥𝗂𝗅𝖾 𝗐𝗋𝗂𝗍𝖾 𝖿𝖺𝗂𝗅𝖾𝖽");
-        }
-      } catch (fileError) {
-        console.error("𝖥𝗂𝗅𝖾 𝗐𝗋𝗂𝗍𝖾 𝖾𝗋𝗋𝗈𝗋:", fileError);
-        await api.unsendMessage(processingMsg.messageID);
-        return api.sendMessage("❌ 𝖥𝖺𝗂𝗅𝖾𝖽 𝗍𝗈 𝗌𝖺𝗏𝖾 𝗂𝗆𝖺𝗀𝖾!", threadID, messageID);
-      }
-
-      try {
-        // Send message with image
-        await api.sendMessage({
-          body: `🪦 𝖱𝖾𝗌𝗍 𝗂𝗇 𝗉𝖾𝖺𝖼𝖾 ${targetName}...\n\n✨ 𝖢𝗋𝖾𝖺𝗍𝖾𝖽 𝖻𝗒 ${this.config.author}`,
-          attachment: fs.createReadStream(filePath)
-        }, threadID, messageID);
-
-        // Clean up processing message
-        await api.unsendMessage(processingMsg.messageID);
-        
-      } catch (sendError) {
-        console.error("𝖬𝖾𝗌𝗌𝖺𝗀𝖾 𝗌𝖾𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", sendError);
-        await api.unsendMessage(processingMsg.messageID);
-        throw sendError;
-      } finally {
-        // Clean up file
-        try {
-          if (await fs.pathExists(filePath)) {
-            await fs.unlink(filePath);
-          }
-        } catch (cleanupError) {
-          console.warn("𝖥𝗂𝗅𝖾 𝖼𝗅𝖾𝖺𝗇𝗎𝗉 𝖾𝗋𝗋𝗈𝗋:", cleanupError);
-        }
-      }
-      
     } catch (error) {
-      console.error("💥 𝖱𝖨𝖯 𝖢𝗈𝗆𝗆𝖺𝗇𝖽 𝖤𝗋𝗋𝗈𝗋:", error);
-      
-      let errorMessage = "❌ 𝖠𝗇 𝖾𝗋𝗋𝗈𝗋 𝗈𝖼𝖼𝗎𝗋𝗋𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
-      
-      if (error.message.includes('DIG') || error.message.includes('Rip')) {
-        errorMessage = "❌ 𝖨𝗆𝖺𝗀𝖾 𝗀𝖾𝗇𝖾𝗋𝖺𝗍𝗂𝗈𝗇 𝖿𝖺𝗂𝗅𝖾𝖽. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇.";
-      } else if (error.message.includes('network') || error.message.includes('ECONNREFUSED')) {
-        errorMessage = "❌ 𝖭𝖾𝗍𝗐𝗈𝗋𝗄 𝖾𝗋𝗋𝗈𝗋. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗍𝗋𝗒 𝖺𝗀𝖺𝗂𝗇 𝗅𝖺𝗍𝖾𝗋.";
-      }
-      
-      await api.sendMessage(errorMessage, event.threadID, event.messageID);
+      console.error("RIP Command Error:", error);
+      api.sendMessage(`❌ | ${toStylish("Failed to create tombstone. Please try again.")}`, threadID, messageID);
     }
   }
 };
