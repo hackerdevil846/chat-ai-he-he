@@ -1,9 +1,8 @@
-/**
 module.exports = {
   config: {
     name: "supportgc",
     version: "1.1",
-    author: "Shikaki",
+    author: "Asif",
     countDown: 5,
     role: 0,
     shortDescription: {
@@ -19,7 +18,7 @@ module.exports = {
   },
 
   onStart: async function ({ api, event, threadsData, getLang, message }) {
-    const supportGroupThreadID = "27455554110724563"; // Replace with your support group thread ID
+    const supportGroupThreadID = "30035008059448421"; // Replace with your support group thread ID
     const botID = api.getCurrentUserID();
 
     try {
@@ -63,4 +62,3 @@ module.exports = {
     }
   }
 };
-*/
