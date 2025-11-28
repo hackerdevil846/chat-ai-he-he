@@ -1,5 +1,8 @@
 const axios = require("axios");
+const fs = require("fs-extra");
+const path = require("path");
 
+// ✨ 1. HIGH QUALITY IMAGE LIST
 const images = [
   "https://i.ibb.co/KxBqKCMD/1755944202493-0-5154647769363978.jpg",
   "https://i.ibb.co/nMp3sVqB/1755944203527-0-6844357499391724.jpg",
@@ -12,155 +15,151 @@ const images = [
   "https://i.ibb.co/zWQ1XnjB/image.jpg"
 ];
 
-// Dark stylish font converter
-function toDarkFont(text) {
+// ✨ 2. LOCAL BACKUP SHAYARI (In case API fails)
+const localShayaris = [
+  "Tum mile to laga mujhe, ki mil gayi hai har khushi.",
+  "Zindagi mein har pal nayi umeed rakho, bas chalta rahe ye karwan.",
+  "Dil ki baat chupati ho, humse kyun sharmati ho?",
+  "Ishq wo nahi jo duniya ko dikhaya jaye, ishq wo hai jo dil se nibhaya jaye.",
+  "Tere bina zindagi adhoori si lagti hai, tu hai to har kami poori si lagti hai.",
+  "Koshish karne walon ki kabhi haar nahi hoti.",
+  "Mohabbat barsa dena tu, sawan aaya hai.",
+  "Phoolon ki tarah muskurana seekho, kaanton mein bhi khilkhilana seekho.",
+  "Dosti wo nahi jo jaan deti hai, dosti wo hai jo muskaan deti hai.",
+  "Waqt badalta hai zindagi ke saath, zindagi badalti hai waqt ke saath."
+];
+
+// ✨ Helper: Dark Font Converter
+const toDarkFont = (text) => {
   const map = {
-    A:"𝗔",B:"𝗕",C:"𝗖",D:"𝗗",E:"𝗘",F:"𝗙",G:"𝗚",H:"𝗛",I:"𝗜",J:"𝗝",K:"𝗞",L:"𝗟",M:"𝗠",
-    N:"𝗡",O:"𝗢",P:"𝗣",Q:"𝗤",R:"𝗥",S:"𝗦",T:"𝗧",U:"𝗨",V:"𝗩",W:"𝗪",X:"𝗫",Y:"𝗬",Z:"𝗭",
-    a:"𝗮",b:"𝗯",c:"𝗰",d:"𝗱",e:"𝗲",f:"𝗳",g:"𝗴",h:"𝗵",i:"𝗶",j:"𝗷",k:"𝗸",l:"𝗹",m:"𝗺",
-    n:"𝗻",o:"𝗼",p:"𝗽",q:"𝗾",r:"𝗿",s:"𝘀",t:"𝘁",u:"𝘂",v:"𝘃",w:"𝘄",x:"𝘅",y:"𝘆",z:"𝘇"
+    A: "𝐀", B: "𝐁", C: "𝐂", D: "𝐃", E: "𝐄", F: "𝐅", G: "𝐆", H: "𝐇", I: "𝐈", J: "𝐉", K: "𝐊", L: "𝐋", M: "𝐌",
+    N: "𝐍", O: "𝐎", P: "𝐏", Q: "𝐐", R: "𝐑", S: "𝐒", T: "𝐓", U: "𝐔", V: "𝐕", W: "𝐖", X: "𝐗", Y: "𝐘", Z: "𝐙",
+    a: "𝐚", b: "𝐛", c: "𝐜", d: "𝐝", e: "𝐞", f: "𝐟", g: "𝐠", h: "𝐡", i: "𝐢", j: "𝐣", k: "𝐤", l: "𝐥", m: "𝐦",
+    n: "𝐧", o: "𝐨", p: "𝐩", q: "𝐪", r: "𝐫", s: "𝐬", t: "𝐭", u: "𝐮", v: "𝐯", w: "𝐰", x: "𝐱", y: "𝐲", z: "𝐳"
   };
   return text.split("").map(c => map[c] || c).join("");
-}
+};
 
-// Auto-detect language and translate to Bengali
-async function autoTranslateToBengali(text) {
+// ✨ Helper: Language Detection & Translation
+async function translateToBengali(text) {
+  if (/[\u0980-\u09FF]/.test(text)) return text; // Already Bengali
   try {
-    // First detect the language
-    const detectResponse = await axios.get(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|bn`, {
-      timeout: 10000
-    });
-    
-    if (detectResponse.data && detectResponse.data.responseData && detectResponse.data.responseData.translatedText) {
-      return detectResponse.data.responseData.translatedText;
-    }
-    return text; // Return original if translation fails
-  } catch (error) {
-    console.error("𝖳𝗋𝖺𝗇𝗌𝗅𝖺𝗍𝗂𝗈𝗇 𝖾𝗋𝗋𝗈𝗋:", error);
+    const res = await axios.get(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=auto|bn`);
+    return res.data?.responseData?.translatedText || text;
+  } catch (e) {
     return text; // Return original if translation fails
   }
 }
 
-// Function to detect if text is already in Bengali
-function isBengali(text) {
-  const bengaliRegex = /[\u0980-\u09FF]/;
-  return bengaliRegex.test(text);
+// ✨ Helper: Reliable Image Stream
+async function getStream(url) {
+  const response = await axios({
+    method: 'GET',
+    url: url,
+    responseType: 'stream'
+  });
+  return response.data;
 }
 
 module.exports = {
   config: {
     name: "shayari",
     aliases: [],
-    version: "2.0",
+    version: "3.0.0", // Upgraded
     author: "𝐴𝑠𝑖𝑓 𝑀𝑎ℎ𝑚𝑢𝑑",
     countDown: 5,
     role: 0,
+    category: "fun",
     shortDescription: {
-      en: "𝖱𝖺𝗇𝖽𝗈𝗆 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝗐𝗂𝗍𝗁 𝖺𝗎𝗍𝗈𝗆𝖺𝗍𝗂𝖼 𝖡𝖾𝗇𝗀𝖺𝗅𝗂 𝗍𝗋𝖺𝗇𝗌𝗅𝖺𝗍𝗂𝗈𝗇"
+      en: toDarkFont("Random Shayari with Bengali Translation")
     },
     longDescription: {
-      en: "𝖥𝖾𝗍𝖼𝗁𝖾𝗌 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖿𝗋𝗈𝗆 𝖠𝖯𝖨, 𝖺𝗎𝗍𝗈-𝖽𝖾𝗍𝖾𝖼𝗍𝗌 𝗅𝖺𝗇𝗀𝗎𝖺𝗀𝖾 𝖺𝗇𝖽 𝗍𝗋𝖺𝗇𝗌𝗅𝖺𝗍𝖾𝗌 𝗍𝗈 𝖡𝖾𝗇𝗀𝖺𝗅𝗂"
+      en: toDarkFont("Fetches premium Shayari, translates to Bengali, and supports reply interaction.")
     },
-    category: "fun",
     guide: {
       en: "{p}shayari"
     },
     dependencies: {
-      "axios": ""
+      "axios": "",
+      "fs-extra": ""
     }
   },
 
-  onStart: async function ({ message, event }) {
+  // 🔄 3. REPLY FUNCTION (Interactive Mode)
+  handleReply: async function({ api, event, handleReply }) {
+    const { body, threadID, messageID, senderID } = event;
+    if (senderID !== handleReply.author) return;
+
+    const cmd = body.toLowerCase();
+    if (["next", "more", "aro", "abar", "new"].includes(cmd)) {
+      // Re-trigger the main logic
+      this.onStart({ api, event, message: { reply: api.sendMessage }, args: [] });
+    }
+  },
+
+  onStart: async function ({ api, event, message }) {
+    const { threadID, messageID, senderID } = event;
+    
+    // Send Loading Message
+    const loadingMsg = await api.sendMessage("⏳ | 𝑺𝒉𝒂𝒚𝒂𝒓𝒊 𝒂𝒏𝒂𝒚𝒐𝒏 𝒄𝒉𝒖𝒕𝒆𝒄𝒉𝒊...", threadID);
+
     try {
-      // Dependency check
-      let dependenciesAvailable = true;
-      try {
-        require("axios");
-      } catch (e) {
-        dependenciesAvailable = false;
-      }
-
-      if (!dependenciesAvailable) {
-        return message.reply("❌ 𝖬𝗂𝗌𝗌𝗂𝗇𝗀 𝖽𝖾𝗉𝖾𝗇𝖽𝖾𝗇𝖼𝗂𝖾𝗌. 𝖯𝗅𝖾𝖺𝗌𝖾 𝗂𝗇𝗌𝗍𝖺𝗅𝗅 𝖺𝗑𝗂𝗈𝗌.");
-      }
-
-      const loadingMsg = await message.reply("⏳ 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖺𝗇𝖺𝗒𝗈𝗇 𝖼𝗁𝗎𝗍𝖾𝖼𝗁𝗂...");
-
-      try {
-        const randomImage = images[Math.floor(Math.random() * images.length)];
-
-        // Fetch shayari from API with timeout
-        const response = await axios.get("https://api.princetechn.com/api/fun/shayari?apikey=prince", {
-          timeout: 15000
-        });
-        
-        let shayari = response.data?.result || "𝗄𝗈𝗇𝗈 𝗌𝗁𝖺𝗒𝖺𝗋𝗂 𝗉𝖺𝗐𝖺 𝗒𝖺𝗒 𝗇𝗂 😅";
-
-        // Auto-detect language and translate to Bengali if not already Bengali
-        let finalShayari = shayari;
-        if (!isBengali(shayari)) {
-          try {
-            finalShayari = await autoTranslateToBengali(shayari);
-          } catch (translateError) {
-            console.error("𝖳𝗋𝖺𝗇𝗌𝗅𝖺𝗍𝗂𝗈𝗇 𝖿𝖺𝗂𝗅𝖾𝖽, 𝗎𝗌𝗂𝗇𝗀 𝗈𝗋𝗂𝗀𝗂𝗇𝖺𝗅:", translateError.message);
-            finalShayari = shayari;
-          }
-        }
-
-        // Apply dark font
-        const heading = toDarkFont("💌 𝖠𝗉𝗇𝖺𝗋 𝗃𝗈𝗇𝗒𝗈 𝗌𝗁𝖺𝗒𝖺𝗋𝗂");
-        const darkShayari = toDarkFont(finalShayari);
-
-        // Get image stream with error handling
-        let imageStream;
-        try {
-          imageStream = await global.utils.getStreamFromURL(randomImage);
-        } catch (streamError) {
-          console.error("𝖨𝗆𝖺𝗀𝖾 𝗌𝗍𝗋𝖾𝖺𝗆 𝖾𝗋𝗋𝗈𝗋:", streamError);
-          // Continue without image if stream fails
-        }
-
-        // Unsend loading message
-        try {
-          await message.unsendMessage(loadingMsg.messageID);
-        } catch (unsendError) {
-          console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
-        }
-
-        if (imageStream) {
-          await message.reply({
-            body: `${heading}\n\n${darkShayari}`,
-            attachment: imageStream
-          });
-        } else {
-          await message.reply({
-            body: `${heading}\n\n${darkShayari}\n\n📸 𝖨𝗆𝖺𝗀𝖾 𝗎𝗇𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾`
-          });
-        }
-
-      } catch (apiError) {
-        console.error("💥 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖠𝖯𝖨 𝖾𝗋𝗋𝗈𝗋:", apiError);
-        
-        // Unsend loading message
-        try {
-          await message.unsendMessage(loadingMsg.messageID);
-        } catch (unsendError) {
-          console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
-        }
-
-        await message.reply("😢 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖺𝗇𝖺𝗍𝖾 𝗌𝗈𝗆𝗈𝗌𝗌𝗒𝖺 𝗁𝗈𝗒𝖾𝖼𝗁𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖺𝗀𝖺𝗂𝗇 𝗍𝗋𝗒 𝗄𝗈𝗋𝗎𝗇.");
-      }
-
-    } catch (err) {
-      console.error("💥 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖼𝗈𝗆𝗆𝖺𝗇𝖽 𝖾𝗋𝗋𝗈𝗋:", err);
+      // A. GET SHAYARI (Multi-Source Strategy)
+      let rawShayari = "";
       
       try {
-        await message.unsendMessage(loadingMsg.messageID);
-      } catch (unsendError) {
-        console.warn("𝖢𝗈𝗎𝗅𝖽 𝗇𝗈𝗍 𝗎𝗇𝗌𝖾𝗇𝖽 𝗅𝗈𝖺𝖽𝗂𝗇𝗀 𝗆𝖾𝗌𝗌𝖺𝗀𝖾:", unsendError.message);
+        // Source 1: Primary API
+        const res1 = await axios.get("https://api.princetechn.com/api/fun/shayari?apikey=prince", { timeout: 5000 });
+        if (res1.data?.result) rawShayari = res1.data.result;
+        else throw new Error("API 1 Failed");
+      } catch (e1) {
+        try {
+          // Source 2: Secondary API (Backup)
+          const res2 = await axios.get("https://shayari-api-eta.vercel.app/api/shayari", { timeout: 5000 });
+          if (res2.data) rawShayari = res2.data; // Adjust based on API response structure
+          else throw new Error("API 2 Failed");
+        } catch (e2) {
+          // Source 3: Local Backup (Guaranteed to work)
+          rawShayari = localShayaris[Math.floor(Math.random() * localShayaris.length)];
+        }
       }
-      
-      await message.reply("😢 𝖲𝗁𝖺𝗒𝖺𝗋𝗂 𝖺𝗇𝖺𝗍𝖾 𝗌𝗈𝗆𝗈𝗌𝗌𝗒𝖺 𝗁𝗈𝗒𝖾𝖼𝗁𝖾. 𝖯𝗅𝖾𝖺𝗌𝖾 𝖺𝗀𝖺𝗂𝗇 𝗍𝗋𝗒 𝗄𝗈𝗋𝗎𝗇.");
+
+      // B. TRANSLATE
+      let finalShayari = await translateToBengali(rawShayari);
+
+      // C. STYLING
+      const heading = toDarkFont("💌 𝖠𝗉𝗇𝖺𝗋 𝗃𝗈𝗇𝗒𝗈 𝗌𝗁𝖺𝗒𝖺𝗋𝗂");
+      const darkShayari = toDarkFont(finalShayari);
+      const footer = "💡 𝑹𝒆𝒑𝒍𝒚 '𝒏𝒆𝒙𝒕' 𝒇𝒐𝒓 𝒎𝒐𝒓𝒆!";
+
+      // D. GET IMAGE
+      const randomImage = images[Math.floor(Math.random() * images.length)];
+      const imageStream = await getStream(randomImage);
+
+      // E. SEND RESULT
+      const msgData = {
+        body: `${heading}\n\n${darkShayari}\n\n━━━━━━━━━━━━━━━━━━\n${footer}`,
+        attachment: imageStream
+      };
+
+      api.sendMessage(msgData, threadID, (err, info) => {
+        if (!err) {
+          // Register Reply Handler
+          global.client.handleReply.push({
+            name: "shayari",
+            messageID: info.messageID,
+            author: senderID
+          });
+        }
+      });
+
+      // Cleanup Loading Message
+      api.unsendMessage(loadingMsg.messageID);
+
+    } catch (error) {
+      console.error("Shayari Error:", error);
+      api.unsendMessage(loadingMsg.messageID);
+      api.sendMessage("❌ | 𝑺𝒐𝒎𝒆𝒕𝒉𝒊𝒏𝒈 𝒘𝒆𝒏𝒕 𝒘𝒓𝒐𝒏𝒈. 𝑷𝒍𝒆𝒂𝒔𝒆 𝒕𝒓𝒚 𝒂𝒈𝒂𝒊𝒏.", threadID, messageID);
     }
   }
 };
